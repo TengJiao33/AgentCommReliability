@@ -1,0 +1,38 @@
+{
+  "run_id": "20260612-1510-a8002-madmm-qwen25-14b-gsm8k-mad-naive-short",
+  "status": "complete",
+  "method": "MAD naive communication",
+  "model": "qwen2.5-14b",
+  "dataset": "gsm8k",
+  "seed": 41,
+  "samples": 100,
+  "machine": "A800_2",
+  "gpu_ids": [6],
+  "timeout_minutes": 30,
+  "started_at": "2026-06-12 15:10:44 CST",
+  "ended_at": "2026-06-12 15:14:38 CST",
+  "upstream_repo": "https://github.com/HongduanTian/MAD-MM",
+  "upstream_commit": "f02069add08280b764d059a2f06ca0043aa093e2",
+  "local_changes": [
+    "Added A800_2 local model_path entries in configs.yaml.",
+    "Added GPU/result path overrides to wrapper scripts.",
+    "Used a project-local one-step launcher for bounded GPU use."
+  ],
+  "command": "MAD_MM_GPU_ID=6 timeout 30m /data/xuhaoming/yfy/research_workspace/scripts/run_madmm_short_mad_naive_a8002.sh",
+  "log_path": "/data/xuhaoming/yfy/research_workspace/logs/madmm_short_mad_naive_20260612_151044.log",
+  "result_paths": [
+    "/data/xuhaoming/yfy/research_workspace/results/mad-mm-short-subset/main/qwen2.5-14b/gsm8k/mad_3agents_2rounds_seed41.json",
+    "/data/xuhaoming/yfy/research_workspace/results/mad-mm-short-subset/main/qwen2.5-14b/gsm8k/mad_3agents_2rounds_seed41_debate_log.json"
+  ],
+  "metrics": {
+    "accuracy": 0.96,
+    "total_tokens": 441846,
+    "eval_time_seconds": 120.66274070739746,
+    "wall_time_seconds": 234
+  },
+  "caveats": [
+    "Short-subset evidence only, not full paper reproduction.",
+    "Uses upstream default sampling of 100 GSM8K test examples.",
+    "The result should be compared against CoT-SC and MAD-MM masking variants before interpretation."
+  ]
+}

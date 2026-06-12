@@ -1,0 +1,27 @@
+{
+  "run_id": "",
+  "status": "prepared",
+  "method": "",
+  "model": "",
+  "dataset": "",
+  "seed": null,
+  "samples": null,
+  "machine": "",
+  "gpu_ids": [],
+  "timeout_minutes": null,
+  "started_at": "",
+  "ended_at": "",
+  "upstream_repo": "",
+  "upstream_commit": "",
+  "local_changes": [],
+  "command": "",
+  "log_path": "",
+  "result_paths": [],
+  "metrics": {
+    "accuracy": null,
+    "total_tokens": null,
+    "eval_time_seconds": null,
+    "wall_time_seconds": null
+  },
+  "caveats": []
+}

@@ -1,0 +1,28 @@
+# Local runtime artifacts
+__pycache__/
+.venv/
+.env
+.env.*
+
+# Experiment outputs
+logs/*
+reports/generated/*
+experiments/**/outputs/
+experiments/**/runs/
+experiments/**/checkpoints/
+experiments/**/raw_results/
+
+# Large files
+*.pt
+*.pth
+*.safetensors
+*.ckpt
+*.bin
+*.npz
+*.jsonl.tmp
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

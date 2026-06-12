@@ -1,0 +1,13 @@
+diff --git a/src/evaluator.py b/src/evaluator.py
+index e34f991..1d1af61 100644
+--- a/src/evaluator.py
++++ b/src/evaluator.py
+@@ -31,7 +31,7 @@ def evaluate_arithmetics(responses, answer):
+     for _, response in responses.items():
+ 
+         try:
+-            pred = re.findall(r"\{(.*?)\}", response)[-1]
++            pred = re.findall(r"\\?\{(.*?)\\?\}", response)[-1]
+             pred = float(pred.replace("final answer:", "").strip())
+             final_answers.append(np.round(pred, 1))
+         except :

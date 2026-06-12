@@ -1,0 +1,29 @@
+diff --git a/src/main.py b/src/main.py
+index 89221fc..b87e7c5 100644
+--- a/src/main.py
++++ b/src/main.py
+@@ -329,13 +329,13 @@ def main(args):
+ 
+         # Save to jsonl
+         print('Total number of sample responses: ', len(sample_responses))
+-        os.makedirs(f'out/history', exist_ok=True)
++        os.makedirs(os.path.join(args.out_dir, 'history'), exist_ok=True)
+         
+         if args.debug:
+-            with open(f'out/history/DEBUG_{fname}.jsonl', 'w') as f:
++            with open(os.path.join(args.out_dir, 'history', f'DEBUG_{fname}.jsonl'), 'w') as f:
+                 for record in sample_responses:  
+                     f.write(json.dumps(record, default=convert_numpy) + '\n')
+         else:
+-            with open(f'out/history/{fname}.jsonl', 'w') as f:
++            with open(os.path.join(args.out_dir, 'history', f'{fname}.jsonl'), 'w') as f:
+                 for record in sample_responses[:10]: # Only save first 10 samples for non-debug mode to save space  
+                     f.write(json.dumps(record, default=convert_numpy) + '\n')
+@@ -358,6 +358,6 @@ def main(args):
+             for i, acc in enumerate(round_accs) :
+                 print(f'Round {i} Acc.: {acc:.4f}')
+ 
+-    with open(f'out/{args.data}_vllm_batch_logs.tsv', 'a') as f :
++    with open(os.path.join(args.out_dir, f'{args.data}_vllm_batch_logs.tsv'), 'a') as f :
+         line = f"\n{args.timestamp}\t{fname}\t{round_accs}"
+         f.writelines(line)
