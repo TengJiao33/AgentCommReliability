@@ -20,3 +20,8 @@ This folder holds project rules, research structure, evidence tracking, and mach
 - `evidence_register.md` says which claims are currently supported, weak, or still hypothetical.
 
 When in doubt, add raw facts to the narrowest artifact first, then promote only the useful claim to the evidence register.
+
+## Related Skills
+
+- `skills/reproduction-first-research/SKILL.md` - research workflow for turning runnable baselines into evidence-backed ideas.
+- `skills/repro-friction-memory/SKILL.md` - reusable memory for small reproduction blockers such as quoting, cache, parser, output-path, and logging issues.

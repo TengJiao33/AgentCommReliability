@@ -1,0 +1,65 @@
+diff --git a/src/data/gsm8k.py b/src/data/gsm8k.py
+index 8cfdb09..ce16cf9 100644
+--- a/src/data/gsm8k.py
++++ b/src/data/gsm8k.py
+@@ -2,6 +2,11 @@ from data.base_ds import format_ds
+ from datasets import load_dataset
+ import pandas as pd
+ import re
++import json
++import os
++
++LOCAL_JSONL_ENV = "DAR_GSM8K_JSONL"
++DEFAULT_LOCAL_JSONL = "/data/xuhaoming/yfy/research_workspace/baselines/MAD-MM/processed_data/gsm8k/gsm8k_test.jsonl"
+ 
+ ANS_RE = re.compile(r"#### (\-?[0-9\.\,]+)")
+ 
+@@ -13,8 +18,48 @@ def extract_answer(full_ans_text: str) -> str:
+         return int(match_str.strip())
+     return None
+ 
++def _load_local_jsonl(path, args, split):
++    rows = []
++    with open(path, "r", encoding="utf-8") as f:
++        for line in f:
++            line = line.strip()
++            if line:
++                rows.append(json.loads(line))
++
++    dataset = pd.DataFrame(rows)
++    if split == "train":
++        dataset = dataset.sample(frac=1, random_state=0).reset_index(drop=True)
++    else:
++        dataset = dataset.sample(frac=1, random_state=0).reset_index(drop=True)
++        if args.data_size:
++            dataset = dataset.head(args.data_size)
++
++    questions, labels = [], []
++    for _, row in dataset.iterrows():
++        question = row.get("question", None)
++        if question is None:
++            question = row.get("query", None)
++
++        answer = row.get("answer", None)
++        if isinstance(answer, str):
++            label = extract_answer(answer)
++        else:
++            label = row.get("label", answer)
++
++        if question is not None and label is not None:
++            questions.append(question)
++            labels.append(label)
++
++    return questions, labels
++
+ def load_data(args, split='validation'):
+ 
++    local_jsonl = os.environ.get(LOCAL_JSONL_ENV)
++    if local_jsonl:
++        return _load_local_jsonl(local_jsonl, args, split)
++    if os.path.exists(DEFAULT_LOCAL_JSONL):
++        return _load_local_jsonl(DEFAULT_LOCAL_JSONL, args, split)
++
+     dataset = load_dataset('openai/gsm8k', 'main')[split]
+     dataset = pd.DataFrame(dataset)
+     if split == 'train':

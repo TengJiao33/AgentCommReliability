@@ -55,6 +55,7 @@ The core question is not "do more agents help?" The core question is:
 | Objective masking kept 100/300 memories and regressed one case | same run | complete | aggressive filtering can reduce cost but remove useful context. | only one observed regression. |
 | Subjective masking kept 296/300 memories with 106 calls | same run | complete | LLM-based memory judging may be too permissive and costly in this setup. | may differ on harder tasks. |
 | ArXiv digest scan identified MOC, SMADE-IE, dynamic coordination, monitoring papers | `reports/20260612-multi-agent-frontier-scan.md` | source-only | the frontier is shifting toward conditional, evidence-aware, and resource-aware communication. | digest-level scan, not paper-card evidence yet. |
+| DAR short matrices on Qwen2.5-7B-Instruct | `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-short-matrix/`; `experiments/20260612-a8002-dar-qwen25-7b-gsm8k-short-matrix/` | complete | DAR `filter_critical` improved/held on generated arithmetic but underperformed Basic MAD on GSM8K. | one seed/model; token accounting and trace-level flip analysis still incomplete. |
 
 ## Working Hypotheses
 

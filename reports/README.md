@@ -35,4 +35,6 @@ Short Answer -> Scope -> Sources -> Results -> Observations -> Interpretation ->
 - `20260612-madmm-short-subset-first-insights.md`
 - `20260612-madmm-trace-message-retention.md`
 - `20260612-dar-arithmetics-short-matrix.md`
+- `20260612-dar-gsm8k-short-matrix.md`
 - `20260612-multi-agent-frontier-scan.md`
+- `20260613-moc-gsm8k-topology-smoke.md`

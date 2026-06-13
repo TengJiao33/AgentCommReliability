@@ -7,7 +7,7 @@
 - commit: `f3c6e9d7c5f9805113f4398c20cbf7d732d60dd0`
 - license: MIT
 - stars / activity: repository page showed 16 stars and 25 commits when inspected on 2026-06-12
-- local path: not cloned locally; planned remote path `/data/xuhaoming/yfy/research_workspace/baselines/DAR`
+- local path: not cloned locally; remote path `/data/xuhaoming/yfy/research_workspace/baselines/DAR`
 
 ## Why This Baseline
 
@@ -39,6 +39,7 @@ python src/main.py --model qwen2.5-1.5b --num_agents 4 --data arithmetics --data
 - local path patch: `baselines/DAR/patches/a8002-local-qwen-paths.patch`
 - parser patch: `baselines/DAR/patches/a8002-arithmetic-escaped-brace-parser.patch`
 - output patch: `baselines/DAR/patches/a8002-respect-out-dir.patch`
+- GSM8K offline data fallback patch: `baselines/DAR/patches/a8002-gsm8k-local-jsonl-fallback.patch`
 
 ## Code Map
 
@@ -57,10 +58,12 @@ python src/main.py --model qwen2.5-1.5b --num_agents 4 --data arithmetics --data
 - Repository defaults use model identifiers; local path mapping may be needed.
 - README notes vLLM and HF inference can differ.
 - Non-debug mode stores only first 10 history records.
-- No local or remote DAR run has been completed for this project yet.
+- A800_2 cannot currently rely on Hugging Face access for GSM8K; use the project-local JSONL fallback or set `DAR_GSM8K_JSONL`.
+- Completed project runs are recorded under:
+  - `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-smoke/`
+  - `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-short-matrix/`
+  - `experiments/20260612-a8002-dar-qwen25-7b-gsm8k-short-matrix/`
 
 ## Next Check
 
-- Clone the repo on A800_2.
-- Apply local model-path patch or otherwise provide an offline model cache.
-- Run an import/model-path smoke before launching the 100-sample command.
+- Analyze GSM8K flip cases and retained IDs before launching another matrix.

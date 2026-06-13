@@ -25,14 +25,15 @@ Read these in order:
 
 1. `project_intake.md` - research framing, first milestone, non-goals.
 2. `skills/reproduction-first-research/SKILL.md` - the top-level research workflow for this project.
-3. `docs/documentation_system.md` - where each kind of research artifact belongs.
-4. `docs/research_map.md` - current conceptual map, mechanism families, hypotheses, and evidence snapshot.
-5. `docs/evidence_register.md` - bounded claims and their support level.
-6. `docs/machine_handbook.md` - machine access, file placement, GPU rules, safety boundaries.
-7. `docs/machine_quickstart.md` - shortest command/path checklist before touching remote machines.
-8. `papers/reading_queue.md` - seed papers and next reading targets.
-9. `docs/experiment_protocol.md` - run naming, logging, evidence levels, ablation templates.
-10. `docs/reproduction_recording_standard.md` - concrete run-note, manifest, and report recording standard.
+3. `skills/repro-friction-memory/SKILL.md` - reusable fixes for small reproduction blockers and machine-workflow friction.
+4. `docs/documentation_system.md` - where each kind of research artifact belongs.
+5. `docs/research_map.md` - current conceptual map, mechanism families, hypotheses, and evidence snapshot.
+6. `docs/evidence_register.md` - bounded claims and their support level.
+7. `docs/machine_handbook.md` - machine access, file placement, GPU rules, safety boundaries.
+8. `docs/machine_quickstart.md` - shortest command/path checklist before touching remote machines.
+9. `papers/reading_queue.md` - seed papers and next reading targets.
+10. `docs/experiment_protocol.md` - run naming, logging, evidence levels, ablation templates.
+11. `docs/reproduction_recording_standard.md` - concrete run-note, manifest, and report recording standard.
 
 ## Directory Layout
 
@@ -52,6 +53,8 @@ AgentCommReliability/
     project_log.md
   skills/
     reproduction-first-research/
+      SKILL.md
+    repro-friction-memory/
       SKILL.md
   papers/
     reading_queue.md

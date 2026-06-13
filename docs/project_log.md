@@ -77,3 +77,52 @@ Next:
   - DAR `filter_critical`: round accuracies `[0.99, 0.99]`.
 - Added DAR short matrix run record: `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-short-matrix/`.
 - Added short matrix report: `reports/20260612-dar-arithmetics-short-matrix.md`.
+- Started DAR GSM8K continuation preflight:
+  - A800_2 reachable as `10-116-90-20`.
+  - GPU 4 was observed mostly free.
+  - DAR remote checkout remained at commit `f3c6e9d7c5f9805113f4398c20cbf7d732d60dd0` with documented local patches for model paths, parser compatibility, and output paths.
+  - Data-only GSM8K smoke failed because A800_2 could not reach `huggingface.co` and no `openai/gsm8k` dataset cache entry existed.
+  - Confirmed MAD-MM processed GSM8K test JSONL exists remotely at `/data/xuhaoming/yfy/research_workspace/baselines/MAD-MM/processed_data/gsm8k/gsm8k_test.jsonl`; this is the likely offline fallback for DAR GSM8K reproduction.
+- Added project skill `skills/repro-friction-memory/SKILL.md` to record small solved reproduction blockers and reusable prevention rules.
+- Updated `skills/reproduction-first-research/SKILL.md`, root `README.md`, and `docs/README.md` to point to the new friction-memory skill.
+- Added DAR GSM8K offline JSONL fallback patch: `baselines/DAR/patches/a8002-gsm8k-local-jsonl-fallback.patch`.
+- Completed DAR GSM8K 2-sample smoke on A800_2 with Qwen2.5-7B-Instruct:
+  - Basic MAD: round accuracies `[1.0, 1.0]`.
+  - DAR `filter_critical`: round accuracies `[1.0, 0.5]`.
+- Added launcher `scripts/run_dar_gsm8k_short_matrix_a8002.sh` and synced it to A800_2.
+- Completed DAR 100-sample GSM8K short matrix on A800_2 with Qwen2.5-7B-Instruct:
+  - Basic MAD: round accuracies `[0.95, 0.95]`.
+  - Top-K uncertainty `0.5`: round accuracies `[0.95, 0.94]`.
+  - DAR `filter_critical`: round accuracies `[0.95, 0.93]`.
+  - `filter_critical` retained-ID distribution: 1 retained ID for 64 samples, 2 for 27 samples, 3 for 9 samples.
+  - `filter_critical` filter-token total: `113,657`.
+- Added DAR GSM8K short matrix run record: `experiments/20260612-a8002-dar-qwen25-7b-gsm8k-short-matrix/`.
+- Added short matrix report: `reports/20260612-dar-gsm8k-short-matrix.md`.
+
+## 2026-06-13 MOC Smoke Reproduction
+
+- Selected MOC as the next reproduction target because it directly exposes topology, hop depth, and message consolidation as communication variables.
+- Confirmed upstream paper/code:
+  - arXiv: `https://arxiv.org/abs/2606.02359`
+  - repo: `https://github.com/yao-guan/MOC`
+  - inspected commit: `9c67c92507570704a7df73e452552a3f49e83897`
+- Remote `git clone` on A800_2 failed with HTTP/2 framing errors, so the source was cloned locally and transferred to A800_2 via `git archive`.
+- Installed minimal missing packages into the project env `/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063` rather than installing the full heavy upstream requirements.
+- Added and applied MOC environment/backend patches:
+  - `baselines/MOC/patches/a8002-smoke-embedding-fallback.patch`
+  - `baselines/MOC/patches/a8002-vllm-openai-adapter.patch`
+- Started temporary vLLM server on A800_2 GPU 1 for `/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct`; stopped it after the run and confirmed GPU 1 was released.
+- Completed 1-sample GSM8K smoke:
+  - Chain, 2 agents, 1 round, Qwen2.5-7B-Instruct: accuracy `1/1`, total tokens `2,991`, runtime `9.187s`.
+- Completed 5-sample GSM8K topology smoke:
+  - Chain: accuracy `5/5`, total tokens `14,529`, runtime `34.474s`.
+  - FullConnected: accuracy `5/5`, total tokens `14,042`, runtime `26.863s`.
+  - Random: accuracy `5/5`, total tokens `13,967`, runtime `26.208s`.
+- Added MOC baseline notes, paper card, run record, and report:
+  - `papers/cards/moc.md`
+  - `baselines/MOC/source.md`
+  - `baselines/MOC/reproduction.md`
+  - `experiments/20260613-a8002-moc-qwen25-7b-gsm8k-topology5/`
+  - `reports/20260613-moc-gsm8k-topology-smoke.md`
+- Caveat: this is setup/topology smoke evidence only. The run used `neighbor_hops=1`, hash embeddings, and did not trigger structural message consolidation.
+- Next useful check: adapt `merge_multiple_messages` away from hard-coded Ollama and run a forced-merge `neighbor_hops=2` smoke.

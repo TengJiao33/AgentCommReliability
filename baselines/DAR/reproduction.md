@@ -2,7 +2,7 @@
 
 ## Short Answer
 
-DAR has setup/smoke evidence and a 100-sample arithmetics short matrix on A800_2 with local Qwen2.5-7B-Instruct.
+DAR has setup/smoke evidence, a 100-sample arithmetics short matrix, and a 100-sample GSM8K short matrix on A800_2 with local Qwen2.5-7B-Instruct.
 
 ## Scope
 
@@ -11,8 +11,10 @@ DAR has setup/smoke evidence and a 100-sample arithmetics short matrix on A800_2
 - repo: https://github.com/DA2I2-SLM/DAR
 - commit: `f3c6e9d7c5f9805113f4398c20cbf7d732d60dd0`
 - local path: planned remote path `/data/xuhaoming/yfy/research_workspace/baselines/DAR`
-- target setting: `qwen2.5-7b`, `arithmetics`, `data_size=100`, `num_agents=3`, `debate_rounds=1`
-- evidence level: Level 3 short-subset evidence for arithmetics
+- target settings:
+  - `qwen2.5-7b`, `arithmetics`, `data_size=100`, `num_agents=3`, `debate_rounds=1`
+  - `qwen2.5-7b`, `gsm8k`, `data_size=100`, `num_agents=3`, `debate_rounds=1`
+- evidence level: Level 3 short-subset evidence for arithmetics and GSM8K
 
 ## Environment
 
@@ -54,7 +56,10 @@ python src/main.py --model qwen2.5-7b --num_agents 3 --data arithmetics --data_s
 - smoke result directories:
   - `/data/xuhaoming/yfy/research_workspace/results/dar-smoke-qwen25-7b-arith2-parserpatch-20260612_183256/out`
   - `/data/xuhaoming/yfy/research_workspace/results/dar-smoke-filtercritical-qwen25-7b-arith2-20260612_183819/out`
-- local run record: `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-smoke/`
+- local run records:
+  - `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-smoke/`
+  - `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-short-matrix/`
+  - `experiments/20260612-a8002-dar-qwen25-7b-gsm8k-short-matrix/`
 
 Expected upstream paths:
 
@@ -72,6 +77,9 @@ Expected upstream paths:
 | Basic MAD short | qwen2.5-7b | arithmetics | 42 | 100 | round 0/1 accuracy `0.99/0.98` | not normalized | complete |
 | Top-K uncertainty short | qwen2.5-7b | arithmetics | 42 | 100 | round 0/1 accuracy `0.97/0.94` | not normalized | complete |
 | DAR `filter_critical` short | qwen2.5-7b | arithmetics | 42 | 100 | round 0/1 accuracy `0.99/0.99` | filter tokens `120,283` | complete |
+| Basic MAD short | qwen2.5-7b | gsm8k | 42 | 100 | round 0/1 accuracy `0.95/0.95` | not normalized | complete |
+| Top-K uncertainty short | qwen2.5-7b | gsm8k | 42 | 100 | round 0/1 accuracy `0.95/0.94` | not normalized | complete |
+| DAR `filter_critical` short | qwen2.5-7b | gsm8k | 42 | 100 | round 0/1 accuracy `0.95/0.93` | filter tokens `113,657` | complete |
 
 ## Deviations From Upstream
 
@@ -79,6 +87,7 @@ Expected upstream paths:
 - Local model-path patch prepared: `baselines/DAR/patches/a8002-local-qwen-paths.patch`.
 - Arithmetic parser compatibility patch prepared: `baselines/DAR/patches/a8002-arithmetic-escaped-brace-parser.patch`.
 - Output directory patch prepared: `baselines/DAR/patches/a8002-respect-out-dir.patch`.
+- GSM8K offline JSONL fallback patch prepared: `baselines/DAR/patches/a8002-gsm8k-local-jsonl-fallback.patch`.
 - Planned runs should use explicit GPU visibility and timeout wrappers.
 
 ## Failures And Fixes
@@ -88,10 +97,11 @@ Expected upstream paths:
 | Qwen2.5-1.5B non-Instruct smoke produced repeated invalid text and empty parsed answers. | `/data/xuhaoming/yfy/research_workspace/logs/dar_smoke_basic_20260612_174325.log` | use Instruct model for reproduction smoke | model choice changed, method logic unchanged |
 | Qwen2.5-7B-Instruct Round 1 answers used escaped braces such as `\\{final answer: 371.75\\}`, causing `evaluate_arithmetics` to parse empty answers. | `/data/xuhaoming/yfy/research_workspace/logs/dar-smoke-qwen25-7b-arith2-20260612_182826.log`; history JSONL under remote DAR `out/history/` | allow optional escaped braces in arithmetic answer regex | evaluation parser changed; communication method unchanged |
 | Upstream history and TSV paths ignored `--out_dir` and wrote to repository `out/`. | `src/main.py` path construction | write history and TSV under `args.out_dir` | artifact placement changed; method logic unchanged |
+| A800_2 could not reach `huggingface.co` for `openai/gsm8k`, and no dataset cache entry existed. | data-only GSM8K smoke before GPU launch | load project-local MAD-MM processed GSM8K JSONL when available, or use `DAR_GSM8K_JSONL` | data loading changed, method logic unchanged |
 
 ## Caveats
 
-- The 100-sample run is generated arithmetic only.
+- Existing 100-sample runs cover generated arithmetic and GSM8K, but each uses one seed and one model.
 - Matched total-token accounting across methods is not yet extracted.
 - Non-debug history stores only the first 10 samples.
 

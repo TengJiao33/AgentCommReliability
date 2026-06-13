@@ -1,0 +1,4 @@
+interface:
+  display_name: "Repro Friction Memory"
+  short_description: "Remember solved repro blockers."
+  default_prompt: "Use this skill when a small reproduction blocker appears, then convert the fix into a reusable rule or template."

@@ -194,6 +194,8 @@ If a run fails, preserve the failure:
 
 Reproduction failures are useful because they reveal missing assumptions in the paper or repo.
 
+For recurring operational friction such as shell quoting, remote cache misses, parser quirks, output-path surprises, or debug logging gaps, also update `skills/repro-friction-memory/SKILL.md` with the reusable prevention rule.
+
 ## Skill Boundary
 
 This skill is for research workflow decisions. It does not replace:
@@ -201,4 +203,3 @@ This skill is for research workflow decisions. It does not replace:
 - machine rules in `docs/machine_handbook.md`;
 - experiment logging rules in `docs/experiment_protocol.md`;
 - paper queue management in `papers/reading_queue.md`.
-
