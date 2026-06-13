@@ -8,3 +8,8 @@ Files:
 - `reproduction.md`: A800_2 reproduction status and results.
 - `patches/`: documented environment/backend adaptations used for smoke runs.
 
+Current local patches:
+
+- `patches/a8002-smoke-embedding-fallback.patch`
+- `patches/a8002-vllm-openai-adapter.patch`
+- `patches/a8002-vllm-structural-merge.patch`

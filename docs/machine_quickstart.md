@@ -1,6 +1,6 @@
 # Machine Quickstart
 
-Use this as the short checklist before remote work. For full rules, read `docs/machine_handbook.md`.
+Use this as the checklist before remote work. Keep project files under the project-specific remote root.
 
 ## Preferred Remote Project Roots
 
@@ -82,3 +82,11 @@ timeout 30m <python> <script> <args>
 - Do not run jobs without `CUDA_VISIBLE_DEVICES`.
 - Do not kill other users' processes.
 - Do not record passwords, private keys, tokens, or proxy config contents.
+
+## Environment Rules
+
+- Use task-local envs under `/data/xuhaoming/yfy/research_workspace/envs/`.
+- Treat `/mnt/quarkfs/share_model` as read-only.
+- Prefer one GPU for first reproductions.
+- Use explicit `timeout` wrappers for model jobs.
+- Record every new dataset/model download in the active run note.

@@ -1,10 +1,21 @@
 # Evidence Register
 
-This file tracks claims the project is tempted to make. Each claim should stay bounded by its evidence level.
+This file is a parking place for observations or claims that seem worth carrying forward.
 
-Evidence levels are defined in `docs/documentation_system.md`.
+It is not a scoreboard and not a demand that every run produce a claim. Most notes should stay in run records, reports, or the project log. Add something here only when it feels likely to matter again.
 
-## Active Claims
+Contact shorthand:
+
+| Level | Meaning |
+| ---: | --- |
+| 1 | source-only or paper/digest signal |
+| 2 | setup, import, loader, or smoke evidence |
+| 3 | short-subset run with concrete metrics or traces |
+| 4 | controlled variant with repeated or neighboring checks |
+| 5 | reduced author-style reproduction |
+| 6 | full target matrix compared against the paper |
+
+## Carried Observations And Claims
 
 | ID | Claim | Evidence Level | Source | Status | Caveat | Next Check |
 | --- | --- | ---: | --- | --- | --- | --- |
@@ -19,9 +30,10 @@ Evidence levels are defined in `docs/documentation_system.md`.
 | E-009 | DAR can be launched on A800_2 with local Qwen2.5-7B-Instruct after local model-path, parser, and output-path patches. | 2 | `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-smoke/`; `baselines/DAR/reproduction.md` | factual | smoke only; no 100-sample performance result. | run bounded 100-sample arithmetics short matrix. |
 | E-010 | On the 100-sample Qwen2.5-7B-Instruct arithmetics short matrix, Basic MAD ended at 0.98, Top-K uncertainty 0.5 ended at 0.94, and DAR `filter_critical` ended at 0.99. | 3 | `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-short-matrix/summary.json`; `reports/20260612-dar-arithmetics-short-matrix.md` | factual | generated arithmetic only; one seed/model; token accounting not normalized across methods. | inspect per-sample histories and consider a GSM8K short matrix. |
 | E-011 | On the 100-sample Qwen2.5-7B-Instruct GSM8K short matrix, Basic MAD ended at 0.95, Top-K uncertainty 0.5 ended at 0.94, and DAR `filter_critical` ended at 0.93. | 3 | `experiments/20260612-a8002-dar-qwen25-7b-gsm8k-short-matrix/summary.json`; `reports/20260612-dar-gsm8k-short-matrix.md` | factual | one seed/model; GSM8K loaded through project-local MAD-MM JSONL fallback; non-debug histories include only first 10 samples. | analyze flips and retained IDs before drawing a mechanism claim. |
-| E-012 | MOC can run end to end on A800_2 with local Qwen2.5-7B-Instruct via a vLLM adapter for tiny GSM8K topology smoke tests. | 2 | `experiments/20260613-a8002-moc-qwen25-7b-gsm8k-topology5/`; `reports/20260613-moc-gsm8k-topology-smoke.md`; `baselines/MOC/reproduction.md` | factual | setup/topology smoke only; `neighbor_hops=1`; structural merge branch not exercised; hash embeddings used. | adapt merge backend and run forced-merge smoke with `neighbor_hops=2`. |
+| E-012 | MOC can run end to end on A800_2 with local Qwen2.5-7B-Instruct via a vLLM adapter for tiny GSM8K topology and forced structural-merge smoke tests. | 2 | `experiments/20260613-a8002-moc-qwen25-7b-gsm8k-topology5/`; `experiments/20260613-1425-a8002-moc-qwen25-7b-gsm8k-hop2-forcedmerge-smoke/`; `reports/20260613-moc-gsm8k-topology-smoke.md`; `reports/20260613-moc-forced-merge-smoke.md`; `baselines/MOC/reproduction.md` | factual | smoke only; forced merge uses `ism_r=0`; hash embeddings used; MOC raw detail lacks per-sample merge source IDs. | add per-sample merge instrumentation before scaling hop-depth comparisons. |
+| E-013 | A first unified communication trace schema can extract comparable final correctness, right/wrong transitions, retention or merge events, and token cost from current MAD-MM, DAR, and MOC artifacts. | 2 | `scripts/extract_comm_trace_schema.py`; `docs/comm_trace_schema.md`; remote unified traces under `/data/xuhaoming/yfy/research_workspace/results/unified-traces/` | factual | method-specific raw logs expose different detail levels; current completed DAR history has only 10 saved rows; current completed MOC merge events are run-level from logs. Trace instrumentation patches are prepared but not yet represented in a remote run. | apply MOC/DAR instrumentation patches and rerun tiny checks before scaling comparisons. |
 
-## Claim Status Labels
+## Status Labels
 
 | Status | Meaning |
 | --- | --- |
@@ -33,6 +45,6 @@ Evidence levels are defined in `docs/documentation_system.md`.
 
 ## Update Rule
 
-When adding a report, add or update at least one evidence-register row if the report contains a claim that may guide future work.
+When a report leaves behind a durable observation or claim, add or update a row. If the report is just a local encounter, it does not need to modify this file.
 
 When a run contradicts a claim, keep the old claim and mark it `challenged` instead of silently deleting it.

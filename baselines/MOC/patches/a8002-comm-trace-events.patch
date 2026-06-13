@@ -1,0 +1,287 @@
+diff --git a/experiments/common.py b/experiments/common.py
+--- a/experiments/common.py
++++ b/experiments/common.py
+@@ -105,6 +105,7 @@ async def evaluate_batch(graph, batch_data, dataset_instance, num_rounds: int):
+     tasks = []
+     answers = []
+     questions = []
++    trace_sample_indices = []
+ 
+     for record in batch_data:
+         realized_graph = copy.deepcopy(graph)
+@@ -115,8 +116,18 @@ async def evaluate_batch(graph, batch_data, dataset_instance, num_rounds: int):
+         answer = dataset_instance.record_to_target_answer(record)
+         
+         questions.append(input_dict.get('task', str(record.get('question', ''))))
+         answers.append(answer)
++        sample_index = getattr(record, "name", None)
++        if sample_index is None:
++            sample_index = len(trace_sample_indices)
++        try:
++            sample_index = int(sample_index)
++        except (TypeError, ValueError):
++            sample_index = str(sample_index)
++        trace_sample_indices.append(sample_index)
++        realized_graph.comm_trace_sample_index = sample_index
++        realized_graph.comm_trace_question = questions[-1]
++        realized_graph.comm_trace_answer = answer
+         
+         tasks.append(asyncio.create_task(realized_graph.arun(input_dict, num_rounds)))
+@@ -129,7 +140,7 @@ async def evaluate_batch(graph, batch_data, dataset_instance, num_rounds: int):
+     if is_code_task:
+         from src.tools.coding.python_executor import PyExecutor
+         executor = PyExecutor()
+         
+-        for question, pred_answer, test_case in zip(questions, raw_answers, answers):
++        for question, pred_answer, test_case, trace_sample_index in zip(questions, raw_answers, answers, trace_sample_indices):
+             code = dataset_instance.postprocess_answer(pred_answer)
+             is_correct, _, _ = executor.execute(code, [test_case], timeout=100)
+             correct_count += int(is_correct)
+@@ -138,10 +149,11 @@ async def evaluate_batch(graph, batch_data, dataset_instance, num_rounds: int):
+                 "Question": question,
+                 "Generated Code": code,
+                 "Test Case": test_case,
+-                "Correct": is_correct
++                "Correct": is_correct,
++                "Trace Sample Index": trace_sample_index,
+             })
+     else:
+-        for question, pred_answer, true_answer in zip(questions, raw_answers, answers):
++        for question, pred_answer, true_answer, trace_sample_index in zip(questions, raw_answers, answers, trace_sample_indices):
+             predicted = dataset_instance.postprocess_answer(pred_answer)
+             is_correct = (predicted == true_answer)
+             correct_count += int(is_correct)
+@@ -150,7 +162,8 @@ async def evaluate_batch(graph, batch_data, dataset_instance, num_rounds: int):
+                 "Question": question,
+                 "Predicted": predicted,
+                 "True Answer": true_answer,
+-                "Correct": is_correct
++                "Correct": is_correct,
++                "Trace Sample Index": trace_sample_index,
+             })
+     
+     accuracy = correct_count / len(batch_data)
+diff --git a/src/graph/graph.py b/src/graph/graph.py
+--- a/src/graph/graph.py
++++ b/src/graph/graph.py
+@@ -1,4 +1,5 @@
++import json
+ import os
+ import shortuuid
+ from typing import Any, List, Optional, Dict, Tuple
+@@ -100,6 +101,47 @@ class Graph(ABC):
+         self.ism_r = ism_r
+         self.ism_epsilon = ism_epsilon
+         self.ism_kppa = ism_kppa
++        self.comm_trace_path = os.getenv("MOC_COMM_TRACE_JSONL")
++        self.comm_trace_include_text = os.getenv("MOC_COMM_TRACE_INCLUDE_TEXT", "0") == "1"
++        self.comm_trace_sample_index = None
++        self.comm_trace_question = None
++        self.comm_trace_answer = None
++        self._comm_trace_round = None
++        self._comm_trace_target_node_id = None
++        self._last_merge_token_stats = None
++
++    def _write_comm_trace_event(self, event: Dict[str, Any]) -> None:
++        if not self.comm_trace_path:
++            return
++
++        record = {
++            "schema_version": "acr.moc_comm_event.v1",
++            "event_type": event.get("event_type"),
++            "stage": event.get("stage", "neighbor_summary_ism"),
++            "mechanism": event.get("mechanism", "structural_merge"),
++            "scope": event.get("scope", "sample"),
++            "graph_id": self.id,
++            "sample_index": self.comm_trace_sample_index,
++            "round_index": self._comm_trace_round,
++            "target_node_id": self._comm_trace_target_node_id,
++            "neighbor_hops": self.neighbor_hops,
++            "ism_r": self.ism_r,
++            "ism_epsilon": self.ism_epsilon,
++            "ism_kppa": self.ism_kppa,
++        }
++        record.update(event)
++
++        trace_dir = os.path.dirname(self.comm_trace_path)
++        if trace_dir:
++            os.makedirs(trace_dir, exist_ok=True)
++
++        with open(self.comm_trace_path, "a", encoding="utf-8") as f:
++            f.write(json.dumps(record, ensure_ascii=False, default=str) + "\n")
++
++    @staticmethod
++    def _agent_id_parts(agent_id: Any) -> List[str]:
++        parts = []
++        for part in str(agent_id).split(" & "):
++            part = part.strip()
++            if part:
++                parts.append(part)
++        return parts
+ 
+ 
+     def construct_adj_matrix(self):
+@@ -343,6 +385,8 @@ class Graph(ABC):
+             while zero_in_degree_queue:
+                 current_node_id = zero_in_degree_queue.pop(0)
+                 tries = 0
++                self._comm_trace_round = round
++                self._comm_trace_target_node_id = current_node_id
+                 while tries < max_tries:
+                     try:
+                         await asyncio.wait_for(self.nodes[current_node_id].async_execute(input, graph=self),timeout=max_time) # output is saved in the node.outputs
+@@ -482,6 +526,7 @@ class Graph(ABC):
+         if not messages:
+             return ""
+         if len(messages) == 3:
++            self._last_merge_token_stats = None
+             return messages[-1]
+         
+         # k_percent = 45
+@@ -539,6 +584,8 @@ AGENT_2: [ID: {id_j} | Role: {role_j}]
+         
+         try:
+             outputs = []
++            strategy_token_stats = []
++            self._last_merge_token_stats = None
+             for i, prompt in enumerate(prompts):
+                 print(f"[Summary] Trying strategy {i+1}/5...")
+                 prompt_tokens_before = PromptTokens.instance().value
+@@ -555,6 +602,12 @@ AGENT_2: [ID: {id_j} | Role: {role_j}]
+                     f"conpressed_prompt_tokens:{int(prompt_tokens)},"
+                     f"conpressed_completion_tokens:{int(completion_tokens)}"
+                 )
++                strategy_token_stats.append({
++                    "strategy_index": i + 1,
++                    "prompt_tokens": int(prompt_tokens),
++                    "completion_tokens": int(completion_tokens),
++                    "total_tokens": int(prompt_tokens + completion_tokens),
++                })
+                 outputs.append(str(merged).strip())
+             
+             original_embeddings = []
+@@ -565,6 +618,7 @@ AGENT_2: [ID: {id_j} | Role: {role_j}]
+             
+             best_output = None
+             best_similarity = -1
++            best_strategy_index = None
+             
+             for i, output in enumerate(outputs):
+                 output_embedding = np.array(get_sentence_embedding(output))
+@@ -581,10 +635,19 @@ AGENT_2: [ID: {id_j} | Role: {role_j}]
+                 if total_similarity > best_similarity:
+                     best_similarity = total_similarity
+                     best_output = output
++                    best_strategy_index = i + 1
+             
+             print(f"[Summary] Selected best strategy with similarity: {best_similarity:.4f}, avg: {best_similarity/2:.4f}")
++            self._last_merge_token_stats = {
++                "prompt_tokens": sum(item["prompt_tokens"] for item in strategy_token_stats),
++                "completion_tokens": sum(item["completion_tokens"] for item in strategy_token_stats),
++                "total_tokens": sum(item["total_tokens"] for item in strategy_token_stats),
++                "selected_strategy_index": best_strategy_index,
++                "selected_similarity": float(best_similarity),
++                "strategies": strategy_token_stats,
++            }
+             return best_output
+             
+         except Exception as e:
++            self._last_merge_token_stats = None
+             print(f"[Summary] LLM merge failed: {e}, falling back to concatenation")
+             return "\n\n".join(messages)
+@@ -611,6 +674,8 @@ AGENT_2: [ID: {id_j} | Role: {role_j}]
+         if not neighbors:
+             return ""
+         
++        original_agent_ids = [str(item[1]) for item in neighbors]
+         max_items = int(len(neighbors) / self.neighbor_hops + r * self.neighbor_hops)
+         print(f"[ISM] Computed K: {max_items} (r={r})")
+         
+@@ -619,6 +684,21 @@ AGENT_2: [ID: {id_j} | Role: {role_j}]
+             aggregated_parts = []
+             for hop, id, role, message in neighbors:
+                 aggregated_parts.append(f"Agent {id},role is {role},output is:\n{message}")
++            self._write_comm_trace_event({
++                "event_type": "ism_result",
++                "merge_performed": False,
++                "initial_message_count": len(neighbors),
++                "final_message_count": len(neighbors),
++                "max_items": max_items,
++                "original_agent_ids": original_agent_ids,
++                "retained_direct_agent_ids": original_agent_ids,
++                "merged_agent_ids": [],
++                "dropped_direct_agent_ids": [],
++                "represented_agent_ids": original_agent_ids,
++            })
+             return "\n\n".join(aggregated_parts)
+ 
+         P = []  # List of tuples: (h_vector, hop, id, role, content, original_idx)
+@@ -675,7 +755,34 @@ AGENT_2: [ID: {id_j} | Role: {role_j}]
+                 merged_role = f"{role_i} & {role_j}"
+                 merged_id = f"{id_i} & {id_j}"
+                 merged_content = await self.merge_multiple_messages([id_i, role_i, content_i, id_j, role_j, content_j], kppa)   # gy0121
+                 print(f"[ISM Phase 2] Merged pair ({i_idx}, {j_idx}), hop={merged_hop}, idx={merged_orig_idx}, sim={similarity:.4f}")
++                event = {
++                    "event_type": "ism_merge",
++                    "iteration": iteration,
++                    "source_agent_ids": [str(id_i), str(id_j)],
++                    "source_original_indices": [int(orig_i), int(orig_j)],
++                    "source_hops": [int(hop_i), int(hop_j)],
++                    "source_roles": [str(role_i), str(role_j)],
++                    "merged_agent_id": str(merged_id),
++                    "merged_agent_ids": self._agent_id_parts(merged_id),
++                    "merged_role": str(merged_role),
++                    "merged_hop": int(merged_hop),
++                    "merged_original_index": int(merged_orig_idx),
++                    "similarity": float(similarity),
++                    "source_content_chars": [len(str(content_i)), len(str(content_j))],
++                    "merged_content_chars": len(str(merged_content)),
++                    "token_cost": self._last_merge_token_stats,
++                }
++                if self.comm_trace_include_text:
++                    event["source_contents"] = [str(content_i), str(content_j)]
++                    event["merged_content"] = str(merged_content)
++                else:
++                    event["source_content_preview"] = [
++                        str(content_i)[:500],
++                        str(content_j)[:500],
++                    ]
++                    event["merged_content_preview"] = str(merged_content)[:500]
++                self._write_comm_trace_event(event)
+                 
+                 role_embedding_i = self.encode_text(role_i)
+                 role_embedding_j = self.encode_text(role_j)
+@@ -706,7 +813,28 @@ AGENT_2: [ID: {id_j} | Role: {role_j}]
+             print(f"[ISM Phase 2] Iteration {iteration} done, {len(P)} items remaining")
+         
+         aggregated_parts = []
++        retained_direct_agent_ids = []
++        merged_agent_ids = []
++        represented_agent_ids = []
+         for _, hop, id, role, content, _ in P:
++            parts = self._agent_id_parts(id)
++            represented_agent_ids.extend(parts)
++            if len(parts) == 1:
++                retained_direct_agent_ids.append(parts[0])
++            else:
++                merged_agent_ids.append(str(id))
+             aggregated_parts.append(f"Agent {id}, role is {role},output is:\n{content}")
++        represented_agent_ids = sorted(set(represented_agent_ids))
++        dropped_direct_agent_ids = [
++            agent_id for agent_id in original_agent_ids
++            if agent_id not in retained_direct_agent_ids
++        ]
++        self._write_comm_trace_event({
++            "event_type": "ism_result",
++            "merge_performed": True,
++            "initial_message_count": len(neighbors),
++            "final_message_count": len(P),
++            "max_items": max_items,
++            "original_agent_ids": original_agent_ids,
++            "retained_direct_agent_ids": retained_direct_agent_ids,
++            "merged_agent_ids": merged_agent_ids,
++            "dropped_direct_agent_ids": dropped_direct_agent_ids,
++            "represented_agent_ids": represented_agent_ids,
++        })
+         
+         aggregated_context = "\n\n".join(aggregated_parts)

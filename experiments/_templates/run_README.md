@@ -1,8 +1,8 @@
 # <run-id>
 
-## Short Answer
+## What We Tried
 
-One sentence: what ran, whether it completed, and the main result.
+One sentence on what we attempted and what happened.
 
 ## Scope
 
@@ -11,9 +11,9 @@ One sentence: what ran, whether it completed, and the main result.
 - Dataset:
 - Seed:
 - Samples:
-- Comparison target:
+- Comparison target, if any:
 
-## Resource Budget
+## Resource Notes
 
 - Machine:
 - GPU IDs:
@@ -52,7 +52,7 @@ One sentence: what ran, whether it completed, and the main result.
 - Result JSON:
 - Trace/debate log:
 
-## Result
+## What Happened
 
 - Status:
 - Accuracy:
@@ -70,6 +70,6 @@ One sentence: what ran, whether it completed, and the main result.
 
 - 
 
-## Next Step
+## Loose Threads
 
 - 

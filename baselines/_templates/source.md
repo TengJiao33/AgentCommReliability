@@ -9,9 +9,9 @@
 - stars / activity:
 - local path:
 
-## Why This Baseline
+## Why Pick This Up
 
-State the project reason for inspecting this code.
+State what made this code worth touching now.
 
 ## Smallest Runnable Path
 
@@ -45,6 +45,6 @@ State the project reason for inspecting this code.
 
 - 
 
-## Next Check
+## Loose Threads
 
 - 

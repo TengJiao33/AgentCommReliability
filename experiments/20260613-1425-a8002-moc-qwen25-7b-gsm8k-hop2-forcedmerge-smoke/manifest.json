@@ -1,0 +1,56 @@
+{
+  "run_id": "20260613-1425-a8002-moc-qwen25-7b-gsm8k-hop2-forcedmerge-smoke",
+  "status": "complete",
+  "method": "MOC forced structural-merge smoke",
+  "model": "Qwen2.5-7B-Instruct via vLLM served-model qwen2.5-7b",
+  "dataset": "GSM8K first 1 and first 5 rows from MOC preprocessed CSV",
+  "seed": 42,
+  "samples": 5,
+  "machine": "A800_2",
+  "gpu_ids": [1],
+  "timeout_minutes": 90,
+  "started_at": "2026-06-13T14:20:24+08:00",
+  "ended_at": "2026-06-13T14:24:50+08:00",
+  "upstream_repo": "https://github.com/yao-guan/MOC",
+  "upstream_commit": "9c67c92507570704a7df73e452552a3f49e83897",
+  "local_changes": [
+    "baselines/MOC/patches/a8002-smoke-embedding-fallback.patch",
+    "baselines/MOC/patches/a8002-vllm-openai-adapter.patch",
+    "baselines/MOC/patches/a8002-vllm-structural-merge.patch",
+    "minimal pyairports.airports compatibility module in the remote env",
+    "PYTHONPATH pinned to the MOC repo so local datasets.data_process wins over the installed datasets package"
+  ],
+  "command": "PYTHONPATH=/data/xuhaoming/yfy/research_workspace/baselines/MOC:$PYTHONPATH MOC_USE_HASH_EMBEDDING=1 OPENAI_BASE_URL=http://127.0.0.1:8021/v1 OPENAI_API_KEY=EMPTY MOC_MERGE_LLM_NAME=vllm:qwen2.5-7b timeout 90m /data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/bin/python experiments/run_experiment.py --domain gsm8k --n_size 5 --llm_name vllm:qwen2.5-7b --agent_nums 5 --mode Chain --batch_size 1 --num_rounds 1 --use_cot --neighbor_hops 2 --ism_r 0 --ism_epsilon 0.01 --ism_kppa 45",
+  "log_path": "/data/xuhaoming/yfy/research_workspace/logs/moc-forcedmerge-chain5-hop2-n5-20260613_1425_forcedmerge8192.log",
+  "result_paths": [
+    "/data/xuhaoming/yfy/research_workspace/baselines/MOC/result/gsm8k/vllm:qwen2.5-7b_Chain_2026-06-13-14-20-24.json",
+    "/data/xuhaoming/yfy/research_workspace/baselines/MOC/result/gsm8k/vllm:qwen2.5-7b_2026-06-13-14-20-24_detail.json",
+    "/data/xuhaoming/yfy/research_workspace/baselines/MOC/result/gsm8k/vllm:qwen2.5-7b_Chain_2026-06-13-14-21-39.json",
+    "/data/xuhaoming/yfy/research_workspace/baselines/MOC/result/gsm8k/vllm:qwen2.5-7b_2026-06-13-14-21-39_detail.json",
+    "/data/xuhaoming/yfy/research_workspace/experiments/20260613-1425-a8002-moc-qwen25-7b-gsm8k-hop2-forcedmerge-smoke/comm_trace_moc.jsonl"
+  ],
+  "metrics": {
+    "n1_preflight": {
+      "accuracy": 1.0,
+      "total_tokens": 5894,
+      "compressed_total_tokens": 13846,
+      "eval_time_seconds": 54.319
+    },
+    "n5_forced_merge": {
+      "accuracy": 1.0,
+      "total_tokens": 22718,
+      "compressed_total_tokens": 50906,
+      "compressed_prompt_tokens": 39810,
+      "compressed_completion_tokens": 11096,
+      "merged_pair_count": 15,
+      "summary_strategy_calls": 75,
+      "eval_time_seconds": 191.101
+    }
+  },
+  "caveats": [
+    "Smoke-level evidence only; five GSM8K rows are not benchmark evidence.",
+    "ism_r was set to 0 to force structural merge, so this is a diagnostic setting rather than the paper default.",
+    "Hash embeddings replaced the unavailable local sentence-transformer model.",
+    "MOC detail JSON does not store per-agent round traces; merge counts were extracted from the run log."
+  ]
+}

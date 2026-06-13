@@ -88,6 +88,7 @@ Expected upstream paths:
 - Arithmetic parser compatibility patch prepared: `baselines/DAR/patches/a8002-arithmetic-escaped-brace-parser.patch`.
 - Output directory patch prepared: `baselines/DAR/patches/a8002-respect-out-dir.patch`.
 - GSM8K offline JSONL fallback patch prepared: `baselines/DAR/patches/a8002-gsm8k-local-jsonl-fallback.patch`.
+- Filter retention history patch prepared: `baselines/DAR/patches/a8002-filter-retention-history.patch`.
 - Planned runs should use explicit GPU visibility and timeout wrappers.
 
 ## Failures And Fixes
@@ -98,13 +99,15 @@ Expected upstream paths:
 | Qwen2.5-7B-Instruct Round 1 answers used escaped braces such as `\\{final answer: 371.75\\}`, causing `evaluate_arithmetics` to parse empty answers. | `/data/xuhaoming/yfy/research_workspace/logs/dar-smoke-qwen25-7b-arith2-20260612_182826.log`; history JSONL under remote DAR `out/history/` | allow optional escaped braces in arithmetic answer regex | evaluation parser changed; communication method unchanged |
 | Upstream history and TSV paths ignored `--out_dir` and wrote to repository `out/`. | `src/main.py` path construction | write history and TSV under `args.out_dir` | artifact placement changed; method logic unchanged |
 | A800_2 could not reach `huggingface.co` for `openai/gsm8k`, and no dataset cache entry existed. | data-only GSM8K smoke before GPU launch | load project-local MAD-MM processed GSM8K JSONL when available, or use `DAR_GSM8K_JSONL` | data loading changed, method logic unchanged |
+| DAR history omitted retained/dropped filter IDs and non-debug mode saved only first 10 samples. | unified trace extraction caveat | prepared `a8002-filter-retention-history.patch` with per-round `retention_events` and `--save_full_history` | trace-only instrumentation |
 
 ## Caveats
 
 - Existing 100-sample runs cover generated arithmetic and GSM8K, but each uses one seed and one model.
 - Matched total-token accounting across methods is not yet extracted.
 - Non-debug history stores only the first 10 samples.
+- Retained/dropped ID instrumentation is prepared but not yet represented in a completed remote run.
 
 ## Next Small Check
 
-- Inspect per-sample saved histories and decide whether to run a GSM8K short matrix.
+- Apply `a8002-filter-retention-history.patch` and rerun a small GSM8K `filter_critical` check with `--save_full_history`.

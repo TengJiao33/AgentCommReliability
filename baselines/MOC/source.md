@@ -51,6 +51,12 @@ python experiments/run_experiment.py \
 - `baselines/MOC/patches/a8002-vllm-openai-adapter.patch`
   - purpose: add `VLLMChat` and route `--llm_name vllm:<served-model>` to an OpenAI-compatible local vLLM server
   - method behavior: backend plumbing only; prompts, topology, and evaluation remain upstream
+- `baselines/MOC/patches/a8002-vllm-structural-merge.patch`
+  - purpose: route `merge_multiple_messages` through the configured LLM registry / `VLLMChat` instead of hard-coded Ollama `gemma2:9b`
+  - method behavior: backend plumbing for the structural merge branch; compressed-token counters are preserved separately from ordinary agent tokens
+- `baselines/MOC/patches/a8002-comm-trace-events.patch`
+  - purpose: write per-sample ISM merge/result events to `MOC_COMM_TRACE_JSONL`
+  - method behavior: trace-only instrumentation; adds source IDs, merged IDs, direct retained IDs, dropped-direct IDs, and merge token deltas without changing prompts or decisions
 
 ## Code Map
 
@@ -61,20 +67,19 @@ python experiments/run_experiment.py \
 | topology construction | `experiments/run_experiment.py::get_kwargs` | `Chain`, `FullConnected`, `Random` DAG masks |
 | graph execution | `src/graph/graph.py::arun` | builds spatial edges, executes nodes, then decision node |
 | neighbor summary | `src/graph/graph.py::get_neighbor_summary_with_ism` | collects hop-neighbor outputs when `use_neighbor_summary` is true |
-| message merging | `src/graph/graph.py::merge_multiple_messages` | upstream hard-codes Ollama `gemma2:9b` for structural merge |
+| message merging | `src/graph/graph.py::merge_multiple_messages` | upstream hard-codes Ollama `gemma2:9b`; local forced-merge smoke routes this through `VLLMChat` |
 | agent prompts | `src/prompt/*_prompt_set.py` | task-specific roles, constraints, decision few-shot |
 | LLM registry | `src/llm/llm_registry.py` | upstream routes `qwen` names to Ollama |
 | evaluation | `experiments/common.py::evaluate_batch` | postprocesses final decision output and writes result JSON |
 
 ## Known Caveats
 
-- The completed A800_2 runs are smoke/topology checks, not paper-scale reproduction.
+- The completed A800_2 runs are smoke/topology and forced-merge checks, not paper-scale reproduction.
 - The 5-sample topology matrix used `neighbor_hops=1`; it did not exercise full multi-order hop depth.
-- `Compressed Prompt Tokens` and `Compressed Completion Tokens` remained `0`, so the structural message consolidation branch was not exercised.
+- A separate 5-sample diagnostic run used `neighbor_hops=2`, 5 agents, and `ism_r=0` to force structural merge. That run recorded nonzero compressed-token counters.
 - The embedding fallback is deterministic but not semantically equivalent to `all-MiniLM-L6-v2`.
 - Upstream has hidden environment assumptions: local Ollama service, local sentence-transformer cache, and a non-standard API gateway option.
 
 ## Next Check
 
-Patch `merge_multiple_messages` to use the same `VLLMChat` backend, then run a tiny `neighbor_hops=2` setting that actually triggers structural merging.
-
+Apply `a8002-comm-trace-events.patch` on A800_2, run a tiny forced-merge check with `MOC_COMM_TRACE_JSONL` set, and extract MOC with `--comm-events-jsonl` before scaling the hop-depth comparison.

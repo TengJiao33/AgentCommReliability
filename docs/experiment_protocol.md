@@ -2,9 +2,9 @@
 
 ## Principle
 
-Every experiment should be resumable by another person from the notes alone. A result without model, code commit, command, resource, and log path is not usable evidence.
+Every experiment should be returnable by another person from the notes alone. A result without model, code commit, command, resource, and log path is hard to revisit.
 
-Use `docs/documentation_system.md` for artifact boundaries and `docs/evidence_register.md` for claims that outlive a single report.
+Use `docs/evidence_register.md` only for observations or claims that outlive a single run. Keep ordinary facts in the run note or `docs/project_log.md`.
 
 ## Run ID Format
 
@@ -21,7 +21,7 @@ Examples:
 20260629-1015-a8002-moc-qwen25-synthetic-khop-topology-ablation
 ```
 
-## Required Run Metadata
+## Run Metadata
 
 Create one note per run under `experiments/<run-id>/README.md`.
 
@@ -30,7 +30,7 @@ Template:
 ```markdown
 # <run-id>
 
-## Goal
+## What We Tried
 
 ## Machine
 
@@ -82,11 +82,12 @@ Template:
 - Failure:
 - Fix:
 - Caveat:
+- Loose thread:
 ```
 
-## First Ablation Grid
+## Small Variant Menu
 
-Keep the first grid small. The goal is to find whether communication effects are visible, not to publish a benchmark.
+When variants feel useful, keep the first grid small so the run remains understandable.
 
 | Axis | Values |
 | --- | --- |
@@ -126,9 +127,9 @@ Store one JSON object per problem instance.
 }
 ```
 
-## Analysis Checklist
+## Observation Prompts
 
-For each ablation, answer:
+For any run or variant, optionally ask:
 
 - Did performance change or only token cost change?
 - Did communication change the final answer?
@@ -136,11 +137,11 @@ For each ablation, answer:
 - Did any agent correct another agent?
 - Did the judge follow evidence or majority?
 - Is the gain explained by extra samples rather than communication?
-- Is the setup deterministic enough to repeat?
+- Is the setup deterministic enough to return to later?
 
 ## Report Structure
 
-Use `reports/_templates/objective_research_report.md` for most interpreted reports. A compact version is:
+Use report templates only when they help preserve the encounter. A compact shape is:
 
 ```markdown
 # Title
@@ -159,7 +160,7 @@ Use `reports/_templates/objective_research_report.md` for most interpreted repor
 
 ## Caveats
 
-## Open Questions
+## Loose Threads
 ```
 
 ## Evidence Language
@@ -169,7 +170,7 @@ Preferred wording:
 - "This run reproduces the code path under a small controlled setup."
 - "This is smoke evidence, not benchmark evidence."
 - "The observed trend holds for this model/task subset."
-- "The run suggests a failure mode worth testing, but does not establish a general claim."
+- "This looks like something to return to later."
 
 Avoid:
 
@@ -177,3 +178,4 @@ Avoid:
 - "This method is better."
 - "The paper is wrong."
 - "The model understands the debate."
+- "This must be the next research direction."

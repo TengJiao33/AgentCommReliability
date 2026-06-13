@@ -36,6 +36,6 @@ Create one file per paper under `papers/cards/` when reading deeply. Use:
 
 ## Methodology Note
 
-Use `skills/reproduction-first-research/SKILL.md` before promoting any paper from this queue into a real experiment.
+Use `skills/reproduction-first-research/SKILL.md` when picking up any paper from this queue.
 
-The likely useful insight is hidden in code paths, prompt templates, message filtering, stopping conditions, task preprocessing, or evaluation scripts.
+The queue is not a promise of future experiments. It is a shelf of possible objects to touch: code paths, prompt templates, message filtering, stopping conditions, task preprocessing, evaluation scripts, and whatever else becomes visible while reproducing.

@@ -2,7 +2,7 @@
 
 ## Short Answer
 
-One sentence on whether the baseline can be launched and what evidence level exists.
+One sentence on what happened when we tried to launch or inspect it.
 
 ## Scope
 
@@ -12,7 +12,6 @@ One sentence on whether the baseline can be launched and what evidence level exi
 - commit:
 - local path:
 - target setting:
-- evidence level:
 
 ## Environment
 
@@ -34,7 +33,7 @@ One sentence on whether the baseline can be launched and what evidence level exi
 - trace:
 - summary:
 
-## Result Snapshot
+## What Happened
 
 | Method | Model | Task | Seed | Samples | Metric | Tokens | Status |
 | --- | --- | --- | --- | ---: | ---: | ---: | --- |
@@ -54,6 +53,6 @@ One sentence on whether the baseline can be launched and what evidence level exi
 
 - 
 
-## Next Small Check
+## Loose Threads
 
 - 

@@ -1,0 +1,93 @@
+diff --git a/src/dev.py b/src/dev.py
+--- a/src/dev.py
++++ b/src/dev.py
+@@ -157,8 +157,17 @@ def run_filter_batch_across_samples(batch_inputs, args, llm):
+-    results = [{"retained_ids": inp["peers"], "filter_tokens": None} for inp in batch_inputs]
++    results = [
++        {
++            "candidate_ids": inp["peers"],
++            "retained_ids": inp["peers"],
++            "dropped_ids": [],
++            "filter_tokens": None,
++            "raw_filter_response": None,
++        }
++        for inp in batch_inputs
++    ]
+     llm_messages = []
+     llm_indices = []
+ 
+     for idx, inp in enumerate(batch_inputs):
+         peers = inp["peers"]
+         last_vote_ans = inp.get("last_vote_ans")
+         last_round_final_ans = inp.get("last_round_final_ans")
+@@ -176,7 +183,10 @@ def run_filter_batch_across_samples(batch_inputs, args, llm):
+             else:
+                 selected = [p for i, p in enumerate(peers) if last_round_final_ans[i] != last_vote_ans]
+ 
+-            results[idx]["retained_ids"] = selected if selected else peers
++            retained = selected if selected else peers
++            results[idx]["retained_ids"] = retained
++            results[idx]["dropped_ids"] = [p for p in peers if p not in retained]
++            results[idx]["raw_filter_response"] = f"{sub_role}_rule"
+             continue
+ 
+         filter_prompt = build_filter_prompt_batch(
+@@ -207,7 +217,10 @@ def run_filter_batch_across_samples(batch_inputs, args, llm):
+         for local_i, global_i in enumerate(llm_indices):
+             peers = batch_inputs[global_i]["peers"]
+             selected = parse_filter_response(chosen[local_i].strip(), peers)
++            raw_response = chosen[local_i].strip()
+             results[global_i]["retained_ids"] = selected
++            results[global_i]["dropped_ids"] = [p for p in peers if p not in selected]
++            results[global_i]["raw_filter_response"] = raw_response
+             if token_stats and local_i < len(token_stats):
+                 results[global_i]["filter_tokens"] = token_stats[local_i]
+ 
+diff --git a/src/main.py b/src/main.py
+--- a/src/main.py
++++ b/src/main.py
+@@ -35,6 +35,7 @@ def get_args():
+     parser.add_argument('--data_size', type=int, default=0)
+     parser.add_argument('--split', type=str, default='train')
+     parser.add_argument('--debug', action='store_true')
++    parser.add_argument('--save_full_history', action='store_true')
+ 
+     # agent
+     parser.add_argument('--num_agents', type=int, default=4)
+@@ -309,6 +310,19 @@ def main(args):
+             if i < 5:
+                 print(f"ROUND {r} Sample {i} : {final_resps} (answer = {y})")
+ 
++            retention_event = None
++            if args.m_role.startswith("filter") and precomputed_filters[i] is not None:
++                filter_info = precomputed_filters[i]
++                retention_event = {
++                    "stage": f"round_{r}_filter",
++                    "mechanism": args.m_role,
++                    "candidate_agent_ids": filter_info.get("candidate_ids"),
++                    "retained_agent_ids": filter_info.get("retained_ids"),
++                    "dropped_agent_ids": filter_info.get("dropped_ids"),
++                    "filter_tokens": filter_info.get("filter_tokens"),
++                    "raw_filter_response": filter_info.get("raw_filter_response"),
++                }
++
+             # Data Dictionary
+             if args.data in ['arithmetics', 'gsm8k']:
+                 round_data = {
+@@ -351,6 +365,9 @@ def main(args):
+ 
+                 }
+                 
++            if retention_event is not None:
++                round_data["retention_events"] = [retention_event]
++
+             sample_responses[i][str(r)] = round_data
+             iscorr_list[i].append(is_corr)
+ 
+@@ -388,5 +388,5 @@ def main(args):
+                     f.write(json.dumps(record, default=convert_numpy) + '\n')
+         else:
+             with open(os.path.join(args.out_dir, 'history', f'{fname}.jsonl'), 'w') as f:
+-                for record in sample_responses[:10]: # Only save first 10 samples for non-debug mode to save space  
++                for record in (sample_responses if args.save_full_history else sample_responses[:10]):
+                     f.write(json.dumps(record, default=convert_numpy) + '\n')

@@ -126,3 +126,88 @@ Next:
   - `reports/20260613-moc-gsm8k-topology-smoke.md`
 - Caveat: this is setup/topology smoke evidence only. The run used `neighbor_hops=1`, hash embeddings, and did not trigger structural message consolidation.
 - Next useful check: adapt `merge_multiple_messages` away from hard-coded Ollama and run a forced-merge `neighbor_hops=2` smoke.
+
+## 2026-06-13 MOC Forced Merge And Unified Trace
+
+- Added MOC structural merge patch:
+  - `baselines/MOC/patches/a8002-vllm-structural-merge.patch`
+  - routes `Graph.merge_multiple_messages` through the configured `LLMRegistry` / `VLLMChat` instead of hard-coded Ollama `gemma2:9b`.
+  - moves merge-call vLLM usage into MOC compressed-token counters.
+- Applied the patch on A800_2 and verified `src/graph/graph.py` with `py_compile`.
+- Started vLLM on GPU 1. The first 4096-context service reached the structural merge branch but failed at final decision because the merged prompt exceeded the context budget.
+- Restarted vLLM with `--max-model-len 8192`.
+- Completed MOC forced-merge smoke:
+  - run record: `experiments/20260613-1425-a8002-moc-qwen25-7b-gsm8k-hop2-forcedmerge-smoke/`
+  - setting: GSM8K, `Chain`, 5 agents, `neighbor_hops=2`, `ism_r=0`, `ism_kppa=45`.
+  - n=1 preflight: accuracy `1/1`, total tokens `5,894`, compressed tokens `13,846`.
+  - n=5 run: accuracy `5/5`, total tokens `22,718`, compressed tokens `50,906`.
+  - n=5 log showed 15 merged pairs and 75 summary-strategy calls.
+- Stopped the vLLM service and confirmed GPU 1 was released.
+- Added unified communication trace extractor:
+  - `scripts/extract_comm_trace_schema.py`
+  - docs: `docs/comm_trace_schema.md`
+- Verified the extractor on real outputs:
+  - MOC forced merge: 5 JSONL rows.
+  - MAD-MM short subset: 400 JSONL rows; baseline comparison against COT includes `wrong_to_right=6` and `right_to_wrong=1`.
+  - DAR filter-critical GSM8K history: 10 JSONL rows; limited by the saved first-10 histories, with 1 observed `right_to_wrong`.
+- Added short report: `reports/20260613-moc-forced-merge-smoke.md`.
+
+## 2026-06-13 RuleArena Benchmark Pressure Setup
+
+- Added RuleArena as a portable project submodule at `baselines/RuleArena/upstream` instead of relying on a machine-local clone.
+- Pinned upstream commit `3b9e2256294644beca66732babc5e1055855a576`.
+- Added baseline notes:
+  - `baselines/RuleArena/README.md`
+  - `baselines/RuleArena/source.md`
+  - `baselines/RuleArena/reproduction.md`
+- Added CPU-only loader smoke script:
+  - `scripts/rulearena_loader_smoke.py`
+- Loader smoke passed locally without model calls:
+  - airline: `100/100/100` examples for complexity `0/1/2`
+  - NBA: `81/89/46` examples for complexity `0/1/2`
+  - tax: `100/100/100` examples for complexity `0/1/2`
+- Next useful check: create a small-run wrapper with `--limit` and OpenAI-compatible vLLM support before launching any model evaluation.
+- Kept benchmark-pressure guidance in the root README/current focus instead of maintaining a separate planning document.
+
+## 2026-06-13 Documentation Simplification
+
+- Simplified the active documentation surface around the top-level `reproduction-first-research` skill.
+- Deleted redundant planning/process documents:
+  - `docs/benchmark_pressure_suite.md` (briefly drafted, then folded into README/current focus)
+  - `docs/documentation_system.md`
+  - `docs/reproduction_recording_standard.md`
+  - `docs/research_map.md`
+- Kept factual and operational references:
+  - `docs/machine_handbook.md`
+  - `docs/server_resource_inventory.md`
+  - `docs/machine_quickstart.md`
+- Current rule: facts go into experiment notes or `docs/project_log.md`; durable claims go into `docs/evidence_register.md`; workflow decisions defer to `skills/reproduction-first-research/SKILL.md`.
+
+## 2026-06-13 Open-Ended Reproduction Posture
+
+- Corrected the project posture away from a narrowed current loop, benchmark-pressure framing, and forced idea production.
+- Made `skills/reproduction-first-research/SKILL.md` the top-level posture document for open-ended reproduction rather than a workflow for turning reproductions into evidence-backed ideas.
+- Updated the root `README.md` to state that the project does not need a narrowed research question, planned contribution, or current narrow loop before continuing.
+- Updated `project_intake.md`, `docs/evidence_register.md`, report templates, and experiment notes guidance to preserve observations, failures, and loose threads without requiring every run to become a claim or next action.
+
+## 2026-06-13 Trace Instrumentation Prep
+
+- Verified the current local checkpoint:
+  - `scripts/extract_comm_trace_schema.py`, `scripts/rulearena_loader_smoke.py`, `scripts/extract_madmm_trace_cases.py`, and `scripts/analyze_madmm_short_subset.py` pass `py_compile`.
+  - `scripts/rulearena_loader_smoke.py --root baselines/RuleArena/upstream` still reads all RuleArena airline/NBA/tax files.
+  - local MOC forced-merge detail/summary files still extract to communication trace JSONL.
+- Added MOC trace instrumentation patch:
+  - `baselines/MOC/patches/a8002-comm-trace-events.patch`
+  - intended to write per-sample ISM sidecar events through `MOC_COMM_TRACE_JSONL`.
+  - captures source IDs, merged IDs, retained direct IDs, dropped-direct IDs, merge similarity, and compressed-token deltas.
+- Added DAR retention instrumentation patch:
+  - `baselines/DAR/patches/a8002-filter-retention-history.patch`
+  - writes per-round `retention_events` with candidate/retained/dropped IDs and raw filter response.
+  - adds `--save_full_history` for non-debug full history output.
+- Updated `scripts/extract_comm_trace_schema.py`:
+  - MOC extractor accepts `--comm-events-jsonl`.
+  - DAR extractor reads `retention_events` when present.
+- Validation:
+  - DAR instrumentation patch applies after `a8002-respect-out-dir.patch` on a clean upstream checkout and `src/dev.py` / `src/main.py` pass `py_compile`.
+  - MOC instrumentation patch is prepared for the A800_2 MOC checkout after the existing vLLM structural-merge adaptation; local Windows `git apply` validation is noisy around old MOC patch context and should be repeated on the remote Linux checkout before rerunning.
+- Next useful check: apply both instrumentation patches on A800_2 and run tiny MOC/DAR checks before any larger comparison.

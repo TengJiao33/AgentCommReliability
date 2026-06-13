@@ -34,7 +34,7 @@ MOC builds a structured multi-order evidence stream from graph neighbors and use
 
 ## Baselines
 
-The paper compares communication schemes/topologies across several tasks. Our local work has only reproduced a tiny topology smoke and has not checked paper baselines yet.
+The paper compares communication schemes/topologies across several tasks. Our local work has reproduced tiny topology smoke runs and one forced structural-merge diagnostic smoke, but has not checked paper-scale baselines yet.
 
 ## Datasets / Tasks
 
@@ -56,7 +56,7 @@ Upstream includes preprocessed files for MMLU, MMLU-Pro, AQuA, GSM8K, SVAMP, and
 - filtering or merging: `Graph.iterative_semantic_merging_with_clustering`
 - judge or verifier path: `FinalRefer`
 - evaluation script: `experiments/common.py`
-- hidden defaults: `use_neighbor_summary` defaults true; `merge_multiple_messages` hard-codes Ollama `gemma2:9b`
+- hidden defaults: `use_neighbor_summary` defaults true; upstream `merge_multiple_messages` hard-codes Ollama `gemma2:9b`; local patch routes it through `VLLMChat`
 
 ## Possible Ablations
 
@@ -67,8 +67,8 @@ Upstream includes preprocessed files for MMLU, MMLU-Pro, AQuA, GSM8K, SVAMP, and
 
 ## Caveats
 
-- Our current run is smoke evidence only.
-- The structural merge branch has not been reproduced locally yet.
+- Our current runs are smoke evidence only.
+- The structural merge branch has been exercised only under forced diagnostic settings (`neighbor_hops=2`, `ism_r=0`).
 
 ## Project Fit
 
@@ -76,12 +76,11 @@ Upstream includes preprocessed files for MMLU, MMLU-Pro, AQuA, GSM8K, SVAMP, and
 | --- | --- |
 | Which project axis does it touch? | communication topology, evidence routing, message compression |
 | What would we learn by reproducing it? | whether multi-hop evidence and compression create measurable reliability/cost tradeoffs |
-| What is the cheapest useful check? | force one merge on 1-5 GSM8K samples with Qwen2.5-7B |
-| Should it be promoted to experiment? | yes, after merge backend adaptation |
+| What is the cheapest useful check? | compare matched `neighbor_hops=1` and `neighbor_hops=2` samples after adding per-sample merge tracing |
+| Should it be promoted to experiment? | yes, but only after per-sample merge IDs and token deltas are logged |
 
 ## Open Questions
 
 - Does semantic merging preserve minority-correct evidence or wash it out?
 - Does multi-hop evidence help only when upstream agents disagree?
 - How much of the paper gain is topology, and how much is message compression?
-

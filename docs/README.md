@@ -1,27 +1,25 @@
 # Docs Index
 
-This folder holds project rules, research structure, evidence tracking, and machine notes.
+Keep this folder small. The top-level project posture lives in `skills/reproduction-first-research/SKILL.md`.
 
-## Read Order
+Current docs:
 
-1. `documentation_system.md` - artifact boundaries, evidence levels, and objective writing rules.
-2. `research_map.md` - current problem axes, mechanism families, evidence snapshot, and hypotheses.
-3. `evidence_register.md` - active claims with evidence level, caveat, and next check.
-4. `experiment_protocol.md` - run IDs, metadata, logging schema, ablation grid, and report structure.
-5. `reproduction_recording_standard.md` - concrete run note and manifest standards.
-6. `machine_handbook.md` - machine access and resource rules.
-7. `machine_quickstart.md` - short operational checklist.
-8. `project_log.md` - chronological project audit trail.
+- `project_log.md`: what actually happened.
+- `evidence_register.md`: durable observations or claims worth carrying forward.
+- `experiment_protocol.md`: run-note metadata and logging shape.
+- `machine_quickstart.md`: remote machine checklist.
+- `comm_trace_schema.md`: unified communication trace fields.
 
-## Main Distinction
+Auxiliary factual references:
 
-- `documentation_system.md` says how the record should be organized.
-- `research_map.md` says what the project currently thinks the problem is.
-- `evidence_register.md` says which claims are currently supported, weak, or still hypothetical.
+- `machine_handbook.md`: detailed remote-machine rules and paths.
+- `server_resource_inventory.md`: observed remote resources, datasets, and reusable files.
 
-When in doubt, add raw facts to the narrowest artifact first, then promote only the useful claim to the evidence register.
+Rule of thumb:
 
-## Related Skills
-
-- `skills/reproduction-first-research/SKILL.md` - research workflow for turning runnable baselines into evidence-backed ideas.
-- `skills/repro-friction-memory/SKILL.md` - reusable memory for small reproduction blockers such as quoting, cache, parser, output-path, and logging issues.
+```text
+facts -> project_log or experiment README
+durable observations or claims -> evidence_register
+commands and run metadata -> experiment README
+project posture -> top-level skill
+```

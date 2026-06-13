@@ -1,18 +1,20 @@
 # <Topic>
 
-## Short Answer
+## What We Tried
 
 ## Setup
 
 ## Runs Compared
 
-## Results
+## What Happened
 
 | Method | Model | Dataset | Seed | Samples | Accuracy | Tokens | Time |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 
-## What Changed In The Logs
+## Things Noticed
+
+## Failures / Friction
 
 ## Caveats
 
-## Next Experiment
+## Loose Threads

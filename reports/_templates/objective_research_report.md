@@ -1,8 +1,8 @@
 # <Report Title>
 
-## Short Answer
+## What We Tried
 
-State the narrow conclusion and evidence level.
+State the encounter or bounded question, without forcing a contribution claim.
 
 ## Scope
 
@@ -36,7 +36,7 @@ Use this section for facts visible in logs, traces, code, or paper text.
 
 ## Interpretation
 
-Use this section for plausible mechanisms. Keep wording conditional.
+Use this section for plausible language around what happened. Keep wording conditional.
 
 - Interpretation:
   - supported by:
@@ -54,8 +54,8 @@ Use this section for plausible mechanisms. Keep wording conditional.
 
 | Claim ID | Action | Note |
 | --- | --- | --- |
-|  | add/update/challenge/retire |  |
+|  | add/update/challenge/retire/none |  |
 
-## Next Small Check
+## Loose Threads
 
-Define one next action that improves evidence quality without unnecessary compute.
+List things that might be worth returning to. They do not have to become the next action.

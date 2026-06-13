@@ -40,6 +40,7 @@ python src/main.py --model qwen2.5-1.5b --num_agents 4 --data arithmetics --data
 - parser patch: `baselines/DAR/patches/a8002-arithmetic-escaped-brace-parser.patch`
 - output patch: `baselines/DAR/patches/a8002-respect-out-dir.patch`
 - GSM8K offline data fallback patch: `baselines/DAR/patches/a8002-gsm8k-local-jsonl-fallback.patch`
+- filter retention history patch: `baselines/DAR/patches/a8002-filter-retention-history.patch`
 
 ## Code Map
 
@@ -58,6 +59,7 @@ python src/main.py --model qwen2.5-1.5b --num_agents 4 --data arithmetics --data
 - Repository defaults use model identifiers; local path mapping may be needed.
 - README notes vLLM and HF inference can differ.
 - Non-debug mode stores only first 10 history records.
+- `a8002-filter-retention-history.patch` adds `--save_full_history` and per-round `retention_events`; this is prepared but still needs a remote rerun before the trace register should treat DAR retained/dropped IDs as observed.
 - A800_2 cannot currently rely on Hugging Face access for GSM8K; use the project-local JSONL fallback or set `DAR_GSM8K_JSONL`.
 - Completed project runs are recorded under:
   - `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-smoke/`
@@ -66,4 +68,4 @@ python src/main.py --model qwen2.5-1.5b --num_agents 4 --data arithmetics --data
 
 ## Next Check
 
-- Analyze GSM8K flip cases and retained IDs before launching another matrix.
+- Apply `a8002-filter-retention-history.patch`, rerun a small GSM8K `filter_critical` debug/full-history check, and analyze retained/dropped IDs before launching another matrix.
