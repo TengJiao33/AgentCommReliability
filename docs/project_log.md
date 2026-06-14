@@ -1558,3 +1558,334 @@ Next:
   - `reports/20260614-peer-auto-evidence-audit.md`
 - Evidence register:
   - added row `E-058`.
+
+## 2026-06-14 Peer Redacted Evidence Surface
+
+- Updated scripts:
+  - `scripts/run_peer_exposure_probe.py`
+    - schema bumped to `acr.peer_exposure.v0.4`;
+    - added `correct_redacted_evidence` and `wrong_redacted_evidence`;
+    - added exact parsed-answer redaction before evidence compression;
+    - fixed numeric answer containment/redaction so sentence-final numbers like
+      `28800.` are matched while decimal tails remain protected.
+  - `scripts/audit_peer_auto_evidence.py`
+    - includes the redacted evidence conditions in the same auto-evidence audit;
+    - adds surface-level leakage and transition summaries.
+- Local validation:
+  - `python -m py_compile scripts/run_peer_exposure_probe.py scripts/audit_peer_auto_evidence.py`;
+  - helper check confirmed exact answer redaction on sentence-final numbers;
+  - MATH dry-run selected the same random8 cases as the prior run.
+- Runtime:
+  - A800_2 reached through direct SSH because local `A800_2` alias was absent;
+  - A800_2 GPU `1`, temporary vLLM port `8025`, Qwen2.5-7B-Instruct served as
+    `qwen2.5-7b-peer-redacted`;
+  - stopped the temporary service after the runs and confirmed port `8025` was
+    closed and GPU `1` returned to idle.
+- Formal runs:
+  - `experiments/20260614-2325-a8002-peer-redacted-evidence-dar-random14/`
+  - `experiments/20260614-2330-a8002-peer-redacted-evidence-math-random8/`
+  - `experiments/20260614-2335-local-peer-redacted-evidence-audit/`
+- DAR random14:
+  - no-peer: `11/14`;
+  - `correct_auto_evidence`: `12/14`;
+  - `correct_redacted_evidence`: `12/14`;
+  - `correct_rationale`: `13/14`;
+  - `wrong_auto_evidence`: `11/14`;
+  - `wrong_redacted_evidence`: `9/14`;
+  - `wrong_rationale`: `9/14`.
+- MATH random8:
+  - no-peer: `5/8`, with two no-peer unparseable outputs;
+  - `correct_auto_evidence`: `5/8`;
+  - `correct_redacted_evidence`: `6/8`;
+  - `correct_rationale`: `7/8`;
+  - `wrong_auto_evidence`: `5/8`;
+  - `wrong_redacted_evidence`: `4/8`;
+  - `wrong_rationale`: `5/8`.
+- Audit results:
+  - joined `88/88` evidence sidecars to downstream revision records;
+  - old auto-evidence leakage: `16/44`;
+  - answer-redacted evidence leakage: `8/44`;
+  - wrong auto-evidence right-to-wrong transitions: `1`;
+  - wrong redacted evidence right-to-wrong transitions: `4`;
+  - added mechanical target-behavior labels such as
+    `copied_wrong_source_answer`, `moved_off_correct_without_source_copy`,
+    `repaired_wrong_surface`, and `used_or_copied_correct_source_answer`.
+- Main small observations:
+  - exact answer redaction reduced obvious leakage but did not make wrong
+    evidence safer;
+  - redacted correct evidence rescued DAR `78` and MATH `9`;
+  - redacted wrong evidence produced harmful relation cases on DAR `4`, DAR
+    `65`, DAR `97`, and MATH `47`;
+  - DAR `8` remained a recoverable-skeleton case even under wrong evidence.
+- Added report:
+  - `reports/20260614-peer-redacted-evidence-surface.md`
+- Evidence register:
+  - added row `E-059`.
+
+## 2026-06-14 Peer Relation-Slot Focus Cards
+
+- Added local focus-card builder:
+  - `scripts/build_peer_relation_slot_cards.py`
+- Built semantic inspection cards from the redacted-evidence audit:
+  - input audit:
+    - `experiments/20260614-2335-local-peer-redacted-evidence-audit/cases.jsonl`
+  - source runs:
+    - `experiments/20260614-2325-a8002-peer-redacted-evidence-dar-random14/`
+    - `experiments/20260614-2330-a8002-peer-redacted-evidence-math-random8/`
+  - output:
+    - `experiments/20260614-2345-local-peer-relation-slot-cards/`
+- Focus-card counts:
+  - cards: `10`;
+  - contact labels:
+    - `correct_evidence_rescue`: `3`;
+    - `wrong_evidence_harmful_relation`: `5`;
+    - `wrong_evidence_recoverable_skeleton`: `2`;
+  - transitions:
+    - `wrong_to_right`: `5`;
+    - `right_to_wrong`: `5`.
+- Added manual semantic labels:
+  - `experiments/20260614-2345-local-peer-relation-slot-cards/manual_labels.jsonl`
+  - label counts:
+    - `relation_skeleton`: `correct: 3`, `wrong: 4`, `mixed: 1`,
+      `recoverable_wrong: 2`;
+    - `numeric_slots`: `correct: 2`, `wrong: 3`, `mixed: 4`,
+      `abstract: 1`;
+    - `final_slot`: `derivable: 5`, `absent: 4`, `blank: 1`;
+    - `answer_copy`: `relation_derived: 3`,
+      `relation_derived_not_source_copy: 3`,
+      `source_answer_copied_or_derived: 2`, `repaired: 2`.
+- Main small observations:
+  - all 10 focus cards preserved the target predicate, so the split is not
+    whether the target object remained visible;
+  - wrong redacted surfaces harmed through wrong rate, duration, average-scope,
+    or mixed combinatorics slots, even when the final source answer was absent;
+  - recoverable wrong evidence preserved a useful age/time anchor and was
+    repaired by the target despite a flawed equation;
+  - DAR `65` shows a leakage-audit caveat: source answer `2` appears as a
+    coefficient, so the mechanical `source_answer_number_present` label is not
+    semantic final-answer leakage.
+- Added report:
+  - `reports/20260614-peer-relation-slot-cards.md`
+- Evidence register:
+  - added row `E-060`.
+
+## 2026-06-14 Wrong Redacted Evidence Preserved-Correct Contrast
+
+- Extended local focus-card builder:
+  - `scripts/build_peer_relation_slot_cards.py`
+    - added optional `--conditions`;
+    - added optional `--target-behaviors`.
+- Built a contrast packet for cases where wrong redacted evidence did not move
+  an already-correct target answer:
+  - condition: `wrong_redacted_evidence`;
+  - target behavior: `preserved_correct_answer`;
+  - output:
+    - `experiments/20260614-2355-local-peer-wrong-redacted-preserved-correct-cards/`
+- Contrast-card counts:
+  - cards: `12`;
+  - contact labels:
+    - `plain_relation_surface`: `6`;
+    - `dense_formula_surface`: `3`;
+    - `answer_leak_audit`: `3`.
+- Added manual contrast labels:
+  - `experiments/20260614-2355-local-peer-wrong-redacted-preserved-correct-cards/manual_contrast_labels.jsonl`
+  - rough families:
+    - wrong final removed, leaving correct or partial evidence: `6` cases;
+    - wrong numeric or role slot rejected/repaired: `4` cases;
+    - target predicate or answer-contract guard: `2` cases.
+- Main small observations:
+  - stable-right under `wrong_redacted_evidence` is not automatically a
+    robustness signal;
+  - in several cases, answer redaction and evidence compression removed the
+    wrong final slot and left a correct or partially correct method surface;
+  - the clearest resistance cases are explicit wrong-slot repairs such as
+    DAR `76` (`30` students rejected for `40`) and MATH `22` (`24.8` rejected
+    for `28.8`);
+  - answer-leak flags remain noisy because numbers like equation RHS `0` or
+    converted diameter `288` can match the source parsed answer without being
+    semantic final-answer leakage.
+- Added report:
+  - `reports/20260614-peer-wrong-redacted-preserved-correct-contrast.md`
+- Evidence register:
+  - added row `E-061`.
+
+## 2026-06-15 Peer Redacted Relation-Slot Audit
+
+- Added local merge audit helper:
+  - `scripts/audit_peer_relation_slots.py`
+  - joins redacted evidence audit rows with manual relation-slot, contrast, and
+    non-rescue labels;
+  - emits merged records, an unlabeled queue, and summary counts.
+- Added non-rescue manual labels:
+  - packet:
+    - `experiments/20260615-0012-local-peer-redacted-nonrescue-cards/`
+  - labels:
+    - `experiments/20260615-0012-local-peer-redacted-nonrescue-cards/manual_nonrescue_labels.jsonl`
+  - cards: `9`;
+  - target behaviors:
+    - `preserved_wrong_answer`: `5`;
+    - `pre_unparseable_or_unknown`: `2`;
+    - `post_unparseable_or_unknown`: `2`.
+- Ran the merged redacted relation-slot audit:
+  - output:
+    - `experiments/20260615-0006-local-peer-redacted-relation-slot-audit/`
+  - records: `44`;
+  - manual-labeled records: `28`;
+  - unlabeled records: `16`.
+- Audit helper addendum:
+  - `summary.json` now includes machine-checkable coverage fields:
+    - `answer_changing_manual_coverage_complete: true`;
+    - `answer_changing_records: 7`;
+    - `answer_changing_unlabeled_records: 0`;
+    - `unlabeled_all_preserved_correct_stable_right: true`;
+  - the output directory also includes a compact labeling checklist:
+    - `experiments/20260615-0006-local-peer-redacted-relation-slot-audit/labeling_rubric.md`.
+- Coverage:
+  - all behavior-changing redacted records are now manually covered;
+  - the remaining `16` unlabeled rows are all `preserved_correct_answer` /
+    `stable_right`.
+- Main small observations:
+  - behavior-changing `wrong_to_right` cases are covered by correct relation
+    surfaces or a recoverable wrong surface;
+  - behavior-changing `right_to_wrong` cases are covered by wrong or mixed
+    relation/numeric slots;
+  - stable-right under wrong redacted evidence remains mixed: wrong final
+    removed into a correct/partial surface, wrong slot rejected/repaired,
+    target predicate or answer-contract guard, or missing role filled;
+  - non-rescue cases show the other edge: correct evidence can be too thin or
+    overwritten by the target's prior wrong slot, and dense MATH surfaces can
+    stay parse-unknown.
+- Added report:
+  - `reports/20260615-peer-redacted-relation-slot-audit.md`
+- Evidence register:
+  - added row `E-062`.
+
+## 2026-06-15 Peer Disjoint MATH Redaction Pressure
+
+- Goal:
+  - pressure the redacted relation-slot taxonomy with a neighboring random
+    slice, rather than only re-reading the same postcards.
+- Remote runtime:
+  - machine: A800_2 through direct SSH;
+  - GPU: `2`;
+  - temporary vLLM port: `8026`;
+  - model: Qwen2.5-7B-Instruct served as `qwen2.5-7b-peer-neighbor` and then
+    `qwen2.5-7b-peer-disjoint`;
+  - stopped the temporary services after use and confirmed GPU `2` returned to
+    idle.
+- First neighbor attempt:
+  - DAR seed `61422`:
+    - `experiments/20260615-0008-a8002-peer-redacted-evidence-dar-neighbor14/`
+    - selected the same 14 cases as the earlier DAR run, so it is not a true
+      neighboring slice;
+  - MATH seed `61422`:
+    - `experiments/20260615-0012-a8002-peer-redacted-evidence-math-neighbor8/`
+    - selected some new cases, but behavior-changing cards were still the old
+      MATH cases `9` and `47`.
+- Dry-ran MATH seeds and selected disjoint seed `61502`, which excludes old
+  behavior-changing MATH cases `9` and `47`.
+- Disjoint MATH run:
+  - `experiments/20260615-0028-a8002-peer-redacted-evidence-math-disjoint8/`
+  - cases: `1`, `10`, `22`, `26`, `33`, `38`, `41`, `42`;
+  - no-peer: `7/8`;
+  - `correct_auto_evidence`: `6/8`, with 1 right-to-wrong;
+  - `correct_redacted_evidence`: `7/8`, no answer-changing transitions;
+  - `wrong_auto_evidence`: `6/8`, with 1 right-to-wrong;
+  - `wrong_redacted_evidence`: `7/8`, no answer-changing transitions.
+- Local audit:
+  - `experiments/20260615-0034-local-peer-disjoint-math-redacted-audit/`
+  - `auto_evidence`: `16` records, `2` right-to-wrong;
+  - `answer_redacted_evidence`: `16` records, `0` right-to-wrong.
+- Added case-10 surface packet:
+  - `experiments/20260615-0040-local-peer-disjoint-math-case10-surface/`
+  - `manual_case10_labels.jsonl`
+- Main small observations:
+  - this disjoint MATH slice bounds the earlier observation that wrong
+    redacted evidence was more harmful;
+  - in case `10`, `wrong_auto_evidence` explicitly preserved the wrong final
+    value `3`, and the target deferred to it after recomputing `2`;
+  - `wrong_redacted_evidence` removed that wrong final slot, leaving a
+    repairable algebra route, so the target stayed at `2`;
+  - `correct_auto_evidence` also caused a right-to-wrong by producing a
+    substitution surface that the target mutated into a sign/denominator error.
+- Added report:
+  - `reports/20260615-peer-disjoint-math-redaction-pressure.md`
+- Evidence register:
+  - added row `E-064`.
+
+## 2026-06-15 Research Story Synthesis Skill
+
+- Added the third independent project top-level skill:
+  - `skills/research-story-synthesis/SKILL.md`
+- Purpose:
+  - synthesize bounded research stories, idea memos, mentor updates, and
+    contribution shapes from existing evidence;
+  - keep synthesis late, artifact-grounded, and caveated;
+  - avoid turning selected runs or manual labels into population claims.
+- Updated top-level project references:
+  - `README.md`
+  - `docs/README.md`
+  - `project_intake.md`
+  - `skills/reproduction-first-research/SKILL.md`
+- Current top-level skill split:
+  - `reproduction-first-research`: contact with runnable systems, logs,
+    traces, failures, and small variations;
+  - `research-story-synthesis`: late bounded story synthesis from reports,
+    evidence rows, run artifacts, and literature pressure;
+  - `repro-friction-memory`: reusable rules for recurring reproduction
+    blockers.
+
+## 2026-06-15 Peer Redacted Neighbor Repeat
+
+- Ran neighboring redacted-evidence pressure checks on A800_2:
+  - reused task-local vLLM service `qwen2.5-7b-peer-neighbor` on port `8026`;
+  - GPU `2`;
+  - copied outputs back locally:
+    - `experiments/20260615-0008-a8002-peer-redacted-evidence-dar-neighbor14/`
+    - `experiments/20260615-0012-a8002-peer-redacted-evidence-math-neighbor8/`
+    - `experiments/20260615-0020-a8002-peer-redacted-neighbor-math-random8/`
+  - after the jobs completed, port `8026` was closed and GPU `2` returned to
+    idle.
+- DAR note:
+  - changing sample seed did not create a new slice because the saved DAR source
+    only exposed the same `14` usable disagreement cases;
+  - neighbor DAR reproduced the same broad redacted behavior:
+    - `correct_redacted_evidence`: `12/14`, `1` wrong-to-right;
+    - `wrong_redacted_evidence`: `9/14`, `3` right-to-wrong and `1`
+      wrong-to-right.
+- MATH neighbor:
+  - full-condition seed `61422`:
+    - cases: `9`, `15`, `24`, `26`, `33`, `38`, `41`, `47`;
+    - `correct_redacted_evidence`: `5/8`, `1` wrong-to-right;
+    - `wrong_redacted_evidence`: `3/8`, `1` right-to-wrong.
+  - minimal seed `61521`:
+    - cases: `1`, `10`, `22`, `24`, `33`, `38`, `41`, `47`;
+    - `wrong_redacted_evidence`: `5/8`, `1` wrong-to-right and no
+      right-to-wrong.
+- Added local repeat comparison helper:
+  - `scripts/compare_peer_redacted_repeats.py`
+  - output:
+    - `experiments/20260615-0036-local-peer-redacted-repeat-variability/`
+- Local audit sidecars:
+  - full neighbor redacted audit:
+    - `experiments/20260615-0020-local-peer-neighbor-redacted-audit/`
+    - `experiments/20260615-0028-local-peer-redacted-neighbor-audit/`
+  - full neighbor focus cards:
+    - `experiments/20260615-0022-local-peer-neighbor-relation-slot-cards/`
+  - minimal MATH neighbor audit:
+    - `experiments/20260615-0024-local-peer-redacted-neighbor-math-audit/`
+- Repeat comparison:
+  - repeated case/condition pairs: `46`;
+  - variable post-answer/transition pairs: `2`;
+  - both were MATH case `47`, under `correct_redacted_evidence` and
+    `wrong_redacted_evidence`;
+  - evidence text did not vary for those two pairs, but parsed post answers and
+    transitions did.
+- Main small observation:
+  - MATH `47` is a repeatability sentinel: the same wrong redacted combinatorics
+    surface moved `28800 -> 14400` in two full-condition runs, but moved
+    `14400 -> 28800` in the minimal seed `61521` run.
+- Added report:
+  - `reports/20260615-peer-redacted-neighbor-repeat.md`
+- Evidence register:
+  - added row `E-063`.

@@ -305,8 +305,10 @@ For recurring operational friction such as shell quoting, remote cache misses, p
 
 ## Skill Boundary
 
-This skill is the top-level project posture. It does not replace:
+This skill is the top-level contact and reproduction posture. It does not replace:
 
 - machine checklist in `docs/machine_quickstart.md`;
 - experiment logging details in `docs/experiment_protocol.md`;
-- paper queue management in `papers/reading_queue.md`.
+- paper queue management in `papers/reading_queue.md`;
+- late bounded synthesis in `skills/research-story-synthesis/SKILL.md`;
+- recurring operational friction memory in `skills/repro-friction-memory/SKILL.md`.

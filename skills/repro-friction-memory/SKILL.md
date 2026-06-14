@@ -50,6 +50,13 @@ Simple remote command:
 ssh -o BatchMode=yes -o ConnectTimeout=10 A800_2 'hostname'
 ```
 
+If the local SSH config does not define `A800_2`, use the direct form from the
+machine handbook:
+
+```powershell
+ssh -o BatchMode=yes -o ConnectTimeout=10 -p 10622 xuhaoming@124.128.251.61 'hostname'
+```
+
 Remote command with pipes or grep patterns:
 
 ```powershell
@@ -149,6 +156,12 @@ Reusable response:
 - add a parser smoke for nested-brace `\frac{a}{b}` and plain `a/b` answers before reading MATH accuracy or peer correctness labels;
 - keep the expected answer format unchanged;
 - record parser compatibility as evaluation plumbing, not a communication-method change.
+
+For numeric answer leakage or answer redaction audits, do not use a right
+boundary like `(?![\d.])`. It misses sentence-final answers such as `28800.`
+because the period is punctuation, not a decimal tail. Use a boundary that
+rejects a following digit or `.\d` decimal continuation while allowing ordinary
+sentence punctuation.
 
 ### Debug Logging
 

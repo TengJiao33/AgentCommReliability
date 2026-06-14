@@ -1,0 +1,325 @@
+{
+  "answer_like_or_numeric_leak_count": 12,
+  "answer_like_or_numeric_leak_rate": 0.375,
+  "answer_redacted_records": 16,
+  "avg_numeric_token_count": 3.125,
+  "avg_source_answer_redaction_count": 4.6875,
+  "avg_word_count": 19.78125,
+  "by_condition_leakage": {
+    "correct_auto_evidence": {
+      "no_obvious_answer_leak": 5,
+      "source_answer_number_present": 3
+    },
+    "correct_redacted_evidence": {
+      "no_obvious_answer_leak": 7,
+      "source_answer_number_present": 1
+    },
+    "wrong_auto_evidence": {
+      "no_obvious_answer_leak": 3,
+      "source_answer_number_present": 5
+    },
+    "wrong_redacted_evidence": {
+      "no_obvious_answer_leak": 5,
+      "source_answer_number_present": 3
+    }
+  },
+  "by_condition_transitions": {
+    "correct_auto_evidence": {
+      "right_to_wrong": 1,
+      "stable_right": 6,
+      "unknown": 1
+    },
+    "correct_redacted_evidence": {
+      "stable_right": 7,
+      "unknown": 1
+    },
+    "wrong_auto_evidence": {
+      "right_to_wrong": 1,
+      "stable_right": 6,
+      "unknown": 1
+    },
+    "wrong_redacted_evidence": {
+      "stable_right": 7,
+      "unknown": 1
+    }
+  },
+  "by_family": {
+    "MAD-MM": {
+      "no_obvious_answer_leak": 20,
+      "records": 32,
+      "source_answer_number_present": 12
+    }
+  },
+  "by_surface": {
+    "answer_redacted_evidence": {
+      "no_obvious_answer_leak": 12,
+      "records": 16,
+      "source_answer_number_present": 4,
+      "stable_right": 14,
+      "unknown": 2
+    },
+    "auto_evidence": {
+      "no_obvious_answer_leak": 8,
+      "records": 16,
+      "right_to_wrong": 2,
+      "source_answer_number_present": 8,
+      "stable_right": 12,
+      "unknown": 2
+    }
+  },
+  "by_surface_target_behavior": {
+    "answer_redacted_evidence": {
+      "post_unparseable_or_unknown": 1,
+      "pre_unparseable_or_unknown": 1,
+      "preserved_correct_answer": 14
+    },
+    "auto_evidence": {
+      "copied_wrong_source_answer": 1,
+      "moved_off_correct_without_source_copy": 1,
+      "pre_unparseable_or_unknown": 2,
+      "preserved_correct_answer": 12
+    }
+  },
+  "contact_label_counts": {
+    "answer_leak_audit": 11,
+    "dense_formula_surface": 11,
+    "plain_relation_surface": 9,
+    "wrong_evidence_harmful_relation": 1
+  },
+  "examples_by_contact_label": {
+    "answer_leak_audit": [
+      {
+        "case_index": 22,
+        "condition": "correct_auto_evidence",
+        "evidence_text": "New area calculated as 28.8 inches by 19.2 inches, yielding a 44% increase from the original 384 square inches.",
+        "leakage_label": "source_answer_number_present",
+        "post_exposure_answer": 44,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 44,
+        "source_answer_redaction_count": 0,
+        "surface": "auto_evidence",
+        "target_behavior": "preserved_correct_answer",
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 26,
+        "condition": "wrong_auto_evidence",
+        "evidence_text": "Total combinations minus invalid (both green and purple) combinations: \\( \\binom{11}{3} - \\binom{9}{1} = 100 \\)",
+        "leakage_label": "source_answer_number_present",
+        "post_exposure_answer": 156,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 100,
+        "source_answer_redaction_count": 0,
+        "surface": "auto_evidence",
+        "target_behavior": "preserved_correct_answer",
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 41,
+        "condition": "correct_auto_evidence",
+        "evidence_text": "Solved for coefficients of \\(p(x)\\) using given points and solved \\(p(p(x)) = x\\) to find non-integer solution \\(x = \\frac{5}{3}\\).",
+        "leakage_label": "source_answer_number_present",
+        "post_exposure_answer": 1.6666666666666667,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 3,
+        "source_answer_redaction_count": 0,
+        "surface": "auto_evidence",
+        "target_behavior": "pre_unparseable_or_unknown",
+        "transition": "unknown"
+      },
+      {
+        "case_index": 41,
+        "condition": "wrong_auto_evidence",
+        "evidence_text": "The vertex of \\(p(x)\\) at \\(x = \\frac{13}{6}\\) suggests it is the non-integer solution to \\(p(p(x)) = x\\).",
+        "leakage_label": "source_answer_number_present",
+        "post_exposure_answer": 2.1666666666666665,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 6,
+        "source_answer_redaction_count": 0,
+        "surface": "auto_evidence",
+        "target_behavior": "pre_unparseable_or_unknown",
+        "transition": "unknown"
+      },
+      {
+        "case_index": 41,
+        "condition": "wrong_redacted_evidence",
+        "evidence_text": "The vertex of \\(p(x)\\) is at \\(x = \\frac{13}{6}\\), which is the non-integer solution to \\(p(p(x)) = x\\).",
+        "leakage_label": "source_answer_number_present",
+        "post_exposure_answer": 2.1666666666666665,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 6,
+        "source_answer_redaction_count": 3,
+        "surface": "answer_redacted_evidence",
+        "target_behavior": "pre_unparseable_or_unknown",
+        "transition": "unknown"
+      }
+    ],
+    "dense_formula_surface": [
+      {
+        "case_index": 1,
+        "condition": "correct_auto_evidence",
+        "evidence_text": "Substitute \\(x = 3\\) and \\(y = 2\\) into \\(\\frac{2x^3-3y^2}{6}\\) and simplify step-by-step.",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 7,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 7,
+        "source_answer_redaction_count": 0,
+        "surface": "auto_evidence",
+        "target_behavior": "preserved_correct_answer",
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 1,
+        "condition": "correct_redacted_evidence",
+        "evidence_text": "Substitute \\(x = 3\\) and \\(y = 2\\) into \\(\\frac{2x^3 - 3y^2}{6}\\) and simplify step-by-step.",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 7,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 7,
+        "source_answer_redaction_count": 2,
+        "surface": "answer_redacted_evidence",
+        "target_behavior": "preserved_correct_answer",
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 1,
+        "condition": "wrong_auto_evidence",
+        "evidence_text": "Substitute \\(x = 3\\) and \\(y = 2\\) into \\(2x^3 - 3y^2\\) and divide by 6.",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 7,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 1.5,
+        "source_answer_redaction_count": 0,
+        "surface": "auto_evidence",
+        "target_behavior": "preserved_correct_answer",
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 1,
+        "condition": "wrong_redacted_evidence",
+        "evidence_text": "Substitute \\(x = 3\\) and \\(y = 2\\) to get \\(2(3)^3 - 3(2)^2\\).",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 7,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 1.5,
+        "source_answer_redaction_count": 1,
+        "surface": "answer_redacted_evidence",
+        "target_behavior": "preserved_correct_answer",
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 33,
+        "condition": "correct_auto_evidence",
+        "evidence_text": "Solve system of equations \\(a + b = 5\\) and \\(-a + b = 1\\) to find \\(a = 2\\) and \\(b = 3\\).",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 15,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 15,
+        "source_answer_redaction_count": 0,
+        "surface": "auto_evidence",
+        "target_behavior": "preserved_correct_answer",
+        "transition": "stable_right"
+      }
+    ],
+    "plain_relation_surface": [
+      {
+        "case_index": 22,
+        "condition": "correct_redacted_evidence",
+        "evidence_text": "New area is calculated by increasing each dimension by 20% and then multiplying, resulting in a percentage increase that can be found by comparing the difference to the original area. [blank]",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 44,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 44,
+        "source_answer_redaction_count": 2,
+        "surface": "answer_redacted_evidence",
+        "target_behavior": "preserved_correct_answer",
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 22,
+        "condition": "wrong_auto_evidence",
+        "evidence_text": "New area is calculated by increasing each dimension by 20% and then finding the percentage increase from the original area.",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 44,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 72,
+        "source_answer_redaction_count": 0,
+        "surface": "auto_evidence",
+        "target_behavior": "preserved_correct_answer",
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 22,
+        "condition": "wrong_redacted_evidence",
+        "evidence_text": "New dimensions are 24.8 and 19.2, calculate new area and find the percentage increase over original 384 square inches.",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 44,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 72,
+        "source_answer_redaction_count": 1,
+        "surface": "answer_redacted_evidence",
+        "target_behavior": "preserved_correct_answer",
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 26,
+        "condition": "correct_auto_evidence",
+        "evidence_text": "Calculate total combinations, then subtract cases where green and purple are both chosen.",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 156,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 156,
+        "source_answer_redaction_count": 0,
+        "surface": "auto_evidence",
+        "target_behavior": "preserved_correct_answer",
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 26,
+        "condition": "correct_redacted_evidence",
+        "evidence_text": "Subtract the cases where green and purple are both chosen (9 ways) from the total ways to choose 3 marbles from 11 ([blank]).",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 156,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 156,
+        "source_answer_redaction_count": 2,
+        "surface": "answer_redacted_evidence",
+        "target_behavior": "preserved_correct_answer",
+        "transition": "stable_right"
+      }
+    ],
+    "wrong_evidence_harmful_relation": [
+      {
+        "case_index": 10,
+        "condition": "wrong_auto_evidence",
+        "evidence_text": "Express \\(a\\) in terms of \\(b\\), substitute into \\(\\frac{a}{b} + \\frac{b}{a} - ab\\), and simplify to get 3.",
+        "leakage_label": "source_answer_number_present",
+        "post_exposure_answer": 3,
+        "run_id": "20260615-0028-a8002-peer-redacted-evidence-math-disjoint8",
+        "source_answer": 3,
+        "source_answer_redaction_count": 0,
+        "surface": "auto_evidence",
+        "target_behavior": "copied_wrong_source_answer",
+        "transition": "right_to_wrong"
+      }
+    ]
+  },
+  "final_slot_marker_counts": {
+    "blank_final_slot": 4
+  },
+  "joined_post_records": 32,
+  "note": "Leakage is heuristic: numeric containment can count legitimate intermediate quantities as answer leaks, while fractions and aliases can be missed.",
+  "recomputed_source_answer_leaks": 12,
+  "recorded_source_answer_leaks": 12,
+  "records": 32,
+  "run_dirs": [
+    "experiments\\20260615-0028-a8002-peer-redacted-evidence-math-disjoint8"
+  ],
+  "target_behavior_counts": {
+    "copied_wrong_source_answer": 1,
+    "moved_off_correct_without_source_copy": 1,
+    "post_unparseable_or_unknown": 1,
+    "pre_unparseable_or_unknown": 3,
+    "preserved_correct_answer": 26
+  }
+}

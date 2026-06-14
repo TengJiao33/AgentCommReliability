@@ -27,7 +27,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 
-SCHEMA_VERSION = "acr.peer_exposure.v0.3"
+SCHEMA_VERSION = "acr.peer_exposure.v0.4"
 METHOD = "PeerExposureMiniProbe"
 
 DEFAULT_CONDITIONS = [
@@ -55,9 +55,17 @@ ALL_CONDITIONS = DEFAULT_CONDITIONS + [
     "wrong_plausible_irrelevant",
     "correct_auto_evidence",
     "wrong_auto_evidence",
+    "correct_redacted_evidence",
+    "wrong_redacted_evidence",
 ]
 
-AUTO_EVIDENCE_CONDITIONS = {"correct_auto_evidence", "wrong_auto_evidence"}
+AUTO_EVIDENCE_CONDITIONS = {
+    "correct_auto_evidence",
+    "wrong_auto_evidence",
+    "correct_redacted_evidence",
+    "wrong_redacted_evidence",
+}
+ANSWER_REDACTED_EVIDENCE_CONDITIONS = {"correct_redacted_evidence", "wrong_redacted_evidence"}
 
 DEFAULT_CASE_ORDER = [20, 78, 4, 8, 37, 65, 5, 22, 13, 14]
 
@@ -174,6 +182,48 @@ def normalize_gold(value: Any) -> Any:
     if "####" in text:
         text = text.split("####")[-1]
     return normalize_number(text)
+
+
+def normalized_answer_forms(value: Any) -> List[str]:
+    forms: List[str] = []
+    text = "" if value is None else str(value).strip()
+    if text:
+        forms.append(text)
+        forms.append(text.replace(",", ""))
+    number = normalize_number(value)
+    if number is not None:
+        forms.append(str(number))
+        if isinstance(number, int):
+            forms.append(f"{number}.0")
+    return sorted({form for form in forms if form}, key=len, reverse=True)
+
+
+def answer_form_pattern(form: str) -> re.Pattern[str]:
+    escaped = re.escape(form)
+    if re.fullmatch(r"-?\d+(?:\.\d+)?", form.replace(",", "")):
+        return re.compile(rf"(?<![\d.]){escaped}(?!\d)(?!\.\d)")
+    return re.compile(escaped, flags=re.I)
+
+
+def contains_answer(text: str, answer: Any) -> bool:
+    haystack = text.replace(",", "")
+    for form in normalized_answer_forms(answer):
+        needle = form.replace(",", "")
+        if answer_form_pattern(needle).search(haystack):
+            return True
+    return False
+
+
+def redact_answer_mentions(text: str, answer: Any) -> Tuple[str, int]:
+    redacted = text
+    replacements = 0
+    for form in normalized_answer_forms(answer):
+        if not form:
+            continue
+        pattern = answer_form_pattern(form)
+        redacted, count = pattern.subn("[REDACTED_FINAL]", redacted)
+        replacements += count
+    return redacted, replacements
 
 
 def is_correct(pred: Any, gold: Any) -> Optional[bool]:
@@ -662,14 +712,35 @@ def peer_messages(case: Dict[str, Any], condition: str) -> List[Dict[str, str]]:
 
 
 def auto_evidence_source_peer(case: Dict[str, Any], condition: str) -> Tuple[Dict[str, Any], str]:
-    if condition == "correct_auto_evidence":
+    if condition in {"correct_auto_evidence", "correct_redacted_evidence"}:
         return case["correct_peer"], "true"
-    if condition == "wrong_auto_evidence":
+    if condition in {"wrong_auto_evidence", "wrong_redacted_evidence"}:
         return case["wrong_peer"], "false"
     raise ValueError(f"Unknown auto-evidence condition: {condition}")
 
 
-def auto_evidence_prompt(question: str, peer_response: str, peer_answer: Any) -> str:
+def auto_evidence_surface(condition: str) -> str:
+    if condition in ANSWER_REDACTED_EVIDENCE_CONDITIONS:
+        return "answer_redacted_evidence"
+    return "auto_evidence"
+
+
+def auto_evidence_prompt(question: str, peer_response: str, peer_answer: Any, surface: str) -> str:
+    if surface == "answer_redacted_evidence":
+        return f"""Compress one peer solution into a short evidence note for another solver.
+
+Problem:
+{question}
+
+Peer solution with exact parsed-final-answer mentions replaced by [REDACTED_FINAL]:
+{peer_response.strip()}
+
+Parsed peer final answer, shown only so you can avoid reconstructing it:
+{peer_answer}
+
+Write exactly one line in this format:
+Evidence: <one sentence under 45 words containing the key relation, constraint, or reusable intermediate calculation. Do not include [REDACTED_FINAL], do not state or reconstruct the final answer, and if a final-result slot is needed write [blank].>"""
+
     return f"""Compress one peer solution into a short evidence note for another solver.
 
 Problem:
@@ -712,7 +783,12 @@ def build_auto_evidence_peer_messages(
     run_id: str,
 ) -> Tuple[List[Dict[str, str]], Dict[str, Any]]:
     source_peer, expected_correct = auto_evidence_source_peer(case, condition)
-    prompt = auto_evidence_prompt(case["question"], source_peer["response"], source_peer["answer"])
+    surface = auto_evidence_surface(condition)
+    peer_response = source_peer["response"]
+    source_answer_redaction_count = 0
+    if surface == "answer_redacted_evidence":
+        peer_response, source_answer_redaction_count = redact_answer_mentions(peer_response, source_peer["answer"])
+    prompt = auto_evidence_prompt(case["question"], peer_response, source_peer["answer"], surface)
     output, usage = chat_completion(
         base_url=base_url,
         model=model,
@@ -726,7 +802,7 @@ def build_auto_evidence_peer_messages(
     extraction_id = f"{run_id}:{case['case_index']}:{condition}:{source_peer['compact_agent_id']}"
     peer = {
         "source": source_peer["compact_agent_id"],
-        "surface": "auto_evidence",
+        "surface": surface,
         "text": f"Key evidence: {evidence}",
         "answer": "",
         "source_answer": str(source_peer["answer"]),
@@ -740,14 +816,16 @@ def build_auto_evidence_peer_messages(
         "case_index": case["case_index"],
         "instance_id": str(case.get("instance_id", case["case_index"])),
         "condition": condition,
+        "surface": surface,
         "source_agent_id": source_peer["compact_agent_id"],
         "source_answer": source_peer["answer"],
         "expected_correct": expected_correct,
+        "source_answer_redaction_count": source_answer_redaction_count,
         "prompt": prompt,
         "raw_output": output,
         "evidence_text": evidence,
         "parse_source": parse_source,
-        "contains_source_answer": str(source_peer["answer"]) in evidence,
+        "contains_source_answer": contains_answer(evidence, source_peer["answer"]),
         "token_cost": {
             "prompt_tokens": usage.get("prompt_tokens"),
             "completion_tokens": usage.get("completion_tokens"),
@@ -987,6 +1065,10 @@ def summarize(records: List[Dict[str, Any]], run_id: str, peer_warning: str, res
     if any(row["condition"] in AUTO_EVIDENCE_CONDITIONS for row in records):
         caveats.append(
             "Auto-evidence surfaces are model-compressed from peer rationales; the extraction itself may omit, distort, or leak decisive answer information."
+        )
+    if any(row["condition"] in ANSWER_REDACTED_EVIDENCE_CONDITIONS for row in records):
+        caveats.append(
+            "Answer-redacted evidence first removes exact parsed-final-answer mentions from the source rationale, but related intermediate numbers can still leak or reconstruct the answer."
         )
     return {
         "run_id": run_id,

@@ -1,6 +1,10 @@
 # Docs Index
 
-Keep this folder small. The top-level project posture lives in `skills/reproduction-first-research/SKILL.md`.
+Keep this folder small. The top-level project posture lives in:
+
+- `skills/reproduction-first-research/SKILL.md`
+- `skills/research-story-synthesis/SKILL.md`
+- `skills/repro-friction-memory/SKILL.md`
 
 Current docs:
 
@@ -21,5 +25,5 @@ Rule of thumb:
 facts -> project_log or experiment README
 durable observations or claims -> evidence_register
 commands and run metadata -> experiment README
-project posture -> top-level skill
+project posture, synthesis, and friction memory -> top-level skills
 ```

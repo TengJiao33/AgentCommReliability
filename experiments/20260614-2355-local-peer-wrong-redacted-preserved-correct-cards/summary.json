@@ -1,0 +1,25 @@
+{
+  "audit_cases_jsonl": "experiments\\20260614-2335-local-peer-redacted-evidence-audit\\cases.jsonl",
+  "cards": 12,
+  "conditions": [
+    "wrong_redacted_evidence"
+  ],
+  "contact_label_counts": {
+    "answer_leak_audit": 3,
+    "dense_formula_surface": 3,
+    "plain_relation_surface": 6
+  },
+  "run_dirs": [
+    "experiments\\20260614-2325-a8002-peer-redacted-evidence-dar-random14",
+    "experiments\\20260614-2330-a8002-peer-redacted-evidence-math-random8"
+  ],
+  "target_behavior_counts": {
+    "preserved_correct_answer": 12
+  },
+  "target_behaviors": [
+    "preserved_correct_answer"
+  ],
+  "transition_counts": {
+    "stable_right": 12
+  }
+}

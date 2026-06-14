@@ -18,7 +18,13 @@ from statistics import mean
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 
-AUTO_CONDITIONS = {"correct_auto_evidence", "wrong_auto_evidence"}
+AUTO_CONDITIONS = {
+    "correct_auto_evidence",
+    "wrong_auto_evidence",
+    "correct_redacted_evidence",
+    "wrong_redacted_evidence",
+}
+ANSWER_REDACTED_CONDITIONS = {"correct_redacted_evidence", "wrong_redacted_evidence"}
 
 
 def load_jsonl(path: Path) -> List[Dict[str, Any]]:
@@ -108,11 +114,54 @@ def contains_answer(text: str, answer: Any) -> bool:
         if not needle:
             continue
         if re.fullmatch(r"-?\d+(?:\.\d+)?", needle):
-            if re.search(rf"(?<![\d.]){re.escape(needle)}(?![\d.])", haystack):
+            if re.search(rf"(?<![\d.]){re.escape(needle)}(?!\d)(?!\.\d)", haystack):
                 return True
         elif needle.lower() in haystack_lower:
             return True
     return False
+
+
+def same_normalized_answer(left: Any, right: Any) -> bool:
+    left_norm = normalize_number(left)
+    right_norm = normalize_number(right)
+    return left_norm is not None and right_norm is not None and left_norm == right_norm
+
+
+def target_behavior_label(evidence: Dict[str, Any], post_record: Optional[Dict[str, Any]]) -> str:
+    if not post_record:
+        return "missing_post_record"
+    transition = str(post_record.get("transition") or "")
+    expected_correct = str(evidence.get("expected_correct") or "")
+    source_answer = evidence.get("source_answer")
+    pre_answer = post_record.get("pre_exposure_answer")
+    post_answer = post_record.get("post_exposure_answer")
+    post_correct = post_record.get("post_exposure_correct")
+
+    if transition == "right_to_wrong":
+        if same_normalized_answer(post_answer, source_answer):
+            return "copied_wrong_source_answer"
+        return "moved_off_correct_without_source_copy"
+    if transition == "wrong_to_right":
+        if expected_correct == "false":
+            return "repaired_wrong_surface"
+        if same_normalized_answer(post_answer, source_answer):
+            return "used_or_copied_correct_source_answer"
+        return "used_helpful_surface_without_answer_copy"
+    if transition == "stable_right":
+        if same_normalized_answer(pre_answer, post_answer):
+            return "preserved_correct_answer"
+        return "changed_but_stayed_correct"
+    if transition == "stable_wrong":
+        if same_normalized_answer(pre_answer, post_answer):
+            return "preserved_wrong_answer"
+        if expected_correct == "false" and same_normalized_answer(post_answer, source_answer):
+            return "copied_wrong_source_answer"
+        return "changed_but_stayed_wrong"
+    if transition == "unknown":
+        if post_correct is None:
+            return "post_unparseable_or_unknown"
+        return "pre_unparseable_or_unknown"
+    return "unclassified"
 
 
 def number_tokens(text: str) -> List[str]:
@@ -199,6 +248,7 @@ def classify_case(evidence: Dict[str, Any], post_record: Optional[Dict[str, Any]
     nums = number_tokens(text)
     keywords = relation_keywords(text)
     leak = leakage_label(evidence, post_record)
+    target_behavior = target_behavior_label(evidence, post_record)
     expected_correct = str(evidence.get("expected_correct") or "")
     transition = (post_record or {}).get("transition")
     post_correct = (post_record or {}).get("post_exposure_correct")
@@ -227,9 +277,11 @@ def classify_case(evidence: Dict[str, Any], post_record: Optional[Dict[str, Any]
         "source_family": source_family,
         "source_method": source_method,
         "condition": evidence.get("condition"),
+        "surface": evidence.get("surface") or "auto_evidence",
         "expected_correct": expected_correct,
         "source_agent_id": evidence.get("source_agent_id"),
         "source_answer": evidence.get("source_answer"),
+        "source_answer_redaction_count": evidence.get("source_answer_redaction_count", 0),
         "gold_answer": (post_record or {}).get("gold_answer"),
         "pre_exposure_answer": (post_record or {}).get("pre_exposure_answer"),
         "post_exposure_answer": (post_record or {}).get("post_exposure_answer"),
@@ -238,9 +290,13 @@ def classify_case(evidence: Dict[str, Any], post_record: Optional[Dict[str, Any]
         "transition": transition,
         "peer_answer_adopted": (post_record or {}).get("peer_answer_adopted"),
         "leakage_label": leak,
+        "target_behavior": target_behavior,
         "contains_source_answer_recorded": bool(evidence.get("contains_source_answer")),
         "contains_source_answer_recomputed": contains_answer(text, evidence.get("source_answer")),
         "contains_gold_answer_recomputed": contains_answer(text, (post_record or {}).get("gold_answer")),
+        "has_blank_final_slot": "[blank]" in text.lower(),
+        "has_redacted_marker": "[redacted_final]" in text.lower(),
+        "has_final_answer_phrase": bool(re.search(r"\b(final answer|answer is|the answer)\b", text, flags=re.I)),
         "has_equation_or_formula": has_equation_or_formula(text),
         "numeric_token_count": len(nums),
         "numeric_tokens": nums,
@@ -256,22 +312,37 @@ def summarize(cases: List[Dict[str, Any]], run_dirs: List[Path]) -> Dict[str, An
     total = len(cases)
     by_family: Dict[str, Counter[str]] = defaultdict(Counter)
     by_condition: Dict[str, Counter[str]] = defaultdict(Counter)
+    by_surface: Dict[str, Counter[str]] = defaultdict(Counter)
     leakage_by_condition: Dict[str, Counter[str]] = defaultdict(Counter)
     contact_labels = Counter(case["contact_label"] for case in cases)
+    target_behaviors = Counter(case["target_behavior"] for case in cases)
     transition_by_condition: Dict[str, Counter[str]] = defaultdict(Counter)
+    behavior_by_surface: Dict[str, Counter[str]] = defaultdict(Counter)
+    final_slot_markers: Counter[str] = Counter()
     examples: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
 
     for case in cases:
         family = str(case.get("source_family") or "unknown")
         condition = str(case.get("condition") or "unknown")
+        surface = str(case.get("surface") or "unknown")
         leak = str(case.get("leakage_label"))
         transition = str(case.get("transition") or "missing")
         by_family[family]["records"] += 1
         by_family[family][leak] += 1
         by_condition[condition]["records"] += 1
         by_condition[condition][transition] += 1
+        by_surface[surface]["records"] += 1
+        by_surface[surface][leak] += 1
+        by_surface[surface][transition] += 1
         leakage_by_condition[condition][leak] += 1
         transition_by_condition[condition][transition] += 1
+        behavior_by_surface[surface][str(case.get("target_behavior"))] += 1
+        if case.get("has_blank_final_slot"):
+            final_slot_markers["blank_final_slot"] += 1
+        if case.get("has_redacted_marker"):
+            final_slot_markers["redacted_marker_leaked"] += 1
+        if case.get("has_final_answer_phrase"):
+            final_slot_markers["final_answer_phrase"] += 1
         label = str(case.get("contact_label"))
         if len(examples[label]) < 5:
             examples[label].append(
@@ -279,10 +350,13 @@ def summarize(cases: List[Dict[str, Any]], run_dirs: List[Path]) -> Dict[str, An
                     "run_id": case.get("run_id"),
                     "case_index": case.get("case_index"),
                     "condition": condition,
+                    "surface": surface,
                     "transition": transition,
                     "leakage_label": leak,
                     "source_answer": case.get("source_answer"),
+                    "source_answer_redaction_count": case.get("source_answer_redaction_count"),
                     "post_exposure_answer": case.get("post_exposure_answer"),
+                    "target_behavior": case.get("target_behavior"),
                     "evidence_text": case.get("evidence_text"),
                 }
             )
@@ -292,6 +366,7 @@ def summarize(cases: List[Dict[str, Any]], run_dirs: List[Path]) -> Dict[str, An
     )
     recorded_source_leaks = sum(1 for case in cases if case["contains_source_answer_recorded"])
     recomputed_source_leaks = sum(1 for case in cases if case["contains_source_answer_recomputed"])
+    redacted_cases = [case for case in cases if case.get("condition") in ANSWER_REDACTED_CONDITIONS]
 
     return {
         "run_dirs": [str(path) for path in run_dirs],
@@ -303,8 +378,20 @@ def summarize(cases: List[Dict[str, Any]], run_dirs: List[Path]) -> Dict[str, An
         "answer_like_or_numeric_leak_rate": answer_leak_count / total if total else None,
         "avg_word_count": mean(case["word_count"] for case in cases) if cases else None,
         "avg_numeric_token_count": mean(case["numeric_token_count"] for case in cases) if cases else None,
+        "answer_redacted_records": len(redacted_cases),
+        "avg_source_answer_redaction_count": (
+            mean(case.get("source_answer_redaction_count", 0) or 0 for case in redacted_cases)
+            if redacted_cases
+            else None
+        ),
         "contact_label_counts": dict(sorted(contact_labels.items())),
+        "target_behavior_counts": dict(sorted(target_behaviors.items())),
+        "final_slot_marker_counts": dict(sorted(final_slot_markers.items())),
         "by_family": {key: dict(sorted(value.items())) for key, value in sorted(by_family.items())},
+        "by_surface": {key: dict(sorted(value.items())) for key, value in sorted(by_surface.items())},
+        "by_surface_target_behavior": {
+            key: dict(sorted(value.items())) for key, value in sorted(behavior_by_surface.items())
+        },
         "by_condition_transitions": {
             key: dict(sorted(value.items())) for key, value in sorted(transition_by_condition.items())
         },

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Story Synthesis"
+  short_description: "Synthesize bounded research stories from reproduced evidence."
+  default_prompt: "Use this skill to synthesize a research story from existing project logs, reports, evidence-register rows, and run artifacts without inventing claims beyond the evidence."

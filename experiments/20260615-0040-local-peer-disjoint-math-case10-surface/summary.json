@@ -1,0 +1,34 @@
+{
+  "audit_cases_jsonl": "experiments\\20260615-0034-local-peer-disjoint-math-redacted-audit\\cases.jsonl",
+  "cards": 4,
+  "case_indices": [
+    "10"
+  ],
+  "conditions": [
+    "correct_auto_evidence",
+    "correct_redacted_evidence",
+    "wrong_auto_evidence",
+    "wrong_redacted_evidence"
+  ],
+  "contact_label_counts": {
+    "dense_formula_surface": 3,
+    "wrong_evidence_harmful_relation": 1
+  },
+  "run_dirs": [
+    "experiments\\20260615-0028-a8002-peer-redacted-evidence-math-disjoint8"
+  ],
+  "target_behavior_counts": {
+    "copied_wrong_source_answer": 1,
+    "moved_off_correct_without_source_copy": 1,
+    "preserved_correct_answer": 2
+  },
+  "target_behaviors": [
+    "copied_wrong_source_answer",
+    "moved_off_correct_without_source_copy",
+    "preserved_correct_answer"
+  ],
+  "transition_counts": {
+    "right_to_wrong": 2,
+    "stable_right": 2
+  }
+}

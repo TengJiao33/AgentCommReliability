@@ -4,10 +4,12 @@ Multi-agent communication reliability, kept as an open-ended reproduction notebo
 
 ## Authority
 
-The project posture is defined by:
+The project posture is defined by three top-level skills:
 
 ```text
 skills/reproduction-first-research/SKILL.md
+skills/research-story-synthesis/SKILL.md
+skills/repro-friction-memory/SKILL.md
 ```
 
 The short version:
@@ -16,6 +18,8 @@ The short version:
 paper summary -> not enough contact
 reproduce code -> sit with logs, failures, traces, and odd details
 record before explaining
+synthesize late, from evidence, with caveats attached
+remember solved reproduction friction
 ```
 
 ## Top-Level Attitude
@@ -36,6 +40,8 @@ MAD-MM, DAR, MOC, RuleArena, and future baselines are objects on the table, not 
 ## Core Files
 
 - `skills/reproduction-first-research/SKILL.md`: top-level posture and reproduction practice.
+- `skills/research-story-synthesis/SKILL.md`: bounded story, idea, mentor-update, and synthesis practice after evidence exists.
+- `skills/repro-friction-memory/SKILL.md`: reusable memory for solved operational reproduction blockers.
 - `docs/project_log.md`: chronological facts.
 - `docs/evidence_register.md`: durable observations and claims, only when something is worth carrying forward.
 - `docs/experiment_protocol.md`: run-note metadata and logging shape.

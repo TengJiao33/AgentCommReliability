@@ -32,9 +32,13 @@ The preferred state is:
 - allow confusion and idle curiosity to remain part of the work;
 - make practical choices locally without converting them into a project ideology.
 
-## Top-Level Skill
+## Top-Level Skills
 
-Use `skills/reproduction-first-research/SKILL.md` as the default project posture.
+Use these as the project's top-level skills:
+
+- `skills/reproduction-first-research/SKILL.md`
+- `skills/research-story-synthesis/SKILL.md`
+- `skills/repro-friction-memory/SKILL.md`
 
 This means:
 
@@ -42,6 +46,8 @@ This means:
 - LLM help should focus on code tracing, debugging, implementation explanation, and careful note keeping;
 - candidate ideas may come from observed behavior, but do not need to be produced on schedule;
 - if an idea is eventually given sharper form, it should remember the logs, code paths, or variants that gave rise to it.
+- research stories and mentor updates should be synthesized late from reports, evidence rows, and run artifacts, with caveats attached;
+- recurring operational blockers should be captured as reusable friction-memory rules instead of rediscovered.
 
 ## Seed Questions, Not Commitments
 

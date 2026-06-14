@@ -1,0 +1,27 @@
+{
+  "conditions": [
+    "correct_redacted_evidence",
+    "wrong_redacted_evidence"
+  ],
+  "evidence_text_variable": 3,
+  "post_answer_variable": 2,
+  "repeated_case_conditions": 46,
+  "run_dirs": [
+    "experiments\\20260614-2325-a8002-peer-redacted-evidence-dar-random14",
+    "experiments\\20260614-2330-a8002-peer-redacted-evidence-math-random8",
+    "experiments\\20260615-0008-a8002-peer-redacted-evidence-dar-neighbor14",
+    "experiments\\20260615-0012-a8002-peer-redacted-evidence-math-neighbor8",
+    "experiments\\20260615-0020-a8002-peer-redacted-neighbor-math-random8"
+  ],
+  "target_behavior_variable": 0,
+  "transition_variable": 2,
+  "variable_by_condition": {
+    "correct_redacted_evidence": 1,
+    "wrong_redacted_evidence": 1
+  },
+  "variable_case_conditions": 2,
+  "variable_case_keys": [
+    "MAD-MM::47::correct_redacted_evidence",
+    "MAD-MM::47::wrong_redacted_evidence"
+  ]
+}
