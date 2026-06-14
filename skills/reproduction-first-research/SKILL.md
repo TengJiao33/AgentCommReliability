@@ -184,6 +184,8 @@ It is still acceptable for a run to produce only aggregate accuracy, a setup fai
 
 A benchmark can be tried because it is nearby, runnable, weird, suggested by someone, or simply alive in the current workspace. It does not need to be justified as a test of an already named mechanism.
 
+Do not treat tiny saturated benchmarks as evidence for method claims.
+
 Benchmarks that make us notice the following may become interesting:
 
 - disagreement;
