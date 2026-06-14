@@ -137,9 +137,16 @@ Observed example:
 Qwen2.5-7B-Instruct emitted escaped braces such as \{final answer: 371.75\}; the DAR arithmetic parser originally only matched unescaped braces.
 ```
 
+Observed example:
+
+```text
+Peer-exposure MATH contact parsed LaTeX fractions such as \frac{5}{3} as the last integer token (`3`), and a final-answer regex that stopped at the first nested brace parsed `{final answer: \(\frac{5}{3}\)}` as `5`.
+```
+
 Reusable response:
 
 - patch the regex narrowly;
+- add a parser smoke for nested-brace `\frac{a}{b}` and plain `a/b` answers before reading MATH accuracy or peer correctness labels;
 - keep the expected answer format unchanged;
 - record parser compatibility as evaluation plumbing, not a communication-method change.
 

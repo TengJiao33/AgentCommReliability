@@ -1,0 +1,276 @@
+{
+  "answer_like_or_numeric_leak_count": 16,
+  "answer_like_or_numeric_leak_rate": 0.36363636363636365,
+  "avg_numeric_token_count": 3.159090909090909,
+  "avg_word_count": 19.886363636363637,
+  "by_condition_leakage": {
+    "correct_auto_evidence": {
+      "no_obvious_answer_leak": 13,
+      "source_answer_number_present": 9
+    },
+    "wrong_auto_evidence": {
+      "explicit_answer_like_leak": 1,
+      "no_obvious_answer_leak": 15,
+      "source_answer_number_present": 6
+    }
+  },
+  "by_condition_transitions": {
+    "correct_auto_evidence": {
+      "stable_right": 15,
+      "stable_wrong": 3,
+      "unknown": 2,
+      "wrong_to_right": 2
+    },
+    "wrong_auto_evidence": {
+      "right_to_wrong": 2,
+      "stable_right": 13,
+      "stable_wrong": 4,
+      "unknown": 2,
+      "wrong_to_right": 1
+    }
+  },
+  "by_family": {
+    "DAR": {
+      "no_obvious_answer_leak": 19,
+      "records": 28,
+      "source_answer_number_present": 9
+    },
+    "MAD-MM": {
+      "explicit_answer_like_leak": 1,
+      "no_obvious_answer_leak": 9,
+      "records": 16,
+      "source_answer_number_present": 6
+    }
+  },
+  "contact_label_counts": {
+    "answer_leak_audit": 16,
+    "correct_evidence_rescue": 2,
+    "dense_formula_surface": 10,
+    "plain_relation_surface": 13,
+    "wrong_evidence_harmful_relation": 2,
+    "wrong_evidence_recoverable_skeleton": 1
+  },
+  "examples_by_contact_label": {
+    "answer_leak_audit": [
+      {
+        "case_index": 76,
+        "condition": "correct_auto_evidence",
+        "evidence_text": "Total time is calculated by dividing 40 students by 8 per session and multiplying by 45 minutes per session (40/8 * 45 = 225 minutes).",
+        "leakage_label": "source_answer_number_present",
+        "post_exposure_answer": 225,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 225,
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 76,
+        "condition": "wrong_auto_evidence",
+        "evidence_text": "Calculated total students (30), divided by group size (8), rounded up to 4 groups, each taking 45 minutes, totaling 180 minutes.",
+        "leakage_label": "source_answer_number_present",
+        "post_exposure_answer": 225,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 180,
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 82,
+        "condition": "wrong_auto_evidence",
+        "evidence_text": "Calculate the percentage error (4%) and adjust the desired temperature (520) by this percentage to find the correct oven setting (540.8).",
+        "leakage_label": "source_answer_number_present",
+        "post_exposure_answer": 500,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 540.8,
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 4,
+        "condition": "correct_auto_evidence",
+        "evidence_text": "Jay gains 12 snowballs per hour (20 built - 8 melted) and needs 5 hours to reach 60 snowballs.",
+        "leakage_label": "source_answer_number_present",
+        "post_exposure_answer": 5,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 5,
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 65,
+        "condition": "correct_auto_evidence",
+        "evidence_text": "Helene's age is twice the group average, which is 5, so \\( H = 10 \\), and using \\( H + W = 13 \\) gives \\( W = 3 \\).",
+        "leakage_label": "source_answer_number_present",
+        "post_exposure_answer": 3,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 3,
+        "transition": "stable_right"
+      }
+    ],
+    "correct_evidence_rescue": [
+      {
+        "case_index": 8,
+        "condition": "correct_auto_evidence",
+        "evidence_text": "John's current age (28) minus 20 years equals Jim's age when Digimon came out, then add 20 years to find Jim's current age.",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 24,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 24,
+        "transition": "wrong_to_right"
+      },
+      {
+        "case_index": 47,
+        "condition": "correct_auto_evidence",
+        "evidence_text": "Treat each party as a block (3 blocks) and arrange them in a circle (2 ways), then arrange members within each block (5! ways for Democrats and Republicans, 1! for Independent).",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 28800,
+        "run_id": "20260614-2206-a8002-peer-auto-evidence-math-random8",
+        "source_answer": 28800,
+        "transition": "wrong_to_right"
+      }
+    ],
+    "dense_formula_surface": [
+      {
+        "case_index": 8,
+        "condition": "wrong_auto_evidence",
+        "evidence_text": "Set up equation \\(8 - x = 2x - 40\\) based on John being twice as old as Jim 20 years ago.",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 36,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 12,
+        "transition": "stable_wrong"
+      },
+      {
+        "case_index": 82,
+        "condition": "correct_auto_evidence",
+        "evidence_text": "Calculate the percentage error (4%) and use it to find the set temperature (x) for an actual temperature of 520 degrees: \\( x = \\frac{520}{1.04} \\).",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 500,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 500,
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 78,
+        "condition": "correct_auto_evidence",
+        "evidence_text": "90 people split into 9-person groups, then 3/5 of these groups each brought back 2 seashells per member.",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 12,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 108,
+        "transition": "stable_wrong"
+      },
+      {
+        "case_index": 78,
+        "condition": "wrong_auto_evidence",
+        "evidence_text": "90 people divided into 9-person groups, then 3/5 of these groups each brought back 2 seashells.",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 12,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 12,
+        "transition": "stable_wrong"
+      },
+      {
+        "case_index": 13,
+        "condition": "wrong_auto_evidence",
+        "evidence_text": "Calculate probability differences: \\(P(\\text{number} > 3) = 0.5\\), \\(P(\\text{two even numbers}) = 0.25\\), and find percentage increase.",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 25,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 100,
+        "transition": "stable_right"
+      }
+    ],
+    "plain_relation_surface": [
+      {
+        "case_index": 97,
+        "condition": "correct_auto_evidence",
+        "evidence_text": "John's yearly cost includes daily mileage charges and monthly bonuses calculated over 50 weeks of service.",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 31800,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 31800,
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 14,
+        "condition": "correct_auto_evidence",
+        "evidence_text": "Ophelia has 22 chairs and Jenna has 66 chairs, each having 2 fewer sofas than chairs and 3 times as many chairs as Ophelia.",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 172,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 172,
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 14,
+        "condition": "wrong_auto_evidence",
+        "evidence_text": "Ophelia has 22 chairs (2 more than 20 sofas), Jenna has 3 times Ophelia's 22 chairs (66 chairs).",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 172,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 108,
+        "transition": "stable_right"
+      },
+      {
+        "case_index": 67,
+        "condition": "correct_auto_evidence",
+        "evidence_text": "Calculate total cost by applying 20% discount to manicure and pedicure ($75) and adding nail art cost ($30).",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 120,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 90,
+        "transition": "stable_wrong"
+      },
+      {
+        "case_index": 67,
+        "condition": "wrong_auto_evidence",
+        "evidence_text": "Calculate total cost after 20% discount on both mani and pedi, then add nail art cost for all nails on hands and feet.",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 120,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 120,
+        "transition": "stable_wrong"
+      }
+    ],
+    "wrong_evidence_harmful_relation": [
+      {
+        "case_index": 97,
+        "condition": "wrong_auto_evidence",
+        "evidence_text": "Calculated total annual cost by summing mileage charges ($2/mile for 15,000 miles) and annual bonuses ($150/month for 10 months).",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 37500,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 31500,
+        "transition": "right_to_wrong"
+      },
+      {
+        "case_index": 4,
+        "condition": "wrong_auto_evidence",
+        "evidence_text": "Jay builds 20 snowballs/hour and loses 4/hour, resulting in a net gain of 16 snowballs/hour.",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 3.75,
+        "run_id": "20260614-2205-a8002-peer-auto-evidence-dar-random14",
+        "source_answer": 3.8,
+        "transition": "right_to_wrong"
+      }
+    ],
+    "wrong_evidence_recoverable_skeleton": [
+      {
+        "case_index": 47,
+        "condition": "wrong_auto_evidence",
+        "evidence_text": "Arrange 3 groups in a circle (2 ways), then arrange 5 Democrats and 5 Republicans within their groups (24 ways each).",
+        "leakage_label": "no_obvious_answer_leak",
+        "post_exposure_answer": 28800,
+        "run_id": "20260614-2206-a8002-peer-auto-evidence-math-random8",
+        "source_answer": 1152,
+        "transition": "wrong_to_right"
+      }
+    ]
+  },
+  "joined_post_records": 44,
+  "note": "Leakage is heuristic: numeric containment can count legitimate intermediate quantities as answer leaks, while fractions and aliases can be missed.",
+  "recomputed_source_answer_leaks": 16,
+  "recorded_source_answer_leaks": 16,
+  "records": 44,
+  "run_dirs": [
+    "experiments\\20260614-2205-a8002-peer-auto-evidence-dar-random14",
+    "experiments\\20260614-2206-a8002-peer-auto-evidence-math-random8"
+  ]
+}

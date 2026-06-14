@@ -1,0 +1,46 @@
+{
+  "caveats": [
+    "Local audit only; no new model behavior.",
+    "Leakage labels are heuristic numeric/string containment checks.",
+    "The source MATH random8 records were generated before the fraction parser patch."
+  ],
+  "command": "python scripts\\audit_peer_auto_evidence.py --run-dirs experiments\\20260614-2205-a8002-peer-auto-evidence-dar-random14 experiments\\20260614-2206-a8002-peer-auto-evidence-math-random8 --out-dir experiments\\20260614-2107-local-peer-auto-evidence-audit",
+  "dataset": "Saved DAR GSM8K and MAD-MM MATH peer-exposure auto-evidence records",
+  "ended_at": "2026-06-14T21:07:03+08:00",
+  "gpu_ids": [],
+  "local_changes": [
+    "scripts/audit_peer_auto_evidence.py",
+    "scripts/run_peer_exposure_probe.py parser compatibility patch",
+    "skills/repro-friction-memory/SKILL.md parser note"
+  ],
+  "log_path": "",
+  "machine": "local",
+  "method": "PeerAutoEvidenceAudit",
+  "metrics": {
+    "answer_like_or_numeric_leak_count": 16,
+    "answer_like_or_numeric_leak_rate": 0.36363636363636365,
+    "contact_labels": {
+      "answer_leak_audit": 16,
+      "correct_evidence_rescue": 2,
+      "dense_formula_surface": 10,
+      "plain_relation_surface": 13,
+      "wrong_evidence_harmful_relation": 2,
+      "wrong_evidence_recoverable_skeleton": 1
+    },
+    "records": 44
+  },
+  "model": "none",
+  "result_paths": [
+    "experiments/20260614-2107-local-peer-auto-evidence-audit/summary.json",
+    "experiments/20260614-2107-local-peer-auto-evidence-audit/cases.jsonl",
+    "experiments/20260614-2107-local-peer-auto-evidence-audit/postcards.jsonl"
+  ],
+  "run_id": "20260614-2107-local-peer-auto-evidence-audit",
+  "samples": 44,
+  "seed": null,
+  "started_at": "2026-06-14T21:07:03+08:00",
+  "status": "completed",
+  "timeout_minutes": null,
+  "upstream_commit": "",
+  "upstream_repo": ""
+}

@@ -127,7 +127,9 @@ Small variants are allowed when they help touch the system more clearly:
 - judge: `none`, `majority`, `verifier`;
 - memory noise: `clean`, `wrong_memory_injected`.
 
-Keep early runs small because small runs are easier to understand and easier to abandon. They are not required to justify themselves as pilots for a larger matrix.
+Keep the first contact runs small because small runs are easier to understand and easier to abandon. Do not let that become the project's resting state.
+
+Once the command path, parser, and metric are working, actively ask whether a larger or more heterogeneous benchmark would reveal the behavior more clearly than another local variant. For ranking methods, judging robustness, estimating variance, or making any method-level claim, prefer scaling the benchmark pressure before adding another tiny ablation.
 
 Small variants are probes, not automatically ideas. If a variant only changes a prompt surface, retained field, threshold, or message format, treat it as diagnostic unless it reveals a mechanism that connects to a broader literature question.
 
@@ -212,7 +214,9 @@ It is still acceptable for a run to produce only aggregate accuracy, a setup fai
 
 A benchmark can be tried because it is nearby, runnable, weird, suggested by someone, or simply alive in the current workspace. It does not need to be justified as a test of an already named mechanism.
 
-Do not treat tiny saturated benchmarks as evidence for method claims.
+Small benchmarks are contact and debugging objects. Larger benchmarks are not bureaucracy; they are often the clearest way to see whether an effect survives heterogeneity, rare cases, and run variance.
+
+Do not treat tiny saturated benchmarks as evidence for method claims, and do not keep returning to them once a larger runnable alternative exists. When a small run looks promising, flat, or confusing, the default next pressure should be a larger sample, another task family, a fuller benchmark slice, or repeated seeds unless cost or logistics make that unreasonable.
 
 Benchmarks that make us notice the following may become interesting:
 
@@ -221,7 +225,8 @@ Benchmarks that make us notice the following may become interesting:
 - rule selection;
 - verifier behavior;
 - memory/context compression;
-- tool or state recovery.
+- tool or state recovery;
+- method ranking changes under scale, seed, or task heterogeneity.
 
 If a benchmark feels dead, saturated, noisy, or too expensive, leave it. That is a local practical choice, not a research verdict.
 

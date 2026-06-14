@@ -1396,3 +1396,165 @@ Next:
   - `reports/20260614-moc-merge-prompt-role-audit.md`
 - Evidence register:
   - added row `E-054`.
+
+## 2026-06-14 ArXiv Digest Pressure Contact
+
+- Added pressure-contact note:
+  - `reports/20260614-arxivdigest-pressure-contact.md`
+- Source:
+  - local `D:\develop\ArXiv_Daily_Digest`
+  - directions touched: `multi-agent-consistency`, `agent-skills-harness`, and `factuality-rule-guided-apps`
+- Purpose:
+  - keep the exploration deliberately loose;
+  - use external papers to ask which variables our current traces do not record;
+  - avoid turning the MOC role-loss audit or PACT final-answer contract into premature main ideas.
+- Pressure axes that emerged:
+  - harmful peer exposure and conformity;
+  - answer-level consensus hiding reasoning or role misalignment;
+  - typed terminal states such as commit, disagree, abort, or needs-evidence;
+  - harness/context layers as first-class reliability variables;
+  - decision-critical context rather than summary fluency or token cost alone.
+- Touchable next objects left behind:
+  - a tiny peer-exposure mini-probe;
+  - a typed terminal-state probe around PACT-style public state;
+  - continued use of the MOC role-loss audit as an instrument rather than a standalone idea;
+  - a harness-layer retrospective over saved PACT/DAR cases.
+- Evidence register:
+  - no new row; this is a pressure-contact note, not a new empirical claim.
+
+## 2026-06-14 Peer Exposure Mini-Probe
+
+- Added script:
+  - `scripts/run_peer_exposure_probe.py`
+- Purpose:
+  - touch the "communication as exposure channel" question from the arXiv digest pressure contact;
+  - reuse real DAR round-0 peer outputs from saved GSM8K disagreement cases;
+  - separate no-peer answering, wrong/correct answer-only exposure, wrong majority, authority-labeled wrong exposure, and full rationale exposure.
+- Source object:
+  - DAR full-history GSM8K100 run from `experiments/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/`
+  - selected mixed first-round cases: `20`, `78`, `4`, `8`, `37`, `65`
+- First run:
+  - `experiments/20260614-1956-a8002-peer-exposure-mini-probe/`
+  - found a parser/truncation artifact: `max_tokens=360` plus last-number fallback made one truncated output look like a wrong answer.
+- Final v2 run:
+  - `experiments/20260614-2005-a8002-peer-exposure-mini-probe-v2/`
+  - A800_2 GPU `1`, temporary vLLM port `8024`, Qwen2.5-7B-Instruct
+  - `42` records over `6` cases and `7` conditions
+  - temporary vLLM service was stopped after the run and GPU `1` returned to idle.
+- Main small observations:
+  - no-peer regenerated baseline: `4/6` correct;
+  - `wrong_answer_only`: one clear right-to-wrong case (`37`, `11 -> 12`);
+  - `correct_rationale`: one wrong-to-right case (`8`, `27 -> 24`);
+  - `correct_answer_only` did not rescue case `8`;
+  - case `78` remained wrong even with a correct full rationale, because the target kept a different predicate interpretation of "2 seashells each."
+- Added report:
+  - `reports/20260614-peer-exposure-mini-probe.md`
+- Evidence register:
+  - added row `E-055`.
+
+## 2026-06-14 Peer Exposure Follow-Ups
+
+- Updated script:
+  - `scripts/run_peer_exposure_probe.py`
+  - added `natural` warning mode, relation-only and wrong-relation surfaces,
+    terminal-state response mode, and MAD-MM MATH source support.
+- Formal runs:
+  - `experiments/20260614-2105-a8002-peer-exposure-natural-warning/`
+  - `experiments/20260614-2106-a8002-peer-exposure-surface-dissect/`
+  - `experiments/20260614-2107-a8002-peer-exposure-terminal-state/`
+  - `experiments/20260614-2108-a8002-peer-exposure-madmm-math-contact/`
+- Runtime:
+  - A800_2 GPU `1`, temporary vLLM port `8024`, Qwen2.5-7B-Instruct
+  - stopped the temporary service after the runs and confirmed GPU `1` returned
+    to idle.
+- Main small observations:
+  - removing the anti-conformity warning did not simply increase wrong-answer
+    copying; `authority_wrong` flipped DAR case `37`, while plain
+    `wrong_answer_only` did not in that run;
+  - in the surface dissection, `correct_relation_only` rescued DAR case `8`
+    without giving the final answer, while `wrong_answer_wrong_relation` was
+    more harmful than wrong answer-only;
+  - plausible irrelevant peer text was mostly ignored on the three-case surface
+    probe;
+  - terminal-state prompting converted wrong peer pressure into `DISAGREE` with
+    no final answer, but also blocked useful correction on initially wrong
+    cases;
+  - MAD-MM MATH case `494` showed the same shape: correct full rationale rescued
+    the case to `8`, while correct answer-only did not.
+- Added report:
+  - `reports/20260614-peer-exposure-followups.md`
+- Evidence register:
+  - added row `E-056`.
+
+## 2026-06-14 Peer Auto-Evidence Contact
+
+- Updated script:
+  - `scripts/run_peer_exposure_probe.py`
+  - added schema `acr.peer_exposure.v0.3`;
+  - added `correct_auto_evidence` and `wrong_auto_evidence`;
+  - added `--selection-mode random`, `--sample-seed`, and
+    `auto_evidence_extractions.jsonl`.
+- Formal runs:
+  - `experiments/20260614-2205-a8002-peer-auto-evidence-dar-random14/`
+  - `experiments/20260614-2206-a8002-peer-auto-evidence-math-random8/`
+- Runtime:
+  - A800_2 GPU `1`, temporary vLLM port `8024`, Qwen2.5-7B-Instruct
+  - stopped the temporary service after the runs and confirmed GPU `1` returned
+    to idle.
+- DAR random14:
+  - no-peer: `11/14`;
+  - `correct_answer_only`: `11/14`;
+  - `correct_auto_evidence`: `12/14`;
+  - `correct_rationale`: `13/14`;
+  - `wrong_answer_only`: `11/14`;
+  - `wrong_auto_evidence`: `9/14`;
+  - `wrong_rationale`: `9/14`.
+- MATH random8:
+  - no-peer: `4/8`, with two no-peer unparseable outputs;
+  - `correct_answer_only`: `6/8`;
+  - `correct_auto_evidence`: `5/8`;
+  - `correct_rationale`: `7/8`;
+  - `wrong_answer_only`: `5/8`;
+  - `wrong_auto_evidence`: `5/8`;
+  - `wrong_rationale`: `4/8`.
+- Main small observations:
+  - DAR auto evidence partially reproduced the relation-only signal: case `8`
+    moved from `14` to `24` without answer adoption;
+  - wrong auto evidence caused two DAR right-to-wrong regressions despite
+    `peer_answer_adoption_rate = 0.0`;
+  - MATH case `47` showed a useful collision: wrong compressed evidence
+    preserved a recoverable party-block structure, and the target repaired the
+    wrong internal count to reach `28800`;
+  - the extractor often leaked the source answer (`9/28` DAR notes, `7/16`
+    MATH notes by naive containment), so the current auto-evidence surface is
+    not a clean relation-only surface.
+- Added report:
+  - `reports/20260614-peer-auto-evidence-contact.md`
+- Evidence register:
+  - added row `E-057`.
+
+## 2026-06-14 Peer Auto-Evidence Audit
+
+- Added local audit script:
+  - `scripts/audit_peer_auto_evidence.py`
+- Ran a CPU-only audit over the latest auto-evidence sidecars:
+  - source runs:
+    - `experiments/20260614-2205-a8002-peer-auto-evidence-dar-random14/`
+    - `experiments/20260614-2206-a8002-peer-auto-evidence-math-random8/`
+  - output: `experiments/20260614-2107-local-peer-auto-evidence-audit/`
+  - joined `44/44` auto-evidence notes to downstream revision records.
+- Mechanical audit results:
+  - `16/44` notes contain source-answer numeric or answer-like leakage under the current heuristic;
+  - `2` correct-evidence rescues: DAR `8` and MATH `47`;
+  - `2` wrong-evidence harmful-relation cases: DAR `97` and DAR `4`;
+  - `1` wrong-evidence recoverable-skeleton case: MATH `47`.
+- Parser friction found and patched for future runs:
+  - `scripts/run_peer_exposure_probe.py` now handles nested-brace final answers and `\frac{a}{b}` / `a/b` answers;
+  - `scripts/audit_peer_auto_evidence.py` uses the same fraction normalizer;
+  - `skills/repro-friction-memory/SKILL.md` records the reusable parser rule.
+- Caveat:
+  - the saved MATH random8 peer-exposure records were generated before the parser patch, so those MATH accuracy and peer-correctness labels should be read as contact evidence with parser caveats.
+- Added report:
+  - `reports/20260614-peer-auto-evidence-audit.md`
+- Evidence register:
+  - added row `E-058`.
