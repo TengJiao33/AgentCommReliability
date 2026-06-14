@@ -1889,3 +1889,26 @@ Next:
   - `reports/20260615-peer-redacted-neighbor-repeat.md`
 - Evidence register:
   - added row `E-063`.
+
+## 2026-06-15 Research Story Synthesis Taste Revision
+
+- Revised `skills/research-story-synthesis/SKILL.md` after user feedback that
+  the first version was too generic and not close enough to the intended paper
+  taste.
+- New core distinction:
+  - `solid`: a theory- or observation-grounded root-cause story that gives the
+    reader a "that is why the previous method failed" insight;
+  - `novel`: a higher-threshold story that makes the reader feel that the work
+    opens an unexpected way to frame or solve the problem;
+  - `known limitation`: an expected or already-known failure that should not be
+    inflated into a contribution.
+- Added the A/B/C paper spine:
+  - prior approach `A` fails;
+  - diagnosed cause `B` explains the failure;
+  - proposed method `C` targets `B`;
+  - experiments must show both performance gain and reduction of `B`.
+- Updated:
+  - `skills/research-story-synthesis/agents/openai.yaml`
+  - `README.md`
+  - `docs/README.md`
+  - `project_intake.md`

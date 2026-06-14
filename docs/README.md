@@ -25,5 +25,5 @@ Rule of thumb:
 facts -> project_log or experiment README
 durable observations or claims -> evidence_register
 commands and run metadata -> experiment README
-project posture, synthesis, and friction memory -> top-level skills
+project posture, story-taste synthesis, and friction memory -> top-level skills
 ```

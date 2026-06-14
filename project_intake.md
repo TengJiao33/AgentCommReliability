@@ -46,7 +46,8 @@ This means:
 - LLM help should focus on code tracing, debugging, implementation explanation, and careful note keeping;
 - candidate ideas may come from observed behavior, but do not need to be produced on schedule;
 - if an idea is eventually given sharper form, it should remember the logs, code paths, or variants that gave rise to it.
-- research stories and mentor updates should be synthesized late from reports, evidence rows, and run artifacts, with caveats attached;
+- research stories and mentor updates should be synthesized late from reports, evidence rows, and run artifacts, then judged by whether they are solid root-cause stories, genuinely novel angles, or only known limitations;
+- a paper story should tightly connect motivation, method, ablations, qualitative evidence, quantitative gains, and diagnostics of the diagnosed failure cause;
 - recurring operational blockers should be captured as reusable friction-memory rules instead of rediscovered.
 
 ## Seed Questions, Not Commitments
