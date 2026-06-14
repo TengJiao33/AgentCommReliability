@@ -1,0 +1,182 @@
+/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:
+No module named 'vllm._version'
+  from vllm.version import __version__ as VLLM_VERSION
+[vLLM] Loading /mnt/quarkfs/share_model/Qwen2.5-7B-Instruct with tensor_parallel_size=1
+INFO 06-14 10:55:48 llm_engine.py:237] Initializing an LLM engine (vdev) with config: model='/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct', speculative_config=None, tokenizer='/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, rope_scaling=None, rope_theta=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=8192, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct, use_v2_block_manager=True, num_scheduler_steps=1, chunked_prefill_enabled=False multi_step_stream_outputs=True, enable_prefix_caching=False, use_async_output_proc=True, use_cached_outputs=False, mm_processor_kwargs=None)
+INFO 06-14 10:55:49 model_runner.py:1060] Starting to load model /mnt/quarkfs/share_model/Qwen2.5-7B-Instruct...
+Loading safetensors checkpoint shards:   0% Completed | 0/4 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:  25% Completed | 1/4 [00:14<00:43, 14.38s/it]
+Loading safetensors checkpoint shards:  50% Completed | 2/4 [00:28<00:28, 14.00s/it]
+Loading safetensors checkpoint shards:  75% Completed | 3/4 [00:44<00:14, 14.94s/it]
+Loading safetensors checkpoint shards: 100% Completed | 4/4 [00:58<00:00, 14.80s/it]
+Loading safetensors checkpoint shards: 100% Completed | 4/4 [00:58<00:00, 14.69s/it]
+
+INFO 06-14 10:56:48 model_runner.py:1071] Loading model weights took 14.2487 GB
+INFO 06-14 10:56:49 gpu_executor.py:122] # GPU blocks: 59783, # CPU blocks: 4681
+INFO 06-14 10:56:49 gpu_executor.py:126] Maximum concurrency for 8192 tokens per request: 116.76x
+INFO 06-14 10:56:51 model_runner.py:1402] Capturing the model for CUDA graphs. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI.
+INFO 06-14 10:56:51 model_runner.py:1406] CUDA graphs can take additional 1~3 GiB memory per GPU. If you are running out of memory, consider decreasing `gpu_memory_utilization` or enforcing eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 06-14 10:56:59 model_runner.py:1530] Graph capturing finished in 8 secs.
+pact:   0%|          | 0/5 [00:00<?, ?it/s]pact:  20%|██        | 1/5 [00:02<00:11,  2.76s/it]pact:  40%|████      | 2/5 [00:06<00:10,  3.48s/it]pact:  60%|██████    | 3/5 [00:10<00:07,  3.82s/it]pact:  80%|████████  | 4/5 [00:14<00:03,  3.88s/it]pact: 100%|██████████| 5/5 [00:18<00:00,  3.84s/it]pact: 100%|██████████| 5/5 [00:18<00:00,  3.74s/it]
+
+============================================================
+Problem #1
+Question: Were Scott Derrickson and Ed Wood of the same nationality?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Ed Wood's nationality.
+Environment State: Ed Wood is a 1994 American biographical period comedy-drama film directed and produced by Tim Burton.
+Action Result: Ed Wood is American.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Scott Derrickson's nationality.
+Environment State: Sinister is a 2012 supernatural horror film directed by Scott Derrickson and written by Derrickson and C. Robert Cargill.
+Action Result: Scott Derrickson is American.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about Scott Derrickson's nationality.
+Environment State: Scott Derrickson (born July 16, 1966) is an American director, screenwriter and producer. He lives in Los Angeles, California.
+Action Result: Scott Derrickson is American.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Determine if Scott Derrickson and Ed Wood were of the same nationality.
+Environment State: Ed Wood is American. Scott Derrickson is American.
+Action Result: Scott Derrickson and Ed Wood were of the same nationality.
+Final Answer: Yes.
+
+  Pred : yes
+  Gold : yes
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #2
+Question: What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Request film actress information.
+Environment State: Kiss and Tell is a 1945 American comedy film starring then 17-year-old Shirley Temple as Corliss Archer.
+Action Result:
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information on Shirley Temple's roles.
+Environment State: Shirley Temple Black (April 23, 1928 – February 10, 2014) was an American actress, singer, dancer, businesswoman, and diplomat who was Hollywood's number one box-office draw as a child actress from 1935 to 1938.
+Actio
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Request Janet Waldo's roles.
+Environment State: Janet Waldo is best known in animation for voicing Judy Jetson, Nancy in "Shazzan", Penelope Pitstop, and Josie in "Josie and the Pussycats", and on radio as the title character in "Meet Corliss Archer".
+Action Result:
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information on the film "Kiss and Tell".
+Environment State: "Kiss and Tell" is a 1945 American comedy film starring then 17-year-old Shirley Temple as Corliss Archer.
+Action Result: Shirley Temple portrayed Corliss Archer in the 1945 film "Kiss and Tell".
+Final Answer: Shirl
+
+  Pred : shirley temple did not hold any government position as she was actress in film kiss and tell
+  Gold : chief of protocol
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #3
+Question: What science fantasy young adult series, told in first person, has a set of companion books narrating the stories of enslaved worlds and alien species?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Request companion books information from Agent B.
+Environment State: None relevant to the question in this context.
+Action Result: None relevant to the question in this context.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide companion books information.
+Environment State: [List of Square Enix companion books]
+Action Result: Square Enix has produced numerous companion books focusing on artwork, developer interviews, and background information on fictional worlds and characters in their games.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information on companion books related to science fantasy series.
+Environment State: [Victoria Hanley] Victoria Hanley is an American young adult fantasy novelist. Her first three books, "The Seer And The Sword", "The Healer's Keep" and "The Light Of The Oracle" are companio
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information on a science fantasy young adult series with a first person narrative.
+Environment State: [Animorphs] Animorphs is a science fantasy series of young adult books written by Katherine Applegate and her husband Michael Grant, writing together under the name K. A. Ap
+
+  Pred : animorphs series is science fantasy young adult series told in first person with set of companion books narrating stories of enslaved worlds and alien species
+  Gold : animorphs
+  EM   : False  |  F1: 0.077
+
+============================================================
+Problem #4
+Question: Are the Laleli Mosque and Esma Sultan Mansion located in the same neighborhood?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Request the locations of Laleli Mosque and Esma Sultan Mansion.
+Environment State: The Laleli Mosque (Turkish: "Laleli Camii, or Tulip Mosque" ) is an 18th-century Ottoman imperial mosque located in Laleli, Fatih, Istanbul, Turkey.
+Action Result: Requesting location of Esma Sultan M
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the location of Esma Sultan Mansion.
+Environment State: The Esma Sultan Mansion (Turkish: "Esma Sultan Yalısı" ), a historical yalı (English: waterside mansion ) located at Bosphorus in Ortaköy neighborhood of Istanbul, Turkey and named after its original owner Esma Sultan, 
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm if Laleli and Ortaköy are the same neighborhood.
+Environment State: The Laleli Mosque is located in Laleli, Fatih, Istanbul, Turkey.
+Action Result: Laleli Mosque is in Laleli, Fatih, Istanbul, Turkey.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm if Laleli and Ortaköy are the same neighborhood.
+Environment State: The Laleli Mosque is located in Laleli, Fatih, Istanbul, Turkey.
+Action Result: Laleli and Ortaköy are different neighborhoods.
+Final Answer: No, the Laleli Mosque and Esma Sultan Mansion are not located in 
+
+  Pred : no laleli mosque and esma sultan mansion are not located in same neighborhood
+  Gold : no
+  EM   : False  |  F1: 0.143
+
+============================================================
+Problem #5
+Question: The director of the romantic comedy "Big Stone Gap" is based in what New York city?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the director's name for "Big Stone Gap".
+Environment State: Big Stone Gap is a 2014 American drama romantic comedy film written and directed by Adriana Trigiani and produced by Donna Gigliotti for Altar Identity Studios, a subsidiary of Media Society.
+Action Result: The dire
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the city where Adriana Trigiani is based.
+Environment State: Adriana Trigiani is an Italian American best-selling author of sixteen books, television writer, film director, and entrepreneur based in Greenwich Village, New York City.
+Action Result: Adriana Trigiani is based i
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the city where the director of "Big Stone Gap" is based.
+Environment State: The director of "Big Stone Gap" is Adriana Trigiani and the film is a 2014 American drama romantic comedy.
+Action Result: Adriana Trigiani is based in New York City.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm the city where the director of "Big Stone Gap" is based.
+Environment State: Adriana Trigiani is an Italian American best-selling author of sixteen books, television writer, film director, and entrepreneur based in Greenwich Village, New York City.
+Action Result: Greenwich Vi
+
+  Pred : director of romantic comedy big stone gap is based in greenwich village new york city
+  Gold : greenwich village new york city
+  EM   : False  |  F1: 0.500
+
+============================================================
+RESULTS:
+{
+  "method": "pact",
+  "model": "/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct",
+  "dataset": "hotpotqa",
+  "data_path": "data/hotpot_dev_distractor_v1.json",
+  "seed": 42,
+  "max_samples": 5,
+  "exact_match": 0.2,
+  "avg_f1": 0.344,
+  "correct": 1,
+  "avg_turns": 4.0,
+  "avg_output_tokens_per_turn": 73.7,
+  "avg_communication_tokens": 294.6,
+  "avg_total_tokens": 4129.0,
+  "total_time_sec": 18.7,
+  "time_per_sample_sec": 3.7408
+}
+
+Per-sample results saved to: /data/xuhaoming/yfy/research_workspace/results/pact-qwen25-7b-hotpot5-20260614_105542/pact_qwen25_7b_hotpot5.jsonl

@@ -18,6 +18,14 @@ If a baseline is tracked as a git submodule, keep project-local patch files outs
 the submodule so the parent repository can track them. Current example:
 `baselines/MAD-MM-patches/`.
 
+Tracked baselines:
+
+- `MAD-MM`: Memory Masking for multi-agent debate.
+- `DAR`: Diversity-Aware Retention for debate message selection.
+- `MOC`: Multi-Order Communication with topology-aware message merging.
+- `RuleArena`: benchmark pressure / loader smoke.
+- `PACT`: action-state communication surface for split-evidence HotpotQA.
+
 Record:
 
 - upstream URL;

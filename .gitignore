@@ -3,6 +3,7 @@ __pycache__/
 .venv/
 .env
 .env.*
+.tmp/
 
 # Experiment outputs
 logs/*

@@ -467,3 +467,33 @@ Next:
   - `reports/20260614-dar-sample20-retained-surface-note.md`
 - Working next check:
   - try an intermediate retained surface such as parsed answer plus short calculation/evidence before expanding GSM8K or running a harder matrix.
+
+## 2026-06-14 PACT HotpotQA Smoke
+
+- Added PACT as a tracked upstream submodule:
+  - repo: `https://github.com/iNLP-Lab/PACT`
+  - commit: `91acf820f8a69fc7c181120b3120444a98823230`
+  - local path: `baselines/PACT/upstream`
+- Added project records:
+  - `baselines/PACT/`
+  - `papers/cards/pact.md`
+  - `scripts/run_pact_hotpot_smoke_a8002.sh`
+- Remote setup on A800_2:
+  - cloned upstream source to `/data/xuhaoming/yfy/research_workspace/baselines/PACT`;
+  - remote syntax check passed;
+  - official CMU HotpotQA download hung and remote Hugging Face access timed out, so the dataset was downloaded locally from Hugging Face, validated as 7,405 JSON items, and copied to A800_2.
+- Ran two PACT split-evidence HotpotQA checks on GPU 1:
+  - Qwen2.5-7B-Instruct, 5 samples: EM `0.20`, avg F1 `0.344`, avg communication tokens `294.6`, avg total tokens `4129.0`.
+  - Qwen2.5-14B-Instruct, 50 samples: EM `0.34`, avg F1 `0.508`, avg communication tokens `339.3`, avg total tokens `4746.8`.
+  - GPU 1 was released after completion.
+- 50-sample trace diagnostics:
+  - `Action Required`, `Environment State`, and `Action Result` appeared in all 200 agent turns;
+  - `Final Answer` appeared in all 50 final turns;
+  - no `<think>` spans appeared, so this run did not exercise private-reasoning stripping;
+  - 7 yes/no wrong-EM cases began with the correct yes/no answer, and 9 non-yes/no wrong-EM cases began with the normalized gold answer but added extra text.
+- Added local run records and report:
+  - `experiments/20260614-1055-a8002-pact-qwen25-7b-hotpot5/`
+  - `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/`
+  - `reports/20260614-pact-hotpot-smoke.md`
+- Working next check:
+  - add a PACT trace extractor and a postprocessing-only final-answer audit before treating EM as pure reasoning failure.

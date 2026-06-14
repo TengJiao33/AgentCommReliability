@@ -18,6 +18,7 @@ Latest scan: `reports/20260612-multi-agent-frontier-scan.md`.
 | --- | --- | --- | --- |
 | P0 | multi-agent-consistency | MOC: Multi-Order Communication in LLM-based Multi-Agent Systems | Multi-order evidence streams and semantic-topological merging; direct follow-up to MAD-MM's message-contamination theme. |
 | P0 | multi-agent-consistency | Hear Both Sides / DAR | Diversity-aware message retention; direct follow-up to MAD-MM trace cases where confidence or majority can select the wrong memory. |
+| P0 | multi-agent-consistency | PACT: What Should Agents Say? Action-state Communication for Efficient Multi-Agent Systems | Directly tests which intermediate communication surface should be exposed between agents. |
 | P0 | multi-agent-consistency | SMADE-IE | Sparse routing plus evidence-driven debate; concrete "debate only when needed" mechanism. |
 | P0 | multi-agent-consistency / harness | Dynamic Coordination Strategy Selection for Enterprise Multi-Agent Systems | Selects consensus/debate/synthesis/single-agent by problem class; directly asks when multi-agent is worthwhile. |
 | P0 | agent-skills-harness | Monitoring Agentic Systems Before They're Reliable | Gives a monitoring matrix for immature agent systems; useful for our documentation and evaluation standard. |

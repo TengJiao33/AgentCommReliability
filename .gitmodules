@@ -5,3 +5,6 @@
 [submodule "baselines/RuleArena/upstream"]
 	path = baselines/RuleArena/upstream
 	url = https://github.com/skyriver-2000/RuleArena.git
+[submodule "baselines/PACT/upstream"]
+	path = baselines/PACT/upstream
+	url = https://github.com/iNLP-Lab/PACT.git
