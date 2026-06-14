@@ -1,0 +1,278 @@
+{
+  "run_id": "20260614-1214-local-comm-regime-symbolic-smoke",
+  "schema_version": "acr.comm_trace.v1.1",
+  "seed": 7,
+  "samples_per_regime": 4,
+  "regimes": [
+    "recall",
+    "state_tracking",
+    "k_hop",
+    "conflict_evidence",
+    "saturated_arithmetic"
+  ],
+  "protocols": [
+    "single_agent",
+    "independent_majority",
+    "full_broadcast",
+    "evidence_state",
+    "route_or_silence"
+  ],
+  "records": 100,
+  "summary_rows": [
+    {
+      "task_regime": "conflict_evidence",
+      "protocol": "evidence_state",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 84.0,
+      "avg_communication_tokens": 15.0,
+      "changed_by_communication": 4
+    },
+    {
+      "task_regime": "conflict_evidence",
+      "protocol": "full_broadcast",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 84.0,
+      "avg_communication_tokens": 15.0,
+      "changed_by_communication": 4
+    },
+    {
+      "task_regime": "conflict_evidence",
+      "protocol": "independent_majority",
+      "correct": 0,
+      "total": 4,
+      "accuracy": 0.0,
+      "avg_total_tokens": 39.0,
+      "avg_communication_tokens": 0.0,
+      "changed_by_communication": 0
+    },
+    {
+      "task_regime": "conflict_evidence",
+      "protocol": "route_or_silence",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 84.0,
+      "avg_communication_tokens": 15.0,
+      "changed_by_communication": 4
+    },
+    {
+      "task_regime": "conflict_evidence",
+      "protocol": "single_agent",
+      "correct": 0,
+      "total": 4,
+      "accuracy": 0.0,
+      "avg_total_tokens": 29.0,
+      "avg_communication_tokens": 0.0,
+      "changed_by_communication": 0
+    },
+    {
+      "task_regime": "k_hop",
+      "protocol": "evidence_state",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 85.0,
+      "avg_communication_tokens": 10.0,
+      "changed_by_communication": 4
+    },
+    {
+      "task_regime": "k_hop",
+      "protocol": "full_broadcast",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 105.0,
+      "avg_communication_tokens": 15.0,
+      "changed_by_communication": 4
+    },
+    {
+      "task_regime": "k_hop",
+      "protocol": "independent_majority",
+      "correct": 0,
+      "total": 4,
+      "accuracy": 0.0,
+      "avg_total_tokens": 60.0,
+      "avg_communication_tokens": 0.0,
+      "changed_by_communication": 0
+    },
+    {
+      "task_regime": "k_hop",
+      "protocol": "route_or_silence",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 90.0,
+      "avg_communication_tokens": 10.0,
+      "changed_by_communication": 4
+    },
+    {
+      "task_regime": "k_hop",
+      "protocol": "single_agent",
+      "correct": 0,
+      "total": 4,
+      "accuracy": 0.0,
+      "avg_total_tokens": 53.0,
+      "avg_communication_tokens": 0.0,
+      "changed_by_communication": 0
+    },
+    {
+      "task_regime": "recall",
+      "protocol": "evidence_state",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 50.0,
+      "avg_communication_tokens": 5.0,
+      "changed_by_communication": 4
+    },
+    {
+      "task_regime": "recall",
+      "protocol": "full_broadcast",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 90.0,
+      "avg_communication_tokens": 15.0,
+      "changed_by_communication": 4
+    },
+    {
+      "task_regime": "recall",
+      "protocol": "independent_majority",
+      "correct": 0,
+      "total": 4,
+      "accuracy": 0.0,
+      "avg_total_tokens": 45.0,
+      "avg_communication_tokens": 0.0,
+      "changed_by_communication": 0
+    },
+    {
+      "task_regime": "recall",
+      "protocol": "route_or_silence",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 60.0,
+      "avg_communication_tokens": 5.0,
+      "changed_by_communication": 4
+    },
+    {
+      "task_regime": "recall",
+      "protocol": "single_agent",
+      "correct": 0,
+      "total": 4,
+      "accuracy": 0.0,
+      "avg_total_tokens": 35.0,
+      "avg_communication_tokens": 0.0,
+      "changed_by_communication": 0
+    },
+    {
+      "task_regime": "saturated_arithmetic",
+      "protocol": "evidence_state",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 78.0,
+      "avg_communication_tokens": 15.0,
+      "changed_by_communication": 0
+    },
+    {
+      "task_regime": "saturated_arithmetic",
+      "protocol": "full_broadcast",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 78.0,
+      "avg_communication_tokens": 15.0,
+      "changed_by_communication": 0
+    },
+    {
+      "task_regime": "saturated_arithmetic",
+      "protocol": "independent_majority",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 33.0,
+      "avg_communication_tokens": 0.0,
+      "changed_by_communication": 0
+    },
+    {
+      "task_regime": "saturated_arithmetic",
+      "protocol": "route_or_silence",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 33.0,
+      "avg_communication_tokens": 0.0,
+      "changed_by_communication": 0
+    },
+    {
+      "task_regime": "saturated_arithmetic",
+      "protocol": "single_agent",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 23.0,
+      "avg_communication_tokens": 0.0,
+      "changed_by_communication": 0
+    },
+    {
+      "task_regime": "state_tracking",
+      "protocol": "evidence_state",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 119.0,
+      "avg_communication_tokens": 20.0,
+      "changed_by_communication": 4
+    },
+    {
+      "task_regime": "state_tracking",
+      "protocol": "full_broadcast",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 119.0,
+      "avg_communication_tokens": 20.0,
+      "changed_by_communication": 4
+    },
+    {
+      "task_regime": "state_tracking",
+      "protocol": "independent_majority",
+      "correct": 0,
+      "total": 4,
+      "accuracy": 0.0,
+      "avg_total_tokens": 59.0,
+      "avg_communication_tokens": 0.0,
+      "changed_by_communication": 0
+    },
+    {
+      "task_regime": "state_tracking",
+      "protocol": "route_or_silence",
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "avg_total_tokens": 119.0,
+      "avg_communication_tokens": 20.0,
+      "changed_by_communication": 4
+    },
+    {
+      "task_regime": "state_tracking",
+      "protocol": "single_agent",
+      "correct": 0,
+      "total": 4,
+      "accuracy": 0.0,
+      "avg_total_tokens": 50.0,
+      "avg_communication_tokens": 0.0,
+      "changed_by_communication": 0
+    }
+  ],
+  "caveats": [
+    "Deterministic toy harness; not LLM behavior.",
+    "evidence_state and route_or_silence use oracle relevance to expose the communication variable.",
+    "Token counts are rough word-count proxies."
+  ]
+}

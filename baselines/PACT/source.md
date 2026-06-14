@@ -7,6 +7,7 @@
 - commit inspected: `91acf820f8a69fc7c181120b3120444a98823230`
 - license: no license file observed in the upstream repository
 - local path: `baselines/PACT/upstream`
+- project patch: `baselines/PACT/patches/a8002-local-reproduction-controls.patch`
 
 ## Why This Baseline
 
@@ -53,7 +54,7 @@ bash scripts/run_pact_hotpot_smoke_a8002.sh
 | Component | File / Function | Notes |
 | --- | --- | --- |
 | entrypoint | `run.py` | CLI, data load, batch loop, summary metrics, JSONL output |
-| dataset loader | `data.py::load_hotpotqa` | splits each HotpotQA item into two 5-paragraph contexts, each with 1 gold + 4 distractors |
+| dataset loader | `data.py::load_hotpotqa` | splits each HotpotQA item into two 5-paragraph contexts, each with 1 gold + 4 distractors; project copy supports `start_index` for neighboring slices |
 | method loop | `methods/pact.py::PACTMethod.run_batch` | alternates Agent A and B for `max_turns`; final turn extracts answer |
 | communication surface | `methods/pact.py::strip_think_tags` call | raw output is counted, but only think-stripped action-state text enters shared history |
 | prompts | `prompts.py::build_prompt_pact` | requires `Action Required`, `Environment State`, `Action Result`; final turn adds `Final Answer` |
@@ -66,6 +67,9 @@ bash scripts/run_pact_hotpot_smoke_a8002.sh
 - Upstream README says the Table 1 reproduction row is Qwen3-14B / HotpotQA; the shared A800_2 model mount currently has Qwen2.5-7B/14B but not Qwen3-14B.
 - The upstream quick demo defaults to `generate_bs=64`; the project smoke intentionally lowers this to `1` to reduce first-run memory risk.
 - PACT's central metric depends on a distinction between raw generated output tokens and the smaller think-stripped public history. We should inspect per-turn traces, not just final EM/F1.
+- The project patch adds a `--start_index` CLI flag and preserves original
+  HotpotQA `sample_index` values in JSONL outputs so offset runs can be compared
+  without renumbering samples.
 
 ## Loose Threads
 

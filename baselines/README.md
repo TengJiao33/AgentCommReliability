@@ -14,9 +14,9 @@ baselines/<method>/
   patches/
 ```
 
-If a baseline is tracked as a git submodule, keep project-local patch files outside
-the submodule so the parent repository can track them. Current example:
-`baselines/MAD-MM-patches/`.
+If a baseline is tracked as a git submodule, keep project-local patch files
+outside the submodule so the parent repository can track them. Current examples:
+`baselines/MAD-MM-patches/` and `baselines/PACT/patches/`.
 
 Tracked baselines:
 
@@ -25,6 +25,7 @@ Tracked baselines:
 - `MOC`: Multi-Order Communication with topology-aware message merging.
 - `RuleArena`: benchmark pressure / loader smoke.
 - `PACT`: action-state communication surface for split-evidence HotpotQA.
+- `M2CL`: context-alignment pressure object; code-contact only so far.
 
 Record:
 

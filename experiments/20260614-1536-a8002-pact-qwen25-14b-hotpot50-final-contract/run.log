@@ -1,0 +1,1421 @@
+/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:
+No module named 'vllm._version'
+  from vllm.version import __version__ as VLLM_VERSION
+[vLLM] Loading /mnt/quarkfs/share_model/Qwen2.5-14B-Instruct with tensor_parallel_size=1
+INFO 06-14 14:24:15 llm_engine.py:237] Initializing an LLM engine (vdev) with config: model='/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct', speculative_config=None, tokenizer='/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, rope_scaling=None, rope_theta=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=8192, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct, use_v2_block_manager=True, num_scheduler_steps=1, chunked_prefill_enabled=False multi_step_stream_outputs=True, enable_prefix_caching=False, use_async_output_proc=True, use_cached_outputs=False, mm_processor_kwargs=None)
+INFO 06-14 14:24:16 model_runner.py:1060] Starting to load model /mnt/quarkfs/share_model/Qwen2.5-14B-Instruct...
+Loading safetensors checkpoint shards:   0% Completed | 0/8 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:  12% Completed | 1/8 [00:11<01:21, 11.69s/it]
+Loading safetensors checkpoint shards:  25% Completed | 2/8 [00:23<01:11, 11.88s/it]
+Loading safetensors checkpoint shards:  38% Completed | 3/8 [00:35<00:59, 11.91s/it]
+Loading safetensors checkpoint shards:  50% Completed | 4/8 [00:47<00:47, 11.90s/it]
+Loading safetensors checkpoint shards:  62% Completed | 5/8 [00:59<00:35, 11.80s/it]
+Loading safetensors checkpoint shards:  75% Completed | 6/8 [01:10<00:23, 11.63s/it]
+Loading safetensors checkpoint shards:  88% Completed | 7/8 [01:21<00:11, 11.43s/it]
+Loading safetensors checkpoint shards: 100% Completed | 8/8 [01:26<00:00,  9.31s/it]
+Loading safetensors checkpoint shards: 100% Completed | 8/8 [01:26<00:00, 10.78s/it]
+
+INFO 06-14 14:25:42 model_runner.py:1071] Loading model weights took 27.5680 GB
+INFO 06-14 14:25:44 gpu_executor.py:122] # GPU blocks: 12839, # CPU blocks: 1365
+INFO 06-14 14:25:44 gpu_executor.py:126] Maximum concurrency for 8192 tokens per request: 25.08x
+INFO 06-14 14:25:46 model_runner.py:1402] Capturing the model for CUDA graphs. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI.
+INFO 06-14 14:25:46 model_runner.py:1406] CUDA graphs can take additional 1~3 GiB memory per GPU. If you are running out of memory, consider decreasing `gpu_memory_utilization` or enforcing eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 06-14 14:25:56 model_runner.py:1530] Graph capturing finished in 10 secs.
+pact:   0%|          | 0/50 [00:00<?, ?it/s]pact:   2%|▏         | 1/50 [00:04<04:00,  4.90s/it]pact:   4%|▍         | 2/50 [00:12<05:01,  6.29s/it]pact:   6%|▌         | 3/50 [00:19<05:15,  6.71s/it]pact:   8%|▊         | 4/50 [00:26<05:24,  7.05s/it]pact:  10%|█         | 5/50 [00:33<05:16,  7.03s/it]
+============================================================
+Problem #1
+Question: Were Scott Derrickson and Ed Wood of the same nationality?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide nationality of Scott Derrickson.
+Environment State: Scott Derrickson (born July 16, 1966) is an American director, screenwriter and producer.
+Action Result: Scott Derrickson is American.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide nationality of Ed Wood.
+Environment State: Edward Davis Wood Jr. (October 10, 1924 – December 10, 1978) was an American filmmaker, actor, writer, producer, and director.
+Action Result: Ed Wood is American.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Conclude on nationality comparison between Scott Derrickson and Ed Wood.
+Environment State: Scott Derrickson is American. Ed Wood is American.
+Action Result: Scott Derrickson and Ed Wood are of the same nationality.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Conclude on nationality comparison between Scott Derrickson and Ed Wood.
+Environment State: Scott Derrickson is American. Ed Wood is American.
+Action Result: Scott Derrickson and Ed Wood are of the same nationality.
+Final Answer: Yes
+
+  Pred : yes
+  Gold : yes
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #2
+Question: What government position was held by the woman who portrayed Corliss Archer in the film Kiss and Tell?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the actress who portrayed Corliss Archer in Kiss and Tell.
+Environment State: Kiss and Tell is a 1945 American comedy film starring then 17-year-old Shirley Temple as Corliss Archer.
+Action Result: Shirley Temple portrayed Corliss Archer in the film Kiss and Tell.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the government position held by Shirley Temple.
+Environment State: Shirley Temple Black (April 23, 1928 – February 10, 2014) was an American actress, singer, dancer, businesswoman, and diplomat who was Hollywood's number one box-office draw as a child actress from 1935 to 19
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the government position held by the woman who portrayed Corliss Archer in Kiss and Tell.
+Environment State: Shirley Temple served as Chief of Protocol of the United States.
+Action Result: The government position held by the woman who portrayed Corliss Archer in Kiss and Tell
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the government position held by the woman who portrayed Corliss Archer in Kiss and Tell.
+Environment State: Shirley Temple served as Chief of Protocol of the United States.
+Action Result: Chief of Protocol of the United States
+Final Answer: Chief of Protocol of the United St
+
+  Pred : chief of protocol of united states
+  Gold : chief of protocol
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #3
+Question: What science fantasy young adult series, told in first person, has a set of companion books narrating the stories of enslaved worlds and alien species?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide relevant context about a young adult series with companion books.
+Environment State: The Hork-Bajir Chronicles is the second companion book to the "Animorphs" series, written by K. A. Applegate.
+Action Result: The Animorphs series has companion books that narrate the stories
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about the Animorphs series and its narration style.
+Environment State: Animorphs is a science fantasy series of young adult books written by Katherine Applegate and her husband Michael Grant, writing together under the name K. A. Applegate, and published by Schol
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about the companion books of Animorphs.
+Environment State: The Hork-Bajir Chronicles is the second companion book to the "Animorphs" series, written by K. A. Applegate.
+Action Result: The companion books of Animorphs narrate the stories of enslaved worlds and ali
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about the narration style of Animorphs.
+Environment State: Animorphs is told in first person, with all six main characters taking turns narrating the books through their own perspectives.
+Action Result: Animorphs is a science fantasy young adult series told in fi
+
+  Pred : animorphs
+  Gold : animorphs
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #4
+Question: Are the Laleli Mosque and Esma Sultan Mansion located in the same neighborhood?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide location of Laleli Mosque.
+Environment State: The Laleli Mosque (Turkish: "Laleli Camii, or Tulip Mosque") is an 18th-century Ottoman imperial mosque located in Laleli, Fatih, Istanbul, Turkey.
+Action Result: Laleli Mosque is located in Laleli, Fatih, Istanbul, Turkey.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide location of Esma Sultan Mansion.
+Environment State: The Esma Sultan Mansion (Turkish: "Esma Sultan Yalısı" ), a historical yalı (English: waterside mansion ) located at Bosphorus in Ortaköy neighborhood of Istanbul, Turkey and named after its original owner Esma Sultan, is u
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Compare locations of Laleli Mosque and Esma Sultan Mansion.
+Environment State: The Laleli Mosque is located in Laleli, Fatih, Istanbul, Turkey. The Esma Sultan Mansion is located in Ortaköy, Istanbul, Turkey.
+Action Result: The Laleli Mosque and Esma Sultan Mansion are not located i
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Compare locations of Laleli Mosque and Esma Sultan Mansion.
+Environment State: The Laleli Mosque is located in Laleli, Fatih, Istanbul, Turkey. The Esma Sultan Mansion is located in Ortaköy, Istanbul, Turkey.
+Action Result: The Laleli Mosque and Esma Sultan Mansion are not located i
+
+  Pred : no
+  Gold : no
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #5
+Question: The director of the romantic comedy "Big Stone Gap" is based in what New York city?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the director of the film "Big Stone Gap".
+Environment State: Big Stone Gap is a 2014 American drama romantic comedy film written and directed by Adriana Trigiani and produced by Donna Gigliotti for Altar Identity Studios, a subsidiary of Media Society.
+Action Result: The dir
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the location where the director of "Big Stone Gap" is based.
+Environment State: Adriana Trigiani is an Italian American best-selling author of sixteen books, television writer, film director, and entrepreneur based in Greenwich Village, New York City.
+Action Result: The dire
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the New York city where the director is based.
+Environment State: Adriana Trigiani is an Italian American best-selling author of sixteen books, television writer, film director, and entrepreneur based in Greenwich Village, New York City.
+Action Result: The director of the fi
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the New York city where the director is based.
+Environment State: Adriana Trigiani is an Italian American best-selling author of sixteen books, television writer, film director, and entrepreneur based in Greenwich Village, New York City.
+Action Result: The director of the fi
+
+  Pred : new york city
+  Gold : greenwich village new york city
+  EM   : False  |  F1: 0.750
+
+============================================================
+Problem #6
+Question: 2014 S/S is the debut album of a South Korean boy group that was formed by who?
+
+  ----- Agent A (pact_a_turn0) -----
+pact:  12%|█▏        | 6/50 [00:40<05:06,  6.97s/it]pact:  14%|█▍        | 7/50 [00:48<05:11,  7.25s/it]pact:  16%|█▌        | 8/50 [00:58<05:37,  8.05s/it]pact:  18%|█▊        | 9/50 [01:03<04:50,  7.10s/it]pact:  20%|██        | 10/50 [01:09<04:37,  6.93s/it]  Output: Action Required: Provide the formation information of the group that released the album 2014 S/S.
+Environment State: 2014 S/S is the debut album of South Korean group WINNER. It was released on August 12, 2014 by the group's record label, YG Entertainment.
+Action Result: The album 2014 S/S was relea
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the formation information of WINNER.
+Environment State: Winner (Hangul: 위너), often stylized as WINNER, is a South Korean boy group formed in 2013 by YG Entertainment and debuted in 2014.
+Action Result: WINNER was formed by YG Entertainment.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the answer based on the formation information of WINNER.
+Environment State: Winner (Hangul: 위너), often stylized as WINNER, is a South Korean boy group formed in 2013 by YG Entertainment and debuted in 2014.
+Action Result: WINNER was formed by YG Entertainment.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the answer based on the formation information of WINNER.
+Environment State: Winner (Hangul: 위너), often stylized as WINNER, is a South Korean boy group formed in 2013 by YG Entertainment and debuted in 2014.
+Action Result: YG Entertainment
+Final Answer: YG Entertainment
+
+  Pred : yg entertainment
+  Gold : yg entertainment
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #7
+Question: Who was known by his stage name Aladin and helped organizations improve their performance as a consultant?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Eenasul Fateh.
+Environment State: Eenasul Fateh (Bengali: ঈনাসুল ফাতেহ ; born 3 April 1959), also known by his stage name Aladin, is a Bangladeshi-British cultural practitioner, magician, live artist and former international management consultant.
+Action Re
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Aladin's consulting work.
+Environment State: Management consulting is the practice of helping organizations to improve their performance, operating primarily through the analysis of existing organizational problems and the development of plans for improveme
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm if Aladin was a consultant.
+Environment State: Eenasul Fateh, also known by his stage name Aladin, is a Bangladeshi-British cultural practitioner, magician, live artist and former international management consultant.
+Action Result: Aladin was a former international managemen
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm Aladin's stage name.
+Environment State: Eenasul Fateh (Bengali: ঈনাসুল ফাতেহ ; born 3 April 1959), also known by his stage name Aladin, is a Bangladeshi-British cultural practitioner, magician, live artist and former international management consultant.
+Action Result: Eenasu
+
+  Pred : aladin
+  Gold : eenasul fateh
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #8
+Question: The arena where the Lewiston Maineiacs played their home games can seat how many people?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the seating capacity of the arena where the Lewiston Maineiacs played their home games.
+Environment State: The Lewiston Maineiacs were a junior ice hockey team of the Quebec Major Junior Hockey League based in Lewiston, Maine. They played their home games a
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the seating capacity of the Androscoggin Bank Colisée.
+Environment State: The Androscoggin Bank Colisée (formerly Central Maine Civic Center and Lewiston Colisee) is a 4,000 capacity (3,677 seated) multi-purpose arena, in Lewiston, Maine, that opened in 1958.
+Action Result: 
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the seating capacity of the arena where the Lewiston Maineiacs played their home games.
+Environment State: The Androscoggin Bank Colisée (formerly Central Maine Civic Center and Lewiston Colisee) is a 4,000 capacity (3,677 seated) multi-purpose arena, in Lewiston, Maine, tha
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the seating capacity of the Androscoggin Bank Colisée.
+Environment State: The Androscoggin Bank Colisée (formerly Central Maine Civic Center and Lewiston Colisee) is a 4,000 capacity (3,677 seated) multi-purpose arena, in Lewiston, Maine, that opened in 1958.
+Action Result: 
+
+  Pred : 3677
+  Gold : 3677 seated
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #9
+Question: Who is older, Annie Morton or Terry Richardson?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide birth year of Annie Morton.
+Environment State: Annie Morton (born October 8, 1970) is an American model born in Pennsylvania.
+Action Result: Annie Morton was born in 1970.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide birth year of Terry Richardson.
+Environment State: Terrence "Uncle Terry" Richardson (born August 14, 1965) is an American fashion and portrait photographer who has shot advertising campaigns for Marc Jacobs, Aldo, Supreme, Sisley, Tom Ford, and Yves Saint Laurent among othe
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Compare birth years of Annie Morton and Terry Richardson.
+Environment State: Annie Morton was born in 1970.
+Action Result: Annie Morton was born after Terry Richardson.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Compare birth years of Annie Morton and Terry Richardson.
+Environment State: Terry Richardson was born in 1965.
+Action Result: Terry Richardson
+Final Answer: Terry Richardson
+
+  Pred : terry richardson
+  Gold : terry richardson
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #10
+Question: Are Local H and For Against both from the United States?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Identify if Local H is from the United States.
+Environment State: Local H is an American rock band originally formed by guitarist and vocalist Scott Lucas, bassist Matt Garcia, drummer Joe Daniels, and lead guitarist John Sparkman in Zion, Illinois in 1987.
+Action Result: Local H is
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Confirm if For Against is from the United States.
+Environment State: For Against is a United States post-punk/dream pop band from Lincoln, Nebraska.
+Action Result: For Against is from the United States.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the final answer based on gathered information.
+Environment State: [Local H is an American rock band originally formed by guitarist and vocalist Scott Lucas, bassist Matt Garcia, drummer Joe Daniels, and lead guitarist John Sparkman in Zion, Illinois in 1987.]
+Action Result:
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm if both Local H and For Against are from the United States.
+Environment State: For Against is a United States post-punk/dream pop band from Lincoln, Nebraska.
+Action Result: Both Local H and For Against are from the United States.
+Final Answer: Yes
+
+  Pred : yes
+  Gold : yes
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #11
+Question: What is the name of the fight song of the university whose main campus is in Lawrence, Kansas and whose branch campuses are in the Kansas City metropolitan area?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the fight song of the University of Kansas.
+Environment State: Kansas Song (We’re From Kansas) is a fight song of the University of Kansas.
+Action Result: The fight song of the University of Kansas is Kansas Song.
+
+  ----- Agent B (pact_b_turn1) -----
+pact:  22%|██▏       | 11/50 [01:15<04:08,  6.36s/it]pact:  24%|██▍       | 12/50 [01:21<03:59,  6.30s/it]pact:  26%|██▌       | 13/50 [01:30<04:21,  7.08s/it]pact:  28%|██▊       | 14/50 [01:38<04:30,  7.51s/it]pact:  30%|███       | 15/50 [01:44<04:05,  7.01s/it]  Output: Action Required: Provide the name of the fight song of the University of Kansas.
+Environment State: The University of Kansas, often referred to as KU or Kansas, is a public research university in the U.S. state of Kansas.
+Action Result: The fight song of the University of Kansas is Kansas Song.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm the fight song of the University of Kansas.
+Environment State: Kansas Song (We’re From Kansas) is a fight song of the University of Kansas.
+Action Result: The fight song of the University of Kansas is Kansas Song.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Identify the fight song of the University of Kansas.
+Environment State: Kansas Song (We’re From Kansas) is a fight song of the University of Kansas.
+Action Result: Kansas Song
+Final Answer: Kansas Song
+
+  Pred : kansas song
+  Gold : kansas song
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #12
+Question: What screenwriter with credits for "Evolution" co-wrote a film starring Nicolas Cage and Téa Leoni?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Identify screenwriter for "Evolution" who also worked with Nicolas Cage.
+Environment State: David Weissman is a screenwriter and director. His film credits include "The Family Man" (2000), "Evolution" (2001), and "When in Rome" (2010).
+Action Result: David Weissman is a screenwriter
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the co-writer of "The Family Man" with Nicolas Cage and Téa Leoni.
+Environment State: David Weissman and David Diamond wrote the film "The Family Man".
+Action Result: David Weissman co-wrote a film starring Nicolas Cage and Téa Leoni.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the screenwriter who co-wrote a film with Nicolas Cage and Téa Leoni.
+Environment State: David Weissman and David Diamond wrote the film "The Family Man".
+Action Result: David Weissman co-wrote a film starring Nicolas Cage and Téa Leoni.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Identify the screenwriter who co-wrote a film with Nicolas Cage and Téa Leoni.
+Environment State: David Weissman and David Diamond wrote the film "The Family Man".
+Action Result: David Weissman
+Final Answer: David Weissman
+
+  Pred : david weissman
+  Gold : david weissman
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #13
+Question: What year did Guns N Roses perform a promo for a movie starring Arnold Schwarzenegger as a former New York Police detective?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Identify the year Guns N' Roses performed a promo for a movie starring Arnold Schwarzenegger.
+Environment State: "Oh My God" is a song by Guns N' Roses released in 1999 on the soundtrack to the film "End of Days".
+Action Result: The promo for the movie was performed in 1999.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Confirm the movie and year based on the provided information.
+Environment State: End of Days is a 1999 American fantasy action horror thriller film directed by Peter Hyams and starring Arnold Schwarzenegger, Gabriel Byrne, Robin Tunney, Kevin Pollak, Rod Steiger, CCH Pounder, and Ud
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm the movie's genre and main character's profession.
+Environment State: End of Days is a 1999 American fantasy action horror thriller film directed by Peter Hyams and starring Arnold Schwarzenegger, Gabriel Byrne, Robin Tunney, Kevin Pollak, Rod Steiger, CCH Pounder, and Udo K
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm the profession of the main character in the movie.
+Environment State: The film follows former New York Police Department detective Jericho Cane (Schwarzenegger) after he saves a banker (Byrne) from an assassin, finds himself embroiled in a religious conflict, and must protec
+
+  Pred : 1999
+  Gold : 1999
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #14
+Question: Are Random House Tower and 888 7th Avenue both used for real estate?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Random House Tower usage.
+Environment State: The Random House Tower, also known as the Park Imperial Apartments, is a 52-story mixed-use tower in New York City, United States, that is used as the headquarters of book publisher Random House and a luxury apar
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about 888 7th Avenue usage.
+Environment State: 888 7th Avenue is a 628 ft (191m) tall modern-style office skyscraper in Midtown Manhattan which was completed in 1969 and has 46 floors.
+Action Result: 888 7th Avenue is used for office space and corporate headquart
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about Random House Tower's real estate use.
+Environment State: The Random House Tower, also known as the Park Imperial Apartments, is a 52-story mixed-use tower in New York City, United States, that is used as the headquarters of book publisher Random House and a
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about 888 7th Avenue's real estate use.
+Environment State: 888 7th Avenue is a 628 ft (191m) tall modern-style office skyscraper in Midtown Manhattan which was completed in 1969 and has 46 floors. It currently carries the Vornado Realty Trust corporate headquarte
+
+  Pred : yes
+  Gold : no
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #15
+Question: The football manager who recruited David Beckham managed Manchester United during what timeframe?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide timeframe of management for the manager who recruited David Beckham.
+Environment State: Alex Ferguson had drafted in young players like Nicky Butt, David Beckham, Paul Scholes and the Neville brothers, Gary and Phil.
+Action Result: David Beckham was recruited during Alex Fer
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the timeframe of Alex Ferguson's management at Manchester United.
+Environment State: Sir Alexander Chapman Ferguson, CBE (born 31 December 1941) is a Scottish former football manager and player who managed Manchester United from 1986 to 2013.
+Action Result: Alex Ferguson man
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the timeframe of the question's answer.
+Environment State: Alex Ferguson managed Manchester United from 1986 to 2013.
+Action Result: The timeframe is 1986 to 2013.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the timeframe of the question's answer.
+Environment State: Alex Ferguson managed Manchester United from 1986 to 2013.
+Action Result: 1986 to 2013
+Final Answer: 1986 to 2013
+
+  Pred : 1986 to 2013
+  Gold : from 1986 to 2013
+  EM   : False  |  F1: 0.857
+
+============================================================
+Problem #16
+Question: Brown State Fishing Lake is in a country that has a population of how many inhabitants ?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide location of Brown State Fishing Lake.
+Environment State: Brown State Fishing Lake (sometimes also known as Brown State Fishing Lake And Wildlife Area) is a protected area in Brown County, Kansas in the United States.
+Action Result: Brown State Fishing Lake is located in Brow
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide population of Brown County, Kansas.
+Environment State: As of the 2010 census, the county population was 9,984.
+Action Result: Brown County, Kansas had a population of 9,984 as of the 2010 census.
+
+  ----- Agent A (pact_a_turn2) -----
+pact:  32%|███▏      | 16/50 [01:51<04:01,  7.11s/it]pact:  34%|███▍      | 17/50 [01:59<04:00,  7.30s/it]pact:  36%|███▌      | 18/50 [02:14<05:09,  9.68s/it]pact:  38%|███▊      | 19/50 [02:25<05:06,  9.89s/it]pact:  40%|████      | 20/50 [02:32<04:38,  9.28s/it]  Output: Action Required: Provide population of the United States.
+Environment State: The United States had an estimated population of 332,500,000 as of July 1, 2020.
+Action Result: The population of the United States as of July 1, 2020, was 332,500,000.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide population of Brown County, Kansas.
+Environment State: As of the 2010 census, the county population was 9,984.
+Action Result: The population of the country where Brown State Fishing Lake is located (United States) is 332,500,000 as per the latest estimate from Agent A, but t
+
+  Pred : 9984
+  Gold : 9984
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #17
+Question: The Vermont Catamounts men's soccer team currently competes in a conference that was formerly known as what from 1988 to 1996?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Request for information about the name of the conference the Vermont Catamounts men's soccer team was in from 1988 to 1996.
+Environment State: The Vermont Catamounts men's soccer team represents the University of Vermont in all NCAA Division I men's college soccer competitions. The 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the conference from 1988 to 1996.
+Environment State: The America East Conference was known as the North Atlantic Conference from 1988 to 1996.
+Action Result: The Vermont Catamounts men's soccer team was in the North Atlantic Conference from 1988 to 1996.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the answer based on the information received.
+Environment State: The America East Conference was known as the North Atlantic Conference from 1988 to 1996.
+Action Result: The Vermont Catamounts men's soccer team was in the North Atlantic Conference from 1988 to 1996.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the conference from 1988 to 1996.
+Environment State: The America East Conference was known as the North Atlantic Conference from 1988 to 1996.
+Action Result: The Vermont Catamounts men's soccer team was in the North Atlantic Conference from 1988 to 1996.
+Final An
+
+  Pred : north atlantic conference
+  Gold : north atlantic conference
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #18
+Question: Are Giuseppe Verdi and Ambroise Thomas both Opera composers ?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Confirm if Bernhard Bötel sang roles in operas by both Giuseppe Verdi and Ambroise Thomas.
+Environment State: His stage repertoire included Belmonte in Wolfgang Amadeus Mozart's "Die Entführung aus dem Serail", Chapelou in Adolphe Adam's "Le postillon de Lonjumeau", Count Almaviva i
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Giuseppe Verdi's role in operas.
+Environment State: His stage repertoire included Belmonte in Wolfgang Amadeus Mozart's "Die Entführung aus dem Serail", Chapelou in Adolphe Adam's "Le postillon de Lonjumeau", Count Almaviva in Gioachino Rossini's "The Barbe
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm if both Giuseppe Verdi and Ambroise Thomas are opera composers based on the provided context.
+Environment State: Giuseppe Fortunino Francesco Verdi (] ; 9 or 10 October 1813 – 27 January 1901) was an Italian opera composer.
+Action Result: Giuseppe Verdi is an opera composer.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm if Ambroise Thomas is an opera composer.
+Environment State: Charles Louis Ambroise Thomas (5 August 1811 – 12 February 1896) was a French composer, best known for his operas "Mignon" (1866) and "Hamlet" (1868, after Shakespeare) and as Director of the Conservatoire de Paris 
+
+  Pred : yes
+  Gold : yes
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #19
+Question: Roger O. Egeberg was Assistant Secretary for Health and Scientific Affairs during the administration of a president that served during what years?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Roger O. Egeberg's tenure.
+Environment State: Roger Olaf Egeberg, M.D. (13 November 1902 – 13 September 1997 Washington, D.C.) was an American medical educator, administrator and advocate of public health. He was General Douglas MacArthur's personal physici
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide Nixon's presidency years.
+Environment State: Richard Milhous Nixon (January 9, 1913 – April 22, 1994) was the 37th President of the United States from 1969 until 1974, when he resigned from office, the only U.S. president to do so.
+Action Result: Nixon served as President fr
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide Nixon's presidency years.
+Environment State: Richard Milhous Nixon (January 9, 1913 – April 22, 1994) was the 37th President of the United States from 1969 until 1974, when he resigned from office, the only U.S. president to do so.
+Action Result: Nixon served as President fr
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Nixon's presidency years.
+Environment State: Richard Milhous Nixon (January 9, 1913 – April 22, 1994) was the 37th President of the United States from 1969 until 1974, when he resigned from office, the only U.S. president to do so.
+Action Result: 1969 until 1974
+Final Answer: 1969 u
+
+  Pred : 1969 until 1974
+  Gold : 1969 until 1974
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #20
+Question: Which writer was from England, Henry Roth or Robert Erskine Childers?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Robert Erskine Childers' nationality.
+Environment State: Molly Childers, MBE (14 December 1875 – 1 January 1964) was an American-born Irish writer and Irish nationalist. She was the daughter of Dr Hamilton Osgood and Margaret Cushing Osgood of Beacon Hill, 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Robert Erskine Childers' nationality.
+Environment State: Robert Erskine Childers DSC (25 June 1870 – 24 November 1922), universally known as Erskine Childers, was a British writer, whose works included the influential novel "The Riddle of the Sands", and a 
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about Henry Roth's nationality.
+Environment State: Henry Roth (February 8, 1906 – October 13, 1995) was an American novelist and short story writer.
+Action Result: Henry Roth was an American novelist.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Determine the nationality of the writer from the given information.
+Environment State: Robert Erskine Childers was a British writer.
+Action Result: Robert Erskine Childers
+Final Answer: Robert Erskine Childers
+
+  Pred : robert erskine childers
+  Gold : robert erskine childers dsc
+  EM   : False  |  F1: 0.857
+
+============================================================
+Problem #21
+Question: Which other Mexican Formula One race car driver has held the podium besides the Force India driver born in 1990?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Mexican Formula One drivers who have held the podium.
+Environment State: Sergio Pérez, the only other Mexican to finish on the podium, currently races with Sahara Force India F1 Team.
+Action Result: Sergio Perez is a Mexican Formula One driver who has held 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about a Mexican Formula One driver who has held the podium besides the Force India driver born in 1990.
+Environment State: Sergio Pérez Mendoza (    ; born 26 January 1990) also known as "Checo" Pérez, is a Mexican racing driver, currently driving for Force India
+
+  ----- Agent A (pact_a_turn2) -----
+pact:  42%|████▏     | 21/50 [02:39<04:08,  8.57s/it]pact:  44%|████▍     | 22/50 [02:46<03:45,  8.05s/it]pact:  46%|████▌     | 23/50 [02:55<03:40,  8.16s/it]pact:  48%|████▊     | 24/50 [03:01<03:20,  7.70s/it]pact:  50%|█████     | 25/50 [03:09<03:13,  7.75s/it]  Output: Action Required: Provide information about a Mexican Formula One driver who has held the podium besides the Force India driver born in 1990.
+Environment State: There have been six Formula One drivers from Mexico who have taken part in races since the championship began in 1950.
+Action Result: Pedro 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about a Mexican Formula One driver who has held the podium besides the Force India driver born in 1990.
+Environment State: Pedro Rodríguez is the most successful Mexican driver being the only one to have won a grand prix.
+Action Result: Pedro Rodríguez
+Final Answ
+
+  Pred : pedro rodríguez
+  Gold : pedro rodríguez
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #22
+Question: This singer of A Rather Blustery Day also voiced what hedgehog?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide relevant song and character information.
+Environment State: "A Rather Blustery Day" is a whimsical song from the Walt Disney musical film featurette, "Winnie the Pooh and the Blustery Day".  It was written by Robert & Richard Sherman and sung by Jim Cummings as "Pooh".
+Actio
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide hedgehog character information.
+Environment State: James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from "Darkwing Duck", Dr. Robotnik from "Sonic the Hedgeho
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the hedgehog character name.
+Environment State: In 2010, she voiced Miles "Tails" Prower in the video game series "Sonic the Hedgehog".
+Action Result: Miles "Tails" Prower is the hedgehog character.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the correct hedgehog character name.
+Environment State: He is known for voicing the title character from "Darkwing Duck", Dr. Robotnik from "Sonic the Hedgehog", and Pete.
+Action Result: Dr. Robotnik
+Final Answer: Dr. Robotnik
+
+  Pred : dr robotnik
+  Gold : sonic
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #23
+Question: Aside from the Apple Remote, what other device can control the program Apple Remote was originally designed to interact with?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Request relevant fact.
+Environment State: The Apple Remote is a remote control device released in or after October 2005 by Apple Inc. for use with a number of its products which use infrared capabilities. The device was originally designed to interact with the Front Row media progra
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide relevant fact.
+Environment State: Front Row is a discontinued media center software application for Apple's Macintosh computers and Apple TV for navigating and viewing video, photos, podcasts, and music from a computer, optical disc, or the Internet through a 10-foot user in
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide relevant fact.
+Environment State: The Apple Remote is a remote control device released in or after October 2005 by Apple Inc. for use with a number of its products which use infrared capabilities. The device was originally designed to interact with the Front Row media progra
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide relevant fact.
+Environment State: The software relies on iTunes and iPhoto and is controlled by an Apple Remote or the keyboard function keys.
+Action Result: Aside from the Apple Remote, the keyboard function keys can control the Front Row media program.
+Final Answer: keyboa
+
+  Pred : keyboard function keys
+  Gold : keyboard function keys
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #24
+Question: Which performance act has a higher instrument to person ratio, Badly Drawn Boy or Wolf Alice?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Badly Drawn Boy's performance act size.
+Environment State: Badly Drawn Boy is an English indie singer-songwriter and multi-instrumentalist.
+Action Result: Badly Drawn Boy performs solo or with a small band.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Badly Drawn Boy's instrument usage in performances.
+Environment State: Damon Gough, who performs as Badly Drawn Boy, wrote, produced, and played several instruments on the album's eighteen tracks, several of which also feature accompaniment by members of th
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about Wolf Alice's performance act size.
+Environment State: Wolf Alice are an English indie rock band from Alexandra Palace, London.
+Action Result: Wolf Alice performs with a full band setup.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about the number of instruments used by Badly Drawn Boy in performances.
+Environment State: Damon Gough, who performs as Badly Drawn Boy, wrote, produced, and played several instruments on the album's eighteen tracks, several of which also feature accompaniment b
+
+  Pred : badly drawn boy
+  Gold : badly drawn boy
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #25
+Question: What was the father of Kasper Schmeichel voted to be by the IFFHS in 1992?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Request for information about Peter Schmeichel's achievement in 1992 as voted by IFFHS.
+Environment State: Kasper Peter Schmeichel (] ; born 5 November 1986) is a Danish professional footballer who plays as a goalkeeper for Premier League club Leicester City and the Denmark national
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about IFFHS World's Best Goalkeeper in 1992.
+Environment State: The IFFHS World's Best Goalkeeper is a football award given annually since 1987 to the most outstanding goalkeeper of the year as voted by the International Federation of Football History & Statistic
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about Peter Schmeichel's achievement in 1992 as voted by IFFHS.
+Environment State: Peter Schmeichel was voted the IFFHS World's Best Goalkeeper in 1992.
+Action Result: Peter Schmeichel was voted IFFHS World's Best Goalkeeper in 1992.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Request for information about Kasper Schmeichel's father's achievement in 1992 as voted by IFFHS.
+Environment State: Peter Schmeichel was voted the IFFHS World's Best Goalkeeper in 1992.
+Action Result: Peter Schmeichel was voted IFFHS World's Best Goalkeeper in 1992.
+
+Final Answer: 
+
+  Pred : worlds best goalkeeper
+  Gold : worlds best goalkeeper
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #26
+Question: Who was the writer of These Boots Are Made for Walkin' and who died in 2007?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the writer of "These Boots Are Made for Walkin'" and a death in 2007.
+Environment State: "These Boots Are Made for Walkin' is a hit song written by Lee Hazlewood and recorded by Nancy Sinatra."
+Action Result: Lee Hazlewood wrote "These Boots Are Made for Walkin'"; James A. S
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the death in 2007 related to the song.
+Environment State: Barton Lee Hazlewood (July 9, 1929 – August 4, 2007) was an American country and pop singer, songwriter, and record producer, most widely known for his work with guitarist Duane Eddy during the late 1950s and singer N
+
+  ----- Agent A (pact_a_turn2) -----
+pact:  52%|█████▏    | 26/50 [03:18<03:17,  8.24s/it]pact:  54%|█████▍    | 27/50 [03:24<02:50,  7.42s/it]pact:  56%|█████▌    | 28/50 [03:31<02:39,  7.23s/it]pact:  58%|█████▊    | 29/50 [03:39<02:36,  7.43s/it]pact:  60%|██████    | 30/50 [03:45<02:23,  7.18s/it]  Output: Action Required: Provide the writer of "These Boots Are Made for Walkin'" and confirm the death in 2007.
+Environment State: "These Boots Are Made for Walkin' is a hit song written by Lee Hazlewood and recorded by Nancy Sinatra."
+Action Result: Lee Hazlewood wrote "These Boots Are Made for Walkin'"; 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the writer of "These Boots Are Made for Walkin'" and confirm the death in 2007.
+Environment State: Barton Lee Hazlewood (July 9, 1929 – August 4, 2007) was an American country and pop singer, songwriter, and record producer, most widely known for his work with guitarist Duan
+
+  Pred : lee hazlewood
+  Gold : barton lee hazlewood
+  EM   : False  |  F1: 0.800
+
+============================================================
+Problem #27
+Question: The 2011–12 VCU Rams men's basketball team, led by third year head coach Shaka Smart, represented Virginia Commonwealth University which was founded in what year?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide founding year of Virginia Commonwealth University.
+Environment State: It was the 44th season of the University fielding a men's basketball program.
+Action Result: The founding year of Virginia Commonwealth University cannot be determined from this paragraph.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the founding year of Virginia Commonwealth University.
+Environment State: Virginia Commonwealth University (VCU) was founded in 1838 as the medical department of Hampden–Sydney College.
+Action Result: Virginia Commonwealth University was founded in 1838.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide founding year of Virginia Commonwealth University.
+Environment State: Virginia Commonwealth University (VCU) was founded in 1838 as the medical department of Hampden–Sydney College.
+Action Result: Virginia Commonwealth University was founded in 1838.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide founding year of Virginia Commonwealth University.
+Environment State: Virginia Commonwealth University (VCU) was founded in 1838 as the medical department of Hampden–Sydney College.
+Action Result: Virginia Commonwealth University was founded in 1838.
+Final Answer: 1838
+
+  Pred : 1838
+  Gold : 1838
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #28
+Question: Are both Dictyosperma, and Huernia described as a genus?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Determine if Huernia is described as a genus.
+Environment State: Dictyosperma is a monotypic genus of flowering plant in the palm family found in the Mascarene Islands in the Indian Ocean (Mauritius, Réunion and Rodrigues).
+Action Result: Dictyosperma is described as a genus.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Determine if Huernia is described as a genus.
+Environment State: The genus Huernia (family Apocynaceae, subfamily Asclepiadoideae) consists of stem succulents from Eastern and Southern Africa, first described as a genus in 1810.
+Action Result: Huernia is described as a genus.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide final answer.
+Environment State: The genus Huernia (family Apocynaceae, subfamily Asclepiadoideae) consists of stem succulents from Eastern and Southern Africa, first described as a genus in 1810.
+Action Result: Both Dictyosperma and Huernia are described as a genus.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Huernia is described as a genus.
+Environment State: The genus Huernia (family Apocynaceae, subfamily Asclepiadoideae) consists of stem succulents from Eastern and Southern Africa, first described as a genus in 1810.
+Action Result: Both Dictyosperma and Huernia are described as a gen
+
+  Pred : yes
+  Gold : yes
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #29
+Question: Kaiser Ventures corporation was founded by an American industrialist who became known as the father of modern American shipbuilding?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Request relevant context from Agent B about an American industrialist known as the father of modern American shipbuilding.
+Environment State: Henry J. Kaiser founded Kaiser Ventures (formerly Kaiser Steel) corporation to provide steel plate for the Pacific Coast shipbuilding industr
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide relevant context from Agent B about Henry J. Kaiser.
+Environment State: Henry John Kaiser (May 9, 1882 – August 24, 1967) was an American industrialist who became known as the father of modern American shipbuilding.
+Action Result: Henry J. Kaiser established the Kaiser Shipy
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide answer based on gathered context.
+Environment State: Henry J. Kaiser (May 9, 1882 – August 24, 1967) was an American industrialist who became known as the father of modern American shipbuilding.
+Action Result: Kaiser Ventures corporation was founded by Henry J. Kaiser, an Am
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Identify the founder of Kaiser Ventures and their title.
+Environment State: Henry John Kaiser (May 9, 1882 – August 24, 1967) was an American industrialist who became known as the father of modern American shipbuilding.
+Action Result: Kaiser Ventures corporation was founded by Henry
+
+  Pred : henry j kaiser
+  Gold : henry j kaiser
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #30
+Question: What is the name for the adventure in "Tunnels and Trolls", a game designed by Ken St. Andre?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Request relevant fact.
+Environment State: Arena of Khazan is a 1979 role-playing game adventure for "Tunnels & Trolls" published by Flying Buffalo.
+Action Result: Wait for Agent B to provide the name of the adventure in "Tunnels and Trolls".
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide relevant fact.
+Environment State: The second modern role-playing game published, it was written by Ken St. Andre to be a more accessible alternative to "Dungeons & Dragons" and is suitable for solitaire, group, and play-by-mail gameplay.
+Action Result: Arena of Khazan is a 1
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide relevant fact.
+Environment State: Arena of Khazan is a 1979 role-playing game adventure for "Tunnels & Trolls" published by Flying Buffalo.
+Action Result: The name for the adventure in "Tunnels and Trolls" is Arena of Khazan.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide relevant fact.
+Environment State: Arena of Khazan is a 1979 role-playing game adventure for "Tunnels and Trolls" published by Flying Buffalo.
+Action Result: The name for the adventure in "Tunnels and Trolls" is Arena of Khazan.
+Final Answer: Arena of Khazan
+
+  Pred : arena of khazan
+  Gold : arena of khazan
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #31
+Question: When was Poison's album "Shut Up, Make Love" released?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide release year of the album containing "Shut Up, Make Love".
+Environment State: "Shut Up, Make Love" is a song by American rock band Poison; released in 2000, it was the first single presented to radio stations from their 2000 "Crack a Smile...and More!" album.
+Action Result: 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Confirm the release year of the album containing "Shut Up, Make Love".
+Environment State: "Poison's album "Crack a Smile...and More!" was released in 2000."
+Action Result: The album containing "Shut Up, Make Love" was released in 2000.
+
+  ----- Agent A (pact_a_turn2) -----
+pact:  62%|██████▏   | 31/50 [03:54<02:23,  7.56s/it]pact:  64%|██████▍   | 32/50 [04:01<02:14,  7.48s/it]pact:  66%|██████▌   | 33/50 [04:10<02:12,  7.81s/it]pact:  68%|██████▊   | 34/50 [04:16<01:58,  7.39s/it]pact:  70%|███████   | 35/50 [04:23<01:48,  7.23s/it]  Output: Action Required: Provide the exact release date of the album containing "Shut Up, Make Love".
+Environment State: "Crack a Smile...and More! " is Poison's fifth studio album, released on March 14, 2000, and charting at #131 on The Billboard 200.
+Action Result: The album containing "Shut Up, Make Love
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the exact release date of the album containing "Shut Up, Make Love".
+Environment State: "Crack a Smile...and More! " is Poison's fifth studio album, released on March 14, 2000, and charting at #131 on The Billboard 200.
+Action Result: The album containing "Shut Up, Make Love
+
+  Pred : march 14 2000
+  Gold : 2000
+  EM   : False  |  F1: 0.500
+
+============================================================
+Problem #32
+Question: Hayden is a singer-songwriter from Canada, but where does Buck-Tick hail from?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Buck-Tick's origin.
+Environment State: Atsushi Sakurai (櫻井 敦司 , Sakurai Atsushi , born March 7, 1966 in Fujioka, Gunma) is a Japanese musician and singer-songwriter. He has been the vocalist of the rock band Buck-Tick since 1985, previously being their drum
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Buck-Tick's origin.
+Environment State: Buck-Tick (stylized as BUCK-TICK) is a Japanese rock band, formed in Fujioka, Gunma in 1983.
+Action Result: Buck-Tick hails from Japan.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm Buck-Tick's origin.
+Environment State: Atsushi Sakurai (櫻井 敦司 , Sakurai Atsushi , born March 7, 1966 in Fujioka, Gunma) is a Japanese musician and singer-songwriter. He has been the vocalist of the rock band Buck-Tick since 1985, previously being their drummer from 1983.
+Act
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about Buck-Tick's origin.
+Environment State: Buck-Tick (stylized as BUCK-TICK) is a Japanese rock band, formed in Fujioka, Gunma in 1983.
+Action Result: Buck-Tick hails from Japan.
+Final Answer: Japan
+
+  Pred : japan
+  Gold : fujioka gunma
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #33
+Question: Which  French ace pilot and adventurer fly L'Oiseau Blanc
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide relevant pilot name.
+Environment State: François Coli was a French pilot and navigator best known as the one-eyed flying partner of Charles Nungesser in their doomed attempt to fly the Atlantic Ocean on the aircraft known as "L'Oiseau Blanc".
+Action Result: François Coli fle
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide relevant pilot name.
+Environment State: Charles Eugène Jules Marie Nungesser, MC (15 March 1892 – presumably on or after 8 May 1927) was a French ace pilot and adventurer, best remembered as a rival of Charles Lindbergh.
+Action Result: Charles Nungesser was a French ace pilo
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide relevant pilot names.
+Environment State: L'Oiseau Blanc (commonly known in the English-speaking world as The White Bird ) was a French Levasseur PL.8 biplane that disappeared in 1927, during an attempt to make the first non-stop transatlantic flight between Paris and New Yor
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide relevant pilot names.
+Environment State: L'Oiseau Blanc (commonly known in the English-speaking world as The White Bird ) was a French Levasseur PL.8 biplane that disappeared in 1927, during an attempt to make the first non-stop transatlantic flight between Paris and New Yor
+
+  Pred : charles nungesser
+  Gold : charles eugène
+  EM   : False  |  F1: 0.500
+
+============================================================
+Problem #34
+Question: Are Freakonomics and In the Realm of the Hackers both American documentaries?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Freakonomics.
+Environment State: Freakonomics: The Movie is a 2010 American documentary film based on the 2005 book "Freakonomics: A Rogue Economist Explores the Hidden Side of Everything" by economist Steven D. Levitt and writer Stephen J. Dubner.
+Action R
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about In the Realm of the Hackers.
+Environment State: In The Realm of the Hackers is a 2003 Australian documentary directed by Kevin Anderson about the prominent hacker community, centered in Melbourne, Australia in the late 1980s until early 1990.
+Action Result:
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide conclusion about both documentaries.
+Environment State: Freakonomics is an American documentary film. In the Realm of the Hackers is an Australian documentary.
+Action Result: Freakonomics is American but In the Realm of the Hackers is not.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide conclusion about both documentaries.
+Environment State: Freakonomics is an American documentary film. In the Realm of the Hackers is an Australian documentary.
+Action Result: Freakonomics is American but In the Realm of the Hackers is not.
+Final Answer: No
+
+  Pred : no
+  Gold : no
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #35
+Question: Which band, Letters to Cleo or Screaming Trees, had more members?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Screaming Trees members.
+Environment State: Gary Lee Conner was the lead guitarist for rock act Screaming Trees, along with his brother Van Conner, who was the band's bassist.
+Action Result: Screaming Trees had at least two members: Gary Lee Conner and Van 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Screaming Trees members.
+Environment State: Screaming Trees was an American rock band formed in Ellensburg, Washington in 1985 by vocalist Mark Lanegan, guitarist Gary Lee Conner, bass player Van Conner and drummer Mark Pickerel.
+Action Result: Screaming Tr
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about Letters to Cleo members.
+Environment State: Letters to Cleo are an alternative rock band from Boston, Massachusetts, best known for the 1994 single, "Here & Now", from their full-length debut album, "Aurora Gory Alice". The band's members are Kay Hanley, Gr
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide final answer.
+Environment State: Letters to Cleo had six members.
+Action Result: Letters to Cleo had more members than Screaming Trees.
+Final Answer: Letters to Cleo
+
+  Pred : letters to cleo
+  Gold : letters to cleo
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #36
+Question: Alexander Kerensky was defeated and destroyed by the Bolsheviks in the course of a civil war that ended when ?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information on when the civil war ended.
+Environment State: The Socialist Revolutionary Party's anti-Bolshevik faction, which remained loyal to the Provisional Government leader Alexander Kerensky, was defeated and destroyed by the Bolsheviks in the course of the Russian Civ
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the exact year the Russian Civil War ended.
+Environment State: The war ended in 1923 in the sense that Red control of the newly formed Soviet Union was now assured, although armed national resistance in Central Asia was not completely crushed until 1934.
+Action Result: The R
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm the end year of the Russian Civil War.
+Environment State: The Socialist Revolutionary Party's anti-Bolshevik faction, which remained loyal to the Provisional Government leader Alexander Kerensky, was defeated and destroyed by the Bolsheviks in the course of the Russian Civil
+pact:  72%|███████▏  | 36/50 [04:30<01:42,  7.35s/it]pact:  74%|███████▍  | 37/50 [04:37<01:32,  7.08s/it]pact:  76%|███████▌  | 38/50 [04:42<01:18,  6.58s/it]pact:  78%|███████▊  | 39/50 [04:48<01:09,  6.36s/it]pact:  80%|████████  | 40/50 [04:54<01:01,  6.11s/it]pact:  82%|████████▏ | 41/50 [04:59<00:52,  5.80s/it]
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the exact year the Russian Civil War ended.
+Environment State: The war ended in 1923 in the sense that Red control of the newly formed Soviet Union was now assured, although armed national resistance in Central Asia was not completely crushed until 1934.
+Action Result: The R
+
+  Pred : 1923
+  Gold : october 1922
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #37
+Question: Seven Brief Lessons on Physics was written by an Italian physicist that has worked in France since what year?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the author of "Seven Brief Lessons on Physics".
+Environment State: Seven Brief Lessons on Physics (Italian: "" ) is a short book by the Italian physicist Carlo Rovelli.
+Action Result: Carlo Rovelli wrote Seven Brief Lessons on Physics.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the year Carlo Rovelli started working in France.
+Environment State: His work is mainly in the field of quantum gravity, where he is among the founders of the loop quantum gravity theory. He has also worked in the history and philosophy of science. He collaborates regularly 
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the year Carlo Rovelli began working in France.
+Environment State: In 2000, he began working in France.
+Action Result: Carlo Rovelli began working in France in 2000.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the year Carlo Rovelli began working in France.
+Environment State: In 2000, he began working in France.
+Action Result: 2000
+Final Answer: 2000
+
+  Pred : 2000
+  Gold : 2000
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #38
+Question: The Livesey Hal War Memorial commemorates the fallen of which war, that had over 60 million casualties?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the war associated with the Livesey Hall War Memorial.
+Environment State: The Livesey Hall War Memorial commemorates the fallen of World War I and World War II who had been employed by the South Suburban Gas Company of London.
+Action Result: The Livesey Hall War Memorial com
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the casualty information for World War II.
+Environment State: World War II was the deadliest military conflict in history in absolute terms of total casualties. Over 60 million people were killed, which was about 3% of the 1940 world population (est. 2.3 billion).
+Action Res
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the war associated with the high casualty count.
+Environment State: World War II had over 60 million casualties.
+Action Result: World War II had over 60 million casualties.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the war associated with the high casualty count.
+Environment State: World War II had over 60 million casualties.
+Action Result: World War II
+Final Answer: World War II
+
+  Pred : world war ii
+  Gold : world war ii
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #39
+Question: Are both Elko Regional Airport and Gerald R. Ford International Airport located in Michigan?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Request Gerald R. Ford International Airport location.
+Environment State: Elko Regional Airport (IATA: EKO, ICAO: KEKO, FAA LID: EKO) , formerly Elko Municipal Airport, is a mile west of downtown Elko, in Elko County, Nevada.
+Action Result: Elko Regional Airport is in Nevada.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide Gerald R. Ford International Airport location.
+Environment State: Gerald R. Ford International Airport (IATA: GRR, ICAO: KGRR, FAA LID: GRR) is a commercial airport in Cascade Township approximately 13 mi southeast of Grand Rapids, Michigan.
+Action Result: Gerald R. Ford Int
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide Elko Regional Airport location.
+Environment State: Elko Regional Airport (IATA: EKO, ICAO: KEKO, FAA LID: EKO) , formerly Elko Municipal Airport, is a mile west of downtown Elko, in Elko County, Nevada.
+Action Result: Elko Regional Airport is in Nevada.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide final answer.
+Environment State: Elko Regional Airport is in Nevada.
+Action Result: No
+Final Answer: No
+
+  Pred : no
+  Gold : no
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #40
+Question: Ralph Hefferline was a psychology professor at a university that is located in what city?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Ralph Hefferline's university location.
+Environment State: Ralph Franklin Hefferline (15 February 1910 in Muncie, Indiana – 16 March 1974) was a psychology professor at Columbia University.
+Action Result: Ralph Hefferline was a psychology professor at Colum
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the city where Columbia University is located.
+Environment State: Columbia University (Columbia; officially Columbia University in the City of New York), established in 1754, is a private Ivy League research university in Upper Manhattan, New York City, often cited as one of
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the city where Ralph Hefferline taught.
+Environment State: Ralph Hefferline was a psychology professor at Columbia University.
+Action Result: Ralph Hefferline taught at Columbia University which is in New York City.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the city where Ralph Hefferline taught.
+Environment State: Columbia University is located in New York City.
+Action Result: New York City
+Final Answer: New York City
+
+  Pred : new york city
+  Gold : new york city
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #41
+Question: Which dog's ancestors include Gordon and Irish Setters: the Manchester Terrier or the Scotch Collie?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the Manchester Terrier's ancestry.
+Environment State: The Manchester Terrier is a breed of dog of the smooth-haired terrier type.
+Action Result: The Manchester Terrier's ancestry includes the English Toy Terrier, Smooth Fox Terrier, and the now extinct Engl
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about the Scotch Collie's ancestors.
+Environment State: Other ancestors include the Gordon and Irish Setters.
+Action Result: The Scotch Collie's ancestors include the Gordon and Irish Setters.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about the Manchester Terrier's potential connection to Gordon and Irish Setters.
+Environment State: The Manchester Terrier is a breed of dog of the smooth-haired terrier type.
+Action Result: The Manchester Terrier's ancestry does not include Gordon and Irish Sett
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Determine which dog's ancestors include Gordon and Irish Setters.
+Environment State: The Scotch Collie's ancestors include the Gordon and Irish Setters.
+Action Result: Scotch Collie
+Final Answer: Scotch Collie
+
+  Pred : scotch collie
+  Gold : scotch collie
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #42
+Question: Where is the company that Sachin Warrier worked for as a software engineer headquartered?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the headquarters location of the company Sachin Warrier worked for as a software engineer.
+Environment State: He was working as a software engineer in Tata Consultancy Services in Kochi.
+Action Result: Tata Consultancy Services is headquartered in Mumbai.
+
+  ----- Agent B (pact_b_turn1) -----
+pact:  84%|████████▍ | 42/50 [05:04<00:45,  5.65s/it]pact:  86%|████████▌ | 43/50 [05:11<00:42,  6.11s/it]pact:  88%|████████▊ | 44/50 [05:20<00:40,  6.76s/it]pact:  90%|█████████ | 45/50 [05:30<00:38,  7.78s/it]pact:  92%|█████████▏| 46/50 [05:40<00:33,  8.42s/it]  Output: Action Required: Provide the headquarters location of the company mentioned.
+Environment State: Tata Consultancy Services Limited (TCS) is an Indian multinational information technology (IT) service, consulting and business solutions company Headquartered in Mumbai, Maharashtra.
+Action Result: Tata 
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the headquarters location of the company Sachin Warrier worked for as a software engineer.
+Environment State: He was working as a software engineer in Tata Consultancy Services in Kochi.
+Action Result: Tata Consultancy Services is headquartered in Mumbai.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Headquarters location of Tata Consultancy Services.
+Environment State: Tata Consultancy Services Limited (TCS) is an Indian multinational information technology (IT) service, consulting and business solutions company Headquartered in Mumbai, Maharashtra.
+Action Result: Tata Consulta
+
+  Pred : mumbai
+  Gold : mumbai
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #43
+Question: A Japanese manga series based on a 16 year old high school student Ichitaka Seto, is written and illustrated by someone born in what year?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Identify the manga series based on a 16-year-old high school student Ichitaka Seto.
+Environment State: None of the provided context mentions a manga series based on a 16-year-old high school student Ichitaka Seto.
+Action Result: There is no relevant information in my context about a
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the birth year of Masakazu Katsura.
+Environment State: I"s (アイズ , Aizu ) is a Japanese manga series written and illustrated by Masakazu Katsura.
+Action Result: Masakazu Katsura was born in 1962.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the birth year of Masakazu Katsura.
+Environment State: Masakazu Katsura (桂 正和 , Katsura Masakazu , born December 10, 1962) is a Japanese manga artist, known for several works of manga, including "Wing-man", "Shadow Lady", "DNA²", "Video Girl Ai", "I"s", and "Zetman".
+Action 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the birth year of Masakazu Katsura.
+Environment State: Masakazu Katsura was born in 1962.
+Action Result: 1962
+Final Answer: 1962
+
+  Pred : 1962
+  Gold : 1962
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #44
+Question: The battle in which Giuseppe Arimondi lost his life secured what for Ethiopia?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Confirm if Battle of Adwa secured independence for Ethiopia.
+Environment State: Ethiopia was victorious over the Italians at the Battle of Adwa in 1896 with the military leadership of Ras Makonnen, and ensuring its sovereignty and freedom from colonization.
+Action Result: Battle of 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about the treaty that ended the First Italo-Ethiopian War.
+Environment State: The Treaty of Addis Ababa, signed 23 October 1896, formally ended the First Italo–Ethiopian War on terms mostly favorable to Ethiopia.
+Action Result: The Treaty of Addis Ababa ended the
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm if the Battle of Adwa secured Ethiopia's independence.
+Environment State: Ethiopia was victorious over the Italians at the Battle of Adwa in 1896 with the military leadership of Ras Makonnen, and ensuring its sovereignty and freedom from colonization.
+Action Result: The Batt
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about Giuseppe Arimondi's involvement in the Battle of Adwa.
+Environment State: Over 1,000 Dervishes, including the Emir, were killed in severe fighting.
+Action Result: The Second Battle of Agordat was fought between Italian colonial troops and Mahdists, not invo
+
+  Pred : battle of adwa
+  Gold : sovereignty
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #45
+Question: Alfred Balk served as the secretary of the Committee on the Employment of Minority Groups in the News Media under which United States Vice President?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information on the Committee on the Employment of Minority Groups in the News Media and its relation to a U.S. Vice President.
+Environment State: Alfred Balk served as the secretary of New York Governor Nelson Rockefeller's Committee on the Employment of Minority Groups in t
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information on Nelson Rockefeller's role as Vice President.
+Environment State: Nelson Aldrich Rockefeller (July 8, 1908 – January 26, 1979) was an American businessman and politician. He served as the 41st Vice President of the United States from 1974 to 1977, and previously
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm if Nelson Rockefeller was Vice President when Alfred Balk served on the Committee.
+Environment State: Alfred Balk served as secretary of New York Governor Nelson Rockefeller's Committee on the Employment of Minority Groups in the News Media.
+Action Result: Rockefeller was Go
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Determine if Nelson Rockefeller was Vice President while Alfred Balk served on the committee.
+Environment State: Nelson Aldrich Rockefeller (July 8, 1908 – January 26, 1979) was an American businessman and politician. He served as the 41st Vice President of the United States from 19
+
+  Pred : nelson rockefeller
+  Gold : nelson rockefeller
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #46
+Question: A medieval fortress in Dirleton, East Lothian, Scotland borders on the south side of what coastal area?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the coastal area south of a medieval fortress in Dirleton.
+Environment State: Yellowcraig, less commonly known as Broad Sands Bay, is a coastal area of forest, beach and grassland in East Lothian, south-east Scotland.  Yellowcraig is partly within the Firth
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about the coastal area south of Dirleton Castle.
+Environment State: Dirleton Castle is a medieval fortress in the village of Dirleton, East Lothian, Scotland.
+Action Result: Dirleton Castle borders on the north side of Yellowcraig.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about the coastal area south of Dirleton Castle.
+Environment State: Yellowcraig, less commonly known as Broad Sands Bay, is a coastal area of forest, beach and grassland in East Lothian, south-east Scotland. Yellowcraig is partly within the Firth of Forth Site of
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about the coastal area south of Dirleton Castle.
+Environment State: Yellowcraig is bordered to the north by the Firth of Forth, to the south by the village of Dirleton and Dirleton Castle, to the east by the North Berwick West Links golf course, and to the west b
+
+  Pred : yellowcraig
+  Gold : yellowcraig
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #47
+Question: Who is the writer of this song that was inspired by words on a tombstone and was the first track on the box set Back to Mono?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Identify the writer of the first track on Back to Mono box set.
+Environment State: Back to Mono (1958–1969) is a box set (4 compact discs or 5 vinyl LPs) compilation of the recorded work of record producer Phil Spector, through the 1960s, released in 1991 by ABKCO as #7118-2.
+Action
+
+  ----- Agent B (pact_b_turn1) -----
+pact:  94%|█████████▍| 47/50 [05:48<00:25,  8.51s/it]pact:  96%|█████████▌| 48/50 [05:57<00:17,  8.64s/it]pact:  98%|█████████▊| 49/50 [06:02<00:07,  7.50s/it]pact: 100%|██████████| 50/50 [06:11<00:00,  7.92s/it]pact: 100%|██████████| 50/50 [06:11<00:00,  7.43s/it]
+  Output: Action Required: Provide the writer of the song "To Know Him Is to Love Him".
+Environment State: "To Know Him Is to Love Him" is a song written by Phil Spector, inspired by words on his father's tombstone, "To Know Him Was To Love Him."
+Action Result: The writer of the song "To Know Him Is to Love H
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the writer of the song that was inspired by words on a tombstone and is the first track on the box set Back to Mono.
+Environment State: "To Know Him Is to Love Him" is a song written by Phil Spector, inspired by words on his father's tombstone, "To Know Him Was To Love Him."
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the writer of the song that was inspired by words on a tombstone and is the first track on the box set Back to Mono.
+Environment State: "To Know Him Is to Love Him" is a song written by Phil Spector, inspired by words on his father's tombstone, "To Know Him Was To Love Him."
+
+  Pred : phil spector
+  Gold : phil spector
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #48
+Question: What type of forum did a former Soviet statesman initiate?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about a forum initiated by a former Soviet statesman.
+Environment State: The World Summit of Nobel Peace Laureates was initiated by Mikhail Gorbachev in the 90s, as a forum in which the Nobel Peace Laureates and the Peace Laureate Organizations could come togethe
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about the forum initiated by a former Soviet statesman.
+Environment State: Mikhail Sergeyevich Gorbachev, ( ; Russian: Михаи́л Серге́евич Горбачёв ; ] ; born 2 March 1931) is a former Soviet statesman.
+Action Result: Mikhail Gorbachev initiated the World Summit o
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm the forum type initiated by a former Soviet statesman.
+Environment State: The World Summit of Nobel Peace Laureates was initiated by Mikhail Gorbachev in the 90s, as a forum in which the Nobel Peace Laureates and the Peace Laureate Organizations could come together to addres
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm the forum type initiated by a former Soviet statesman.
+Environment State: The World Summit of Nobel Peace Laureates was initiated by Mikhail Gorbachev in the 90s, as a forum in which the Nobel Peace Laureates and the Peace Laureate Organizations could come together to addres
+
+  Pred : world summit of nobel peace laureates
+  Gold : organizations could come together to address global issues
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #49
+Question: Are Ferocactus and Silene both types of plant?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Ferocactus.
+Environment State: Ferocactus is a genus of large barrel-shaped cacti, mostly with large spines and small flowers.
+Action Result: Ferocactus is a type of plant.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Silene.
+Environment State: "Silene" are a flowering plant that evolved a dioecious reproductive system.
+Action Result: Silene is a type of plant.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm if both Ferocactus and Silene are types of plants.
+Environment State: Ferocactus is a genus of large barrel-shaped cacti, mostly with large spines and small flowers.
+Action Result: Both Ferocactus and Silene are types of plants.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm if both Ferocactus and Silene are types of plants.
+Environment State: "Silene" are a flowering plant that evolved a dioecious reproductive system.
+Action Result: Both Ferocactus and Silene are types of plants.
+Final Answer: Yes
+
+  Pred : yes
+  Gold : yes
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #50
+Question: Which British first-generation jet-powered medium bomber was used in the South West Pacific theatre of World War II?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about British jet-powered bombers used in the South West Pacific theatre of World War II.
+Environment State: No. 2 Squadron RAAF saw action as a bomber unit in the South West Pacific theatre of World War II and, equipped with English Electric Canberra jets, in th
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the British first-generation jet-powered medium bomber from the given context.
+Environment State: The English Electric Canberra is a British first-generation jet-powered medium bomber that was manufactured during the 1950s.
+Action Result: The English Electric Can
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about the use of English Electric Canberra in the South West Pacific theatre of World War II.
+Environment State: No. 2 Squadron RAAF saw action as a bomber unit in the South West Pacific theatre of World War II and, equipped with English Electric Canberra jets, i
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the use of English Electric Canberra in the South West Pacific theatre of World War II.
+Environment State: The English Electric Canberra is a British first-generation jet-powered medium bomber that was manufactured during the 1950s.
+Action Result: The English Electric Canber
+
+  Pred : de havilland mosquito
+  Gold : english electric canberra
+  EM   : False  |  F1: 0.000
+
+============================================================
+RESULTS:
+{
+  "method": "pact",
+  "model": "/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct",
+  "dataset": "hotpotqa",
+  "data_path": "data/hotpot_dev_distractor_v1.json",
+  "seed": 42,
+  "max_samples": 50,
+  "exact_match": 0.68,
+  "avg_f1": 0.792,
+  "correct": 34,
+  "avg_turns": 4.0,
+  "avg_output_tokens_per_turn": 80.5,
+  "avg_communication_tokens": 321.9,
+  "avg_total_tokens": 4811.2,
+  "total_time_sec": 371.54,
+  "time_per_sample_sec": 7.4308
+}
+
+Per-sample results saved to: /data/xuhaoming/yfy/research_workspace/results/pact-qwen25-14b-hotpot50-final-contract-20260614_1536/pact_qwen25_14b_hotpot50_final_contract.jsonl

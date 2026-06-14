@@ -1,0 +1,518 @@
+{
+  "aggregate": {
+    "failure_modes": {
+      "correct_context_retained_but_lost_after_update": 2,
+      "correct_context_visible_and_recovered": 4,
+      "correct_context_visible_but_not_recovered": 4,
+      "no_correct_first_round_agent": 12,
+      "not_failure_transition": 375,
+      "selection_dropped_all_correct": 3
+    },
+    "final_accuracy": 0.9475,
+    "final_correct": 379,
+    "public_states": {
+      "retained_answer_only/guarded_retained_subset": 100,
+      "retained_answer_only/retained_subset": 100,
+      "retained_full_reasoning/guarded_retained_subset": 100,
+      "retained_full_reasoning/retained_subset": 100
+    },
+    "records": 400,
+    "suppressed_correct_count": {
+      "0": 68,
+      "1": 110,
+      "2": 222
+    },
+    "suppressed_parseable_count": {
+      "0": 52,
+      "1": 122,
+      "2": 226
+    },
+    "trace_count": 4,
+    "transition_by_failure_mode": {
+      "right_to_wrong|correct_context_retained_but_lost_after_update": 2,
+      "right_to_wrong|selection_dropped_all_correct": 3,
+      "stable_right|not_failure_transition": 375,
+      "stable_wrong|correct_context_visible_but_not_recovered": 4,
+      "stable_wrong|no_correct_first_round_agent": 12,
+      "wrong_to_right|correct_context_visible_and_recovered": 4
+    },
+    "transition_by_suppressed_correct": {
+      "right_to_wrong|suppressed_correct=0": 2,
+      "right_to_wrong|suppressed_correct=1": 2,
+      "right_to_wrong|suppressed_correct=2": 1,
+      "stable_right|suppressed_correct=0": 46,
+      "stable_right|suppressed_correct=1": 108,
+      "stable_right|suppressed_correct=2": 221,
+      "stable_wrong|suppressed_correct=0": 16,
+      "wrong_to_right|suppressed_correct=0": 4
+    },
+    "transition_by_visible_correct": {
+      "right_to_wrong|visible_correct=0": 3,
+      "right_to_wrong|visible_correct=1": 1,
+      "right_to_wrong|visible_correct=2": 1,
+      "stable_right|visible_correct=0": 23,
+      "stable_right|visible_correct=1": 229,
+      "stable_right|visible_correct=2": 91,
+      "stable_right|visible_correct=3": 32,
+      "stable_wrong|visible_correct=0": 12,
+      "stable_wrong|visible_correct=1": 4,
+      "wrong_to_right|visible_correct=1": 4
+    },
+    "transition_by_visible_count": {
+      "right_to_wrong|visible=1": 1,
+      "right_to_wrong|visible=2": 3,
+      "right_to_wrong|visible=3": 1,
+      "stable_right|visible=1": 229,
+      "stable_right|visible=2": 111,
+      "stable_right|visible=3": 35,
+      "stable_wrong|visible=1": 4,
+      "stable_wrong|visible=2": 8,
+      "stable_wrong|visible=3": 4,
+      "wrong_to_right|visible=2": 2,
+      "wrong_to_right|visible=3": 2
+    },
+    "transitions": {
+      "right_to_wrong": 5,
+      "stable_right": 375,
+      "stable_wrong": 16,
+      "wrong_to_right": 4
+    },
+    "visible_correct_count": {
+      "0": 38,
+      "1": 238,
+      "2": 92,
+      "3": 32
+    },
+    "visible_count": {
+      "1": 234,
+      "2": 124,
+      "3": 42
+    },
+    "visible_parseable_count": {
+      "0": 6,
+      "1": 228,
+      "2": 124,
+      "3": 42
+    }
+  },
+  "baseline_label": "original",
+  "paired_comparisons": {
+    "answer_only_no_guard": {
+      "baseline_label": "original",
+      "changed_final_cases": [
+        {
+          "from_to": "False_to_True",
+          "sample_index": 5
+        },
+        {
+          "from_to": "False_to_True",
+          "sample_index": 22
+        }
+      ],
+      "final_correct_transition_counts": {
+        "False_to_False": 5,
+        "False_to_True": 2,
+        "True_to_True": 93
+      },
+      "label": "answer_only_no_guard"
+    },
+    "guard_full": {
+      "baseline_label": "original",
+      "changed_final_cases": [
+        {
+          "from_to": "False_to_True",
+          "sample_index": 5
+        },
+        {
+          "from_to": "False_to_True",
+          "sample_index": 20
+        },
+        {
+          "from_to": "False_to_True",
+          "sample_index": 22
+        }
+      ],
+      "final_correct_transition_counts": {
+        "False_to_False": 4,
+        "False_to_True": 3,
+        "True_to_True": 93
+      },
+      "label": "guard_full"
+    },
+    "guarded_answer_only": {
+      "baseline_label": "original",
+      "changed_final_cases": [
+        {
+          "from_to": "False_to_True",
+          "sample_index": 5
+        },
+        {
+          "from_to": "False_to_True",
+          "sample_index": 22
+        }
+      ],
+      "final_correct_transition_counts": {
+        "False_to_False": 5,
+        "False_to_True": 2,
+        "True_to_True": 93
+      },
+      "label": "guarded_answer_only"
+    }
+  },
+  "traces": {
+    "answer_only_no_guard": {
+      "failure_modes": {
+        "correct_context_visible_and_recovered": 1,
+        "correct_context_visible_but_not_recovered": 1,
+        "no_correct_first_round_agent": 3,
+        "not_failure_transition": 94,
+        "selection_dropped_all_correct": 1
+      },
+      "final_accuracy": 0.95,
+      "final_correct": 95,
+      "path": "experiments\\20260613-2143-a8002-dar-retention-split-gsm8k100\\comm_trace_answer_only_noguard_v11.jsonl",
+      "public_states": {
+        "retained_answer_only/retained_subset": 100
+      },
+      "records": 100,
+      "right_to_wrong_cases": [
+        20
+      ],
+      "suppressed_correct_count": {
+        "0": 16,
+        "1": 23,
+        "2": 61
+      },
+      "suppressed_parseable_count": {
+        "0": 11,
+        "1": 26,
+        "2": 63
+      },
+      "transition_by_failure_mode": {
+        "right_to_wrong|selection_dropped_all_correct": 1,
+        "stable_right|not_failure_transition": 94,
+        "stable_wrong|correct_context_visible_but_not_recovered": 1,
+        "stable_wrong|no_correct_first_round_agent": 3,
+        "wrong_to_right|correct_context_visible_and_recovered": 1
+      },
+      "transition_by_suppressed_correct": {
+        "right_to_wrong|suppressed_correct=1": 1,
+        "stable_right|suppressed_correct=0": 11,
+        "stable_right|suppressed_correct=1": 22,
+        "stable_right|suppressed_correct=2": 61,
+        "stable_wrong|suppressed_correct=0": 4,
+        "wrong_to_right|suppressed_correct=0": 1
+      },
+      "transition_by_visible_correct": {
+        "right_to_wrong|visible_correct=0": 1,
+        "stable_right|visible_correct=0": 12,
+        "stable_right|visible_correct=1": 51,
+        "stable_right|visible_correct=2": 23,
+        "stable_right|visible_correct=3": 8,
+        "stable_wrong|visible_correct=0": 3,
+        "stable_wrong|visible_correct=1": 1,
+        "wrong_to_right|visible_correct=1": 1
+      },
+      "transition_by_visible_count": {
+        "right_to_wrong|visible=2": 1,
+        "stable_right|visible=1": 62,
+        "stable_right|visible=2": 24,
+        "stable_right|visible=3": 8,
+        "stable_wrong|visible=1": 2,
+        "stable_wrong|visible=2": 1,
+        "stable_wrong|visible=3": 1,
+        "wrong_to_right|visible=2": 1
+      },
+      "transitions": {
+        "right_to_wrong": 1,
+        "stable_right": 94,
+        "stable_wrong": 4,
+        "wrong_to_right": 1
+      },
+      "visible_correct_count": {
+        "0": 16,
+        "1": 53,
+        "2": 23,
+        "3": 8
+      },
+      "visible_count": {
+        "1": 64,
+        "2": 27,
+        "3": 9
+      },
+      "visible_parseable_count": {
+        "0": 3,
+        "1": 61,
+        "2": 27,
+        "3": 9
+      },
+      "wrong_to_right_cases": [
+        37
+      ]
+    },
+    "guard_full": {
+      "failure_modes": {
+        "correct_context_visible_and_recovered": 1,
+        "correct_context_visible_but_not_recovered": 1,
+        "no_correct_first_round_agent": 3,
+        "not_failure_transition": 95
+      },
+      "final_accuracy": 0.96,
+      "final_correct": 96,
+      "path": "experiments\\20260613-2143-a8002-dar-retention-split-gsm8k100\\comm_trace_guard_full_v11.jsonl",
+      "public_states": {
+        "retained_full_reasoning/guarded_retained_subset": 100
+      },
+      "records": 100,
+      "right_to_wrong_cases": [],
+      "suppressed_correct_count": {
+        "0": 18,
+        "1": 32,
+        "2": 50
+      },
+      "suppressed_parseable_count": {
+        "0": 15,
+        "1": 35,
+        "2": 50
+      },
+      "transition_by_failure_mode": {
+        "stable_right|not_failure_transition": 95,
+        "stable_wrong|correct_context_visible_but_not_recovered": 1,
+        "stable_wrong|no_correct_first_round_agent": 3,
+        "wrong_to_right|correct_context_visible_and_recovered": 1
+      },
+      "transition_by_suppressed_correct": {
+        "stable_right|suppressed_correct=0": 13,
+        "stable_right|suppressed_correct=1": 32,
+        "stable_right|suppressed_correct=2": 50,
+        "stable_wrong|suppressed_correct=0": 4,
+        "wrong_to_right|suppressed_correct=0": 1
+      },
+      "transition_by_visible_correct": {
+        "stable_right|visible_correct=1": 64,
+        "stable_right|visible_correct=2": 23,
+        "stable_right|visible_correct=3": 8,
+        "stable_wrong|visible_correct=0": 3,
+        "stable_wrong|visible_correct=1": 1,
+        "wrong_to_right|visible_correct=1": 1
+      },
+      "transition_by_visible_count": {
+        "stable_right|visible=1": 53,
+        "stable_right|visible=2": 32,
+        "stable_right|visible=3": 10,
+        "stable_wrong|visible=2": 3,
+        "stable_wrong|visible=3": 1,
+        "wrong_to_right|visible=3": 1
+      },
+      "transitions": {
+        "stable_right": 95,
+        "stable_wrong": 4,
+        "wrong_to_right": 1
+      },
+      "visible_correct_count": {
+        "0": 3,
+        "1": 66,
+        "2": 23,
+        "3": 8
+      },
+      "visible_count": {
+        "1": 53,
+        "2": 35,
+        "3": 12
+      },
+      "visible_parseable_count": {
+        "1": 53,
+        "2": 35,
+        "3": 12
+      },
+      "wrong_to_right_cases": [
+        37
+      ]
+    },
+    "guarded_answer_only": {
+      "failure_modes": {
+        "correct_context_retained_but_lost_after_update": 1,
+        "correct_context_visible_and_recovered": 1,
+        "correct_context_visible_but_not_recovered": 1,
+        "no_correct_first_round_agent": 3,
+        "not_failure_transition": 94
+      },
+      "final_accuracy": 0.95,
+      "final_correct": 95,
+      "path": "experiments\\20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100\\comm_trace_dar_guarded_v11.jsonl",
+      "public_states": {
+        "retained_answer_only/guarded_retained_subset": 100
+      },
+      "records": 100,
+      "right_to_wrong_cases": [
+        20
+      ],
+      "suppressed_correct_count": {
+        "0": 18,
+        "1": 32,
+        "2": 50
+      },
+      "suppressed_parseable_count": {
+        "0": 15,
+        "1": 35,
+        "2": 50
+      },
+      "transition_by_failure_mode": {
+        "right_to_wrong|correct_context_retained_but_lost_after_update": 1,
+        "stable_right|not_failure_transition": 94,
+        "stable_wrong|correct_context_visible_but_not_recovered": 1,
+        "stable_wrong|no_correct_first_round_agent": 3,
+        "wrong_to_right|correct_context_visible_and_recovered": 1
+      },
+      "transition_by_suppressed_correct": {
+        "right_to_wrong|suppressed_correct=0": 1,
+        "stable_right|suppressed_correct=0": 12,
+        "stable_right|suppressed_correct=1": 32,
+        "stable_right|suppressed_correct=2": 50,
+        "stable_wrong|suppressed_correct=0": 4,
+        "wrong_to_right|suppressed_correct=0": 1
+      },
+      "transition_by_visible_correct": {
+        "right_to_wrong|visible_correct=1": 1,
+        "stable_right|visible_correct=1": 63,
+        "stable_right|visible_correct=2": 23,
+        "stable_right|visible_correct=3": 8,
+        "stable_wrong|visible_correct=0": 3,
+        "stable_wrong|visible_correct=1": 1,
+        "wrong_to_right|visible_correct=1": 1
+      },
+      "transition_by_visible_count": {
+        "right_to_wrong|visible=3": 1,
+        "stable_right|visible=1": 53,
+        "stable_right|visible=2": 32,
+        "stable_right|visible=3": 9,
+        "stable_wrong|visible=2": 3,
+        "stable_wrong|visible=3": 1,
+        "wrong_to_right|visible=3": 1
+      },
+      "transitions": {
+        "right_to_wrong": 1,
+        "stable_right": 94,
+        "stable_wrong": 4,
+        "wrong_to_right": 1
+      },
+      "visible_correct_count": {
+        "0": 3,
+        "1": 66,
+        "2": 23,
+        "3": 8
+      },
+      "visible_count": {
+        "1": 53,
+        "2": 35,
+        "3": 12
+      },
+      "visible_parseable_count": {
+        "1": 53,
+        "2": 35,
+        "3": 12
+      },
+      "wrong_to_right_cases": [
+        37
+      ]
+    },
+    "original": {
+      "failure_modes": {
+        "correct_context_retained_but_lost_after_update": 1,
+        "correct_context_visible_and_recovered": 1,
+        "correct_context_visible_but_not_recovered": 1,
+        "no_correct_first_round_agent": 3,
+        "not_failure_transition": 92,
+        "selection_dropped_all_correct": 2
+      },
+      "final_accuracy": 0.93,
+      "final_correct": 93,
+      "path": "experiments\\20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory\\comm_trace_dar_v11.jsonl",
+      "public_states": {
+        "retained_full_reasoning/retained_subset": 100
+      },
+      "records": 100,
+      "right_to_wrong_cases": [
+        5,
+        20,
+        22
+      ],
+      "suppressed_correct_count": {
+        "0": 16,
+        "1": 23,
+        "2": 61
+      },
+      "suppressed_parseable_count": {
+        "0": 11,
+        "1": 26,
+        "2": 63
+      },
+      "transition_by_failure_mode": {
+        "right_to_wrong|correct_context_retained_but_lost_after_update": 1,
+        "right_to_wrong|selection_dropped_all_correct": 2,
+        "stable_right|not_failure_transition": 92,
+        "stable_wrong|correct_context_visible_but_not_recovered": 1,
+        "stable_wrong|no_correct_first_round_agent": 3,
+        "wrong_to_right|correct_context_visible_and_recovered": 1
+      },
+      "transition_by_suppressed_correct": {
+        "right_to_wrong|suppressed_correct=0": 1,
+        "right_to_wrong|suppressed_correct=1": 1,
+        "right_to_wrong|suppressed_correct=2": 1,
+        "stable_right|suppressed_correct=0": 10,
+        "stable_right|suppressed_correct=1": 22,
+        "stable_right|suppressed_correct=2": 60,
+        "stable_wrong|suppressed_correct=0": 4,
+        "wrong_to_right|suppressed_correct=0": 1
+      },
+      "transition_by_visible_correct": {
+        "right_to_wrong|visible_correct=0": 2,
+        "right_to_wrong|visible_correct=2": 1,
+        "stable_right|visible_correct=0": 11,
+        "stable_right|visible_correct=1": 51,
+        "stable_right|visible_correct=2": 22,
+        "stable_right|visible_correct=3": 8,
+        "stable_wrong|visible_correct=0": 3,
+        "stable_wrong|visible_correct=1": 1,
+        "wrong_to_right|visible_correct=1": 1
+      },
+      "transition_by_visible_count": {
+        "right_to_wrong|visible=1": 1,
+        "right_to_wrong|visible=2": 2,
+        "stable_right|visible=1": 61,
+        "stable_right|visible=2": 23,
+        "stable_right|visible=3": 8,
+        "stable_wrong|visible=1": 2,
+        "stable_wrong|visible=2": 1,
+        "stable_wrong|visible=3": 1,
+        "wrong_to_right|visible=2": 1
+      },
+      "transitions": {
+        "right_to_wrong": 3,
+        "stable_right": 92,
+        "stable_wrong": 4,
+        "wrong_to_right": 1
+      },
+      "visible_correct_count": {
+        "0": 16,
+        "1": 53,
+        "2": 23,
+        "3": 8
+      },
+      "visible_count": {
+        "1": 64,
+        "2": 27,
+        "3": 9
+      },
+      "visible_parseable_count": {
+        "0": 3,
+        "1": 61,
+        "2": 27,
+        "3": 9
+      },
+      "wrong_to_right_cases": [
+        37
+      ]
+    }
+  }
+}

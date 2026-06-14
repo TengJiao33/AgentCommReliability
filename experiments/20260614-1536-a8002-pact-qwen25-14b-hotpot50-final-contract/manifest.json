@@ -1,0 +1,51 @@
+{
+  "run_id": "20260614-1536-a8002-pact-qwen25-14b-hotpot50-final-contract",
+  "status": "completed",
+  "method": "PACT",
+  "variant": "final_answer_contract",
+  "model": "/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct",
+  "dataset": "HotpotQA dev-distractor",
+  "seed": 42,
+  "samples": 50,
+  "machine": "A800_2",
+  "gpu_ids": [
+    7
+  ],
+  "timeout_minutes": 60,
+  "upstream_repo": "https://github.com/iNLP-Lab/PACT",
+  "upstream_commit": "91acf820f8a69fc7c181120b3120444a98823230",
+  "local_changes": [
+    "baselines/PACT/upstream/prompts.py env-gated PACT_FINAL_ANSWER_CONTRACT",
+    "scripts/run_pact_hotpot_smoke_a8002.sh logs PACT_FINAL_ANSWER_CONTRACT"
+  ],
+  "command": "PACT_MODEL=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct PACT_MAX_SAMPLES=50 PACT_TIMEOUT=60m PACT_GPU_ID=7 PACT_FINAL_ANSWER_CONTRACT=1 PACT_RUN_ID=pact-qwen25-14b-hotpot50-final-contract-20260614_1536 PACT_OUT_NAME=pact_qwen25_14b_hotpot50_final_contract.jsonl bash /data/xuhaoming/yfy/research_workspace/scripts/run_pact_hotpot_smoke_a8002.sh",
+  "remote_result_dir": "/data/xuhaoming/yfy/research_workspace/results/pact-qwen25-14b-hotpot50-final-contract-20260614_1536",
+  "log_path": "experiments/20260614-1536-a8002-pact-qwen25-14b-hotpot50-final-contract/run.log",
+  "result_paths": [
+    "experiments/20260614-1536-a8002-pact-qwen25-14b-hotpot50-final-contract/pact_qwen25_14b_hotpot50_final_contract.jsonl",
+    "experiments/20260614-1536-a8002-pact-qwen25-14b-hotpot50-final-contract/comm_trace_pact_final_contract_v11.jsonl",
+    "experiments/20260614-1536-a8002-pact-qwen25-14b-hotpot50-final-contract/analysis_summary.json",
+    "experiments/20260614-1536-a8002-pact-qwen25-14b-hotpot50-final-contract/changed_cases.jsonl"
+  ],
+  "metrics": {
+    "exact_match": 0.68,
+    "correct": 34,
+    "avg_f1": 0.792,
+    "avg_communication_tokens": 321.9,
+    "avg_total_tokens": 4811.2,
+    "avg_output_tokens_per_turn": 80.5,
+    "eval_time_seconds": 371.54,
+    "time_per_sample_seconds": 7.4308,
+    "baseline_correct": 17,
+    "correct_delta_vs_baseline": 17,
+    "wrong_to_right": 20,
+    "right_to_wrong": 3,
+    "stable_wrong": 13,
+    "stable_right": 14
+  },
+  "caveats": [
+    "Uses Qwen2.5-14B-Instruct instead of the paper's Qwen3-14B.",
+    "50-sample smoke only.",
+    "Prompt control changes model behavior and should be checked on a neighboring slice before broader claims."
+  ]
+}

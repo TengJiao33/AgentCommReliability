@@ -68,7 +68,37 @@ timeout 30m /data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/bin/pytho
 | hop1 unified trace | `/data/xuhaoming/yfy/research_workspace/results/unified-traces/moc-hopcheck-hop1-n5.comm_trace.jsonl` |
 | hop2 unified trace | `/data/xuhaoming/yfy/research_workspace/results/unified-traces/moc-hopcheck-hop2-n5.comm_trace.jsonl` |
 
-Small local copies include summaries, details, logs, sidecar events, unified traces, and `analysis_summary.json`.
+Small local copies include summaries, details, logs, sidecar events, unified traces, schema v1.1 traces, and `analysis_summary.json`.
+
+## Derived Schema v1.1 Traces
+
+Created locally without rerunning the model:
+
+```bash
+python scripts/extract_comm_trace_schema.py moc \
+  --detail-json experiments/20260613-1740-a8002-moc-hopcheck-n5/hop1_detail.json \
+  --summary-json experiments/20260613-1740-a8002-moc-hopcheck-n5/hop1_summary.json \
+  --comm-events-jsonl experiments/20260613-1740-a8002-moc-hopcheck-n5/hop1_comm_events.jsonl \
+  --run-id 20260613-1740-a8002-moc-hop1-n5-v11 \
+  --method Chain \
+  --task-regime saturated_arithmetic \
+  --public-state-surface neighbor_context \
+  --communication-policy topology_hop1 \
+  --out experiments/20260613-1740-a8002-moc-hopcheck-n5/comm_trace_hop1_v11.jsonl
+
+python scripts/extract_comm_trace_schema.py moc \
+  --detail-json experiments/20260613-1740-a8002-moc-hopcheck-n5/hop2_detail.json \
+  --summary-json experiments/20260613-1740-a8002-moc-hopcheck-n5/hop2_summary.json \
+  --comm-events-jsonl experiments/20260613-1740-a8002-moc-hopcheck-n5/hop2_comm_events.jsonl \
+  --run-id 20260613-1740-a8002-moc-hop2-forcedmerge-n5-v11 \
+  --method Chain \
+  --task-regime saturated_arithmetic \
+  --public-state-surface compressed_summary \
+  --communication-policy topology_merge \
+  --out experiments/20260613-1740-a8002-moc-hopcheck-n5/comm_trace_hop2_v11.jsonl
+```
+
+Validation: both traces have 5 rows, schema `acr.comm_trace.v1.1`, and four derived `context_events` entries per row from MOC `ism_result` sidecar events.
 
 ## What Happened
 

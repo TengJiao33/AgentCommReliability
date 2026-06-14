@@ -1,0 +1,27 @@
+{
+  "candidate_reason_counts": {
+    "large_overlap_drop": 6,
+    "low_variant_overlap": 5,
+    "new_anchor_loss": 6
+  },
+  "candidate_sample_indices": [
+    107,
+    112,
+    139,
+    140,
+    142,
+    147
+  ],
+  "focus_only": true,
+  "note": "This is a rough lexical diagnostic over Action Required fields, not a semantic target-preservation classifier.",
+  "records": 36,
+  "target_slot_drift_candidate_count": 6,
+  "target_slot_drift_candidates_by_transition": {
+    "stable_wrong": 6
+  },
+  "transition_counts": {
+    "right_to_wrong": 2,
+    "stable_wrong": 22,
+    "wrong_to_right": 12
+  }
+}

@@ -1,0 +1,1419 @@
+/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:
+No module named 'vllm._version'
+  from vllm.version import __version__ as VLLM_VERSION
+[vLLM] Loading /mnt/quarkfs/share_model/Qwen2.5-14B-Instruct with tensor_parallel_size=1
+INFO 06-14 16:12:31 llm_engine.py:237] Initializing an LLM engine (vdev) with config: model='/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct', speculative_config=None, tokenizer='/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, rope_scaling=None, rope_theta=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=8192, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct, use_v2_block_manager=True, num_scheduler_steps=1, chunked_prefill_enabled=False multi_step_stream_outputs=True, enable_prefix_caching=False, use_async_output_proc=True, use_cached_outputs=False, mm_processor_kwargs=None)
+INFO 06-14 16:12:32 model_runner.py:1060] Starting to load model /mnt/quarkfs/share_model/Qwen2.5-14B-Instruct...
+Loading safetensors checkpoint shards:   0% Completed | 0/8 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:  12% Completed | 1/8 [00:11<01:22, 11.72s/it]
+Loading safetensors checkpoint shards:  25% Completed | 2/8 [00:23<01:12, 12.01s/it]
+Loading safetensors checkpoint shards:  38% Completed | 3/8 [00:35<00:59, 11.94s/it]
+Loading safetensors checkpoint shards:  50% Completed | 4/8 [00:47<00:47, 11.85s/it]
+Loading safetensors checkpoint shards:  62% Completed | 5/8 [00:59<00:35, 11.81s/it]
+Loading safetensors checkpoint shards:  75% Completed | 6/8 [01:11<00:23, 11.82s/it]
+Loading safetensors checkpoint shards:  88% Completed | 7/8 [01:22<00:11, 11.82s/it]
+Loading safetensors checkpoint shards: 100% Completed | 8/8 [01:27<00:00,  9.67s/it]
+Loading safetensors checkpoint shards: 100% Completed | 8/8 [01:27<00:00, 11.00s/it]
+
+INFO 06-14 16:14:00 model_runner.py:1071] Loading model weights took 27.5680 GB
+INFO 06-14 16:14:01 gpu_executor.py:122] # GPU blocks: 12839, # CPU blocks: 1365
+INFO 06-14 16:14:01 gpu_executor.py:126] Maximum concurrency for 8192 tokens per request: 25.08x
+INFO 06-14 16:14:03 model_runner.py:1402] Capturing the model for CUDA graphs. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI.
+INFO 06-14 16:14:03 model_runner.py:1406] CUDA graphs can take additional 1~3 GiB memory per GPU. If you are running out of memory, consider decreasing `gpu_memory_utilization` or enforcing eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 06-14 16:14:13 model_runner.py:1530] Graph capturing finished in 10 secs.
+pact:   0%|          | 0/50 [00:00<?, ?it/s]pact:   2%|▏         | 1/50 [00:11<09:20, 11.44s/it]pact:   4%|▍         | 2/50 [00:18<06:52,  8.59s/it]pact:   6%|▌         | 3/50 [00:27<07:09,  9.14s/it]pact:   8%|▊         | 4/50 [00:37<07:12,  9.40s/it]
+============================================================
+Problem #101
+Question: Where did the descendants of the group of black Indians associated with the Seminole people settle?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the settlement location of the descendants of the group of black Indians associated with the Seminole people.
+Environment State: The Mascogos (also known as "negros mascagos") are an afrodescendant group in Coahuila, Mexico. Centered on the town of El Nacimiento in Múzquiz M
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the settlement location of the descendants of the group of black Indians associated with the Seminole people in Oklahoma.
+Environment State: The Seminole Nation of Oklahoma is headquartered in Wewoka within Seminole County, Oklahoma.  Of 18,800 enrolled tribal members, 13,53
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the settlement location of the descendants of the group of black Indians associated with the Seminole people in Coahuila, Mexico.
+Environment State: The Mascogos (also known as "negros mascagos") are an afrodescendant group in Coahuila, Mexico. Centered on the town of El Nac
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the settlement location of the descendants of the group of black Indians associated with the Seminole people.
+Environment State: The Mascogos (also known as "negros mascagos") are an afrodescendant group in Coahuila, Mexico. Centered on the town of El Nacimiento in Múzquiz M
+
+  Pred : town of el nacimiento in múzquiz municipality coahuila mexico
+  Gold : coahuila mexico
+  EM   : False  |  F1: 0.364
+
+============================================================
+Problem #102
+Question: David Huntsinger has worked with this gospel singer born in the month of July?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the gospel singer born in July that David Huntsinger has worked with.
+Environment State: Andraé Edward Crouch (July 1, 1942 – January 8, 2015) was an American gospel singer, songwriter, arranger, record producer and pastor.
+Action Result: Has David Huntsinger wor
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the gospel singer born in July that David Huntsinger has worked with.
+Environment State: Larnelle Steward Harris (born July 6, 1947) is an American gospel singer and songwriter.
+Action Result: Has David Huntsinger worked with Larnelle Harris?
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the gospel singer born in July that David Huntsinger has worked with.
+Environment State: Larnelle Harris, born July 6, 1947, is an American gospel singer and songwriter.
+Action Result: Has David Huntsinger worked with Larnelle Harris?
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the gospel singer born in July that David Huntsinger has worked with.
+Environment State: Larnelle Steward Harris (born July 6, 1947) is an American gospel singer and songwriter.
+Action Result: Has David Huntsinger worked with Larnelle Harris?
+Final Answer: Larnel
+
+  Pred : larnelle harris
+  Gold : larnelle harris
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #103
+Question: What year was the brother of this first round draft pick by the Washington Redskins drafted?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the year Champ Bailey was drafted.
+Environment State: Rodney "Boss" Bailey (born October 14, 1979) is a former American football linebacker who played in the National Football League. He was originally drafted by the Detroit Lions in the second round of the 2003 NFL Draft. H
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the year Boss Bailey was drafted.
+Environment State: Roland "Champ" Bailey Jr. (born June 22, 1978) is a former American football cornerback in the National Football League (NFL). He played college football for Georgia, where he earned consensus All-American honors, and was 
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the year Champ Bailey was drafted.
+Environment State: Roland "Champ" Bailey Jr. (born June 22, 1978) is a former American football cornerback in the National Football League (NFL). He played college football for Georgia, where he earned consensus All-American honors, and was
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the year Boss Bailey was drafted.
+Environment State: He is the brother of former NFL linebacker Boss Bailey. Boss Bailey (born October 14, 1979) is a former American football linebacker who played in the National Football League. He was originally drafted by the Detroit Lion
+
+  Pred : 2003
+  Gold : 2003
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #104
+Question: Where is the stadium at which 1964 Georgia Tech Yellow Jackets football team played their home game located?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the location of the stadium where the 1964 Georgia Tech Yellow Jackets football team played their home games.
+Environment State: The 1964 Georgia Tech Yellow Jackets football team represented the Georgia Institute of Technology during the 1964 college football season. The Ye
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the specific location of Bobby Dodd Stadium on the Georgia Tech campus.
+Environment State: Bobby Dodd Stadium at Historic Grant Field is the football stadium located at the corner of North Avenue at Techwood Drive on the campus of the Georgia Institute of Technology in Atlan
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the specific location of Grant Field on the Georgia Tech campus.
+Environment State: The 1964 Georgia Tech Yellow Jackets football team represented the Georgia Institute of Technology during the 1964 college football season. The Yellow Jackets were led by 20th-year head coach
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the specific name of the stadium where the 1964 Georgia Tech Yellow Jackets football team played their home games.
+Environment State: Bobby Dodd Stadium at Historic Grant Field is the football stadium located at the corner of North Avenue at Techwood Drive on the campus of t
+
+  Pred : bobby dodd stadium at historic grant field
+  Gold : north avenue at techwood drive
+  EM   : False  |  F1: 0.167
+
+============================================================
+Problem #105
+Question: Since 2 June 2017, The Leader of Fine Gael had been held by which Irish Fine Gael politician who has served as Taoiseach and Minister for Defence?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the Irish Fine Gael politician who has served as Taoiseach and Minister for Defence since 2 June 2017.
+Environment State: The Leader of Fine Gael is the most senior politician within the Fine Gael political party in Ireland. Since 2 June 2017, the office had been
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the Irish Fine Gael politician who has served as Taoiseach and Minister for Defence since 2 June 2017.
+Environment State: Leo Eric Varadkar ( ; Irish: "Leo de Varad" ;born 18 January 1979) is an Irish Fine Gael politician who has served as Taoiseach, Minister for
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the Irish Fine Gael politician who has served as Taoiseach and Minister for Defence since 2 June 2017.
+Environment State: The Leader of Fine Gael is the most senior politician within the Fine Gael political party in Ireland. Since 2 June 2017, the office had been
+
+  ----- Agent B (pact_b_turn3) -----
+pact:  10%|█         | 5/50 [00:55<09:15, 12.35s/it]pact:  12%|█▏        | 6/50 [01:03<07:58, 10.88s/it]pact:  14%|█▍        | 7/50 [01:16<08:18, 11.59s/it]pact:  16%|█▌        | 8/50 [01:28<08:09, 11.66s/it]pact:  18%|█▊        | 9/50 [01:34<06:52, 10.05s/it]  Output: Action Required: Provide the name of the Irish Fine Gael politician who has served as Taoiseach and Minister for Defence since 2 June 2017.
+Environment State: Leo Eric Varadkar ( ; Irish: "Leo de Varad" ;born 18 January 1979) is an Irish Fine Gael politician who has served as Taoiseach, Minister for
+
+  Pred : leo varadkar
+  Gold : leo varadkar
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #106
+Question: Which American film actor and dancer starred in the 1945 film Johnny Angel?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the American film actor and dancer who starred in the 1945 film Johnny Angel.
+Environment State: Johnny Angel is a 1945 film noir directed by Edwin L. Marin and written by Frank Gruber and Steve Fisher from the novel "Mr. Angel Comes Aboard" by Charles Gordon Booth.  The mov
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Confirm if George Raft is the correct American film actor and dancer who starred in the 1945 film Johnny Angel.
+Environment State: George Raft was an American film actor and dancer identified with portrayals of gangsters in crime melodramas of the 1930s and 1940s.
+Action Result: Geo
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm if George Raft is an American film actor and dancer who starred in the 1945 film Johnny Angel.
+Environment State: George Raft was an American film actor and dancer identified with portrayals of gangsters in crime melodramas of the 1930s and 1940s.
+Action Result: George Raft 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm if George Raft starred in the 1945 film Johnny Angel.
+Environment State: The movie stars George Raft, Claire Trevor and Signe Hasso, and features Hoagy Carmichael.
+Action Result: George Raft
+Final Answer: George Raft
+
+  Pred : george raft
+  Gold : george raft
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #107
+Question: hree Men on a Horse is a play by a playwright born in which year ?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the birth year of the playwright who wrote "Three Men on a Horse".
+Environment State: Three Men on a Horse is a play by George Abbott and John Cecil Holm.
+Action Result: I need the birth year of George Abbott or John Cecil Holm.
+Target-slot preservation contract:
+- The Actio
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the birth year of George Abbott.
+Environment State: George Francis Abbott (June 25, 1887 – January 31, 1995) was an American theater producer and director, playwright, screenwriter, and film director and producer whose career spanned nine decades.
+Action Result: George Abbot
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the birth year of John Cecil Holm.
+Environment State: Three Men on a Horse is a play by George Abbott and John Cecil Holm.
+Action Result: I need the birth year of John Cecil Holm.
+Target-slot preservation contract:
+- The Action Required field must preserve the original quest
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the birth year of John Cecil Holm.
+Environment State: Three Men on a Horse is a play by George Abbott and John Cecil Holm.
+Action Result: I need the birth year of John Cecil Holm.
+Final Answer: 1887
+Target-slot preservation contract:
+- The Action Required field must preserve
+
+  Pred : 1887
+  Gold : 1887
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #108
+Question: What type of activity does Owner earnings and Warren Buffett have in common?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the activity related to Owner earnings and Warren Buffett.
+Environment State: Owner earnings is a valuation method detailed by Warren Buffett in 1986.
+Action Result: Owner earnings and Warren Buffett are related through the activity of valuation method deta
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about the activity related to Owner earnings and Warren Buffett.
+Environment State: Warren Buffett serves as the Chief Executive Officer and Chairman of Berkshire Hathaway.
+Action Result: Owner earnings and Warren Buffett are related through the activity of valua
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about the activity related to Owner earnings and Warren Buffett.
+Environment State: Owner earnings is a valuation method detailed by Warren Buffett in 1986.
+Action Result: Owner earnings and Warren Buffett are related through the activity of detailing a valuation
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about the activity related to Owner earnings and Warren Buffett.
+Environment State: Owner earnings is a valuation method detailed by Warren Buffett in 1986.
+Action Result: Owner earnings and Warren Buffett are related through the activity of detailing a valuation
+
+  Pred : detailing valuation method
+  Gold : business
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #109
+Question: When was the  former Indian cricketer who made his ODI debuts during the 2000 ICC KnockOut Trophy born?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the birth year of the former Indian cricketer who made his ODI debut during the 2000 ICC KnockOut Trophy.
+Environment State: Zaheer Khan, Yuvraj Singh and Marlon Samuels made their ODI debuts during the competition.
+Action Result: I need the birth year of either Zaheer Khan,
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the birth year of Zaheer Khan.
+Environment State: Zaheer Khan (born 7 October 1978) is a former Indian cricketer who played all forms of the game for Indian national cricket team from 2000 till 2014.
+Action Result: Zaheer Khan was born in 1978.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the birth year of Yuvraj Singh.
+Environment State: Yuvraj Singh made his ODI debut during the 2000 ICC KnockOut Trophy.
+Action Result: I need the birth year of Yuvraj Singh.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the birth year of Yuvraj Singh.
+Environment State: Yuvraj Singh made his ODI debut during the 2000 ICC KnockOut Trophy.
+Action Result: Yuvraj Singh was born in 1981.
+
+Final Answer: 1981
+
+  Pred : 1981
+  Gold : 7 october 1978
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #110
+Question: Which airplane was this Major test-flying after whom the base, that 514th Flight Test Squadron is stated at, is named?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the airplane that Major test-flew after whom the base, where the 514th Flight Test Squadron is stationed, is named.
+Environment State: The 514th Flight Test Squadron (514 FLTS) is a United States Air Force squadron. It is assigned to the Ogden Air Logistics Cente
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the airplane that Major Ployer Peter Hill test-flew after whom Hill Air Force Base is named.
+Environment State: The base was named in honor of Major Ployer Peter Hill of the U.S. Army Air Corps, who died test-flying a prototype of the B-17 Flying Fortress bomber.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the airplane that Major Ployer Peter Hill test-flew after whom Hill Air Force Base, where the 514th Flight Test Squadron is stationed, is named.
+Environment State: The base was named in honor of Major Ployer Peter Hill of the U.S. Army Air Corps, who died test-fl
+
+  ----- Agent B (pact_b_turn3) -----
+pact:  20%|██        | 10/50 [01:43<06:32,  9.81s/it]pact:  22%|██▏       | 11/50 [01:51<06:02,  9.28s/it]pact:  24%|██▍       | 12/50 [02:02<06:09,  9.72s/it]pact:  26%|██▌       | 13/50 [02:08<05:12,  8.43s/it]pact:  28%|██▊       | 14/50 [02:20<05:41,  9.47s/it]pact:  30%|███       | 15/50 [02:26<04:58,  8.52s/it]  Output: Action Required: Provide the name of the airplane that Major Ployer Peter Hill test-flew after whom Hill Air Force Base is named.
+Environment State: The base was named in honor of Major Ployer Peter Hill of the U.S. Army Air Corps, who died test-flying a prototype of the B-17 Flying Fortress bomber.
+
+  Pred : b17 flying fortress
+  Gold : b17 flying fortress bomber
+  EM   : False  |  F1: 0.857
+
+============================================================
+Problem #111
+Question: Based on a True Story... is an album by which country music star, with the single My Eyes?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the country music star who has the album "Based on a True Story..." with the single "My Eyes".
+Environment State: "My Eyes" is a song recorded by American country music artist Blake Shelton featuring Gwen Sebastian. It was released in April 2014 as the fifth single from his 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the country music star who has the album "Based on a True Story..." with the single "My Eyes".
+Environment State: Based on a True Story… is the eighth studio album by American country music artist Blake Shelton.
+Action Result: Blake Shelton has the album "Based on a True Sto
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm the country music star who has the album "Based on a True Story..." with the single "My Eyes".
+Environment State: "My Eyes" is a song recorded by American country music artist Blake Shelton featuring Gwen Sebastian. It was released in April 2014 as the fifth single from his 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm the country music star who has the album "Based on a True Story..." with the single "My Eyes".
+Environment State: Based on a True Story… is the eighth studio album by American country music artist Blake Shelton.
+Action Result: Blake Shelton has the album "Based on a True Sto
+
+  Pred : blake shelton
+  Gold : blake shelton
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #112
+Question: Over how many centuries were the "dwelling place of the dead" built?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the duration over which the "dwelling place of the dead" was built.
+Environment State: The local Yavapai Indians, who were employed as extras on the production, refused to enter the cliff-dwellings because they represented the "dwelling place of the dead."
+Action Result: The
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the duration over which the "dwelling place of the dead" was built.
+Environment State: The main structure comprises five stories and twenty rooms, and was built over the course of three centuries.
+Action Result: The "dwelling place of the dead" was built over the course of t
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the duration over which the "dwelling place of the dead" was built.
+Environment State: The main structure comprises five stories and twenty rooms, and was built over the course of three centuries.
+Action Result: The "dwelling place of the dead" was built over the course of t
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the duration over which the "dwelling place of the dead" was built.
+Environment State: The main structure comprises five stories and twenty rooms, and was built over the course of three centuries.
+Action Result: The "dwelling place of the dead" was built over the course of t
+
+  Pred : three
+  Gold : three centuries
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #113
+Question: When was the British author who wrote the novel on which "Here We Go Round the Mulberry Bush" was based born?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the birth year of Hunter Davies.
+Environment State: Here We Go Round the Mulberry Bush is a 1967 British film made based on the novel of the same name by Hunter Davies.
+Action Result: Hunter Davies wrote the novel on which "Here We Go Round the Mulberry Bush" was based.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the birth year of Hunter Davies.
+Environment State: Edward Hunter Davies, OBE (born 7 January 1936) is a British author, journalist and broadcaster.
+Action Result: Hunter Davies was born in 1936.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the birth year of Hunter Davies.
+Environment State: Edward Hunter Davies, OBE (born 7 January 1936) is a British author, journalist and broadcaster.
+Action Result: Hunter Davies was born in 1936.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the birth year of Hunter Davies.
+Environment State: Edward Hunter Davies, OBE (born 7 January 1936) is a British author, journalist and broadcaster.
+Action Result: 1936
+Final Answer: 1936
+
+  Pred : 1936
+  Gold : 7 january 1936
+  EM   : False  |  F1: 0.500
+
+============================================================
+Problem #114
+Question: Who died first, George Archainbaud or Ralph Murphy?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the death date of George Archainbaud.
+Environment State: George Archainbaud (May 7, 1890 – February 20, 1959) was a French-born American film and television director.
+Action Result: George Archainbaud died on February 20, 1959.
+Target-slot preservation contract:
+- The Action
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the death date of Ralph Murphy.
+Environment State: Ralph Murphy (May 1, 1895 – February 10, 1967) was an American film director.
+Action Result: Ralph Murphy died on February 10, 1967.
+Target-slot preservation contract:
+- The Action Required field preserves the original quest
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Compare the death dates of George Archainbaud and Ralph Murphy.
+Environment State: George Archainbaud died on February 20, 1959.
+Action Result: George Archainbaud died after Ralph Murphy.
+Target-slot preservation contract:
+- The Action Required field preserves the original question'
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Compare the death dates of George Archainbaud and Ralph Murphy.
+Environment State: Ralph Murphy died on February 10, 1967.
+Action Result: Ralph Murphy died before George Archainbaud.
+Final Answer: Ralph Murphy
+Target-slot preservation contract:
+- The Action Required field preserves 
+
+  Pred : ralph murphy
+  Gold : george archainbaud
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #115
+Question: Which component of shellite has the formula (ON)CHOH?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the component of shellite that has the formula (ON)CHOH.
+Environment State: Shellite (known as Tridite in US service) is an explosive mixture of Picric acid and Dinitrophenol or Picric acid and Hexanitrodiphenylamine in a ratio of 70/30.
+Action Result: None of the components
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the formula (ON)CHOH component.
+Environment State: Picric acid is an organic compound with the formula (ON)CHOH.
+Action Result: Picric acid has the formula (ON)CHOH.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the component of shellite that has the formula (ON)CHOH.
+Environment State: Picric acid is an organic compound with the formula (ON)CHOH.
+Action Result: Picric acid is the component of shellite that has the formula (ON)CHOH.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the component of shellite that has the formula (ON)CHOH.
+Environment State: Picric acid is an organic compound with the formula (ON)CHOH.
+Action Result: Picric acid
+Final Answer: Picric acid
+
+  Pred : picric acid
+  Gold : picric acid
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #116
+pact:  32%|███▏      | 16/50 [02:38<05:26,  9.60s/it]pact:  34%|███▍      | 17/50 [02:50<05:40, 10.32s/it]pact:  36%|███▌      | 18/50 [03:05<06:15, 11.74s/it]pact:  38%|███▊      | 19/50 [03:17<06:07, 11.86s/it]pact:  40%|████      | 20/50 [03:30<06:04, 12.15s/it]Question: The Argentine PGA Championship record holder has won how many tournaments worldwide?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the number of worldwide tournament wins for Roberto De Vicenzo.
+Environment State: Roberto De Vicenzo, the record holder, recorded 16 victories between 1944 and 1985.
+Action Result: Roberto De Vicenzo has won 16 tournaments worldwide.
+Target-slot preservation contract:
+- The
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the number of worldwide tournament wins for Roberto De Vicenzo.
+Environment State: Roberto De Vicenzo, the record holder, recorded 230 victories worldwide in his career.
+Action Result: Roberto De Vicenzo has won 230 tournaments worldwide.
+Target-slot preservation contract:
+-
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the number of worldwide tournament wins for Roberto De Vicenzo.
+Environment State: Roberto De Vicenzo, the record holder, recorded 16 victories between 1944 and 1985.
+Action Result: Roberto De Vicenzo has won 16 tournaments worldwide.
+Target-slot preservation contract:
+- The
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the number of worldwide tournament wins for Roberto De Vicenzo.
+Environment State: Roberto De Vicenzo, the record holder, recorded 230 victories worldwide in his career.
+Action Result: Roberto De Vicenzo has won 230 tournaments worldwide.
+Final Answer: 230
+Target-slot preser
+
+  Pred : 230
+  Gold : 230
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #117
+Question: Suicide's 1977 released album features a song based on what brand's comic character?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the brand's name whose comic character is the basis for the song.
+Environment State: Ghost Rider is a song by the protopunk band Suicide appearing on their debut album. The song is based on the Marvel Comics character.
+Action Result: The song is based on a Marvel Comics char
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the brand's name whose comic character is the basis for the song.
+Environment State: The album was recorded in four days at Ultima Sound Studios in New York and featured Martin Rev's minimalist electronics and harsh, repetitive rhythms paired with Alan Vega's rock and roll-i
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the brand's name whose comic character is the basis for the song.
+Environment State: Ghost Rider is a song by the protopunk band Suicide appearing on their debut album. The song is based on the Marvel Comics character.
+Action Result: The song is based on a Marvel Comics char
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the brand's name whose comic character is the basis for the song.
+Environment State: Ghost Rider is a song by the protopunk band Suicide appearing on their debut album. The song is based on the Marvel Comics character.
+Action Result: The brand's name is Marvel Comics.
+Final 
+
+  Pred : marvel comics
+  Gold : marvel
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #118
+Question: What other political position did the person who introduced the DISCLOSE Act hold?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the other political position held by Chris Van Hollen.
+Environment State: The DISCLOSE Act was introduced in the U.S. House of Representatives by Chris Van Hollen (D-Maryland) on April 29, 2010.
+Action Result: I do not have information about other political positions held by
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the other political position held by Chris Van Hollen.
+Environment State: Christopher Van Hollen Jr. (born January 10, 1959) is the junior United States Senator from Maryland, serving since January 3, 2017. From 2003 to 2017, he served as the U.S. Representative for Maryland
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the political position held by Chris Van Hollen before he became a U.S. Senator.
+Environment State: From 2003 to 2017, he served as the U.S. Representative for Maryland 's 8 congressional district.
+Action Result: Chris Van Hollen held the political position of U.S. Represent
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: None
+Environment State: From 2003 to 2017, he served as the U.S. Representative for Maryland 's 8 congressional district.
+Action Result: U.S. Representative for Maryland's 8th congressional district
+Final Answer: U.S. Representative for Maryland's 8th congressional district
+Target-s
+
+  Pred : us representative for marylands 8th congressional district
+  Gold : united states senator
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #119
+Question: Were the bands Skin Yard and Ostava from the U.S.?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Confirm if Skin Yard is from the U.S.
+Environment State: Skin Yard was an American grunge band from Seattle, Washington, who were active from 1985 to 1993.
+Action Result: Skin Yard is from the U.S.
+Target-slot preservation contract:
+- The Action Required field preserves the original
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Confirm if Ostava is from the U.S.
+Environment State: Ostava are an alternative rock band from Bulgaria. They formed in 1991, but it was not until 2000 that they released a long-playing record (and subsequently received critical acclaim).
+Action Result: Ostava is not from the U.S.
+T
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm if Ostava is from the U.S.
+Environment State: Ostava are an alternative rock band from Bulgaria. They formed in 1991, but it was not until 2000 that they released a long-playing record (and subsequently received critical acclaim).
+Action Result: Ostava is not from the U.S.
+T
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm if Ostava is from the U.S.
+Environment State: Ostava are an alternative rock band from Bulgaria.
+Action Result: No
+Final Answer: No
+Target-slot preservation contract:
+- The Action Required field preserves the original question's target.
+- It keeps the required qualifier (fro
+
+  Pred : no
+  Gold : no
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #120
+Question: Are Daryl Hall and Gerry Marsden both musicians?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Confirm if Gerry Marsden is a musician.
+Environment State: Daryl Hall is an American rock, R&B, and soul singer; keyboardist, guitarist, songwriter, and producer.
+Action Result: Waiting for information on Gerry Marsden's profession.
+Target-slot preservation contract:
+- The Action Re
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Confirm if Gerry Marsden is a musician.
+Environment State: Gerard Marsden MBE (born 24 September 1942) is an English musician and television personality, best known for being leader of the British Merseybeat band Gerry and the Pacemakers.
+Action Result: Gerry Marsden is a musician.
+
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm if Daryl Hall and Gerry Marsden are both musicians.
+Environment State: Daryl Franklin Hohl (born October 11, 1946), known professionally as Daryl Hall, is an American rock, R&B, and soul singer; keyboardist, guitarist, songwriter, and producer, best known as the co-founder a
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm if Daryl Hall and Gerry Marsden are both musicians.
+Environment State: Daryl Franklin Hohl (born October 11, 1946), known professionally as Daryl Hall, is an American rock, R&B, and soul singer; keyboardist, guitarist, songwriter, and producer, best known as the co-founder a
+
+  Pred : yes
+  Gold : yes
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #121
+Question: What major truck road is located in Backford Cross?
+pact:  42%|████▏     | 21/50 [03:38<05:20, 11.06s/it]pact:  44%|████▍     | 22/50 [03:50<05:17, 11.33s/it]pact:  46%|████▌     | 23/50 [04:03<05:14, 11.63s/it]pact:  48%|████▊     | 24/50 [04:11<04:36, 10.62s/it]pact:  50%|█████     | 25/50 [04:33<05:46, 13.88s/it]
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the major truck road located in Backford Cross.
+Environment State: Backford Cross is located around the A41/A5117 junction, south of Great Sutton and about 1.5 mi north of the village of Backford, near Chester.
+Action Result: The major truck road located in Backford Cross is
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the major truck road located in Backford Cross.
+Environment State: The A5117 intersects the M53 at Junction 10. This junction is just east of Cheshire Oaks Designer Outlet. The road then continues almost parallel to the M56, which it intersects at Junction 14, at which there
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm the major truck road located in Backford Cross.
+Environment State: Backford Cross is located around the A41/A5117 junction, south of Great Sutton and about 1.5 mi north of the village of Backford, near Chester.
+Action Result: The major truck road located in Backford Cross is
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the major truck road located in Backford Cross.
+Environment State: The road is dualled west of the M56. There is roundabout with the A41 and at Dunkirk at the western terminus of the M56. East of the junction the road is single carriageway and crosses the A41 by way of a rou
+
+  Pred : a41a5117
+  Gold : a41
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #122
+Question: In which role did Caroline Carver played in a 1999 Hallmark Entertainment made-for-TV fantasy movie?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the role Caroline Carver played in a 1999 Hallmark Entertainment made-for-TV fantasy movie.
+Environment State: Caroline Carver (born 1976) is an English actress, screenwriter, and producer best known for roles such as Princess Jessica in the TV film "The Magical Legend of th
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the role Caroline Carver played in a 1999 Hallmark Entertainment made-for-TV fantasy movie.
+Environment State: The Magical Legend of the Leprechauns is a 1999 Hallmark Entertainment made-for-television fantasy movie. It stars Randy Quaid, Colm Meaney, Kieran Culkin, Roger Da
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the role Caroline Carver played in a 1999 Hallmark Entertainment made-for-TV fantasy movie.
+Environment State: Caroline Carver (born 1976) is an English actress, screenwriter, and producer best known for roles such as Princess Jessica in the TV film "The Magical Legend of th
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the role Caroline Carver played in a 1999 Hallmark Entertainment made-for-TV fantasy movie.
+Environment State: Caroline Carver (born 1976) is an English actress, screenwriter, and producer best known for roles such as Princess Jessica in the TV film "The Magical Legend of th
+
+  Pred : princess jessica
+  Gold : princess jessica
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #123
+Question: What's the name of the fantasy film starring Sarah Bolger, featuring a New England family who discover magical creatures around their estate?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the fantasy film starring Sarah Bolger that features a New England family discovering magical creatures around their estate.
+Environment State: As Cool as I Am is an American comedy-drama film based on the novel of the same name by Pete Fromm. Claire Danes, Sarah
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the fantasy film starring Sarah Bolger that features a New England family discovering magical creatures around their estate.
+Environment State: The Spiderwick Chronicles is a 2008 American fantasy adventure film based on the bestselling book series of the same na
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm if "As Cool as I Am" is the correct film featuring Sarah Bolger as part of a New England family discovering magical creatures around their estate.
+Environment State: As Cool as I Am is an American comedy-drama film based on the novel of the same name by Pete Fromm. Claire Da
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm if "As Cool as I Am" involves discovering magical creatures in New England.
+Environment State: The Spiderwick Chronicles is a 2008 American fantasy adventure film based on the bestselling book series of the same name by Holly Black and Tony DiTerlizzi. It was directed by Mar
+
+  Pred : spiderwick chronicles
+  Gold : spiderwick chronicles
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #124
+Question: Maxeda has been owned since 2004 by which American multinational equity firm?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the American multinational equity firm that has owned Maxeda since 2004.
+Environment State: Since 2004 Maxeda is owned by a consortium of investors led by American private equity firm Kohlberg Kravis Roberts.
+Action Result: Kohlberg Kravis Roberts is the American
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the American multinational equity firm that has owned Maxeda since 2004.
+Environment State: KKR & Co.  L.P. (formerly known as Kohlberg Kravis Roberts & Co.) is an American multinational private equity firm, specializing in leveraged buyouts, headquartered in New
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm if Kohlberg Kravis Roberts is the correct American multinational equity firm that has owned Maxeda since 2004.
+Environment State: Since 2004 Maxeda is owned by a consortium of investors led by American private equity firm Kohlberg Kravis Roberts.
+Action Result: Kohlberg Krav
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm if Kohlberg Kravis Roberts is the correct American multinational equity firm that has owned Maxeda since 2004.
+Environment State: Since 2004 Maxeda is owned by a consortium of investors led by American private equity firm Kohlberg Kravis Roberts.
+Action Result: Kohlberg Krav
+
+  Pred : kohlberg kravis roberts
+  Gold : kkr co
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #125
+Question: The youngest daughter of Lady Mary-Gaye Curzon stars with Douglas Smith and Lucien Laviscount  in what 2017 film?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the 2017 film that stars the youngest daughter of Lady Mary-Gaye Curzon alongside Douglas Smith and Lucien Laviscount.
+Environment State: The Bye Bye Man is a 2017 American supernatural horror film directed by Stacy Title and written by Jonathan Penner, based on the chapter 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the 2017 film that stars Cressida Bonas alongside Douglas Smith and Lucien Laviscount.
+Environment State: Cressida Curzon Bonas (born 18 February 1989) is an English actress, dancer and model. She is the youngest daughter of Lady Mary-Gaye Curzon and entrepreneur Jeffrey Bon
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the 2017 film that stars Cressida Bonas alongside Douglas Smith and Lucien Laviscount.
+Environment State: The Bye Bye Man is a 2017 American supernatural horror film directed by Stacy Title and written by Jonathan Penner, based on the chapter "The Bridge to Body Island" in R
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the 2017 film that stars Cressida Bonas alongside Douglas Smith and Lucien Laviscount.
+Environment State: The Bye Bye Man is a 2017 American supernatural horror film directed by Stacy Title and written by Jonathan Penner, based on the chapter "The Bridge to Body Island" in R
+
+  Pred : bye bye man
+  Gold : bye bye man
+  EM   : True  |  F1: 1.000
+pact:  52%|█████▏    | 26/50 [04:42<05:00, 12.51s/it]pact:  54%|█████▍    | 27/50 [04:59<05:17, 13.79s/it]pact:  56%|█████▌    | 28/50 [05:06<04:19, 11.80s/it]pact:  58%|█████▊    | 29/50 [05:16<03:57, 11.29s/it]
+============================================================
+Problem #126
+Question: Mummulgum is a stop on the Bruxner Highway before reaching the town on the banks of which river?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the river near the town reached by the Bruxner Highway after Mummulgum.
+Environment State: Mummulgum is located on Shannon Brook between Tenterfield and Casino on the Bruxner Highway (Highway 44).
+Action Result: Mummulgum is on the Bruxner Highway before reaching
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the river near the town reached by the Bruxner Highway after Mummulgum.
+Environment State: Casino is a town in the Northern Rivers area of New South Wales, Australia, with a population of 9,629 people at the 2011 census .  It lies on the banks of the Richmond Riv
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the river near the town reached by the Bruxner Highway after Mummulgum.
+Environment State: Casino is 27 kilometres east of Mummulgum on the Bruxner Highway.
+Action Result: The town reached by the Bruxner Highway after Mummulgum is Casino.
+Target-slot preservation
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the river near the town reached by the Bruxner Highway after Mummulgum.
+Environment State: Casino is a town in the Northern Rivers area of New South Wales, Australia, with a population of 9,629 people at the 2011 census .  It lies on the banks of the Richmond Riv
+
+  Pred : richmond river
+  Gold : richmond
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #127
+Question: Which American audio engineer and clandestine chemist, who was a key figure in the San Francisco Bay Area hippie movement during the 1960s recorded the album "Old and in the Way?"
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the American audio engineer who recorded the album "Old and in the Way".
+Environment State: Old and in the Way is the self-titled first album by the bluegrass band Old and in the Way. It was recorded 8 October 1973 at the Boarding House in San Francisco by Owsley
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the American audio engineer who recorded the album "Old and in the Way".
+Environment State: Owsley Stanley (born Augustus Owsley Stanley III, January 19, 1935 – March 12, 2011) was an American audio engineer and clandestine chemist.
+Action Result: Owsley Stanley 
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the American audio engineer who recorded the album "Old and in the Way".
+Environment State: Old and in the Way is the self-titled first album by the bluegrass band Old and in the Way. It was recorded 8 October 1973 at the Boarding House in San Francisco by Owsley
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the American audio engineer who recorded the album "Old and in the Way".
+Environment State: Owsley Stanley (born Augustus Owsley Stanley III, January 19, 1935 – March 12, 2011) was an American audio engineer and clandestine chemist.
+Action Result: Owsley Stanley 
+
+  Pred : owsley stanley
+  Gold : owsley stanley
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #128
+Question: When was the palace founded at which Columba de Dunbar died in 1435?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the founding date of Spynie Palace.
+Environment State: Columba de Dunbar ( 1386 – 1435) was Bishop of Moray from 1422 until his death at Spynie Palace near Elgin sometime before 7 November 1435.
+Action Result: I need the founding date of Spynie Palace to answer the question.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the founding date of Spynie Palace.
+Environment State: Spynie Palace, also known as Spynie Castle, was the fortified seat of the Bishops of Moray for about 500 years. The founding of the palace dates back to the late 12th Century.
+Action Result: The founding date of Spynie P
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the founding date of Spynie Palace.
+Environment State: Spynie Palace, also known as Spynie Castle, was the fortified seat of the Bishops of Moray for about 500 years.
+Action Result: The founding date of Spynie Palace is the late 12th Century.
+Target-slot preservation contrac
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the founding date of Spynie Palace.
+Environment State: The founding of the palace dates back to the late 12th Century.
+Action Result: The late 12th Century
+Final Answer: late 12th Century
+Target-slot preservation contract:
+
+  Pred : late 12th century
+  Gold : late 12th century
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #129
+Question: Where is the Bubblegum Alley, that is similar to Gum Wall, located in California?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the location of Bubblegum Alley in California.
+Environment State: The Market Theater Gum Wall is a brick wall covered in used chewing gum, in an alleyway in downtown Seattle. It is located in Post Alley under Pike Place Market. Similar to Bubblegum Alley in San Luis Obispo, 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the exact location of Bubblegum Alley in San Luis Obispo, California.
+Environment State: Bubblegum Alley is a tourist attraction in downtown San Luis Obispo, California, known for its accumulation of used bubble gum on the walls of an alley.  It is a 15 ft high and 70 ft lon
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the exact location of Bubblegum Alley in San Luis Obispo, California.
+Environment State: The Market Theater Gum Wall is a brick wall covered in used chewing gum, in an alleyway in downtown Seattle. It is located in Post Alley under Pike Place Market. Similar to Bubblegum All
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the exact location of Bubblegum Alley in San Luis Obispo, California.
+Environment State: It covers a stretch of 20 meters in the 700 block of Higuera Street in downtown San Luis Obispo.
+Action Result: Bubblegum Alley is located on the 700 block of Higuera Street in downtown 
+
+  Pred : 700 block of higuera street
+  Gold : san luis obispo california
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #130
+Question: At what venue was the January 2, 2012 game featured the University of Louisville team?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the venue for the University of Louisville game on January 2, 2012.
+Environment State: The 2012 Louisville Cardinals football team represented the University of Louisville in the 2012 NCAA Division I FBS football season.
+Action Result: I do not have the specific venue for th
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the venue for the University of Louisville game on January 2, 2012.
+Environment State: The 2008 Tostitos Fiesta Bowl was played at the University of Phoenix Stadium in Glendale, Arizona.
+Action Result: I do not have the specific venue for the University of Louisville game on
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the venue for the University of Louisville game on January 2, 2012.
+Environment State: The 2012 Louisville Cardinals football team represented the University of Louisville in the 2012 NCAA Division I FBS football season.
+Action Result: I do not have the specific venue for th
+
+  ----- Agent B (pact_b_turn3) -----
+pact:  60%|██████    | 30/50 [05:30<04:00, 12.03s/it]pact:  62%|██████▏   | 31/50 [05:38<03:27, 10.92s/it]pact:  64%|██████▍   | 32/50 [05:47<03:07, 10.44s/it]pact:  66%|██████▌   | 33/50 [06:00<03:07, 11.03s/it]pact:  68%|██████▊   | 34/50 [06:09<02:49, 10.61s/it]  Output: Action Required: Provide the venue for the University of Louisville game on January 2, 2012.
+Environment State: The 2012 BCS National Championship Game was played at the University of Phoenix Stadium in Glendale, Arizona.
+Action Result: The venue for the University of Louisville game on January 2, 2
+
+  Pred : university of phoenix stadium
+  Gold : mercedesbenz superdome
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #131
+Question: Which film was Oscar nominated, LaLee's Kin: The Legacy of Cotton or Gimme Shelter, the 1970 Rolling Stones documentary?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Confirm if Gimme Shelter, the 1970 Rolling Stones documentary, was Oscar nominated.
+Environment State: "LaLee's Kin: The Legacy of Cotton is a 2001 American documentary film directed by Deborah Dickson, Susan Frömke and Albert Maysles. It was nominated for Best Documentary Feature a
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Confirm if Gimme Shelter, the 1970 Rolling Stones documentary, was Oscar nominated.
+Environment State: Gimme Shelter is a 1970 documentary film directed by Albert and David Maysles and Charlotte Zwerin chronicling the last weeks of The Rolling Stones' 1969 US tour which culminated i
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm if Gimme Shelter, the 1970 Rolling Stones documentary, was Oscar nominated.
+Environment State: LaLee's Kin: The Legacy of Cotton is a 2001 American documentary film directed by Deborah Dickson, Susan Frömke and Albert Maysles. It was nominated for Best Documentary Feature at
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm if Gimme Shelter, the 1970 Rolling Stones documentary, was Oscar nominated.
+Environment State: The film was screened at the 1971 Cannes Film Festival, but was not entered into the main competition.
+Action Result: No
+Final Answer: No
+Target-slot preservation contract:
+
+  Pred : no
+  Gold : lalees kin legacy of cotton
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #132
+Question: Which board game was published most recently, Pirate's Cove or Catan?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the publication year of Pirate's Cove.
+Environment State: Pirate's Cove (in German, Piratenbucht) is a board game designed by Paul Randles and Daniel Stahl, originally published in Germany in 2002 by Amigo Spiele, illustrated by Markus Wagner and Swen Papenbrock.
+Action Resu
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the publication year of Catan.
+Environment State: The Settlers of Catan, sometimes shortened to Catan or Settlers, is a multiplayer board game designed by Klaus Teuber and first published in 1995 in Germany by Franckh-Kosmos Verlag (Kosmos) as Die Siedler von Catan.
+Action R
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the publication year of Catan.
+Environment State: The Settlers of Catan, sometimes shortened to Catan or Settlers, is a multiplayer board game designed by Klaus Teuber and first published in 1995 in Germany by Franckh-Kosmos Verlag (Kosmos) as Die Siedler von Catan.
+Action R
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the publication year of both Pirate's Cove and Catan to determine which was published most recently.
+Environment State: Pirate's Cove was published in 2002. Catan was published in 1995.
+Action Result: Comparing the publication years, Pirate's Cove (2002) was published more r
+
+  Pred : pirates cove
+  Gold : pirates cove
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #133
+Question: Alice David is the voice of Lara Croft in a video game developed by which company ?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the company that developed the video game in which Alice David voices Lara Croft.
+Environment State: Alice David is the voice of the French dub of Lara Croft in the video game "Tomb Raider".
+Action Result: The video game "Tomb Raider" in which Alice David voices 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the company that developed the video game in which Alice David voices Lara Croft.
+Environment State: Tomb Raider is an action-adventure video game developed by Crystal Dynamics and published by Square Enix.
+Action Result: The video game "Tomb Raider" in which Ali
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the company that developed the video game in which Alice David voices Lara Croft.
+Environment State: The "Tomb Raider" series has six games developed by Core Design and the latest four by Crystal Dynamics.
+Action Result: The video game "Tomb Raider" in which Alic
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the company that developed the video game in which Alice David voices Lara Croft.
+Environment State: Tomb Raider is an action-adventure video game developed by Crystal Dynamics and published by Square Enix.
+Action Result: The video game "Tomb Raider" in which Ali
+
+  Pred : crystal dynamics
+  Gold : crystal dynamics
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #134
+Question: Which Eminem album included vocals from a singer who had an album titled "Unapologetic"?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the album that included vocals from the singer who had an album titled "Unapologetic".
+Environment State: "The Monster" is a song by American rapper Eminem, featuring guest vocals from Barbadian singer Rihanna, taken from Eminem's album "The Marshall Mathers LP 2
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the album that included vocals from the singer who had an album titled "Unapologetic".
+Environment State: "Numb" is a song by Barbadian singer Rihanna from her seventh studio album "Unapologetic" (2012).  It features guest vocals by American rapper Eminem, making
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm the album that included vocals from Rihanna, who had an album titled "Unapologetic".
+Environment State: "The Monster" is a song by American rapper Eminem, featuring guest vocals from Barbadian singer Rihanna, taken from Eminem's album "The Marshall Mathers LP 2" (2013).
+Acti
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the album that included vocals from the singer who had an album titled "Unapologetic".
+Environment State: "The Monster" is a song by American rapper Eminem, featuring guest vocals from Barbadian singer Rihanna, taken from Eminem's album "The Marshall Mathers LP 2
+
+  Pred : marshall mathers lp 2
+  Gold : marshall mathers lp 2
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #135
+Question: This American crime film set in South Los Angeles was written and directed by the same director and writer of screenwriter of "Street Kings", "End of Watch", "Sabotage", "Fury" and what other film?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the other film written and directed by David Ayer besides "Street Kings", "End of Watch", "Sabotage", and "Fury".
+Environment State: Harsh Times is a 2005 American crime film set in South Los Angeles.
+Action Result: The question requires identifying another film by David Aye
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the other film written and directed by David Ayer besides "Street Kings", "End of Watch", "Sabotage", and "Fury".
+Environment State: David Ayer (born January 18, 1968) is an American film director, producer, and screenwriter. He is best known for being the writer of "Trainin
+
+  ----- Agent A (pact_a_turn2) -----
+pact:  70%|███████   | 35/50 [06:20<02:39, 10.62s/it]pact:  72%|███████▏  | 36/50 [06:34<02:43, 11.67s/it]pact:  74%|███████▍  | 37/50 [06:43<02:19, 10.70s/it]pact:  76%|███████▌  | 38/50 [07:01<02:37, 13.13s/it]pact:  78%|███████▊  | 39/50 [07:15<02:27, 13.38s/it]  Output: Action Required: Provide the other film written and directed by David Ayer besides "Street Kings", "End of Watch", "Sabotage", and "Fury".
+Environment State: Harsh Times is a 2005 American crime film set in South Los Angeles.  The film stars Christian Bale and Freddy Rodriguez, and was written and d
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the other film written and directed by David Ayer besides "Street Kings", "End of Watch", "Sabotage", and "Fury".
+Environment State: Harsh Times is a 2005 American crime film set in South Los Angeles. The film stars Christian Bale and Freddy Rodriguez, and was written and di
+
+  Pred : harsh times
+  Gold : suicide squad
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #136
+Question: SuperMansion starred the actress who had a recurring role as whom on Workaholics?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the recurring role of the actress on Workaholics.
+Environment State: Hilarie Burton had a recurring role as Dr. Lauren Boswell on the ABC medical drama "Grey's Anatomy".
+Action Result: I need the recurring role of Hilarie Burton on Workaholics.
+Target-slot preservation contr
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the recurring role of the actress on Workaholics.
+Environment State: Jillian Bell is best known for her recurring roles as Jillian Belk on "Workaholics" and Dixie on the final season of "Eastbound & Down".
+Action Result: Jillian Bell had a recurring role as Jillian Belk on W
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the recurring role of the actress on Workaholics.
+Environment State: Jillian Bell is best known for her recurring roles as Jillian Belk on "Workaholics" and Dixie on the final season of "Eastbound & Down".
+Action Result: Hilarie Burton did not have a recurring role on Workah
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the recurring role of Jillian Bell on Workaholics.
+Environment State: Jillian Bell is best known for her recurring roles as Jillian Belk on "Workaholics" and Dixie on the final season of "Eastbound & Down".
+Action Result: Jillian Bell had a recurring role as Jillian Belk on 
+
+  Pred : jillian belk
+  Gold : jillian belk
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #137
+Question: The 1974 Texas Tech Raiders football team represented what public research university in Lubbock, Texas?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the public research university in Lubbock, Texas represented by the 1974 Texas Tech Raiders football team.
+Environment State: The 1974 Texas Tech Red Raiders football team represented Texas Tech University in the Southwest Conference during the 1974 NCAA Division
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the public research university in Lubbock, Texas represented by the 1974 Texas Tech Raiders football team.
+Environment State: Texas Tech University, often referred to as Texas Tech, Tech, or TTU, is a public research university in Lubbock, Texas.
+Action Result: T
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the public research university in Lubbock, Texas represented by the 1974 Texas Tech Raiders football team.
+Environment State: The 1974 Texas Tech Red Raiders football team represented Texas Tech University in the Southwest Conference during the 1974 NCAA Division
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the public research university in Lubbock, Texas represented by the 1974 Texas Tech Raiders football team.
+Environment State: Texas Tech University, often referred to as Texas Tech, Tech, or TTU, is a public research university in Lubbock, Texas.
+Action Result: T
+
+  Pred : texas tech university
+  Gold : texas tech university
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #138
+Question: During Siege of Bharatpur, which Commander-in-Chief of Ireland and Commander-in-Chief of India contributed to the storming of the castle?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the Commander-in-Chief of Ireland and Commander-in-Chief of India who contributed to the storming of the castle during the Siege of Bharatpur.
+Environment State: The Siege of Bharatpore was a siege that took place in the Indian princely state of Bharatpur (now part of Rajast
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the Commander-in-Chief of Ireland and Commander-in-Chief of India who contributed to the storming of the castle during the Siege of Bharatpur.
+Environment State: Field Marshal Stapleton Cotton, 1st Viscount Combermere (14 November 1773 – 21 February 1865), was a British Army
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the Commander-in-Chief of Ireland and Commander-in-Chief of India who contributed to the storming of the castle during the Siege of Bharatpur.
+Environment State: Field Marshal Sir Claude John Eyre Auchinleck was a British Army commander during the Second World War. He was a 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the Commander-in-Chief of Ireland and Commander-in-Chief of India who contributed to the storming of the castle during the Siege of Bharatpur.
+Environment State: He went on to be Commander-in-Chief, Ireland and then Commander-in-Chief, India. In the latter role he stormed Bh
+
+  Pred : stapleton cotton 1st viscount combermere
+  Gold : lord combermere
+  EM   : False  |  F1: 0.286
+
+============================================================
+Problem #139
+Question: For what type of work is the production company for The Year Without a Santa Claus best known?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the type of work the production company for The Year Without a Santa Claus is best known for.
+Environment State: The Year Without a Santa Claus is a 1974 Christmas stop motion animated television special produced by Rankin/Bass Productions.
+Action Result: Rankin/Bass Product
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the type of work Rankin/Bass Productions is best known for.
+Environment State: Rankin/Bass Productions, Inc. (founded as Videocraft International, Ltd.) was an American production company, known for its seasonal television specials, particularly its work in stop motion anima
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the type of work Rankin/Bass Productions is best known for.
+Environment State: Rankin/Bass Productions, Inc. (founded as Videocraft International, Ltd.) was an American production company, known for its seasonal television specials, particularly its work in stop motion anima
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the type of work Rankin/Bass Productions is best known for.
+Environment State: Rankin/Bass Productions, Inc. (founded as Videocraft International, Ltd.) was an American production company, known for its seasonal television specials, particularly its work in stop motion anima
+
+  Pred : stop motion animation for seasonal television specials
+  Gold : seasonal television specials particularly its work in stop motion animation
+  EM   : False  |  F1: 0.706
+
+============================================================
+Problem #140
+Question: What year was the film that starred the composer for "The Naked Brothers Band"?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the year of the film that starred the composer for "The Naked Brothers Band".
+Environment State: Alexander "Alex" Draper Wolff (born November 1, 1997) is an American actor, musician, and composer. He first gained recognition for starring alongside his older brother Nat in th
+
+  ----- Agent B (pact_b_turn1) -----
+pact:  80%|████████  | 40/50 [07:31<02:21, 14.17s/it]pact:  82%|████████▏ | 41/50 [07:41<01:56, 12.97s/it]pact:  84%|████████▍ | 42/50 [07:53<01:41, 12.63s/it]pact:  86%|████████▌ | 43/50 [08:03<01:22, 11.80s/it]pact:  88%|████████▊ | 44/50 [08:11<01:03, 10.58s/it]  Output: Action Required: Provide the year of the film that starred the composer for "The Naked Brothers Band".
+Environment State: Wolff gained recognition for composing the music for "The Naked Brothers Band" (2007–09), a Nickelodeon television series he starred in with his younger brother Alex that was cre
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the year of the film that starred the composer for "The Naked Brothers Band".
+Environment State: Mystery Girl is a rock-mockumentary musical comedy. It's the first and second The Naked Brothers Band episode of Season 3, and TV movie on Nickelodeon. It has premiered on Octobe
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the year of the film that starred the composer for "The Naked Brothers Band".
+Environment State: Mystery Girl is a rock-mockumentary musical comedy. It's the first and second The Naked Brothers Band episode of Season 3, and TV movie on Nickelodeon. It has premiered on Octobe
+
+  Pred : 2008
+  Gold : 2014
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #141
+Question: The author of Sexual Politics attended which British University?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the British University attended by the author of Sexual Politics.
+Environment State: Sexual Politics is a 1970 book by Kate Millett, based on her PhD dissertation.
+Action Result: I do not have the specific British University attended by Kate Millett.
+Target-slot 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the British University attended by the author of Sexual Politics.
+Environment State: She attended Oxford University and was the first American woman to be awarded a degree with first-class honors after studying at St Hilda's College, Oxford.
+Action Result: Kate M
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the British University attended by the author of Sexual Politics.
+Environment State: Sexual Politics is a 1970 book by Kate Millett, based on her PhD dissertation.
+Action Result: The information about the British University attended by Kate Millett is not directl
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the British University attended by the author of Sexual Politics.
+Environment State: She attended Oxford University and was the first American woman to be awarded a degree with first-class honors after studying at St Hilda's College, Oxford.
+Action Result: Oxford
+
+  Pred : oxford university
+  Gold : oxford
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #142
+Question: Who had the best singles ranking, Roberta Vinci or Jorge Lozano?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the singles ranking information for Roberta Vinci.
+Environment State: Up until 6 April 2015, she held the position of World No. 1 in doubles, while reaching a career-high of World No. 7 in singles in May 2016.
+Action Result: Roberta Vinci reached a career-high singles rankin
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the singles ranking information for Jorge Lozano.
+Environment State: His highest singles ranking was World No. 51, achieved the following month.
+Action Result: Jorge Lozano reached a career-high singles ranking of World No. 51.
+Target-slot preservation contract:
+- The Action
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Compare the singles rankings of Roberta Vinci and Jorge Lozano.
+Environment State: Roberta Vinci reached a career-high singles ranking of World No. 7. Jorge Lozano reached a career-high singles ranking of World No. 51.
+Action Result: Roberta Vinci had the best singles ranking.
+Targe
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Compare the singles rankings of Roberta Vinci and Jorge Lozano.
+Environment State: Roberta Vinci reached a career-high singles ranking of World No. 7. Jorge Lozano reached a career-high singles ranking of World No. 51.
+Action Result: Roberta Vinci had the best singles ranking.
+Final
+
+  Pred : roberta vinci
+  Gold : roberta vinci
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #143
+Question: Both Truth in Science and Discovery embrace what campaign?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the campaign both Truth in Science and Discovery embrace.
+Environment State: Truth in Science is a United Kingdom-based creationist organization which promotes the Discovery Institute's "Teach the Controversy" campaign, which it uses to try to get pseudoscientific intelligen
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the campaign both Truth in Science and Discovery embrace.
+Environment State: The Discovery Institute (DI) is a politically conservative non-profit think tank based in Seattle, Washington, best known for its advocacy of the pseudoscientific principle of intelligent design (ID
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the campaign both Truth in Science and Discovery embrace.
+Environment State: Truth in Science is a United Kingdom-based creationist organization which promotes the Discovery Institute's "Teach the Controversy" campaign, which it uses to try to get pseudoscientific intelligen
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the campaign both Truth in Science and Discovery embrace.
+Environment State: The Discovery Institute (DI) is a politically conservative non-profit think tank based in Seattle, Washington, best known for its advocacy of the pseudoscientific principle of intelligent design (ID
+
+  Pred : teach controversy
+  Gold : teach controversy campaign
+  EM   : False  |  F1: 0.800
+
+============================================================
+Problem #144
+Question: Josey Scott and Ian Watkins were both promising musicians. Which of these talented men was incarcerated, impacting his career with a rock band?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about which of the two musicians, Josey Scott or Ian Watkins, was incarcerated.
+Environment State: "Lostprophets were a Welsh rock band from Pontypridd, Wales formed in 1997."
+Action Result: Ian Watkins was incarcerated, impacting his career with his rock band Lo
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about which of the two musicians, Josey Scott or Ian Watkins, was incarcerated.
+Environment State: In November 2013, he pleaded guilty to 13 charges, including the attempted rape and sexual assault of a child under 13; these offences were committed against the in
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about which of the two musicians, Josey Scott or Ian Watkins, was incarcerated.
+Environment State: Josey Scott (born Joseph Scott Sappington; May 3, 1972) is the former lead vocalist of the rock band Saliva.
+Action Result: Ian Watkins was incarcerated, impacting 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about which of the two musicians, Josey Scott or Ian Watkins, was incarcerated.
+Environment State: In November 2013, he pleaded guilty to 13 charges, including the attempted rape and sexual assault of a child under 13; these offences were committed against the in
+
+  Pred : ian watkins
+  Gold : lostprophets disbanded in 2013 after watkins was charged with sexual offences in late 2012
+  EM   : False  |  F1: 0.125
+
+============================================================
+Problem #145
+Question: The movies Queen of Blood and Battle Beyond the Sun both contained scenes from what 1959 Soviet feature?
+
+  ----- Agent A (pact_a_turn0) -----
+pact:  90%|█████████ | 45/50 [08:20<00:51, 10.25s/it]pact:  92%|█████████▏| 46/50 [08:26<00:35,  8.94s/it]pact:  94%|█████████▍| 47/50 [08:33<00:25,  8.37s/it]pact:  96%|█████████▌| 48/50 [08:41<00:16,  8.17s/it]pact:  98%|█████████▊| 49/50 [08:48<00:07,  7.90s/it]  Output: Action Required: Provide the 1959 Soviet feature that both "Queen of Blood" and "Battle Beyond the Sun" referenced.
+Environment State: Queen of Blood... Director Harrington reused special effects footage from the Soviet features "Mechte Navstrechu" and "Nebo Zovyot".
+Action Result: Battle Beyond the
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the 1959 Soviet feature that both "Queen of Blood" and "Battle Beyond the Sun" referenced.
+Environment State: Battle Beyond the Sun is the English-dubbed and re-edited U.S. version of "Nebo Zovyot", a 1959 Soviet science fiction film directed by Mikhail Karyukov and Aleksand
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the 1959 Soviet feature that both "Queen of Blood" and "Battle Beyond the Sun" referenced.
+Environment State: "Queen of Blood" was released by American International Pictures on a double bill with "Blood Bath". Director Harrington reused special effects footage from the Sovi
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the 1959 Soviet feature that both "Queen of Blood" and "Battle Beyond the Sun" referenced.
+Environment State: Battle Beyond the Sun is the English-dubbed and re-edited U.S. version of "Nebo Zovyot", a 1959 Soviet science fiction film directed by Mikhail Karyukov and Aleksand
+
+  Pred : nebo zovyot
+  Gold : nebo zovyot
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #146
+Question: Who was born first, Erika Jayne or Marco Da Silva
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the birth year of Marco Da Silva.
+Environment State: Marco Da Silva (born May, 30th, 1977), is a Portuguese dancer and choreographer.
+Action Result: Marco Da Silva was born in 1977.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the birth year of Erika Jayne.
+Environment State: Erika Girardi (born 10 July 1971), known professionally as Erika Jayne, is an American singer, actress and television personality.
+Action Result: Erika Jayne was born in 1971.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the birth year of Marco Da Silva.
+Environment State: Marco Da Silva (born May, 30th, 1977), is a Portuguese dancer and choreographer.
+Action Result: Marco Da Silva was born in 1977.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the birth year of Marco Da Silva.
+Environment State: Marco da Silva (born 10 April 1992) is a French football player who plays for French club Valenciennes in Ligue 1.
+Action Result: Erika Jayne was born first.
+Final Answer: Erika Jayne
+
+  Pred : erika jayne
+  Gold : erika jayne
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #147
+Question: When did the English local newspaper, featuring the sculpture and war memorial in the Forbury gardens, change names?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name change year of the English local newspaper that featured the sculpture and war memorial in the Forbury gardens.
+Environment State: The Reading Post (until 2009, the Reading Evening Post), was an English local newspaper covering Reading, Berkshire and surrounding are
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the year 2009.
+Environment State: The Maiwand Lion is a sculpture and war memorial in the Forbury Gardens, a public park in the town of Reading, in the English county of Berkshire.
+Action Result: The Reading Evening Post changed its name to The Reading Post in 2009.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the year when the English local newspaper changed names.
+Environment State: The Reading Post (until 2009, the Reading Evening Post), was an English local newspaper covering Reading, Berkshire and surrounding areas.
+Action Result: The Reading Evening Post changed its name to 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the year when the English local newspaper changed names.
+Environment State: The Reading Evening Post changed its name to The Reading Post in 2009.
+Action Result: The Reading Evening Post changed its name to The Reading Post in 2009.
+Final Answer: 2009
+
+  Pred : 2009
+  Gold : 2009
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #148
+Question: What is the name of the Isles who were led by Aonghus Mór and covered a total land area of over 8300 km2?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the Isles led by Aonghus Mór that covered over 8300 km2.
+Environment State: The first person regarded to have styled themself "Lord of Islay" is Aonghus Mór, son of the eponym of the clan, Domhnall mac Raghnaill.
+Action Result: Wait for Agent B to provide the tot
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the total land area of the Isles led by Aonghus Mór.
+Environment State: The islands involved have a total land area of over 8300 km2 and extend for more than 500 km from north to south.
+Action Result: The Kingdom of the Isles covered a total land area of over 8300 km2.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the Isles who were led by Aonghus Mór and covered a total land area of over 8300 km2.
+Environment State: The rulers of the Isles were fiercely independent of the Scottish Crown, and owed nominal allegiance to the distant Norwegian Crown.
+Action Result: The Isles 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the Isles who were led by Aonghus Mór and covered a total land area of over 8300 km2.
+Environment State: The islands concerned are sometimes referred to as the Kingdom of Mann and the Isles, although only some of the later rulers claimed that title.
+Action Result
+
+  Pred : kingdom of isles
+  Gold : kingdom of isles
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #149
+Question: Who is Bruce Spizer an expert on, known as the most influential act of the rock era?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the expert on the most influential act of the rock era.
+Environment State: Bruce Spizer is recognized as an expert on The Beatles.
+Action Result: Bruce Spizer is an expert on The Beatles, known as the most influential act of the rock era.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the expert on the most influential act of the rock era.
+Environment State: The Beatles were an English rock band, formed in Liverpool in 1960. With members John Lennon, Paul McCartney, George Harrison and Ringo Starr, they became widely regarded as the foremost and most infl
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the expert on the most influential act of the rock era.
+Environment State: David "Bruce" Spizer (born July 2, 1955) is a tax attorney in New Orleans, Louisiana, who is also recognized as an expert on The Beatles.
+Action Result: Bruce Spizer is an expert on The Beatles, known
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the expert on the most influential act of the rock era.
+Environment State: David "Bruce" Spizer (born July 2, 1955) is a tax attorney in New Orleans, Louisiana, who is also recognized as an expert on The Beatles.
+Action Result: Bruce Spizer is an expert on The Beatles, known
+
+  Pred : beatles
+  Gold : beatles
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #150
+Question: Which song was behind the third single on the album  "A Lot About Livin' (And a Little 'bout Love)" for two weeks on the country charts?
+
+  ----- Agent A (pact_a_turn0) -----
+pact: 100%|██████████| 50/50 [09:04<00:00, 10.20s/it]pact: 100%|██████████| 50/50 [09:04<00:00, 10.89s/it]
+  Output: Action Required: Provide the song title that was behind the third single on Alan Jackson's album "A Lot About Livin' (And a Little 'bout Love)" for two weeks on the country charts.
+Environment State: "(Who Says) You Can't Have It All" is a song co-written and recorded by American country music artis
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the song title that was behind the third single on Alan Jackson's album "A Lot About Livin' (And a Little 'bout Love)" for two weeks on the country charts.
+Environment State: "Chattahoochee" is a song co-written and recorded by American country music artist Alan Jackson. It 
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the song title that was behind the third single on Alan Jackson's album "A Lot About Livin' (And a Little 'bout Love)" for two weeks on the country charts.
+Environment State: "Chattahoochee" is a song co-written and recorded by American country music artist Alan Jackson. It 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the song title that was behind the third single on Alan Jackson's album "A Lot About Livin' (And a Little 'bout Love)" for two weeks on the country charts.
+Environment State: "Chattahoochee" is a song co-written and recorded by American country music artist Alan Jackson. It 
+
+  Pred : chattahoochee
+  Gold : well burn that bridge
+  EM   : False  |  F1: 0.000
+
+============================================================
+RESULTS:
+{
+  "method": "pact",
+  "model": "/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct",
+  "dataset": "hotpotqa",
+  "data_path": "data/hotpot_dev_distractor_v1.json",
+  "seed": 42,
+  "start_index": 100,
+  "max_samples": 50,
+  "exact_match": 0.52,
+  "avg_f1": 0.6494,
+  "correct": 26,
+  "avg_turns": 4.0,
+  "avg_output_tokens_per_turn": 121.3,
+  "avg_communication_tokens": 485.2,
+  "avg_total_tokens": 5266.0,
+  "total_time_sec": 544.34,
+  "time_per_sample_sec": 10.8869
+}
+
+Per-sample results saved to: /data/xuhaoming/yfy/research_workspace/results/pact-qwen25-14b-hotpot50-offset100-target-final-contract-20260614_gpu/pact_qwen25_14b_hotpot50_offset100_target_final_contract.jsonl

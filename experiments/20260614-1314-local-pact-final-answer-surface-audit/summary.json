@@ -1,0 +1,30 @@
+{
+  "summary": {
+    "category_counts": {
+      "official_correct": 17,
+      "wrong_action_result_gold_prefix": 1,
+      "wrong_no_simple_surface_signal": 15,
+      "wrong_non_yes_no_gold_prefix": 8,
+      "wrong_numeric_answer_contained": 2,
+      "wrong_yes_no_prefix_matches_gold": 7
+    },
+    "f1_average": 0.5080142200420839,
+    "note": "Surface candidates are postprocessing-only diagnostics. They are not alternate official scores and do not prove the underlying evidence state was correct.",
+    "official_correct": 17,
+    "official_em": 0.34,
+    "official_wrong": 33,
+    "records": 50,
+    "type_counts": {
+      "bridge": 36,
+      "comparison": 14
+    },
+    "wrong_action_result_contains_gold": 15,
+    "wrong_final_answer_contains_gold": 22,
+    "wrong_surface_false_negative_candidates": 18,
+    "wrong_type_counts": {
+      "bridge": 20,
+      "comparison": 13
+    }
+  },
+  "trace": "experiments\\20260614-1100-a8002-pact-qwen25-14b-hotpot50\\comm_trace_pact_v11.jsonl"
+}

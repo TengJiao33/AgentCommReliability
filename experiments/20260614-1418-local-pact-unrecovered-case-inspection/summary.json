@@ -1,0 +1,24 @@
+{
+  "stable_cases": "experiments\\20260614-1402-local-pact-stable-wrong-after-extraction\\cases.jsonl",
+  "summary": {
+    "category_counts": {
+      "remaining_wrong_output_signal_not_recovered": 5,
+      "yes_no_polarity_mismatch": 1
+    },
+    "focus_cases": 6,
+    "note": "This pack is a mechanical extraction for manual inspection. It includes the stable-wrong cases categorized as unrecovered output signals or yes/no polarity mismatch after the fixed PACT final-answer extraction policy.",
+    "sample_indices": [
+      13,
+      14,
+      21,
+      24,
+      43,
+      44
+    ],
+    "type_counts": {
+      "bridge": 5,
+      "comparison": 1
+    }
+  },
+  "trace": "experiments\\20260614-1100-a8002-pact-qwen25-14b-hotpot50\\comm_trace_pact_v11.jsonl"
+}

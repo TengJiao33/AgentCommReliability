@@ -1,0 +1,91 @@
+RUN_ID=pact-qwen25-14b-hotpot50-final-contract-20260614_1536
+ROOT=/data/xuhaoming/yfy/research_workspace/baselines/PACT
+GPU=7
+MODEL=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct
+DATA_PATH=data/hotpot_dev_distractor_v1.json
+MAX_SAMPLES=50
+MAX_NEW_TOKENS=1024
+PACT_FINAL_ANSWER_CONTRACT=1
+RESULT_DIR=/data/xuhaoming/yfy/research_workspace/results/pact-qwen25-14b-hotpot50-final-contract-20260614_1536
+LOG=/data/xuhaoming/yfy/research_workspace/results/pact-qwen25-14b-hotpot50-final-contract-20260614_1536/run.log
+RC=0
+  Pred : world summit of nobel peace laureates
+  Gold : organizations could come together to address global issues
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #49
+Question: Are Ferocactus and Silene both types of plant?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Ferocactus.
+Environment State: Ferocactus is a genus of large barrel-shaped cacti, mostly with large spines and small flowers.
+Action Result: Ferocactus is a type of plant.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Silene.
+Environment State: "Silene" are a flowering plant that evolved a dioecious reproductive system.
+Action Result: Silene is a type of plant.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm if both Ferocactus and Silene are types of plants.
+Environment State: Ferocactus is a genus of large barrel-shaped cacti, mostly with large spines and small flowers.
+Action Result: Both Ferocactus and Silene are types of plants.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm if both Ferocactus and Silene are types of plants.
+Environment State: "Silene" are a flowering plant that evolved a dioecious reproductive system.
+Action Result: Both Ferocactus and Silene are types of plants.
+Final Answer: Yes
+
+  Pred : yes
+  Gold : yes
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #50
+Question: Which British first-generation jet-powered medium bomber was used in the South West Pacific theatre of World War II?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about British jet-powered bombers used in the South West Pacific theatre of World War II.
+Environment State: No. 2 Squadron RAAF saw action as a bomber unit in the South West Pacific theatre of World War II and, equipped with English Electric Canberra jets, in th
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the British first-generation jet-powered medium bomber from the given context.
+Environment State: The English Electric Canberra is a British first-generation jet-powered medium bomber that was manufactured during the 1950s.
+Action Result: The English Electric Can
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about the use of English Electric Canberra in the South West Pacific theatre of World War II.
+Environment State: No. 2 Squadron RAAF saw action as a bomber unit in the South West Pacific theatre of World War II and, equipped with English Electric Canberra jets, i
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the use of English Electric Canberra in the South West Pacific theatre of World War II.
+Environment State: The English Electric Canberra is a British first-generation jet-powered medium bomber that was manufactured during the 1950s.
+Action Result: The English Electric Canber
+
+  Pred : de havilland mosquito
+  Gold : english electric canberra
+  EM   : False  |  F1: 0.000
+
+============================================================
+RESULTS:
+{
+  "method": "pact",
+  "model": "/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct",
+  "dataset": "hotpotqa",
+  "data_path": "data/hotpot_dev_distractor_v1.json",
+  "seed": 42,
+  "max_samples": 50,
+  "exact_match": 0.68,
+  "avg_f1": 0.792,
+  "correct": 34,
+  "avg_turns": 4.0,
+  "avg_output_tokens_per_turn": 80.5,
+  "avg_communication_tokens": 321.9,
+  "avg_total_tokens": 4811.2,
+  "total_time_sec": 371.54,
+  "time_per_sample_sec": 7.4308
+}
+
+Per-sample results saved to: /data/xuhaoming/yfy/research_workspace/results/pact-qwen25-14b-hotpot50-final-contract-20260614_1536/pact_qwen25_14b_hotpot50_final_contract.jsonl

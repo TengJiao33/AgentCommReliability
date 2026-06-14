@@ -5,8 +5,8 @@
 | Priority | Paper | Link | Why It Matters | First Action |
 | --- | --- | --- | --- | --- |
 | P0 | Multi-Agent Debate with Memory Masking | https://arxiv.org/abs/2603.20215 | Directly studies erroneous memory contamination in multi-agent debate. Has code: https://github.com/HongduanTian/MAD-MM | Paper downloaded; code cloned; short-subset reproduction and first insight report completed. |
-| P0 | Context Learning for Multi-Agent Discussion | https://openreview.net/forum?id=EUu8TILWpR | ICLR 2026 paper on dynamically adjusting context during discussion. | Read method section and context generator design; check whether code exists. |
-| P0 | Benefits and Limitations of Communication in Multi-Agent Reasoning | https://arxiv.org/abs/2510.13903 | Theoretical and empirical analysis of when communication helps or is bottlenecked. | Extract variables: agent count, bandwidth, task families, speedup/limits. |
+| P0 | Context Learning for Multi-Agent Discussion | https://openreview.net/forum?id=EUu8TILWpR | ICLR 2026 paper on dynamically adjusting context during discussion. | Paper card created: `papers/cards/m2cl.md`; next inspect context generator code path. |
+| P0 | Benefits and Limitations of Communication in Multi-Agent Reasoning | https://arxiv.org/abs/2510.13903 | Theoretical and empirical analysis of when communication helps or is bottlenecked. | Paper card created: `papers/cards/benefits-limitations-communication.md`; next inspect synthetic task generators. |
 
 ## Local Radar Candidates
 
@@ -23,7 +23,7 @@ Latest scan: `reports/20260612-multi-agent-frontier-scan.md`.
 | P0 | multi-agent-consistency / harness | Dynamic Coordination Strategy Selection for Enterprise Multi-Agent Systems | Selects consensus/debate/synthesis/single-agent by problem class; directly asks when multi-agent is worthwhile. |
 | P0 | agent-skills-harness | Monitoring Agentic Systems Before They're Reliable | Gives a monitoring matrix for immature agent systems; useful for our documentation and evaluation standard. |
 | P1 | multi-agent-consistency | Cost-Effective Communication: An Auction-based Method for Language Agent Interaction | Treats communication bandwidth as scarce; strong counterpoint to free-for-all debate. |
-| P1 | multi-agent-consistency | Demystifying Multi-Agent Debate: The Role of Confidence and Diversity | Explains why vanilla debate can fail; suggests confidence and diversity ablations. |
+| P1 | multi-agent-consistency | Demystifying Multi-Agent Debate: The Role of Confidence and Diversity | Paper card created: `papers/cards/demystifying-mad.md`; use as confidence/diversity diagnostic lens. |
 | P1 | multi-agent-consistency | The Ringelmann Effect in Multi-Agent LLM Systems | Effective-team-size scaling law; useful theory lens for multi-agent cost/value tradeoffs. |
 | P1 | multi-agent-consistency | Seeing Before Agreeing: Aligning Multi-Agent Consensus with Visual Evidence | Evidence-level agreement, not just answer-level agreement; possible multimodal extension. |
 | P1 | agent-skills-harness | Tracking the Behavioral Trajectories of Adapting Agents | Measures behavioral drift from skill/memory/config edits; relevant to persistent agent reliability. |

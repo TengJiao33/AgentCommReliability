@@ -1,0 +1,48 @@
+{
+  "inputs": {
+    "dar_preview": "experiments\\20260614-1258-local-dar-typed-surface-preview\\typed_surface_preview.jsonl",
+    "pact_result": "experiments\\20260614-1100-a8002-pact-qwen25-14b-hotpot50\\pact_qwen25_14b_hotpot50.jsonl"
+  },
+  "summary": {
+    "alignment_gaps": [
+      "DAR typed previews map parsed answers to Action Result and selected calculation lines to Environment State, but Action Required is synthetic rather than generated or task-specific.",
+      "PACT Environment State is intended to be a verbatim evidence sentence from private context; DAR Environment State is heuristic text extracted from a generated retained response.",
+      "PACT has an explicit strip-think public-history rule; DAR typed preview currently has only an offline promise not to forward the full response."
+    ],
+    "avg_raw_output_chars_by_family": {
+      "DAR": 1089.0,
+      "PACT": 363.885
+    },
+    "avg_state_chars_by_family": {
+      "DAR": 157.1875,
+      "PACT": 363.885
+    },
+    "by_family": {
+      "DAR": 32,
+      "PACT": 200
+    },
+    "by_surface": {
+      "action_state": 200,
+      "typed_answer_evidence_preview": 32
+    },
+    "field_presence": {
+      "Action Required": {
+        "True": 232
+      },
+      "Action Result": {
+        "True": 232
+      },
+      "Environment State": {
+        "True": 232
+      },
+      "Final Answer": {
+        "False": 182,
+        "True": 50
+      }
+    },
+    "has_think_span": {
+      "False": 232
+    },
+    "records": 232
+  }
+}

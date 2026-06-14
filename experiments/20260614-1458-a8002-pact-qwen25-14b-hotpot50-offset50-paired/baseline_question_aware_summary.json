@@ -1,0 +1,71 @@
+{
+  "summary": {
+    "additional_rescues_vs_baseline_policy": 0,
+    "baseline_final_answer_policy_correct": 29,
+    "baseline_final_answer_policy_em": 0.58,
+    "baseline_to_question_aware_transitions": {
+      "stable_right": 29,
+      "stable_wrong": 21
+    },
+    "examples_by_official_to_question_aware_transition": {
+      "right_to_wrong": [
+        64
+      ],
+      "stable_right": [
+        51,
+        52,
+        53,
+        54,
+        56,
+        58,
+        63,
+        65,
+        66,
+        69
+      ],
+      "stable_wrong": [
+        50,
+        55,
+        59,
+        60,
+        61,
+        62,
+        68,
+        71,
+        74,
+        77
+      ],
+      "wrong_to_right": [
+        57,
+        67,
+        93,
+        99
+      ]
+    },
+    "note": "Question-aware rules are generated from saved PACT outputs and question text without using gold labels. Gold is used only to evaluate exact match. This remains a postprocessing diagnostic, not a replacement official score.",
+    "official_correct": 26,
+    "official_em": 0.52,
+    "official_to_question_aware_transitions": {
+      "right_to_wrong": 1,
+      "stable_right": 25,
+      "stable_wrong": 20,
+      "wrong_to_right": 4
+    },
+    "policy_changed_and_correct_cases": [],
+    "policy_changed_and_wrong_cases": [],
+    "policy_changed_cases": [],
+    "question_aware_policy_correct": 29,
+    "question_aware_policy_em": 0.58,
+    "question_aware_policy_rule_counts": {
+      "final_answer:full_field": 30,
+      "final_answer:leading_span_before_verb": 9,
+      "final_answer:single_numeric_literal": 8,
+      "final_answer:yes_no_first_token": 3
+    },
+    "question_aware_regressions_vs_official": 1,
+    "question_aware_rescues_vs_official": 4,
+    "records": 50,
+    "regressions_vs_baseline_policy": 0
+  },
+  "trace": "experiments\\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\\comm_trace_pact_offset50_baseline_v11.jsonl"
+}

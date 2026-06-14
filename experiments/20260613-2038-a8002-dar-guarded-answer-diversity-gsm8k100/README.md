@@ -74,8 +74,26 @@ Core `src/main.py` args:
 - `run.log`
 - `dar_history_guarded_answer_diversity_gsm8k100.jsonl`
 - `comm_trace_dar_guarded.jsonl`
+- `comm_trace_dar_guarded_v11.jsonl`
 - `analysis_summary.json`
 - `changed_cases.jsonl`
+
+## Derived Schema v1.1 Trace
+
+Created locally without rerunning the model:
+
+```bash
+python scripts/extract_comm_trace_schema.py dar \
+  --history-jsonl experiments/20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100/dar_history_guarded_answer_diversity_gsm8k100.jsonl \
+  --run-id 20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100-v11 \
+  --method filter_critical_guarded_answer_only \
+  --task-regime saturated_arithmetic \
+  --public-state-surface retained_answer_only \
+  --communication-policy guarded_retained_subset \
+  --out experiments/20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100/comm_trace_dar_guarded_v11.jsonl
+```
+
+Validation: 100 rows, schema `acr.comm_trace.v1.1`, with one derived `context_events` entry per row from `retention_events`.
 
 ## What Happened
 

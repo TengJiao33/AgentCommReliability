@@ -1,0 +1,1419 @@
+/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:
+No module named 'vllm._version'
+  from vllm.version import __version__ as VLLM_VERSION
+[vLLM] Loading /mnt/quarkfs/share_model/Qwen2.5-14B-Instruct with tensor_parallel_size=1
+INFO 06-14 14:58:44 llm_engine.py:237] Initializing an LLM engine (vdev) with config: model='/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct', speculative_config=None, tokenizer='/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, rope_scaling=None, rope_theta=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=8192, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct, use_v2_block_manager=True, num_scheduler_steps=1, chunked_prefill_enabled=False multi_step_stream_outputs=True, enable_prefix_caching=False, use_async_output_proc=True, use_cached_outputs=False, mm_processor_kwargs=None)
+INFO 06-14 14:58:45 model_runner.py:1060] Starting to load model /mnt/quarkfs/share_model/Qwen2.5-14B-Instruct...
+Loading safetensors checkpoint shards:   0% Completed | 0/8 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:  12% Completed | 1/8 [00:11<01:18, 11.18s/it]
+Loading safetensors checkpoint shards:  25% Completed | 2/8 [00:22<01:08, 11.44s/it]
+Loading safetensors checkpoint shards:  38% Completed | 3/8 [00:34<00:56, 11.34s/it]
+Loading safetensors checkpoint shards:  50% Completed | 4/8 [00:45<00:44, 11.22s/it]
+Loading safetensors checkpoint shards:  62% Completed | 5/8 [00:56<00:33, 11.21s/it]
+Loading safetensors checkpoint shards:  75% Completed | 6/8 [01:07<00:22, 11.27s/it]
+Loading safetensors checkpoint shards:  88% Completed | 7/8 [01:18<00:11, 11.20s/it]
+Loading safetensors checkpoint shards: 100% Completed | 8/8 [01:23<00:00,  9.15s/it]
+Loading safetensors checkpoint shards: 100% Completed | 8/8 [01:23<00:00, 10.43s/it]
+
+INFO 06-14 15:00:09 model_runner.py:1071] Loading model weights took 27.5680 GB
+INFO 06-14 15:00:10 gpu_executor.py:122] # GPU blocks: 12839, # CPU blocks: 1365
+INFO 06-14 15:00:10 gpu_executor.py:126] Maximum concurrency for 8192 tokens per request: 25.08x
+INFO 06-14 15:00:12 model_runner.py:1402] Capturing the model for CUDA graphs. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI.
+INFO 06-14 15:00:12 model_runner.py:1406] CUDA graphs can take additional 1~3 GiB memory per GPU. If you are running out of memory, consider decreasing `gpu_memory_utilization` or enforcing eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 06-14 15:00:21 model_runner.py:1530] Graph capturing finished in 9 secs.
+pact:   0%|          | 0/50 [00:00<?, ?it/s]pact:   2%|▏         | 1/50 [00:08<07:18,  8.95s/it]pact:   4%|▍         | 2/50 [00:17<06:53,  8.62s/it]pact:   6%|▌         | 3/50 [00:23<05:46,  7.37s/it]pact:   8%|▊         | 4/50 [00:30<05:45,  7.52s/it]pact:  10%|█         | 5/50 [00:42<06:50,  9.12s/it]
+============================================================
+Problem #51
+Question: Which year and which conference was the 14th season for this conference as part of the NCAA Division that the Colorado Buffaloes played in with a record of 2-6 in conference play?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the year and conference for the 2-6 record.
+Environment State: The 2015–16 Colorado Buffaloes men's basketball team finished the season 22–12, 10–8 in Pac-12 play to finish in fifth place.
+Action Result: The year is 2015-16 and the conference is Pac-12 for a record different
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the year and conference for the 14th season and 2-6 record.
+Environment State: The 2009 Big 12 Conference football season was the 14th season for the Big 12, as part of the 2009 NCAA Division I FBS football season.
+Action Result: The year is 2009 and the conference is Big 12
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the year and conference for a 2-6 record in the 14th season.
+Environment State: The 2009 Colorado Buffaloes football team finished the season with a record of 3–9 and 2–6 in Big 12 play.
+Action Result: The year is 2009 and the conference is Big 12 for a 2-6 record.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the year and conference for the 2-6 record in the 14th season.
+Environment State: The 2009 Colorado Buffaloes football team finished the season with a record of 3–9 and 2–6 in Big 12 play.
+Action Result: The year is 2009 and the conference is Big 12 for the 14th season and a
+
+  Pred : year was 2009 and conference was big 12
+  Gold : 2009 big 12 conference
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #52
+Question: In 1991 Euromarché was bought by a chain that operated how any hypermarkets at the end of 2016?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Euromarché and the company that bought it in 1991.
+Environment State: Euromarché ("Euromarket") was a French hypermarket chain. The first store opened in 1968 in Saint-Michel-sur-Orge. In June 1991, the group was rebought by its rival, Carrefour, for 5,2 bi
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the number of hypermarkets Carrefour operated at the end of 2016.
+Environment State: It is one of the largest hypermarket chains in the world (with 1,462 hypermarkets at the end of 2016).
+Action Result: Carrefour operated 1,462 hypermarkets at the end of 2016.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the number of hypermarkets Carrefour operated at the end of 2016.
+Environment State: It is one of the largest hypermarket chains in the world (with 1,462 hypermarkets at the end of 2016).
+Action Result: Carrefour operated 1,462 hypermarkets at the end of 2016.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the number of hypermarkets Carrefour operated at the end of 2016.
+Environment State: It is one of the largest hypermarket chains in the world (with 1,462 hypermarkets at the end of 2016).
+Action Result: Carrefour operated 1,462 hypermarkets at the end of 2016.
+Final Answer: 
+
+  Pred : 1462
+  Gold : 1462
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #53
+Question: What race track in the midwest hosts a 500 mile race eavery May?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide relevant race information.
+Environment State: The 41st International 500-Mile Sweepstakes was held at the Indianapolis Motor Speedway on Thursday, May 30, 1957.
+Action Result: Indianapolis Motor Speedway hosts a 500 mile race every May.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide location information for the race.
+Environment State: The Indianapolis Motor Speedway is an automobile racing circuit located in Speedway, Indiana, (an enclave suburb of Indianapolis) in the United States.
+Action Result: The race is located in the Midwest region of the Unite
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide confirmation of the race location.
+Environment State: The Indianapolis Motor Speedway is an automobile racing circuit located in Speedway, Indiana, (an enclave suburb of Indianapolis) in the United States.
+Action Result: The Indianapolis Motor Speedway is in the Midwest regi
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide confirmation of the race location.
+Environment State: It is located on the corner of 16th Street and Georgetown Road, approximately 6 mi west of Downtown Indianapolis.
+Action Result: The Indianapolis Motor Speedway, which hosts a 500 mile race every May, is located in the Mi
+
+  Pred : indianapolis motor speedway
+  Gold : indianapolis motor speedway
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #54
+Question: In what city did the "Prince of tenors" star in a film based on an opera by Giacomo Puccini?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the film location.
+Environment State: Tosca is a 1956 Italian musical film directed by Carmine Gallone and starring Franca Duval, Afro Poli and Franco Corelli.  It is based on the opera "Tosca" by Giacomo Puccini.  It was made at Cinecittà in Rome.
+Action R
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the city where the film was made.
+Environment State: It was made at Cinecittà in Rome.
+Action Result: The film was made in Rome.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the city where the "Prince of tenors" starred in a film.
+Environment State: Tosca is a 1956 Italian musical film directed by Carmine Gallone and starring Franca Duval, Afro Poli and Franco Corelli.  It is based on the opera "Tosca" by Giacomo Puccini.  It was made at Cinecit
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the city where Franco Corelli starred in a film based on a Puccini opera.
+Environment State: Tosca is a 1956 Italian musical film directed by Carmine Gallone and starring Franca Duval, Afro Poli and Franco Corelli. It is based on the opera "Tosca" by Giacomo Puccini. It was 
+
+  Pred : rome
+  Gold : rome
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #55
+Question: Ellie Goulding worked with what other writers on her third studio album, Delirium?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about writers Ellie Goulding worked with on her album Delirium.
+Environment State: "Outside" is a song by Scottish DJ and record producer Calvin Harris from his fourth studio album, "Motion" (2014). The song features English singer Ellie Goulding and was released
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about writers Ellie Goulding worked with on her album Delirium.
+Environment State: "On My Mind" is a song by English singer Ellie Goulding from her third studio album "Delirium" (2015). It was written by Goulding, Max Martin, Savan Kotecha and Ilya Salmanzadeh.
+A
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about writers Ellie Goulding worked with on her album Delirium.
+Environment State: "Love Me like You Do" is a song recorded by English singer Ellie Goulding for the "Fifty Shades of Grey" (2015). The song was written by Savan Kotecha, Ilya Salmanzadeh, Tove Lo, M
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about writers Ellie Goulding worked with on her album Delirium.
+Environment State: "On My Mind" is a song by English singer Ellie Goulding from her third studio album "Delirium" (2015). It was written by Goulding, Max Martin, Savan Kotecha and Ilya Salmanzadeh.
+A
+
+  Pred : max martin savan kotecha and ilya salmanzadeh
+  Gold : max martin savan kotecha and ilya salmanzadeh
+  EM   : True  |  F1: 1.000
+pact:  12%|█▏        | 6/50 [00:50<06:25,  8.76s/it]pact:  14%|█▍        | 7/50 [00:57<05:42,  7.96s/it]pact:  16%|█▌        | 8/50 [01:03<05:13,  7.46s/it]pact:  18%|█▊        | 9/50 [01:12<05:18,  7.78s/it]pact:  20%|██        | 10/50 [01:18<04:53,  7.34s/it]
+============================================================
+Problem #56
+Question: Which Australian city founded in 1838 contains a boarding school opened by a Prime Minister of Australia and named after a school in London of the same name.
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the founding year and the founder of Westminster School, Adelaide.
+Environment State: Westminster School is an independent, Uniting Church, Early Learning to Year 12, coeducational, day and boarding school located at Marion, South Australia, 12 km south of 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide founding year and location of Marion.
+Environment State: Marion is a suburb in the City of Marion in Adelaide around 10 km south-west of the CBD. Founded as a rural village in 1838 on the banks of the Sturt River, Marion was found to have rich soil and the population expande
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide founding year of Westminster School, Adelaide.
+Environment State: Westminster School is an independent, Uniting Church, Early Learning to Year 12, coeducational, day and boarding school located at Marion, South Australia, 12 km south of Adelaide.
+Action Result: Westminster S
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the founder of Westminster School and its relation to a school in London.
+Environment State: Westminster School was opened by Prime Minister Robert Menzies.
+Action Result: Westminster School, located in Marion, South Australia, was founded in 1961 and opened by Prime Ministe
+
+  Pred : australian city founded in 1838 that contains boarding school opened by prime minister of australia and named after school in london of same name is marion south australia
+  Gold : marion south australia
+  EM   : False  |  F1: 0.194
+
+============================================================
+Problem #57
+Question: D1NZ is a series based on what oversteering technique?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the oversteering technique in D1NZ.
+Environment State: D1NZ is a production car drifting series in New Zealand.
+Action Result: D1NZ involves the oversteering technique used in drifting.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the definition of the oversteering technique used in drifting.
+Environment State: Drifting is a driving technique where the driver intentionally oversteers, with loss of traction in the rear wheels or all tires, while maintaining control and driving the car through the entir
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the oversteering technique used in D1NZ.
+Environment State: D1NZ is a production car drifting series in New Zealand.
+Action Result: The oversteering technique used in D1NZ is called drifting.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the oversteering technique used in D1NZ.
+Environment State: Drifting is a driving technique where the driver intentionally oversteers, with loss of traction in the rear wheels or all tires, while maintaining control and driving the car through the entirety of a c
+
+  Pred : drifting
+  Gold : drifting
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #58
+Question: who is younger Keith Bostic or Jerry Glanville ?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide birth year of Keith Bostic.
+Environment State: William Keith Bostic (born January 17, 1961) is a former professional American football player who played for seven seasons in the National Football League (NFL).
+Action Result: Keith Bostic was born in 1961.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide birth year of Jerry Glanville.
+Environment State: Jerry Michael Glanville (born October 14, 1941) is a former American football player and coach, former NASCAR driver and owner, and sportscaster.
+Action Result: Jerry Glanville was born in 1941.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Compare birth years of Keith Bostic and Jerry Glanville.
+Environment State: Keith Bostic was born in 1961.
+Action Result: Keith Bostic is younger than Jerry Glanville.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Compare birth years of Keith Bostic and Jerry Glanville.
+Environment State: Jerry Michael Glanville (born October 14, 1941) is a former American football player and coach, former NASCAR driver and owner, and sportscaster.
+Action Result: Keith Bostic is younger than Jerry Glanville.
+
+
+  Pred : keith bostic is younger than jerry glanville
+  Gold : keith bostic
+  EM   : False  |  F1: 0.444
+
+============================================================
+Problem #59
+Question: According to the 2001 census, what was the population of the city in which Kirton End is located?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the location of Kirton End.
+Environment State: Kirton End is a hamlet in the civil parish of Kirton in the Boston district of Lincolnshire, England.
+Action Result: Kirton End is located in the civil parish of Kirton in the Boston district of Lincolnshire, E
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the population of the city in which Kirton End is located according to the 2001 census.
+Environment State: The borough had a total population of 66,900, at the ONS mid 2015 estimates, while the town itself had a population of 35,124 at the 2001 census.
+Action Result: The pop
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the population of the city in which Kirton End is located according to the 2001 census.
+Environment State: It lies on the B1391 road, 4 mi south-west from Boston, and 1.5 mi north-east from Kirton.
+Action Result: The city in which Kirton End is located, Boston, had a populat
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the population of the city in which Kirton End is located according to the 2001 census.
+Environment State: The town itself had a population of 35,124 at the 2001 census.
+Action Result: The population of Boston, the town in which Kirton End is located, was 35,124 according to
+
+  Pred : 35124
+  Gold : 35124
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #60
+Question: Are both Cypress and Ajuga genera?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Cypress.
+Environment State: Cypress is a conifer tree or shrub of northern temperate regions that belongs to the family Cupressaceae.
+Action Result: Cypress is a genus.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Ajuga.
+Environment State: Ajuga, also known as bugleweed, ground pine, carpet bugle, or just bugle, is a genus of 40 species annual and perennial herbaceous flowering plants in the mint family Lamiaceae, with most species native to Europe, Asia, and Africa,
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about both genera.
+Environment State: The genus Cupressus is one of several genera within the family Cupressaceae that have the common name cypress.
+Action Result: Both Cypress and Ajuga are genera.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Determine if both Cypress and Ajuga are genera based on provided information.
+Environment State: Ajuga, also known as bugleweed, ground pine, carpet bugle, or just bugle, is a genus of 40 species annual and perennial herbaceous flowering plants in the mint family Lamiaceae, with mos
+
+  Pred : yes
+  Gold : no
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #61
+Question: What distinction is held by the former NBA player who was a member of the Charlotte Hornets during their 1992-93 season and was head coach for the WNBA team Charlotte Sting?
+
+  ----- Agent A (pact_a_turn0) -----
+pact:  22%|██▏       | 11/50 [01:28<05:14,  8.05s/it]pact:  24%|██▍       | 12/50 [01:33<04:32,  7.17s/it]pact:  26%|██▌       | 13/50 [01:39<04:13,  6.86s/it]pact:  28%|██▊       | 14/50 [01:48<04:28,  7.45s/it]pact:  30%|███       | 15/50 [01:54<04:03,  6.94s/it]  Output: Action Required: Provide information about the Charlotte Hornets and Charlotte Sting connection.
+Environment State: The Charlotte Hornets were first established in 1988 as an expansion team, but relocated to New Orleans following the 2001–02 season.
+Action Result: The Charlotte Hornets franchise tha
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about the connection between the Charlotte Hornets and the Charlotte Sting.
+Environment State: The Hornets name was left available after the New Orleans Hornets became the New Orleans Pelicans.
+Action Result: The Charlotte Sting became independent of the Charlott
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about a former NBA player who was a member of the Charlotte Hornets in the 1992-93 season and later became a head coach for the Charlotte Sting.
+Environment State: In the 1992 NBA draft, the Hornets selected center Alonzo Mourning out of Georgetown with the secon
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about a former NBA player who was a member of the Charlotte Hornets during the 1992-93 season and later became a head coach for the Charlotte Sting.
+Environment State: Muggsy Bogues is best known for his ten seasons with the Charlotte Hornets, and also played for
+
+  Pred : distinction held by former nba player who was member of charlotte hornets during their 199293 season and was head coach for wnba team charlotte sting is being shortest player ever to play in national basketball association
+  Gold : shortest player ever to play in national basketball association
+  EM   : False  |  F1: 0.400
+
+============================================================
+Problem #62
+Question: What is the name of the executive producer of the film that has a score composed by Jerry Goldsmith?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the executive producer of the film with a score by Jerry Goldsmith.
+Environment State: Steven Spielberg served as executive producer.
+Action Result: The executive producer is Steven Spielberg.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the executive producer of Total Recall (1990 film).
+Environment State: The original score composed by Jerry Goldsmith won the BMI Film Music Award.
+Action Result: The executive producer is not mentioned in the provided context.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the executive producer of the film with a score by Jerry Goldsmith.
+Environment State: Steven Spielberg served as executive producer.
+Action Result: The executive producer is Steven Spielberg.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the executive producer of Total Recall (1990 film).
+Environment State: The film was produced by Gordon Carroll, David Giler and Walter Hill through their company Brandywine Productions, and was distributed by 20th Century Fox.
+Action Result: The executive produce
+
+  Pred : executive producer is not mentioned in provided context
+  Gold : ronald shusett
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #63
+Question: Who was born earlier, Emma Bull or Virginia Woolf?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide birth year of Emma Bull.
+Environment State: Emma Bull (born December 13, 1954) is an American science fiction and fantasy author.
+Action Result: Emma Bull was born in 1954.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide birth year of Virginia Woolf.
+Environment State: Adeline Virginia Woolf (née Stephen; 25 January 1882 – 28 March 1941) was an English writer who is considered one of the foremost modernists of the twentieth century, and a pioneer in the use of stream of consciousness as a na
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Compare birth years of Emma Bull and Virginia Woolf.
+Environment State: Emma Bull was born in 1954.
+Environment State: Virginia Woolf was born in 1882.
+Action Result: Virginia Woolf was born earlier than Emma Bull.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Compare birth years of Emma Bull and Virginia Woolf.
+Environment State: Emma Bull was born in 1954.
+Environment State: Virginia Woolf was born in 1882.
+Action Result: Virginia Woolf was born earlier than Emma Bull.
+Final Answer: Virginia Woolf was born earlier than Emma Bull.
+
+  Pred : virginia woolf was born earlier than emma bull
+  Gold : adeline virginia woolf
+  EM   : False  |  F1: 0.364
+
+============================================================
+Problem #64
+Question: What was the Roud Folk Song Index of the nursery rhyme inspiring What Are Little Girls Made Of?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the Roud Folk Song Index of the nursery rhyme inspiring What Are Little Girls Made Of?
+Environment State: The title of the episode is taken from the fourth line of the 19th century nursery rhyme, "What Are Little Boys Made Of? ."
+Action Result: The Roud Folk Song Index of th
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the Roud Folk Song Index of the nursery rhyme inspiring What Are Little Girls Made Of?
+Environment State: "What Are Little Boys Made Of?" is a popular nursery rhyme dating from the early 19th century. It has a Roud Folk Song Index number of 821.
+Action Result: The nursery rh
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the Roud Folk Song Index of the nursery rhyme inspiring What Are Little Girls Made Of?
+Environment State: "What Are Little Boys Made Of?" is a popular nursery rhyme dating from the early 19th century. It has a Roud Folk Song Index number of 821.
+Action Result: The Roud Folk 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the Roud Folk Song Index of the nursery rhyme inspiring What Are Little Girls Made Of?
+Environment State: "What Are Little Boys Made Of?" is a popular nursery rhyme dating from the early 19th century. It has a Roud Folk Song Index number of 821.
+Action Result: The Roud Folk 
+
+  Pred : 821
+  Gold : 821
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #65
+Question: Scott Parkin has been a vocal critic of Exxonmobil and another corporation that has operations in how many countries ?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Scott Parkin's criticism and the other corporation.
+Environment State: Scott Parkin has been a vocal critic of the American invasion of Iraq, and of corporations such as Exxonmobil and Halliburton.
+Action Result: Scott Parkin is also a vocal critic of Halli
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the number of countries Halliburton operates in.
+Environment State: The Halliburton Company, an American multinational corporation.  One of the world's largest oil field service companies, it has operations in more than 70 countries.
+Action Result: Halliburton has operations
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the answer based on the information gathered.
+Environment State: Halliburton has operations in more than 70 countries.
+Action Result: Scott Parkin has been a vocal critic of Exxonmobil and Halliburton, which has operations in more than 70 countries.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: None
+Environment State: Halliburton has operations in more than 70 countries.
+Action Result: Scott Parkin has been a vocal critic of Exxonmobil and Halliburton, which has operations in more than 70 countries.
+Final Answer: More than 70 countries
+
+  Pred : more than 70 countries
+  Gold : more than 70 countries
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #66
+Question: What WB supernatrual drama series was Jawbreaker star Rose Mcgowan best known for being in?
+
+  ----- Agent A (pact_a_turn0) -----
+pact:  32%|███▏      | 16/50 [02:02<04:10,  7.38s/it]pact:  34%|███▍      | 17/50 [02:11<04:20,  7.89s/it]pact:  36%|███▌      | 18/50 [02:18<04:00,  7.51s/it]pact:  38%|███▊      | 19/50 [02:24<03:40,  7.12s/it]pact:  40%|████      | 20/50 [02:33<03:47,  7.58s/it]  Output: Action Required: Provide relevant context.
+Environment State: The "Power of Three" originally included the Halliwell sisters Prue (Shannen Doherty), Piper (Holly Marie Combs) and Phoebe (Alyssa Milano). However, following Prue's death in the third season finale, their long-lost younger half sister P
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide relevant context.
+Environment State: Rose Arianna McGowan (born September 5, 1973) is an Italian-born American actress, film producer, director and singer. She is best known to television audiences for having played Paige Matthews in The WB supernatural drama series "Charmed
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Conclude the answer.
+Environment State: Rose McGowan was best known for being in the WB supernatural drama series "Charmed".
+Action Result: The WB supernatural drama series Rose McGowan was best known for being in is "Charmed".
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Rose McGowan's role in a WB supernatural drama series.
+Environment State: Rose McGowan (born September 5, 1973) is an Italian-born American actress, film producer, director and singer. She is best known to television audiences for having played Paige Matthews in The WB supernatural 
+
+  Pred : charmed
+  Gold : charmed
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #67
+Question: Vince Phillips held a junior welterweight title by an organization recognized by what larger Hall of Fame?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the IBF and its relation to a Hall of Fame.
+Environment State: Vince Phillips held the IBF junior welterweight title from 1997 to 1999, notably scoring an upset victory against then-undefeated Kostya Tszyu to become champion.
+Action Result: The IBF junior w
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about the IBF's recognition by a Hall of Fame.
+Environment State: The International Boxing Federation (IBF) is one of four major organizations recognized by the International Boxing Hall of Fame (IBHOF) which sanction world championship boxing bouts, alongside th
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the Hall of Fame that recognizes the IBF.
+Environment State: The International Boxing Federation (IBF) is one of four major organizations recognized by the International Boxing Hall of Fame (IBHOF) which sanction world championship boxing bouts, alongside the Wor
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the Hall of Fame that recognizes the IBF.
+Environment State: The International Boxing Federation (IBF) is one of four major organizations recognized by the International Boxing Hall of Fame (IBHOF) which sanction world championship boxing bouts, alongside the Wor
+
+  Pred : international boxing hall of fame
+  Gold : international boxing hall of fame
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #68
+Question: What is the name of the singer who's song was released as the lead single from the album "Confessions", and that had popular song stuck behind for eight consecutive weeks?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the singer and song from the album "Confessions".
+Environment State: "U Know What's Up" is a 1999 hit song by singer-songwriter-producer Donell Jones' second studio album, "Where I Wanna Be".
+Action Result: The song "U Know What's Up" is by Donell Jones but
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about the song released as the lead single from the album "Confessions".
+Environment State: "Yeah!" is a song by American singer Usher.
+Action Result: The song "Yeah!" was released as the lead single from Usher's album "Confessions".
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about the singer of "Yeah!".
+Environment State: "Yeah!" is a song by American singer Usher.
+Action Result: The singer of "Yeah!" is Usher.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about the song "Yeah!" being stuck behind another song for eight consecutive weeks.
+Environment State: It also has a popular song stuck behind for eight consecutive weeks.
+Action Result: The song "Yeah!" by Usher was stuck behind another song for eight consecutiv
+
+  Pred : usher is name of singer whose song was released as lead single from album confessions and was stuck behind another song for eight consecutive weeks
+  Gold : usher
+  EM   : False  |  F1: 0.077
+
+============================================================
+Problem #69
+Question: who is the younger brother of The episode guest stars of The Hard Easy
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the younger brother of the guest stars from the episode of The Office.
+Environment State: "Roy's Wedding" is the second episode of the ninth season of the American comedy television series "The Office" and the show's 178th episode overall.
+Action Result: The episode guest st
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the younger brother from the given context.
+Environment State: The episode guest stars Matt Jones as Dwight's cousin Zeke, Majandra Delfino as Dwight's sister Fannie, Blake Garrett Rosenthal as his nephew, and Thomas Middleditch as his brother.
+Action Result: Tho
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the younger brother from the episode guest stars.
+Environment State: The episode guest stars David Denman as Roy Anderson, Michael Patrick McGill as his brother Kenny.
+Action Result: Kenny is the younger brother of the guest stars from "Roy's Wedding".
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the younger brother from the episode guest stars.
+Environment State: The episode guest stars Michael Patrick McGill as Kenny, who is the brother of Roy Anderson.
+Action Result: Kenny is the younger brother of the guest stars from "Roy's Wedding".
+Final Answer: Ke
+
+  Pred : kenny
+  Gold : bill murray
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #70
+Question: The 2017–18 Wigan Athletic F.C. season will be a year in which the team competes in the league cup known as what for sponsorship reasons?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the EFL Cup.
+Environment State: The 2017–18 season is Wigan Athletic's 86th year in existence and their first back in League One, after being relegated the previous season. Along with competing in the league, the club will also participate in the FA Cup, EF
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the sponsorship name of the EFL Cup.
+Environment State: The EFL Cup (referred to historically, and colloquially, as simply the League Cup), currently known as the Carabao Cup for sponsorship reasons, is an annual knockout football competition in men's domestic English footba
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the cup Wigan Athletic F.C. competes in during the 2017-18 season for sponsorship reasons.
+Environment State: The 2017–18 season is Wigan Athletic's 86th year in existence and their first back in League One, after being relegated the previous season. Along with c
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the sponsorship name of the EFL Cup.
+Environment State: The EFL Cup is currently known as the Carabao Cup for sponsorship reasons.
+Action Result: Wigan Athletic F.C. competes in the Carabao Cup during the 2017-18 season for sponsorship reasons.
+Final Answer: Carabao Cup
+
+  Pred : carabao cup
+  Gold : carabao cup
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #71
+pact:  42%|████▏     | 21/50 [02:40<03:36,  7.48s/it]pact:  44%|████▍     | 22/50 [02:49<03:46,  8.08s/it]pact:  46%|████▌     | 23/50 [02:57<03:35,  7.99s/it]pact:  48%|████▊     | 24/50 [03:09<03:56,  9.11s/it]Question: Which of Tara Strong major voice role in animated series is an American animated television series based on the DC Comics fictional superhero team, the "Teen Titans"?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide relevant information about Tara Strong's role in Teen Titans.
+Environment State: It stars Scott Menville, Hynden Walch, Khary Payton, Tara Strong, and Greg Cipes as the main characters.
+Action Result: Tara Strong voices a main character in Teen Titans.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Tara Strong's role in Teen Titans Go!
+Environment State: Many of her major voice roles include animated series such as "Rugrats", "The Powerpuff Girls", "The Fairly OddParents", "Drawn Together", "Teen Titans" and the spin-off series "Teen Titans Go! ", and
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about which series is based on the DC Comics fictional superhero team Teen Titans.
+Environment State: "Teen Titans Go! " is an American animated television series based on the DC Comics fictional superhero team, the "Teen Titans".
+Action Result: Teen Titans Go! i
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Determine which series Tara Strong voices in.
+Environment State: Tara Strong voices a main character in Teen Titans.
+Action Result: Tara Strong's major voice role in the American animated television series based on the DC Comics fictional superhero team, the "Teen Titans", is in "Te
+
+  Pred : teen titans go
+  Gold : teen titans go
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #72
+Question: What is the inhabitant of the city where  122nd SS-Standarte was formed in2014
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the city where 122nd SS-Standarte was formed.
+Environment State: The 122nd SS-Standarte was a regimental command of the Allgemeine-SS that was formed in the city of Strasbourg during World War II.
+Action Result: The 122nd SS-Standarte was formed in Strasbou
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the inhabitant of the city where 122nd SS-Standarte was formed in 2014.
+Environment State: In 2014, the city proper of Strasbourg had 276,170 inhabitants and both the Eurométropole de Strasbourg and the Arrondissement of Strasbourg had 484,157 inhabitants.
+Action Result: In 
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the inhabitant of the city where 122nd SS-Standarte was formed in 2014.
+Environment State: In 2014, the city proper of Strasbourg had 276,170 inhabitants and both the Eurométropole de Strasbourg and the Arrondissement of Strasbourg had 484,157 inhabitants.
+Action Result: In 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the inhabitant of the city where 122nd SS-Standarte was formed in 2014.
+Environment State: In 2014, the city proper of Strasbourg had 276,170 inhabitants and both the Eurométropole de Strasbourg and the Arrondissement of Strasbourg had 484,157 inhabitants.
+Action Result: In 
+
+  Pred : 276170
+  Gold : 276170 inhabitants
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #73
+Question: What color clothing do people of the Netherlands wear during Oranjegekte or to celebrate the national holiday Koningsdag?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide color of clothing worn during Oranjegekte or Koningsdag.
+Environment State: Oranjegekte (Orange craze) or Oranjekoorts (Orange fever) is a phenomenon in the Netherlands that occurs during major sporting events, especially international football championships, and during Koni
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the color of clothing worn during Oranjegekte or Koningsdag.
+Environment State: Koningsdag (] ) or King's Day is a national holiday in the Kingdom of the Netherlands.  Celebrated on 27 April (26 April if the 27th is a Sunday), the date marks the birth of King Willem-Alexande
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm the color of clothing worn during Oranjegekte or Koningsdag.
+Environment State: Oranjegekte (Orange craze) or Oranjekoorts (Orange fever) is a phenomenon in the Netherlands that occurs during major sporting events, especially international football championships, and during 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm the color of clothing worn during Oranjegekte or Koningsdag.
+Environment State: People wear orange clothing during Oranjegekte or to celebrate Koningsdag.
+Action Result: People wear orange clothing during Oranjegekte or to celebrate Koningsdag.
+Final Answer: Orange
+
+  Pred : orange
+  Gold : orange
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #74
+Question: What was the name of the 1996 loose adaptation of William Shakespeare's "Romeo & Juliet" written by James Gunn?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the 1996 loose adaptation of "Romeo & Juliet" written by James Gunn.
+Environment State: James Gunn (born August 5) is an American screenwriter, director, producer, novelist, actor, and musician. He started his career as a screenwriter in the mid-1990s, writ
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the 1996 loose adaptation of "Romeo & Juliet" written by James Gunn.
+Environment State: Tromeo and Juliet is a 1996 American independent transgressive romantic comedy film and a loose adaptation of William Shakespeare's "Romeo & Juliet" from Troma Entertainment. 
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Conclude the answer based on the provided information.
+Environment State: The 1996 loose adaptation of William Shakespeare's "Romeo & Juliet" written by James Gunn is called "Tromeo and Juliet".
+Action Result: The name of the 1996 loose adaptation of William Shakespeare's "Romeo & J
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: The name of the 1996 loose adaptation of William Shakespeare's "Romeo & Juliet" written by James Gunn.
+Environment State: Tromeo and Juliet is a 1996 American independent transgressive romantic comedy film and a loose adaptation of William Shakespeare's "Romeo & Juliet" from Troma E
+
+  Pred : tromeo and juliet
+  Gold : tromeo and juliet
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #75
+Question: Robert Suettinger was the national intelligence officer under which former Governor of Arkansas?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Robert Suettinger's role and its relation to the question.
+Environment State: Robert Suettinger was United States President Bill Clinton's national intelligence officer for East Asia at the National Intelligence Council (NIC) from 1997-1998.
+Action Result: 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of the former Governor of Arkansas related to Robert Suettinger's position.
+Environment State: William Jefferson Clinton (born William Jefferson Blythe III; August 19, 1946) is an American politician who served as the 42nd President of the United States from 1993 to
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the former Governor of Arkansas who was President during Robert Suettinger's term as national intelligence officer.
+Environment State: Robert Suettinger was United States President Bill Clinton's national intelligence officer for East Asia at the National Intelli
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the former Governor of Arkansas who was President during Robert Suettinger's term as national intelligence officer.
+Environment State: William Jefferson Clinton (born William Jefferson Blythe III; August 19, 1946) is an American politician who served as the 42nd 
+
+  Pred : bill clinton
+pact:  50%|█████     | 25/50 [03:19<03:52,  9.31s/it]pact:  52%|█████▏    | 26/50 [03:25<03:23,  8.48s/it]pact:  54%|█████▍    | 27/50 [03:31<02:57,  7.72s/it]pact:  56%|█████▌    | 28/50 [03:38<02:44,  7.47s/it]pact:  58%|█████▊    | 29/50 [03:43<02:24,  6.89s/it]pact:  60%|██████    | 30/50 [03:51<02:20,  7.02s/it]  Gold : william jefferson clinton
+  EM   : False  |  F1: 0.400
+
+============================================================
+Problem #76
+Question: What American professional Hawaiian surfer born 18 October 1992 won the Rip Curl Pro Portugal?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the winner of the MEO Rip Curl Pro Portugal.
+Environment State: The defending champion is the 2016 WSL champion, John John Florence who won the event in 2016.
+Action Result: John John Florence won the MEO Rip Curl Pro Portugal in 2016.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the birth date of John John Florence.
+Environment State: John "John" Alexander Florence (born 18 October 1992) is an American professional surfer.
+Action Result: John John Florence was born on 18 October 1992.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the nationality and birth date of the winner.
+Environment State: John "John" Alexander Florence (born 18 October 1992) is an American professional surfer.
+Action Result: John John Florence is an American professional surfer born on 18 October 1992.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the American professional Hawaiian surfer born 18 October 1992 who won the Rip Curl Pro Portugal.
+Environment State: John "John" Alexander Florence (born 18 October 1992) is an American professional surfer.
+Action Result: John John Florence is the American profes
+
+  Pred : john john florence
+  Gold : john john florence
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #77
+Question: What is the middle name of the actress who plays Bobbi Bacha in Suburban Madness?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the actress's name who plays Bobbi Bacha.
+Environment State: Bobbi Bacha is a Texas Private Investigator portrayed in 2004 TV Sony Pictures Movie "Suburban Madness" played by actress Sela Ward.
+Action Result: The actress who plays Bobbi Bacha is Sela Ward.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide Sela Ward's middle name.
+Environment State: Sela Ann Ward (born July 11, 1956) is an American actress, author and producer, best known for her roles on television beginning in the early '80s.
+Action Result: Sela Ward's middle name is Ann.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the final answer.
+Environment State: Sela Ward's middle name is Ann.
+Action Result: The middle name of the actress who plays Bobbi Bacha in Suburban Madness is Ann.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Sela Ward's middle name.
+Environment State: Sela Ann Ward (born July 11, 1956) is an American actress, author and producer, best known for her roles on television beginning in the early '80s.
+Action Result: The middle name of the actress who plays Bobbi Bacha in Suburban Madness is 
+
+  Pred : ann
+  Gold : ann
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #78
+Question: Alvaro Mexia had a diplomatic mission with which tribe of indigenous people?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Alvaro Mexia's diplomatic mission.
+Environment State: Alvaro Mexia was a 17th-century Spanish explorer and cartographer of the east coast of Florida.
+Action Result: Alvaro Mexia was given a diplomatic mission to the native populations living south of St. Au
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about the tribe Alvaro Mexia had a diplomatic mission with.
+Environment State: The Indigenous peoples of Florida lived in what is now known as Florida for more than 12,000 years before the time of first contact with Europeans.
+Action Result: Alvaro Mexia's diplom
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about the specific tribe Alvaro Mexia had a diplomatic mission with.
+Environment State: Mexia's mission resulted in a "Period of Friendship" between the Spanish and the Ais native population.
+Action Result: Alvaro Mexia had a diplomatic mission with the Ais tribe
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about the specific tribe Alvaro Mexia had a diplomatic mission with.
+Environment State: Mexia's mission resulted in a "Period of Friendship" between the Spanish and the Ais native population.
+Action Result: Alvaro Mexia had a diplomatic mission with the Ais tribe
+
+  Pred : ais tribe
+  Gold : apalachees
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #79
+Question: What nationality were social anthropologists Alfred Gell and Edmund Leach?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Alfred Gell's nationality.
+Environment State: Alfred Antony Francis Gell, {'1': ", '2': ", '3': ", '4': "} ( ; June 12, 1945 – January 28, 1997) was a British social anthropologist whose most influential work concerned art, language, symbolism and ritual.
+A
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Edmund Leach's nationality.
+Environment State: Sir Edmund Ronald Leach (7 November 1910 – 6 January 1989) was a British social anthropologist.
+Action Result: Edmund Leach was British.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the nationalities of Alfred Gell and Edmund Leach.
+Environment State: Alfred Gell was British.
+Action Result: Alfred Gell and Edmund Leach were both British.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the nationalities of Alfred Gell and Edmund Leach.
+Environment State: Edmund Leach was British.
+Action Result: Alfred Gell and Edmund Leach were both British.
+Final Answer: Alfred Gell and Edmund Leach were both British.
+
+  Pred : alfred gell and edmund leach were both british
+  Gold : british
+  EM   : False  |  F1: 0.222
+
+============================================================
+Problem #80
+Question: In which year was the King who made the 1925 Birthday Honours born?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the birth year of King George V.
+Environment State: The 1925 Birthday Honours were appointments by King George V to various orders and honours to reward and highlight good works by citizens of the British Empire.
+Action Result: King George V made the 1925 Birthday Honours.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the birth year of King George V.
+Environment State: George V (George Frederick Ernest Albert; 3 June 1865 – 20 January 1936) was King of the United Kingdom and the British Dominions, and Emperor of India, from 6 May 1910 until his death in 1936.
+Action Result: King George V 
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the birth year of King George V.
+Environment State: The 1925 Birthday Honours were appointments by King George V to various orders and honours to reward and highlight good works by citizens of the British Empire.
+Action Result: King George V was born in 1865.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the birth year of King George V.
+Environment State: George V (George Frederick Ernest Albert; 3 June 1865 – 20 January 1936) was King of the United Kingdom and the British Dominions, and Emperor of India, from 6 May 1910 until his death in 1936.
+Action Result: King George V 
+
+  Pred : 1865
+  Gold : 1865
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #81
+Question: What is the county seat of the county where East Lempster, New Hampshire is located?
+
+  ----- Agent A (pact_a_turn0) -----
+pact:  62%|██████▏   | 31/50 [03:56<02:00,  6.33s/it]pact:  64%|██████▍   | 32/50 [04:02<01:54,  6.34s/it]pact:  66%|██████▌   | 33/50 [04:11<01:59,  7.06s/it]pact:  68%|██████▊   | 34/50 [04:17<01:51,  6.97s/it]pact:  70%|███████   | 35/50 [04:27<01:54,  7.66s/it]  Output: Action Required: Provide the county where East Lempster, New Hampshire is located.
+Environment State: East Lempster is an unincorporated community in the town of Lempster in Sullivan County, New Hampshire, United States.
+Action Result: East Lempster is located in Sullivan County, New Hampshire.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the county seat of Sullivan County, New Hampshire.
+Environment State: Its county seat is Newport.
+Action Result: The county seat of Sullivan County, New Hampshire is Newport.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the answer to the question.
+Environment State: The county seat of Sullivan County, New Hampshire is Newport.
+Action Result: The county seat of the county where East Lempster, New Hampshire is located is Newport.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the county seat of Sullivan County, New Hampshire.
+Environment State: Its county seat is Newport.
+Action Result: The county seat of the county where East Lempster, New Hampshire is located is Newport.
+Final Answer: Newport
+
+  Pred : newport
+  Gold : newport
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #82
+Question: The Album Against the Wind was the 11th Album of a Rock singer Robert C Seger born may 6 1945. What was the Rock singers stage name ?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the stage name of the rock singer from the relevant context.
+Environment State: Against the Wind is the eleventh album by American rock singer Bob Seger and his fourth with the Silver Bullet Band.
+Action Result: The rock singer's stage name is Bob Seger.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the rock singer's stage name based on the relevant context.
+Environment State: Robert Clark Seger ( , born May 6, 1945) is an American singer-songwriter, guitarist and pianist. As a locally successful Detroit-area artist, he performed and recorded as Bob Seger and the Last H
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the rock singer's stage name based on the relevant context.
+Environment State: Against the Wind is the eleventh album by American rock singer Bob Seger and his fourth with the Silver Bullet Band.
+Action Result: The rock singer's stage name is Bob Seger.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: The rock singer's stage name based on the album information.
+Environment State: Against the Wind is the eleventh album by American rock singer Bob Seger and his fourth with the Silver Bullet Band.
+Action Result: The rock singer's stage name is Bob Seger.
+Final Answer: Bob Seger
+
+  Pred : bob seger
+  Gold : bob seger
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #83
+Question: Rostker v. Goldberg held that the practice of what way of filling armed forces vacancies was consitutional?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide relevant case information.
+Environment State: Rostker v. Goldberg, 453 U.S. 57 (1981) , was a decision of the United States Supreme Court holding that the practice of requiring only men to register for the draft was constitutional.
+Action Result: Rostker v. Goldberg held tha
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the specific practice that was held constitutional.
+Environment State: From 1940 until 1973, during both peacetime and periods of conflict, men were drafted to fill vacancies in the United States Armed Forces that could not be filled through voluntary means.
+Action Result: R
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the specific practice that was held constitutional in Rostker v. Goldberg.
+Environment State: Rostker v. Goldberg, 453 U.S. 57 (1981) , was a decision of the United States Supreme Court holding that the practice of requiring only men to register for the draft was constitutio
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the specific practice that was held constitutional in Rostker v. Goldberg.
+Environment State: Rostker v. Goldberg, 453 U.S. 57 (1981) , was a decision of the United States Supreme Court holding that the practice of requiring only men to register for the draft was constitutio
+
+  Pred : practice of requiring only men to register for draft was held constitutional
+  Gold : conscription
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #84
+Question: Handi-Snacks are a snack food product line sold by what American multinational confectionery, food, and beverage company that is based in Illinois?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Handi-Snacks manufacturer.
+Environment State: Handi-Snacks are a snack food product line sold by Mondelez International.
+Action Result: Handi-Snacks are sold by Mondelez International.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Mondelez International.
+Environment State: Mondelez International, Inc., styled Mondelēz ( ), is an American multinational confectionery, food, and beverage company based in Illinois which employs about 107,000 people around the world.
+Action Result: Mondel
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide answer.
+Environment State: Mondelez International, Inc., styled Mondelēz ( ), is an American multinational confectionery, food, and beverage company based in Illinois which employs about 107,000 people around the world.
+Action Result: The American multinational confectionery
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about Handi-Snacks manufacturer.
+Environment State: Handi-Snacks are a snack food product line sold by Mondelez International.
+Action Result: The American multinational confectionery, food, and beverage company that sells Handi-Snacks and is based in Illinois is 
+
+  Pred : mondelez international
+  Gold : mondelez international inc
+  EM   : False  |  F1: 0.800
+
+============================================================
+Problem #85
+Question: What was the name of a woman from the book titled "Their Lives: The Women Targeted by the Clinton Machine " and was also a former white house intern?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of a woman from the book "Their Lives: The Women Targeted by the Clinton Machine" who was also a former White House intern.
+Environment State: Their Lives: The Women Targeted by the Clinton Machine is a book by Candice E. Jackson. Published by conservative publisher
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the name of a woman from the book "Their Lives: The Women Targeted by the Clinton Machine" who was also a former White House intern.
+Environment State: Monica Samille Lewinsky (born July 23, 1973) is an American activist, television personality, fashion designer, and former 
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm the name of the former White House intern mentioned in the book "Their Lives: The Women Targeted by the Clinton Machine".
+Environment State: Monica Lewinsky was a former White House intern according to the provided context.
+Action Result: Monica Lewinsky was a former White H
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm the name of the former White House intern mentioned in the book "Their Lives: The Women Targeted by the Clinton Machine".
+Environment State: Monica Samille Lewinsky (born July 23, 1973) is an American activist, television personality, fashion designer, and former White House
+
+  Pred : monica lewinsky
+  Gold : monica lewinsky
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #86
+Question: When was the American lawyer, lobbyist and political consultant who was a senior member of the presidential campaign of Donald Trump born?
+
+  ----- Agent A (pact_a_turn0) -----
+pact:  72%|███████▏  | 36/50 [04:34<01:46,  7.59s/it]pact:  74%|███████▍  | 37/50 [04:42<01:38,  7.55s/it]pact:  76%|███████▌  | 38/50 [04:53<01:43,  8.65s/it]pact:  78%|███████▊  | 39/50 [05:00<01:29,  8.17s/it]pact:  80%|████████  | 40/50 [05:05<01:12,  7.26s/it]  Output: Action Required: Provide birth year.
+Environment State: Brad Parscale (born January 3, 1976) is an American digital media and political strategist.
+Action Result: Brad Parscale was born on January 3, 1976.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide birth year.
+Environment State: Paul John Manafort Jr. (born April 1, 1949) is an American lawyer, lobbyist and political consultant.
+Action Result: Paul Manafort was born on April 1, 1949.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide birth year.
+Environment State: Brad Parscale (born January 3, 1976) is an American digital media and political strategist.
+Action Result: Brad Parscale was born on January 3, 1976.
+
+Agent A realizes the error and corrects course:
+Action Required: Request clarification.
+Envir
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm senior member status.
+Environment State: He joined Donald Trump's presidential campaign team in March 2016 and served as campaign manager from June to August 2016.
+Action Result: Paul Manafort was a senior member of the Trump presidential campaign.
+Final Answer: Paul Manafor
+
+  Pred : paul manafort american lawyer lobbyist and political consultant who was senior member of presidential campaign of donald trump was born on april 1 1949
+  Gold : april 1 1949
+  EM   : False  |  F1: 0.222
+
+============================================================
+Problem #87
+Question: In what year was the novel that Lourenço Mutarelli based "Nina" on based first published?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the publication year of "Crime and Punishment".
+Environment State: In addition to comic books, Mutarelli has also created plays, books, and all the illustration and animated sequences of the 2004 motion picture "Nina", which was based on the novel "Crime and Punishment" by D
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the publication year of "Crime and Punishment".
+Environment State: Crime and Punishment (Russian: Преступлéние и наказáние, "Prestupleniye i nakazaniye"; ] ) is a novel by the Russian author Fyodor Dostoyevsky. It was first published in the literary journal "The Russian Mess
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the final answer.
+Environment State: The novel "Crime and Punishment" was first published in 1866.
+Action Result: The novel that Lourenço Mutarelli based "Nina" on was first published in 1866.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the final answer.
+Environment State: The novel "Crime and Punishment" was first published in 1866.
+Action Result: The novel that Lourenço Mutarelli based "Nina" on was first published in 1866.
+Final Answer: 1866
+
+  Pred : 1866
+  Gold : 1866
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #88
+Question: Where are Teide National Park and Garajonay National Park located?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide location of Teide National Park.
+Environment State: Teide National Park (Spanish: "Parque nacional del Teide" , ] ) is a national park located in Tenerife (Canary Islands, Spain).
+Action Result: Teide National Park is located in the Canary Islands, Spain.
+
+Action Required: P
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide location of Teide National Park.
+Environment State: Adenocarpus viscosus is endemic to the Canary Islands where it is known locally as Codeso del Pico. It can be found above 1800 m on two of the islands, La Palma in Caldera de Tabouriente and Tenerife where it is a dominant 
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide location of Teide National Park.
+Environment State: Teide National Park (Spanish: "Parque nacional del Teide" , ] ) is a national park located in Tenerife (Canary Islands, Spain).
+Action Result: Teide National Park is located in Tenerife, Canary Islands, Spain.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide location of Garajonay National Park.
+Environment State: Garajonay National Park (Spanish: "Parque nacional de Garajonay" , ] ) is located in the center and north of the island of La Gomera, one of the Canary Islands (Spain).
+Action Result: Teide National Park is located in T
+
+  Pred : teide national park is located in tenerife and garajonay national park is located in la gomera both in canary islands spain
+  Gold : canary islands spain
+  EM   : False  |  F1: 0.250
+
+============================================================
+Problem #89
+Question: How many copies of Roald Dahl's variation on a popular anecdote sold?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of Roald Dahl's variation on a popular anecdote.
+Environment State: "Mrs. Bixby and the Colonel's Coat" is a short story by Roald Dahl that first appeared in the 1959 issue of "Nugget".
+Action Result: The story is titled "Mrs. Bixby and the Colonel's Coat".
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the number of copies sold of "Mrs. Bixby and the Colonel's Coat".
+Environment State: Roald Dahl's books have sold more than 250 million copies worldwide.
+Action Result: The specific number of copies sold for "Mrs. Bixby and the Colonel's Coat" is not provided.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the number of copies sold of "Mrs. Bixby and the Colonel's Coat".
+Environment State: [No relevant information in provided context about the number of copies sold.]
+Action Result: The specific number of copies sold for "Mrs. Bixby and the Colonel's Coat" is not provided in th
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the number of copies sold of "Mrs. Bixby and the Colonel's Coat".
+Environment State: Roald Dahl's books have sold more than 250 million copies worldwide.
+Action Result: The specific number of copies sold for "Mrs. Bixby and the Colonel's Coat" is not provided in the given co
+
+  Pred : specific number of copies sold for mrs bixby and colonels coat is not provided
+  Gold : 250 million
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #90
+Question: What occupation do Chris Menges and Aram Avakian share?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide occupation of Aram Avakian.
+Environment State: Aram A. Avakian (April 23, 1926 – January 17, 1987) was an Armenian-American film editor and director.
+Action Result: Aram Avakian was a film editor and director.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide occupation of Chris Menges.
+Environment State: Chris Menges BSC, ASC (born 15 September 1940) is an English cinematographer and film director.
+Action Result: Chris Menges is a cinematographer and film director.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide shared occupation of Aram Avakian and Chris Menges.
+Environment State: Aram Avakian was a film editor and director.
+Action Result: Aram Avakian was a film editor and director.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide shared occupation of Aram Avakian and Chris Menges.
+Environment State: Chris Menges is a cinematographer and film director.
+Action Result: Aram Avakian was a film editor and director.
+Final Answer: Film director
+
+  Pred : film director
+  Gold : director
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #91
+Question: Andrew Jaspan was the co-founder of what not-for-profit media outlet?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide relevant information about Andrew Jaspan's co-founded media outlet.
+Environment State: Andrew Jaspan, (b. 20 April 1952) British-Australian journalist, the co-founder of "The Conversation", an independent not-for-profit website of analysis and news from the university and re
+
+  ----- Agent B (pact_b_turn1) -----
+pact:  82%|████████▏ | 41/50 [05:13<01:07,  7.51s/it]pact:  84%|████████▍ | 42/50 [05:21<01:00,  7.51s/it]pact:  86%|████████▌ | 43/50 [05:26<00:49,  7.04s/it]pact:  88%|████████▊ | 44/50 [05:32<00:39,  6.53s/it]pact:  90%|█████████ | 45/50 [05:41<00:36,  7.30s/it]  Output: Action Required: Provide information about The Conversation as a not-for-profit media outlet.
+Environment State: The Conversation is an independent, not-for-profit media outlet that uses content sourced from the academic and research community.
+Action Result: The Conversation is a not-for-profit med
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the name of the not-for-profit media outlet co-founded by Andrew Jaspan.
+Environment State: Andrew Jaspan, (b. 20 April 1952) British-Australian journalist, the co-founder of "The Conversation", an independent not-for-profit website of analysis and news from the university a
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the name of the not-for-profit media outlet co-founded by Andrew Jaspan.
+Environment State: The Conversation is an independent, not-for-profit media outlet that uses content sourced from the academic and research community.
+Action Result: Andrew Jaspan was the co-founder of 
+
+  Pred : conversation
+  Gold : conversation
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #92
+Question: Which American film director hosted the 18th Independent Spirit Awards in 2002?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the host of the 18th Independent Spirit Awards in 2002.
+Environment State: The 2002 Independent Spirit Awards, honoring the best in independent filmmaking for 2002, were hosted by John Waters.
+Action Result: John Waters hosted the 18th Independent Spirit Awards in 2002.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the host of the 18th Independent Spirit Awards in 2002.
+Environment State: John Samuel Waters Jr. is an American film director, screenwriter, author, actor, stand-up comedian, journalist, visual artist, and art collector, who rose to fame in the early 1970s for his transgres
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the American film director who hosted the 18th Independent Spirit Awards in 2002.
+Environment State: It was hosted by John Waters.
+Action Result: John Waters hosted the 18th Independent Spirit Awards in 2002.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the American film director who hosted the 18th Independent Spirit Awards in 2002.
+Environment State: John Samuel Waters Jr. is an American film director, screenwriter, author, actor, stand-up comedian, journalist, visual artist, and art collector, who rose to fame in the ear
+
+  Pred : john waters
+  Gold : john waters
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #93
+Question: Where does the hotel and casino located in which Bill Cosby's third album was recorded?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Find the location of the hotel and casino where Bill Cosby's third album was recorded.
+Environment State: Why Is There Air? (1965) is Bill Cosby's third album. It was recorded at the Flamingo Hotel in Las Vegas, Nevada.
+Action Result: Bill Cosby's third album was recorded at the Fla
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide the location of the hotel and casino.
+Environment State: Flamingo Las Vegas is a hotel and casino located on the Las Vegas Strip in Paradise, Nevada.
+Action Result: The hotel and casino where Bill Cosby's third album was recorded is located in Paradise, Nevada.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide the final answer for the location.
+Environment State: It was recorded at the Flamingo Hotel in Las Vegas, Nevada.
+Action Result: The hotel and casino where Bill Cosby's third album was recorded is the Flamingo Hotel in Las Vegas, Nevada.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide the final answer for the location.
+Environment State: It was recorded at the Flamingo Hotel in Las Vegas, Nevada.
+Action Result: The hotel and casino where Bill Cosby's third album was recorded is the Flamingo Hotel in Las Vegas, Nevada.
+Final Answer: The Flamingo Hotel in L
+
+  Pred : flamingo hotel in las vegas nevada
+  Gold : las vegas strip in paradise
+  EM   : False  |  F1: 0.545
+
+============================================================
+Problem #94
+Question: Do the drinks Gibson and Zurracapote both contain gin?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Request for information about Zurracapote drink.
+Environment State: The Gibson is a mixed drink made with gin and vermouth, and often garnished with a pickled onion.
+Action Result: Gibson contains gin.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Zurracapote.
+Environment State: Zurracapote (sometimes abbreviated as zurra) is a popular Spanish alcoholic mixed drink, similar to sangría.
+Action Result: Zurracapote does not contain gin.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide answer to the question.
+Environment State: The Gibson is a mixed drink made with gin and vermouth, and often garnished with a pickled onion.
+Action Result: Only Gibson contains gin.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide answer to the question.
+Environment State: Zurracapote (sometimes abbreviated as zurra) is a popular Spanish alcoholic mixed drink, similar to sangría. It consists of red wine mixed with fruit such as peaches and lemons, sugar, and cinnamon.
+Action Result: Only Gibson contai
+
+  Pred : no drinks gibson and zurracapote do not both contain gin
+  Gold : no
+  EM   : False  |  F1: 0.182
+
+============================================================
+Problem #95
+Question: In what month is the annual documentary film festival, that is presented by the fortnightly published British journal of literary essays, held?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide month of the festival.
+Environment State: The London International Documentary Festival (or LIDF) is an annual documentary film festival that takes place in the months of March and April every year.
+Action Result: The festival is held in March and April.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide month of the festival.
+Environment State: Doc NYC (stylized as DOC NYC) is an annual documentary film festival in New York City.  Co-founded by Thom Powers and his wife Raphaela Neihausen, the festival is the country's largest documentary film festival with over 300 films an
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm if the presented festival matches the question.
+Environment State: The London International Documentary Festival (or LIDF) is an annual documentary film festival that takes place in the months of March and April every year. The event is presented in association with the Lond
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Confirm the month of the festival presented by the London Review of Books.
+Environment State: Doc NYC (stylized as DOC NYC) is an annual documentary film festival in New York City.  Co-founded by Thom Powers and his wife Raphaela Neihausen, the festival is the country's largest docu
+
+  Pred : annual documentary film festival presented by fortnightly published british journal of literary essays london review of books is held in november
+  Gold : march and april
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #96
+Question: Tysons Galleria is located in what county?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide location of Tysons Galleria.
+Environment State: McLean is known for its luxury homes and its high-end shopping destinations: the Tysons Corner Center and the Tysons Galleria.
+Action Result: Tysons Galleria is located in McLean, Virginia.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide county of McLean.
+Environment State: West McLean is an unincorporated community in Fairfax County, Virginia, United States.
+Action Result: McLean is in Fairfax County.
+pact:  92%|█████████▏| 46/50 [05:46<00:26,  6.63s/it]pact:  94%|█████████▍| 47/50 [05:52<00:19,  6.36s/it]pact:  96%|█████████▌| 48/50 [06:00<00:14,  7.07s/it]pact:  98%|█████████▊| 49/50 [06:07<00:07,  7.06s/it]pact: 100%|██████████| 50/50 [06:13<00:00,  6.52s/it]pact: 100%|██████████| 50/50 [06:13<00:00,  7.47s/it]
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide answer to the question.
+Environment State: McLean is home to many diplomats, businessmen, members of Congress, and high-ranking government officials partially due to its proximity to Washington, D.C. and the Central Intelligence Agency.
+Action Result: Tysons Galleria is loca
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide county of Tysons Galleria.
+Environment State: West McLean is an unincorporated community in Fairfax County, Virginia, United States.
+Action Result: Tysons Galleria is located in Fairfax County.
+Final Answer: Fairfax County
+
+  Pred : fairfax county
+  Gold : fairfax county
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #97
+Question: Bordan Tkachuk was the CEO of a company that provides what sort of products?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Request Relevant Information
+Environment State: Bordan Tkachuk ( ) is a British business executive, the former CEO of Viglen, also known from his appearances on the BBC-produced British version of "The Apprentice," interviewing for his boss Lord Sugar.
+Action Result: Please provide 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide Information
+Environment State: Viglen Ltd provides IT products and services, including storage systems, servers, workstations and data/voice communications equipment and services.
+Action Result: Viglen provides IT products and services.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide Information
+Environment State: Viglen provides IT products and services, including storage systems, servers, workstations and data/voice communications equipment and services.
+Action Result: Bordan Tkachuk was the CEO of a company that provides IT products and services.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Final Answer
+Environment State: Viglen Ltd provides IT products and services, including storage systems, servers, workstations and data/voice communications equipment and services.
+Action Result: Bordan Tkachuk was the CEO of a company that provides IT products and services.
+Final A
+
+  Pred : it products and services
+  Gold : it products and services
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #98
+Question: Which filmmaker was known for animation, Lev Yilmaz or Pamela B. Green?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Lev Yilmaz.
+Environment State: Levni Yilmaz (born 1973) is a San Francisco based independent film maker, artist and publisher, best known for his “Tales of Mere Existence” animated comic series.
+Action Result: Lev Yilmaz is known for his "Tales of Mere Exis
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Pamela B. Green's work.
+Environment State: Pamela B. Green is an American film producer and director known for her work in feature film titles and motion graphics. She is the director and producer of the documentary "Be Natural: The Untold Story of Alice Gu
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about Lev Yilmaz's work in animation.
+Environment State: Levni Yilmaz (born 1973) is a San Francisco based independent film maker, artist and publisher, best known for his “Tales of Mere Existence” animated comic series.
+Action Result: Lev Yilmaz is known for his
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about Pamela B. Green's work in animation.
+Environment State: Pamela B. Green is an American film producer and director known for her work in feature film titles and motion graphics. She is the director and producer of the documentary "Be Natural: The Untold Stor
+
+  Pred : pamela b green was not specifically known for animation whereas lev yilmaz is known for his tales of mere existence animated comic series therefore filmmaker known for animation is lev yilmaz
+  Gold : levni yilmaz
+  EM   : False  |  F1: 0.061
+
+============================================================
+Problem #99
+Question: In which city is the ambassador of the Rabat-Salé-Kénitra administrative region to China based?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the location of the Moroccan ambassador based on the context.
+Environment State: The Moroccan ambassador in Beijing is the official representative of the Government in Rabat to the Government of the People's Republic of China.
+Action Result: The Moroccan am
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about the Rabat-Salé-Kénitra administrative region's ambassador to China.
+Environment State: Rabat is the capital city of Morocco and its second largest city with an urban population of approximately 580,000 (2014) and a metropolitan population of over 1.2 millio
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Provide information about the location of the Rabat-Salé-Kénitra administrative region's ambassador based in China.
+Environment State: The Moroccan ambassador in Beijing is the official representative of the Government in Rabat to the Government of the People's Republic of China.
+Ac
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Provide information about the location of the Rabat-Salé-Kénitra administrative region's ambassador based in China.
+Environment State: The Moroccan ambassador in Beijing is the official representative of the Government in Rabat to the Government of the People's Republic of China.
+Ac
+
+  Pred : beijing
+  Gold : beijing
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #100
+Question: Are Yingkou and Fuding the same level of city?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about Yingkou's administrative level.
+Environment State: Yingkou () is a prefecture-level city of Liaoning province, People's Republic of China.
+Action Result: Yingkou is a prefecture-level city.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Fuding's administrative level.
+Environment State: Fuding () is a county-level city in northeastern Ningde prefecture level city, on Fujian's border with Zhejiang province.
+Action Result: Fuding is a county-level city.
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Compare administrative levels of Yingkou and Fuding.
+Environment State: Yingkou is a prefecture-level city.
+Action Result: Yingkou is at a higher administrative level than Fuding.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Action Required: Compare administrative levels of Yingkou and Fudging based on provided information.
+Environment State: Fuding () is a county-level city in northeastern Ningde prefecture level city, on Fujian's border with Zhejiang province.
+Action Result: Yingkou is at a higher administrative level
+
+  Pred : no yingkou and fuding are not same level of city
+  Gold : no
+  EM   : False  |  F1: 0.182
+
+============================================================
+RESULTS:
+{
+  "method": "pact",
+  "model": "/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct",
+  "dataset": "hotpotqa",
+  "data_path": "data/hotpot_dev_distractor_v1.json",
+  "seed": 42,
+  "start_index": 50,
+  "max_samples": 50,
+  "exact_match": 0.52,
+  "avg_f1": 0.6469,
+  "correct": 26,
+  "avg_turns": 4.0,
+  "avg_output_tokens_per_turn": 81.8,
+  "avg_communication_tokens": 327.3,
+  "avg_total_tokens": 4306.6,
+  "total_time_sec": 373.25,
+  "time_per_sample_sec": 7.465
+}
+
+Per-sample results saved to: /data/xuhaoming/yfy/research_workspace/results/pact-qwen25-14b-hotpot50-offset50-baseline-20260614_1458/pact_qwen25_14b_hotpot50_offset50_baseline.jsonl

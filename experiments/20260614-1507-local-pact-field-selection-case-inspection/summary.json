@@ -1,0 +1,50 @@
+{
+  "stable_cases": "experiments\\20260614-1450-local-pact-question-aware-stable-wrong\\cases.jsonl",
+  "summary": {
+    "category_counts": {
+      "earlier_public_state_candidate_available_question_policy_missed": 2,
+      "final_event_candidate_available_question_policy_missed": 7
+    },
+    "focus_cases": 9,
+    "matching_candidate_fields": {
+      "action_result": 11,
+      "environment_state": 18,
+      "final_answer": 2
+    },
+    "matching_candidate_rules": {
+      "after_formed_in": 2,
+      "after_population_was": 2,
+      "after_served_as": 5,
+      "leading_span_before_verb": 2,
+      "numeric_literal": 12,
+      "parenthetical_subject": 3,
+      "possessive_owner": 5
+    },
+    "note": "This pack mechanically extracts the question-aware stable-wrong PACT cases where a gold-matching candidate appears in the final action-state event or only in earlier/wider public state. It is for manual case-contact only and does not change model behavior or scoring.",
+    "question_policy_fields": {
+      "final_answer": 9
+    },
+    "question_policy_rules": {
+      "full_field": 4,
+      "leading_span_before_verb": 3,
+      "single_numeric_literal": 1,
+      "yes_no_first_token": 1
+    },
+    "sample_indices": [
+      1,
+      15,
+      19,
+      23,
+      25,
+      28,
+      30,
+      31,
+      40
+    ],
+    "type_counts": {
+      "bridge": 5,
+      "comparison": 4
+    }
+  },
+  "trace": "experiments\\20260614-1100-a8002-pact-qwen25-14b-hotpot50\\comm_trace_pact_v11.jsonl"
+}

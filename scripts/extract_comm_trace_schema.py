@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Normalize communication traces from MAD-MM, DAR, and MOC into JSONL."""
+"""Normalize communication traces from MAD-MM, DAR, MOC, and PACT into JSONL."""
 
 import argparse
 import json
@@ -11,13 +11,20 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
 
-SCHEMA_VERSION = "acr.comm_trace.v1"
+SCHEMA_VERSION = "acr.comm_trace.v1.1"
 
 MADMM_METHOD_FILES = {
     "cot": "cot_seed41.json",
     "mad_naive": "mad_3agents_2rounds_seed41.json",
     "mad_objective": "mad_objective_3agents_2rounds_seed41.json",
     "mad_subjective": "mad_subjective_3agents_2rounds_seed41.json",
+}
+
+MADMM_PUBLIC_STATE = {
+    "cot": ("none", "none"),
+    "mad_naive": ("full_reasoning", "broadcast"),
+    "mad_objective": ("masked_full_reasoning", "objective_memory_mask"),
+    "mad_subjective": ("masked_full_reasoning", "subjective_memory_mask"),
 }
 
 
@@ -136,6 +143,10 @@ def base_record(
     question: Optional[str],
     gold_answer: Any,
     source: Dict[str, Any],
+    task_regime: Optional[str] = None,
+    public_state_surface: Optional[str] = None,
+    communication_policy: Optional[str] = None,
+    normalize_gold_answer: bool = True,
 ) -> Dict[str, Any]:
     return {
         "schema_version": SCHEMA_VERSION,
@@ -145,7 +156,16 @@ def base_record(
         "instance_id": str(instance_id) if instance_id is not None else str(sample_index),
         "sample_index": sample_index,
         "question": question,
-        "gold_answer": normalize_gold(gold_answer),
+        "gold_answer": (
+            normalize_gold(gold_answer)
+            if normalize_gold_answer
+            else (str(gold_answer).strip() if gold_answer is not None else None)
+        ),
+        "task_regime": task_regime,
+        "public_state": {
+            "surface": public_state_surface,
+            "communication_policy": communication_policy,
+        },
         "final": {"answer": None, "correct": None},
         "transition": {
             "from_stage": None,
@@ -159,6 +179,7 @@ def base_record(
         "rounds": [],
         "retention_events": [],
         "communication_events": [],
+        "context_events": [],
         "token_cost": {
             "scope": None,
             "input_tokens": None,
@@ -171,6 +192,162 @@ def base_record(
         "method_comparison": None,
         "source": source,
     }
+
+
+def append_madmm_context_event(record: Dict[str, Any], event: Dict[str, Any], method: str) -> None:
+    if not event:
+        return
+    record["context_events"].append(
+        {
+            "stage": "round_1_recipient_context",
+            "derivation": "from_mask_history",
+            "target_scope": "all_debate_agents",
+            "recipient_agent_ids": None,
+            "visible_agent_ids": event.get("retained_agent_ids"),
+            "suppressed_agent_ids": event.get("dropped_agent_ids"),
+            "context_surface": record.get("public_state", {}).get("surface"),
+            "communication_policy": record.get("public_state", {}).get("communication_policy"),
+            "mechanism": event.get("mechanism"),
+            "note": (
+                "Derived from MAD-MM mask_history; exact recipient prompt text is not stored "
+                "in the unified trace."
+            ),
+        }
+    )
+
+
+def append_dar_context_events(
+    record: Dict[str, Any],
+    event: Dict[str, Any],
+    round_key: Any,
+    response_ids: List[str],
+) -> None:
+    retained_ids = event.get("retained_agent_ids") or []
+    dropped_ids = event.get("dropped_agent_ids") or []
+    candidate_ids = event.get("candidate_agent_ids") or response_ids
+    message_mode = event.get("retention_message_mode")
+    if not message_mode:
+        surface = record.get("public_state", {}).get("surface")
+        message_mode = "answer_only" if surface == "retained_answer_only" else "full"
+    record["context_events"].append(
+        {
+            "stage": f"round_{round_key}_recipient_context",
+            "derivation": "from_retention_event",
+            "target_scope": "all_debate_agents",
+            "recipient_agent_ids": response_ids,
+            "candidate_agent_ids": candidate_ids,
+            "visible_agent_ids": retained_ids,
+            "suppressed_agent_ids": dropped_ids,
+            "context_surface": record.get("public_state", {}).get("surface"),
+            "communication_policy": record.get("public_state", {}).get("communication_policy"),
+            "retention_message_mode": message_mode,
+            "original_visible_agent_ids": event.get("original_retained_agent_ids"),
+            "guard_mode": event.get("guard_mode"),
+            "guard_added_agent_ids": event.get("guard_added_agent_ids"),
+            "guard_removed_agent_ids": event.get("guard_removed_agent_ids"),
+            "note": (
+                "Derived from DAR retention_events. The retained peer set is known; exact "
+                "recipient-specific prompt text is not stored in the history JSONL."
+            ),
+        }
+    )
+
+
+def append_moc_context_events(record: Dict[str, Any], sample_events: List[Dict[str, Any]]) -> None:
+    for event in sample_events:
+        if event.get("event_type") != "ism_result":
+            continue
+        record["context_events"].append(
+            {
+                "stage": event.get("stage", "neighbor_summary_ism"),
+                "derivation": "from_ism_result",
+                "agent_id": event.get("target_node_id"),
+                "target_node_id": event.get("target_node_id"),
+                "visible_agent_ids": event.get("represented_agent_ids"),
+                "retained_direct_agent_ids": event.get("retained_direct_agent_ids"),
+                "merged_agent_ids": event.get("merged_agent_ids"),
+                "suppressed_agent_ids": event.get("dropped_direct_agent_ids"),
+                "context_surface": record.get("public_state", {}).get("surface"),
+                "communication_policy": record.get("public_state", {}).get("communication_policy"),
+                "merge_performed": event.get("merge_performed"),
+                "initial_message_count": event.get("initial_message_count"),
+                "final_message_count": event.get("final_message_count"),
+                "note": (
+                    "Derived from MOC ISM result sidecar. It records represented source "
+                    "agents after neighbor aggregation or merge, not the full target prompt."
+                ),
+            }
+        )
+
+
+PACT_FIELDS = ("Target Slot", "Action Required", "Environment State", "Action Result", "Final Answer")
+
+
+def strip_pact_think_tags(text: str) -> str:
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
+    text = re.sub(r"</?think>", "", text)
+    return text.strip()
+
+
+def extract_pact_field(text: str, field_name: str) -> Optional[str]:
+    pattern = rf"(?m)^{re.escape(field_name)}:\s*(.*)$"
+    match = re.search(pattern, text)
+    if not match:
+        return None
+    return match.group(1).strip()
+
+
+def pact_fields(output: str) -> Dict[str, Optional[str]]:
+    public_output = strip_pact_think_tags(output or "")
+    return {field: extract_pact_field(public_output, field) for field in PACT_FIELDS}
+
+
+def pact_partner(agent_name: Optional[str]) -> Optional[str]:
+    if agent_name == "Agent A":
+        return "Agent B"
+    if agent_name == "Agent B":
+        return "Agent A"
+    return None
+
+
+def pact_input_token_count(agent: Dict[str, Any]) -> Optional[int]:
+    input_ids = agent.get("input_ids")
+    if isinstance(input_ids, list):
+        return len(input_ids)
+    input_tokens = agent.get("input_tokens")
+    if isinstance(input_tokens, list):
+        return len(input_tokens)
+    if isinstance(input_tokens, int):
+        return input_tokens
+    return None
+
+
+def append_pact_context_event(record: Dict[str, Any], event: Dict[str, Any]) -> None:
+    if event.get("is_final"):
+        return
+    actor = event.get("actor_agent_id")
+    recipient = event.get("recipient_agent_id")
+    record["context_events"].append(
+        {
+            "stage": f"turn_{event.get('turn')}_shared_history_update",
+            "derivation": "from_pact_action_state",
+            "target_scope": "next_agent_shared_history",
+            "recipient_agent_ids": [recipient] if recipient else None,
+            "visible_agent_ids": [actor] if actor else None,
+            "suppressed_agent_ids": [],
+            "context_surface": record.get("public_state", {}).get("surface"),
+            "communication_policy": record.get("public_state", {}).get("communication_policy"),
+            "action_required": event.get("action_required"),
+            "target_slot": event.get("target_slot"),
+            "environment_state": event.get("environment_state"),
+            "action_result": event.get("action_result"),
+            "private_reasoning_policy": event.get("private_reasoning_policy"),
+            "note": (
+                "Derived from PACT agent output after strip_think_tags. The public action-state "
+                "record is appended to shared history for the next agent."
+            ),
+        }
+    )
 
 
 def madmm_rounds(item: Dict[str, Any], gold: Any, mask: Optional[List[bool]]) -> List[Dict[str, Any]]:
@@ -280,6 +457,13 @@ def extract_madmm(args: argparse.Namespace) -> List[Dict[str, Any]]:
                 question=item.get("question"),
                 gold_answer=gold,
                 source={"result_file": str(base / method_files[method])},
+                task_regime=args.task_regime,
+                public_state_surface=(
+                    args.public_state_surface or MADMM_PUBLIC_STATE.get(method, (None, None))[0]
+                ),
+                communication_policy=(
+                    args.communication_policy or MADMM_PUBLIC_STATE.get(method, (None, None))[1]
+                ),
             )
             record["final"] = {"answer": final_answer, "correct": final_correct}
             record["rounds"] = madmm_rounds(item, gold, mask)
@@ -300,6 +484,7 @@ def extract_madmm(args: argparse.Namespace) -> List[Dict[str, Any]]:
             event = madmm_retention_event(item, gold, method)
             if event:
                 record["retention_events"].append(event)
+                append_madmm_context_event(record, event, method)
             record["token_cost"] = {
                 "scope": "run_method",
                 "input_tokens": usage.get("input_tokens", usage.get("total_input_tokens")),
@@ -350,6 +535,9 @@ def extract_dar(args: argparse.Namespace) -> List[Dict[str, Any]]:
                 question=None,
                 gold_answer=gold,
                 source={"history_jsonl": str(history_path)},
+                task_regime=args.task_regime,
+                public_state_surface=args.public_state_surface,
+                communication_policy=args.communication_policy,
             )
             before_answer = first_round.get("debate_answer")
             before_correct = first_round.get("debate_answer_iscorr")
@@ -426,6 +614,7 @@ def extract_dar(args: argparse.Namespace) -> List[Dict[str, Any]]:
                             "raw_filter_response": event.get("raw_filter_response"),
                         }
                     )
+                    append_dar_context_events(record, event, round_key, response_ids)
             record["token_cost"] = {
                 "scope": "sample",
                 **total_tokens,
@@ -498,6 +687,9 @@ def extract_moc(args: argparse.Namespace) -> List[Dict[str, Any]]:
                 "log_path": args.log_path,
                 "comm_events_jsonl": args.comm_events_jsonl,
             },
+            task_regime=args.task_regime,
+            public_state_surface=args.public_state_surface,
+            communication_policy=args.communication_policy,
         )
         record["final"] = {"answer": final_answer, "correct": final_correct}
         record["transition"] = {
@@ -514,6 +706,7 @@ def extract_moc(args: argparse.Namespace) -> List[Dict[str, Any]]:
             sample_events = comm_events_by_sample.get(str(sample_index), [])
         if sample_events:
             record["communication_events"].extend(sample_events)
+            append_moc_context_events(record, sample_events)
         else:
             record["communication_events"].append(
                 {
@@ -539,9 +732,159 @@ def extract_moc(args: argparse.Namespace) -> List[Dict[str, Any]]:
     return records
 
 
+def extract_pact(args: argparse.Namespace) -> List[Dict[str, Any]]:
+    result_path = Path(args.result_jsonl)
+    records = []
+    for row_index, item in enumerate(load_jsonl(result_path)):
+        sample_index = item.get("sample_index")
+        if sample_index is None:
+            sample_index = row_index
+        final_answer = item.get("prediction")
+        final_correct = item.get("correct")
+        record = base_record(
+            run_id=args.run_id,
+            method_family="PACT",
+            method=args.method,
+            instance_id=item.get("id", sample_index),
+            sample_index=sample_index,
+            question=item.get("question"),
+            gold_answer=item.get("gold"),
+            source={"result_jsonl": str(result_path)},
+            task_regime=args.task_regime,
+            public_state_surface=args.public_state_surface or "action_state",
+            communication_policy=args.communication_policy or "alternating_action_state",
+            normalize_gold_answer=False,
+        )
+        record["final"] = {"answer": final_answer, "correct": final_correct}
+        record["transition"] = {
+            "from_stage": "final_action_state",
+            "to_stage": "final",
+            "type": "unknown",
+            "before_answer": None,
+            "before_correct": None,
+            "after_answer": final_answer,
+            "after_correct": final_correct,
+        }
+
+        total_input_tokens = 0
+        total_output_tokens = 0
+        saw_input_tokens = False
+        saw_output_tokens = False
+
+        for agent in item.get("agents") or []:
+            output = agent.get("output") or ""
+            public_output = strip_pact_think_tags(output)
+            fields = pact_fields(output)
+            input_tokens = pact_input_token_count(agent)
+            output_tokens = agent.get("output_tokens")
+            if input_tokens is not None:
+                total_input_tokens += int(input_tokens)
+                saw_input_tokens = True
+            if output_tokens is not None:
+                total_output_tokens += int(output_tokens)
+                saw_output_tokens = True
+
+            turn = agent.get("turn")
+            is_final = bool(agent.get("is_final"))
+            actor = agent.get("name")
+            recipient = pact_partner(actor)
+            communication_event = {
+                "stage": f"turn_{turn}_public_message",
+                "mechanism": "action_state",
+                "actor_agent_id": actor,
+                "recipient_agent_id": recipient if not is_final else None,
+                "turn": turn,
+                "is_final": is_final,
+                "action_required": fields["Action Required"],
+                "target_slot": fields["Target Slot"],
+                "environment_state": fields["Environment State"],
+                "action_result": fields["Action Result"],
+                "final_answer": fields["Final Answer"],
+                "public_message_chars": len(public_output),
+                "raw_output_chars": len(output),
+                "has_think_span": "<think>" in output or "</think>" in output,
+                "field_presence": {field: fields[field] is not None for field in PACT_FIELDS},
+                "private_reasoning_policy": "strip_think_tags_before_shared_history",
+                "token_cost": {
+                    "input_tokens": input_tokens,
+                    "output_tokens": output_tokens,
+                    "total_tokens": (
+                        input_tokens + output_tokens
+                        if input_tokens is not None and output_tokens is not None
+                        else None
+                    ),
+                },
+            }
+            record["communication_events"].append(communication_event)
+            append_pact_context_event(record, communication_event)
+            record["rounds"].append(
+                {
+                    "round_index": turn,
+                    "agents": [
+                        {
+                            "agent_id": actor,
+                            "answer": fields["Final Answer"] if is_final else fields["Action Result"],
+                            "correct": final_correct if is_final else None,
+                            "confidence": None,
+                            "retained": None,
+                            "tokens": communication_event["token_cost"],
+                            "public_state": {
+                                "action_required": fields["Action Required"],
+                                "target_slot": fields["Target Slot"],
+                                "environment_state": fields["Environment State"],
+                                "action_result": fields["Action Result"],
+                                "final_answer": fields["Final Answer"],
+                            },
+                        }
+                    ],
+                    "debate_answer": final_answer if is_final else None,
+                    "debate_correct": final_correct if is_final else None,
+                }
+            )
+
+        record["token_cost"] = {
+            "scope": "sample",
+            "input_tokens": total_input_tokens if saw_input_tokens else None,
+            "output_tokens": total_output_tokens if saw_output_tokens else item.get("communication_tokens"),
+            "total_tokens": item.get("total_tokens"),
+            "compressed_prompt_tokens": None,
+            "compressed_completion_tokens": None,
+            "compressed_total_tokens": None,
+        }
+        record["method_comparison"] = {
+            "metric": {
+                "exact_match": item.get("correct"),
+                "f1": item.get("f1"),
+                "prediction": item.get("prediction"),
+                "raw_prediction": item.get("raw_prediction"),
+                "type": item.get("type"),
+                "level": item.get("level"),
+            }
+        }
+        records.append(record)
+    return records
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
+
+    def add_context_args(subparser: argparse.ArgumentParser) -> None:
+        subparser.add_argument(
+            "--task-regime",
+            default=None,
+            help="Optional manual task-regime label, e.g. recall, state_tracking, k_hop, conflict_evidence, saturated_arithmetic.",
+        )
+        subparser.add_argument(
+            "--public-state-surface",
+            default=None,
+            help="Optional manual label for the public state transmitted, e.g. full_reasoning, answer_only, action_state, compressed_summary.",
+        )
+        subparser.add_argument(
+            "--communication-policy",
+            default=None,
+            help="Optional manual communication policy label, e.g. broadcast, retained_subset, topology_merge, route_or_silence.",
+        )
 
     madmm = subparsers.add_parser("madmm", help="Extract MAD-MM result JSON traces")
     madmm.add_argument("--results-dir", required=True)
@@ -549,12 +892,14 @@ def build_parser() -> argparse.ArgumentParser:
     madmm.add_argument("--methods", nargs="+", choices=sorted(MADMM_METHOD_FILES), default=None)
     madmm.add_argument("--baseline-method", default="cot")
     madmm.add_argument("--out", type=Path, default=None)
+    add_context_args(madmm)
 
     dar = subparsers.add_parser("dar", help="Extract DAR history JSONL traces")
     dar.add_argument("--history-jsonl", required=True)
     dar.add_argument("--run-id", required=True)
     dar.add_argument("--method", default="filter_critical")
     dar.add_argument("--out", type=Path, default=None)
+    add_context_args(dar)
 
     moc = subparsers.add_parser("moc", help="Extract MOC detail/summary traces")
     moc.add_argument("--detail-json", required=True)
@@ -564,6 +909,14 @@ def build_parser() -> argparse.ArgumentParser:
     moc.add_argument("--run-id", required=True)
     moc.add_argument("--method", default="Chain")
     moc.add_argument("--out", type=Path, default=None)
+    add_context_args(moc)
+
+    pact = subparsers.add_parser("pact", help="Extract PACT per-sample JSONL traces")
+    pact.add_argument("--result-jsonl", required=True)
+    pact.add_argument("--run-id", required=True)
+    pact.add_argument("--method", default="pact_action_state")
+    pact.add_argument("--out", type=Path, default=None)
+    add_context_args(pact)
 
     return parser
 
@@ -576,6 +929,8 @@ def main() -> None:
         records = extract_dar(args)
     elif args.command == "moc":
         records = extract_moc(args)
+    elif args.command == "pact":
+        records = extract_pact(args)
     else:
         raise SystemExit(f"Unknown command: {args.command}")
     write_jsonl(records, args.out)

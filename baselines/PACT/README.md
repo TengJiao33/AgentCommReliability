@@ -6,6 +6,7 @@ Files:
 
 - `source.md`: upstream source, code map, setup notes, and reproduction constraints.
 - `reproduction.md`: A800_2 reproduction status and smoke results.
+- `patches/`: project-local changes used on A800_2.
 - `upstream/`: git submodule for the upstream implementation.
 
 Current scope:

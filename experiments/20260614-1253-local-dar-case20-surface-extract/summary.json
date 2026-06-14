@@ -1,0 +1,408 @@
+{
+  "case_indices": [
+    20
+  ],
+  "cases": [
+    {
+      "case_index": 20,
+      "variants": {
+        "answer_only_no_guard": {
+          "after_answer": 12,
+          "before_answer": 7,
+          "case_index": 20,
+          "dropped_agent_ids": [
+            "Agent1"
+          ],
+          "final_correct": false,
+          "gold_answer": 7,
+          "guard_added_agent_ids": [],
+          "guard_notes": [],
+          "history_path": "experiments\\20260613-2143-a8002-dar-retention-split-gsm8k100\\dar_history_answer_only_noguard_gsm8k100.jsonl",
+          "instance_id": "20",
+          "label": "answer_only_no_guard",
+          "original_retained_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "public_state": {
+            "communication_policy": "retained_subset",
+            "surface": "retained_answer_only"
+          },
+          "raw_filter_response": "['gsm8k_100__qwen2.5-7b__None__Agent2', 'gsm8k_100__qwen2.5-7b__None__Agent3']",
+          "retained_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "retained_messages": [
+            {
+              "agent_id": "Agent2",
+              "constructed_surface_chars": 35,
+              "constructed_surface_excerpt": "Previous parsed final answer: 120.0",
+              "full_response_chars": 804,
+              "parsed_answer": 120.0,
+              "parsed_correct": false,
+              "term_snippets_from_full_response": {
+                "0.80": "...find the cost of 10 candies. Since 4 candies cost $3.20, we can determine the cost of 1 candy:\\n\\[ \\text{Cost of 1 candy} = \\frac{3.20}{4} = 0.80 \\]\\n\\nThen, we calculate the cost of 10 candies:\\n\\[ \\text{Cost of 10 candies} = 10 \\times 0.80 = 8.00 \\]\\n\\nFinally, we add the cost of 10 loll...",
+                "120": "...nally, we add the cost of 10 lollipops and 10 candies to find the total cost:\\n\\[ \\text{Total cost} = 4.00 + 8.00 = 12.00 \\]\\n\\n{final answer: 120}\\n\\nUncertainty score (Average Negative Log Likelihood) for this response: 0.1141"
+              }
+            },
+            {
+              "agent_id": "Agent3",
+              "constructed_surface_chars": 35,
+              "constructed_surface_excerpt": "Previous parsed final answer: 700.0",
+              "full_response_chars": 768,
+              "parsed_answer": 700.0,
+              "parsed_correct": false,
+              "term_snippets_from_full_response": {
+                "0.30": "...ve lollipops is $3.20.\\n\\nTherefore, the cost for four candies is:\\n\\[3.20 - 2.00 = 1.20\\] dollars.\\n\\nThe cost of one candy is:\\n\\[1.20 \\div 4 = 0.30\\] dollars.\\n\\nNow, we calculate the cost of 10 lollipops and 10 candies:\\n- The cost of 10 lollipops is:\\n\\[10 \\times 0.40 = 4.00\\] dollars.\\n- ...",
+                "7.00": "...rs.\\n- The cost of 10 candies is:\\n\\[10 \\times 0.30 = 3.00\\] dollars.\\n\\nSo, the total cost for 10 lollipops and 10 candies is:\\n\\[4.00 + 3.00 = 7.00\\] dollars.\\n\\n{final answer: 700}\\n\\nUncertainty score (Average Negative Log Likelihood) for this response: 0.1035",
+                "700": "...\\n\\[10 \\times 0.30 = 3.00\\] dollars.\\n\\nSo, the total cost for 10 lollipops and 10 candies is:\\n\\[4.00 + 3.00 = 7.00\\] dollars.\\n\\n{final answer: 700}\\n\\nUncertainty score (Average Negative Log Likelihood) for this response: 0.1035"
+              }
+            }
+          ],
+          "retention_message_mode": "answer_only",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 7.0,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 120.0,
+              "correct": false
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 700.0,
+              "correct": false
+            }
+          ],
+          "round1_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 7.0,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 12.0,
+              "correct": false
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 700.0,
+              "correct": false
+            }
+          ],
+          "trace_path": "experiments\\20260613-2143-a8002-dar-retention-split-gsm8k100\\comm_trace_answer_only_noguard_v11.jsonl",
+          "transition": "right_to_wrong"
+        },
+        "guard_full": {
+          "after_answer": 7,
+          "before_answer": 7,
+          "case_index": 20,
+          "dropped_agent_ids": [],
+          "final_correct": true,
+          "gold_answer": 7,
+          "guard_added_agent_ids": [
+            "Agent1"
+          ],
+          "guard_notes": [
+            "added_missing_parseable_answer_bucket"
+          ],
+          "history_path": "experiments\\20260613-2143-a8002-dar-retention-split-gsm8k100\\dar_history_guard_full_gsm8k100.jsonl",
+          "instance_id": "20",
+          "label": "guard_full",
+          "original_retained_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "public_state": {
+            "communication_policy": "guarded_retained_subset",
+            "surface": "retained_full_reasoning"
+          },
+          "raw_filter_response": "['gsm8k_100__qwen2.5-7b__None__Agent2', 'gsm8k_100__qwen2.5-7b__None__Agent3']",
+          "retained_agent_ids": [
+            "Agent2",
+            "Agent3",
+            "Agent1"
+          ],
+          "retained_messages": [
+            {
+              "agent_id": "Agent2",
+              "constructed_surface_chars": 804,
+              "constructed_surface_excerpt": "To solve this problem, let's start by calculating the total cost of the candies Manolo initially bought.\\n\\nGiven:\\n- Cost of 4 candies = $3.20\\n- Cost of 1 lollipop = $0.40\\n- Number of lollipops = 5\\n- Number of candies = 4\\n\\nFirst, we find the cost of 10 lollipops:\\n\\[ \\text{Cost of 10 lollipops} = 10 \\times 0.40 = 4.00 \\]\\n\\nNext, we find the cost of 10 candies. Since 4 candies cost $3.20, we can determine the cost of 1 candy:\\n\\[ \\text{Cost of 1 candy} = \\frac{3.20}{4} = 0.80 \\]\\n\\nThen, we calculate th",
+              "full_response_chars": 804,
+              "parsed_answer": 120.0,
+              "parsed_correct": false,
+              "term_snippets_from_full_response": {
+                "0.80": "...find the cost of 10 candies. Since 4 candies cost $3.20, we can determine the cost of 1 candy:\\n\\[ \\text{Cost of 1 candy} = \\frac{3.20}{4} = 0.80 \\]\\n\\nThen, we calculate the cost of 10 candies:\\n\\[ \\text{Cost of 10 candies} = 10 \\times 0.80 = 8.00 \\]\\n\\nFinally, we add the cost of 10 loll...",
+                "120": "...nally, we add the cost of 10 lollipops and 10 candies to find the total cost:\\n\\[ \\text{Total cost} = 4.00 + 8.00 = 12.00 \\]\\n\\n{final answer: 120}\\n\\nUncertainty score (Average Negative Log Likelihood) for this response: 0.1141"
+              }
+            },
+            {
+              "agent_id": "Agent3",
+              "constructed_surface_chars": 768,
+              "constructed_surface_excerpt": "To find out how much 10 lollipops and 10 candies will cost, we first need to determine the cost of one candy.\\n\\nFrom the information given:\\n- Five lollipops cost \\(5 \\times 0.40 = 2.00\\) dollars.\\n- The total cost for four candies and five lollipops is $3.20.\\n\\nTherefore, the cost for four candies is:\\n\\[3.20 - 2.00 = 1.20\\] dollars.\\n\\nThe cost of one candy is:\\n\\[1.20 \\div 4 = 0.30\\] dollars.\\n\\nNow, we calculate the cost of 10 lollipops and 10 candies:\\n- The cost of 10 lollipops is:\\n\\[10 \\times 0.40 =",
+              "full_response_chars": 768,
+              "parsed_answer": 700.0,
+              "parsed_correct": false,
+              "term_snippets_from_full_response": {
+                "0.30": "...ve lollipops is $3.20.\\n\\nTherefore, the cost for four candies is:\\n\\[3.20 - 2.00 = 1.20\\] dollars.\\n\\nThe cost of one candy is:\\n\\[1.20 \\div 4 = 0.30\\] dollars.\\n\\nNow, we calculate the cost of 10 lollipops and 10 candies:\\n- The cost of 10 lollipops is:\\n\\[10 \\times 0.40 = 4.00\\] dollars.\\n- ...",
+                "7.00": "...rs.\\n- The cost of 10 candies is:\\n\\[10 \\times 0.30 = 3.00\\] dollars.\\n\\nSo, the total cost for 10 lollipops and 10 candies is:\\n\\[4.00 + 3.00 = 7.00\\] dollars.\\n\\n{final answer: 700}\\n\\nUncertainty score (Average Negative Log Likelihood) for this response: 0.1035",
+                "700": "...\\n\\[10 \\times 0.30 = 3.00\\] dollars.\\n\\nSo, the total cost for 10 lollipops and 10 candies is:\\n\\[4.00 + 3.00 = 7.00\\] dollars.\\n\\n{final answer: 700}\\n\\nUncertainty score (Average Negative Log Likelihood) for this response: 0.1035"
+              }
+            },
+            {
+              "agent_id": "Agent1",
+              "constructed_surface_chars": 773,
+              "constructed_surface_excerpt": "First, we need to determine the cost of one candy. We know that Manolo bought five lollipops and four candies for a total of $3.20. Each lollipop costs $0.40, so the total cost of the lollipops is:\\n\\n\\[ 5 \\times 0.40 = 2.00 \\]\\n\\nSince the total cost of the lollipops and candies is $3.20, the cost of the four candies is:\\n\\n\\[ 3.20 - 2.00 = 1.20 \\]\\n\\nThe cost of one candy is then:\\n\\n\\[ \\frac{1.20}{4} = 0.30 \\]\\n\\nNow, we need to find the cost of 10 lollipops and 10 candies. The cost of 10 lollipops is:\\n\\n",
+              "full_response_chars": 773,
+              "parsed_answer": 7.0,
+              "parsed_correct": true,
+              "term_snippets_from_full_response": {
+                "0.30": "...ipops and candies is $3.20, the cost of the four candies is:\\n\\n\\[ 3.20 - 2.00 = 1.20 \\]\\n\\nThe cost of one candy is then:\\n\\n\\[ \\frac{1.20}{4} = 0.30 \\]\\n\\nNow, we need to find the cost of 10 lollipops and 10 candies. The cost of 10 lollipops is:\\n\\n\\[ 10 \\times 0.40 = 4.00 \\]\\n\\nThe cost of 10...",
+                "7.00": "...\\]\\n\\nThe cost of 10 candies is:\\n\\n\\[ 10 \\times 0.30 = 3.00 \\]\\n\\nTherefore, the total cost of 10 lollipops and 10 candies is:\\n\\n\\[ 4.00 + 3.00 = 7.00 \\]\\n\\n{final answer: 7.00}\\n\\nUncertainty score (Average Negative Log Likelihood) for this response: 0.0705"
+              }
+            }
+          ],
+          "retention_message_mode": "full",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 7.0,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 120.0,
+              "correct": false
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 700.0,
+              "correct": false
+            }
+          ],
+          "round1_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 7.0,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 7.0,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 700.0,
+              "correct": false
+            }
+          ],
+          "trace_path": "experiments\\20260613-2143-a8002-dar-retention-split-gsm8k100\\comm_trace_guard_full_v11.jsonl",
+          "transition": "stable_right"
+        },
+        "guarded_answer_only": {
+          "after_answer": 12,
+          "before_answer": 7,
+          "case_index": 20,
+          "dropped_agent_ids": [],
+          "final_correct": false,
+          "gold_answer": 7,
+          "guard_added_agent_ids": [
+            "Agent1"
+          ],
+          "guard_notes": [
+            "added_missing_parseable_answer_bucket"
+          ],
+          "history_path": "experiments\\20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100\\dar_history_guarded_answer_diversity_gsm8k100.jsonl",
+          "instance_id": "20",
+          "label": "guarded_answer_only",
+          "original_retained_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "public_state": {
+            "communication_policy": "guarded_retained_subset",
+            "surface": "retained_answer_only"
+          },
+          "raw_filter_response": "['gsm8k_100__qwen2.5-7b__None__Agent2', 'gsm8k_100__qwen2.5-7b__None__Agent3']",
+          "retained_agent_ids": [
+            "Agent2",
+            "Agent3",
+            "Agent1"
+          ],
+          "retained_messages": [
+            {
+              "agent_id": "Agent2",
+              "constructed_surface_chars": 35,
+              "constructed_surface_excerpt": "Previous parsed final answer: 120.0",
+              "full_response_chars": 804,
+              "parsed_answer": 120.0,
+              "parsed_correct": false,
+              "term_snippets_from_full_response": {
+                "0.80": "...find the cost of 10 candies. Since 4 candies cost $3.20, we can determine the cost of 1 candy:\\n\\[ \\text{Cost of 1 candy} = \\frac{3.20}{4} = 0.80 \\]\\n\\nThen, we calculate the cost of 10 candies:\\n\\[ \\text{Cost of 10 candies} = 10 \\times 0.80 = 8.00 \\]\\n\\nFinally, we add the cost of 10 loll...",
+                "120": "...nally, we add the cost of 10 lollipops and 10 candies to find the total cost:\\n\\[ \\text{Total cost} = 4.00 + 8.00 = 12.00 \\]\\n\\n{final answer: 120}\\n\\nUncertainty score (Average Negative Log Likelihood) for this response: 0.1141"
+              }
+            },
+            {
+              "agent_id": "Agent3",
+              "constructed_surface_chars": 35,
+              "constructed_surface_excerpt": "Previous parsed final answer: 700.0",
+              "full_response_chars": 768,
+              "parsed_answer": 700.0,
+              "parsed_correct": false,
+              "term_snippets_from_full_response": {
+                "0.30": "...ve lollipops is $3.20.\\n\\nTherefore, the cost for four candies is:\\n\\[3.20 - 2.00 = 1.20\\] dollars.\\n\\nThe cost of one candy is:\\n\\[1.20 \\div 4 = 0.30\\] dollars.\\n\\nNow, we calculate the cost of 10 lollipops and 10 candies:\\n- The cost of 10 lollipops is:\\n\\[10 \\times 0.40 = 4.00\\] dollars.\\n- ...",
+                "7.00": "...rs.\\n- The cost of 10 candies is:\\n\\[10 \\times 0.30 = 3.00\\] dollars.\\n\\nSo, the total cost for 10 lollipops and 10 candies is:\\n\\[4.00 + 3.00 = 7.00\\] dollars.\\n\\n{final answer: 700}\\n\\nUncertainty score (Average Negative Log Likelihood) for this response: 0.1035",
+                "700": "...\\n\\[10 \\times 0.30 = 3.00\\] dollars.\\n\\nSo, the total cost for 10 lollipops and 10 candies is:\\n\\[4.00 + 3.00 = 7.00\\] dollars.\\n\\n{final answer: 700}\\n\\nUncertainty score (Average Negative Log Likelihood) for this response: 0.1035"
+              }
+            },
+            {
+              "agent_id": "Agent1",
+              "constructed_surface_chars": 33,
+              "constructed_surface_excerpt": "Previous parsed final answer: 7.0",
+              "full_response_chars": 773,
+              "parsed_answer": 7.0,
+              "parsed_correct": true,
+              "term_snippets_from_full_response": {
+                "0.30": "...ipops and candies is $3.20, the cost of the four candies is:\\n\\n\\[ 3.20 - 2.00 = 1.20 \\]\\n\\nThe cost of one candy is then:\\n\\n\\[ \\frac{1.20}{4} = 0.30 \\]\\n\\nNow, we need to find the cost of 10 lollipops and 10 candies. The cost of 10 lollipops is:\\n\\n\\[ 10 \\times 0.40 = 4.00 \\]\\n\\nThe cost of 10...",
+                "7.00": "...\\]\\n\\nThe cost of 10 candies is:\\n\\n\\[ 10 \\times 0.30 = 3.00 \\]\\n\\nTherefore, the total cost of 10 lollipops and 10 candies is:\\n\\n\\[ 4.00 + 3.00 = 7.00 \\]\\n\\n{final answer: 7.00}\\n\\nUncertainty score (Average Negative Log Likelihood) for this response: 0.0705"
+              }
+            }
+          ],
+          "retention_message_mode": "answer_only",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 7.0,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 120.0,
+              "correct": false
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 700.0,
+              "correct": false
+            }
+          ],
+          "round1_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 7.0,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 12.0,
+              "correct": false
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 700.0,
+              "correct": false
+            }
+          ],
+          "trace_path": "experiments\\20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100\\comm_trace_dar_guarded_v11.jsonl",
+          "transition": "right_to_wrong"
+        },
+        "original": {
+          "after_answer": 700,
+          "before_answer": 7,
+          "case_index": 20,
+          "dropped_agent_ids": [
+            "Agent1"
+          ],
+          "final_correct": false,
+          "gold_answer": 7,
+          "guard_added_agent_ids": [],
+          "guard_notes": null,
+          "history_path": "experiments\\20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory\\dar_history_gsm8k100_filtercritical.jsonl",
+          "instance_id": "20",
+          "label": "original",
+          "original_retained_agent_ids": [],
+          "public_state": {
+            "communication_policy": "retained_subset",
+            "surface": "retained_full_reasoning"
+          },
+          "raw_filter_response": "['gsm8k_100__qwen2.5-7b__None__Agent2', 'gsm8k_100__qwen2.5-7b__None__Agent3']",
+          "retained_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "retained_messages": [
+            {
+              "agent_id": "Agent2",
+              "constructed_surface_chars": 804,
+              "constructed_surface_excerpt": "To solve this problem, let's start by calculating the total cost of the candies Manolo initially bought.\\n\\nGiven:\\n- Cost of 4 candies = $3.20\\n- Cost of 1 lollipop = $0.40\\n- Number of lollipops = 5\\n- Number of candies = 4\\n\\nFirst, we find the cost of 10 lollipops:\\n\\[ \\text{Cost of 10 lollipops} = 10 \\times 0.40 = 4.00 \\]\\n\\nNext, we find the cost of 10 candies. Since 4 candies cost $3.20, we can determine the cost of 1 candy:\\n\\[ \\text{Cost of 1 candy} = \\frac{3.20}{4} = 0.80 \\]\\n\\nThen, we calculate th",
+              "full_response_chars": 804,
+              "parsed_answer": 120.0,
+              "parsed_correct": false,
+              "term_snippets_from_full_response": {
+                "0.80": "...find the cost of 10 candies. Since 4 candies cost $3.20, we can determine the cost of 1 candy:\\n\\[ \\text{Cost of 1 candy} = \\frac{3.20}{4} = 0.80 \\]\\n\\nThen, we calculate the cost of 10 candies:\\n\\[ \\text{Cost of 10 candies} = 10 \\times 0.80 = 8.00 \\]\\n\\nFinally, we add the cost of 10 loll...",
+                "120": "...nally, we add the cost of 10 lollipops and 10 candies to find the total cost:\\n\\[ \\text{Total cost} = 4.00 + 8.00 = 12.00 \\]\\n\\n{final answer: 120}\\n\\nUncertainty score (Average Negative Log Likelihood) for this response: 0.1141"
+              }
+            },
+            {
+              "agent_id": "Agent3",
+              "constructed_surface_chars": 768,
+              "constructed_surface_excerpt": "To find out how much 10 lollipops and 10 candies will cost, we first need to determine the cost of one candy.\\n\\nFrom the information given:\\n- Five lollipops cost \\(5 \\times 0.40 = 2.00\\) dollars.\\n- The total cost for four candies and five lollipops is $3.20.\\n\\nTherefore, the cost for four candies is:\\n\\[3.20 - 2.00 = 1.20\\] dollars.\\n\\nThe cost of one candy is:\\n\\[1.20 \\div 4 = 0.30\\] dollars.\\n\\nNow, we calculate the cost of 10 lollipops and 10 candies:\\n- The cost of 10 lollipops is:\\n\\[10 \\times 0.40 =",
+              "full_response_chars": 768,
+              "parsed_answer": 700.0,
+              "parsed_correct": false,
+              "term_snippets_from_full_response": {
+                "0.30": "...ve lollipops is $3.20.\\n\\nTherefore, the cost for four candies is:\\n\\[3.20 - 2.00 = 1.20\\] dollars.\\n\\nThe cost of one candy is:\\n\\[1.20 \\div 4 = 0.30\\] dollars.\\n\\nNow, we calculate the cost of 10 lollipops and 10 candies:\\n- The cost of 10 lollipops is:\\n\\[10 \\times 0.40 = 4.00\\] dollars.\\n- ...",
+                "7.00": "...rs.\\n- The cost of 10 candies is:\\n\\[10 \\times 0.30 = 3.00\\] dollars.\\n\\nSo, the total cost for 10 lollipops and 10 candies is:\\n\\[4.00 + 3.00 = 7.00\\] dollars.\\n\\n{final answer: 700}\\n\\nUncertainty score (Average Negative Log Likelihood) for this response: 0.1035",
+                "700": "...\\n\\[10 \\times 0.30 = 3.00\\] dollars.\\n\\nSo, the total cost for 10 lollipops and 10 candies is:\\n\\[4.00 + 3.00 = 7.00\\] dollars.\\n\\n{final answer: 700}\\n\\nUncertainty score (Average Negative Log Likelihood) for this response: 0.1035"
+              }
+            }
+          ],
+          "retention_message_mode": "full",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 7.0,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 120.0,
+              "correct": false
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 700.0,
+              "correct": false
+            }
+          ],
+          "round1_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 7.0,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 700.0,
+              "correct": false
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 700.0,
+              "correct": false
+            }
+          ],
+          "trace_path": "experiments\\20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory\\comm_trace_dar_v11.jsonl",
+          "transition": "right_to_wrong"
+        }
+      }
+    }
+  ],
+  "variant_count": 4
+}

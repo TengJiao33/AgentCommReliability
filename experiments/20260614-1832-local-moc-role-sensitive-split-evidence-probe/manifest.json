@@ -1,0 +1,37 @@
+{
+  "run_id": "20260614-1832-local-moc-role-sensitive-split-evidence-probe",
+  "status": "completed",
+  "method": "MOCRoleCompressionProbe",
+  "model": "deterministic-synthetic-policies",
+  "dataset": "hand-built split-evidence role cases",
+  "seed": null,
+  "samples": 6,
+  "machine": "local",
+  "gpu_ids": [],
+  "timeout_minutes": null,
+  "started_at": "2026-06-14T18:37:29",
+  "ended_at": "2026-06-14T18:37:29",
+  "upstream_repo": "https://github.com/yao-guan/MOC",
+  "upstream_commit": "9c67c92507570704a7df73e452552a3f49e83897",
+  "local_changes": [
+    "scripts/run_moc_role_loss_probe.py"
+  ],
+  "command": "python scripts/run_moc_role_loss_probe.py --run-id 20260614-1832-local-moc-role-sensitive-split-evidence-probe --out-dir experiments\\20260614-1832-local-moc-role-sensitive-split-evidence-probe --include-text",
+  "log_path": "",
+  "result_paths": [
+    "experiments\\20260614-1832-local-moc-role-sensitive-split-evidence-probe\\comm_trace_moc_role_probe_v11.jsonl",
+    "experiments\\20260614-1832-local-moc-role-sensitive-split-evidence-probe\\cases.jsonl",
+    "experiments\\20260614-1832-local-moc-role-sensitive-split-evidence-probe\\summary.json"
+  ],
+  "metrics": {
+    "accuracy": null,
+    "total_tokens": 1069,
+    "eval_time_seconds": null,
+    "wall_time_seconds": null
+  },
+  "caveats": [
+    "CPU-only synthetic contact; no LLM calls and no MOC paper score.",
+    "The compression policies are deterministic stress surfaces, not claims about MOC's actual summarizer behavior.",
+    "Token counts are rough word-count proxies."
+  ]
+}

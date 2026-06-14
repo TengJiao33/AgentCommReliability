@@ -1,0 +1,13 @@
+{
+  "avg_final_target_question_overlap": 0.404826,
+  "avg_final_target_slot_words": 7.96,
+  "avg_unique_target_slot_count": 1.74,
+  "event_target_slot_rate": 0.995,
+  "events": 200,
+  "events_with_target_slot": 199,
+  "records": 50,
+  "records_all_turns_have_target_slot": 49,
+  "records_with_generic_final_target_slot": 0,
+  "records_with_stable_target_slot": 27,
+  "trace": "experiments\\20260614-1642-a8002-pact-qwen25-14b-hotpot50-offset150-compact-target\\comm_trace_offset150_compact_final_v11.jsonl"
+}

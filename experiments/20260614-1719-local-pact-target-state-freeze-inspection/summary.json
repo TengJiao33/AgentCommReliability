@@ -1,0 +1,119 @@
+{
+  "baseline_trace": "experiments\\20260614-1642-a8002-pact-qwen25-14b-hotpot50-offset150-compact-target\\comm_trace_offset150_final_contract_v11.jsonl",
+  "compact_trace": "experiments\\20260614-1642-a8002-pact-qwen25-14b-hotpot50-offset150-compact-target\\comm_trace_offset150_compact_final_v11.jsonl",
+  "comparison_cases": "experiments\\20260614-1642-a8002-pact-qwen25-14b-hotpot50-offset150-compact-target\\final_vs_compact_final_cases.jsonl",
+  "first_final_target_mismatch_records": 22,
+  "focus_records": 16,
+  "freeze_bucket_by_transition": {
+    "right_to_wrong": {
+      "regression_despite_stable_target": 4,
+      "visible_target_drift_regression": 4
+    },
+    "stable_right": {
+      "answer_type_drift": 3,
+      "stable_target": 10,
+      "template_collapse": 2,
+      "visible_target_drift": 2
+    },
+    "stable_wrong": {
+      "answer_type_drift": 1,
+      "stable_target": 12,
+      "target_returns_after_drift": 1,
+      "template_collapse": 1,
+      "visible_target_drift": 5
+    },
+    "wrong_to_right": {
+      "answer_type_drift": 3,
+      "rescue_despite_stable_target": 1,
+      "template_collapse": 1
+    }
+  },
+  "freeze_bucket_counts": {
+    "answer_type_drift": 7,
+    "regression_despite_stable_target": 4,
+    "rescue_despite_stable_target": 1,
+    "stable_target": 22,
+    "target_returns_after_drift": 1,
+    "template_collapse": 4,
+    "visible_target_drift": 7,
+    "visible_target_drift_regression": 4
+  },
+  "note": "Buckets are mechanical inspection aids. A first-turn frozen target state was not actually run.",
+  "records": 50,
+  "sample_indices_by_bucket": {
+    "answer_type_drift": [
+      152,
+      155,
+      160,
+      176,
+      188,
+      194,
+      195
+    ],
+    "regression_despite_stable_target": [
+      153,
+      154,
+      164,
+      182
+    ],
+    "rescue_despite_stable_target": [
+      185
+    ],
+    "stable_target": [
+      150,
+      151,
+      157,
+      158,
+      159,
+      161,
+      162,
+      165,
+      167,
+      168,
+      169,
+      170,
+      172,
+      174,
+      179,
+      180,
+      181,
+      183,
+      186,
+      190,
+      191,
+      192
+    ],
+    "target_returns_after_drift": [
+      177
+    ],
+    "template_collapse": [
+      156,
+      163,
+      166,
+      173
+    ],
+    "visible_target_drift": [
+      171,
+      175,
+      178,
+      184,
+      187,
+      196,
+      198
+    ],
+    "visible_target_drift_regression": [
+      189,
+      193,
+      197,
+      199
+    ]
+  },
+  "template_slot_records": 4,
+  "transition_counts": {
+    "right_to_wrong": 8,
+    "stable_right": 17,
+    "stable_wrong": 20,
+    "wrong_to_right": 5
+  },
+  "unstable_target_slot_records": 23
+}

@@ -11,6 +11,14 @@ Do not require a narrowed research question, proposed idea, or expected payoff b
 
 Start from contact with runnable code, reproduced behavior, errors, logs, implementation details, and the felt confusion of the work. Use the LLM as a companion for reading code, debugging, preserving context, and noticing details, not as a machine for converting every observation into a thesis.
 
+This skill is a posture, not a checklist. Do not run every section on every turn. Choose the mode that matches the project state:
+
+- contact mode: when a system has not yet been run or understood;
+- pressure mode: when external papers can challenge or reorganize what the reproduction has shown;
+- synthesis mode: when several reproduced systems expose a common tension worth naming.
+
+The skill should prevent premature ideas, not prevent ideas altogether.
+
 ## Why This Skill Exists
 
 Modern code contains a different kind of contact than the paper text:
@@ -26,6 +34,8 @@ Modern code contains a different kind of contact than the paper text:
 - failure handling.
 
 The point is not to mine these details for immediate novelty. The point is to stay close enough to the system that questions, irritations, failures, and possible ideas can emerge without being forced.
+
+External literature is part of this contact when it puts pressure on reproduced behavior. Use papers to ask whether our traces are missing a more fundamental variable, not as a substitute for running code.
 
 ## Practice
 
@@ -119,7 +129,23 @@ Small variants are allowed when they help touch the system more clearly:
 
 Keep early runs small because small runs are easier to understand and easier to abandon. They are not required to justify themselves as pilots for a larger matrix.
 
-### 6. Interpret Late And Lightly
+Small variants are probes, not automatically ideas. If a variant only changes a prompt surface, retained field, threshold, or message format, treat it as diagnostic unless it reveals a mechanism that connects to a broader literature question.
+
+### 6. Use Literature As Pressure
+
+After several runnable systems have been touched, deliberately step out of pure reproduction mode.
+
+Use external papers to pressure-test our observations:
+
+- What task regimes do they distinguish that our benchmarks collapse?
+- What variables do they treat as fundamental that our traces do not record?
+- Which mechanisms do they claim are necessary, such as diversity, calibrated confidence, context alignment, routing, scarcity, or public state updates?
+- Which of our observations become trivial under their framing?
+- Which of our observations expose a gap in their framing?
+
+This is not a broad survey license. Prefer papers that can reorganize an existing reproduction, explain a failure mode, or suggest a sharper next contact point.
+
+### 7. Interpret Late And Lightly
 
 After behavior is visible, the LLM can help ask:
 
@@ -132,7 +158,7 @@ After behavior is visible, the LLM can help ask:
 
 Treat explanations as provisional language around an encounter, not as something the project must defend.
 
-### 7. Let Ideas Emerge Without A Schedule
+### 8. Let Ideas Emerge Without A Schedule
 
 An idea may eventually deserve a sharper form when it has:
 
@@ -151,6 +177,8 @@ But do not force that sharpening. The following are especially worth resisting:
 - single lucky examples;
 - improvements without failure analysis.
 - the feeling that every run must lead to a named contribution.
+
+Also resist the opposite failure mode: staying forever at the level of patchable ablations after enough systems have already been touched. At that point, a useful idea may come from aligning traces, paper mechanisms, and task regimes rather than from another local variant.
 
 ## Project Operating Rules
 

@@ -1,0 +1,370 @@
+{
+  "aggregate": {
+    "context_events": 590,
+    "records": 610,
+    "rows_with_context_events": 560,
+    "trace_count": 7
+  },
+  "traces": [
+    {
+      "context_events": 150,
+      "context_events_per_row": {
+        "0": 50,
+        "1": 150
+      },
+      "derivation_by_public_state": {
+        "from_mask_history|full_reasoning/broadcast": 50,
+        "from_mask_history|masked_full_reasoning/objective_memory_mask": 50,
+        "from_mask_history|masked_full_reasoning/subjective_memory_mask": 50
+      },
+      "derivations": {
+        "from_mask_history": 150
+      },
+      "merged_agent_count": {
+        "0": 150
+      },
+      "methods": {
+        "cot": 50,
+        "mad_naive": 50,
+        "mad_objective": 50,
+        "mad_subjective": 50
+      },
+      "path": "experiments\\20260613-1855-a8002-madmm-qwen25-7b-math50-probe\\comm_trace_madmm_math50_v11.jsonl",
+      "public_states": {
+        "full_reasoning/broadcast": 50,
+        "masked_full_reasoning/objective_memory_mask": 50,
+        "masked_full_reasoning/subjective_memory_mask": 50,
+        "none/none": 50
+      },
+      "records": 200,
+      "rows_with_context_events": 150,
+      "suppressed_agent_count": {
+        "0": 85,
+        "1": 10,
+        "2": 53,
+        "3": 2
+      },
+      "task_regimes": {
+        "math_reasoning": 200
+      },
+      "transition_by_visible_agent_count": {
+        "right_to_wrong|visible=3": 1,
+        "stable_right|visible=1": 29,
+        "stable_right|visible=2": 4,
+        "stable_right|visible=3": 53,
+        "stable_wrong|visible=0": 1,
+        "stable_wrong|visible=1": 16,
+        "stable_wrong|visible=2": 5,
+        "stable_wrong|visible=3": 27,
+        "wrong_to_right|visible=0": 1,
+        "wrong_to_right|visible=1": 8,
+        "wrong_to_right|visible=2": 1,
+        "wrong_to_right|visible=3": 4
+      },
+      "transitions": {
+        "right_to_wrong": 1,
+        "stable_right": 86,
+        "stable_wrong": 49,
+        "unknown": 50,
+        "wrong_to_right": 14
+      },
+      "visible_agent_count": {
+        "0": 2,
+        "1": 53,
+        "2": 10,
+        "3": 85
+      }
+    },
+    {
+      "context_events": 100,
+      "context_events_per_row": {
+        "1": 100
+      },
+      "derivation_by_public_state": {
+        "from_retention_event|retained_full_reasoning/retained_subset": 100
+      },
+      "derivations": {
+        "from_retention_event": 100
+      },
+      "merged_agent_count": {
+        "0": 100
+      },
+      "methods": {
+        "filter_critical": 100
+      },
+      "path": "experiments\\20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory\\comm_trace_dar_v11.jsonl",
+      "public_states": {
+        "retained_full_reasoning/retained_subset": 100
+      },
+      "records": 100,
+      "rows_with_context_events": 100,
+      "suppressed_agent_count": {
+        "0": 9,
+        "1": 27,
+        "2": 64
+      },
+      "task_regimes": {
+        "saturated_arithmetic": 100
+      },
+      "transition_by_visible_agent_count": {
+        "right_to_wrong|visible=1": 1,
+        "right_to_wrong|visible=2": 2,
+        "stable_right|visible=1": 61,
+        "stable_right|visible=2": 23,
+        "stable_right|visible=3": 8,
+        "stable_wrong|visible=1": 2,
+        "stable_wrong|visible=2": 1,
+        "stable_wrong|visible=3": 1,
+        "wrong_to_right|visible=2": 1
+      },
+      "transitions": {
+        "right_to_wrong": 3,
+        "stable_right": 92,
+        "stable_wrong": 4,
+        "wrong_to_right": 1
+      },
+      "visible_agent_count": {
+        "1": 64,
+        "2": 27,
+        "3": 9
+      }
+    },
+    {
+      "context_events": 100,
+      "context_events_per_row": {
+        "1": 100
+      },
+      "derivation_by_public_state": {
+        "from_retention_event|retained_answer_only/guarded_retained_subset": 100
+      },
+      "derivations": {
+        "from_retention_event": 100
+      },
+      "merged_agent_count": {
+        "0": 100
+      },
+      "methods": {
+        "filter_critical_guarded_answer_only": 100
+      },
+      "path": "experiments\\20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100\\comm_trace_dar_guarded_v11.jsonl",
+      "public_states": {
+        "retained_answer_only/guarded_retained_subset": 100
+      },
+      "records": 100,
+      "rows_with_context_events": 100,
+      "suppressed_agent_count": {
+        "0": 12,
+        "1": 35,
+        "2": 53
+      },
+      "task_regimes": {
+        "saturated_arithmetic": 100
+      },
+      "transition_by_visible_agent_count": {
+        "right_to_wrong|visible=3": 1,
+        "stable_right|visible=1": 53,
+        "stable_right|visible=2": 32,
+        "stable_right|visible=3": 9,
+        "stable_wrong|visible=2": 3,
+        "stable_wrong|visible=3": 1,
+        "wrong_to_right|visible=3": 1
+      },
+      "transitions": {
+        "right_to_wrong": 1,
+        "stable_right": 94,
+        "stable_wrong": 4,
+        "wrong_to_right": 1
+      },
+      "visible_agent_count": {
+        "1": 53,
+        "2": 35,
+        "3": 12
+      }
+    },
+    {
+      "context_events": 100,
+      "context_events_per_row": {
+        "1": 100
+      },
+      "derivation_by_public_state": {
+        "from_retention_event|retained_answer_only/retained_subset": 100
+      },
+      "derivations": {
+        "from_retention_event": 100
+      },
+      "merged_agent_count": {
+        "0": 100
+      },
+      "methods": {
+        "filter_critical_answer_only_no_guard": 100
+      },
+      "path": "experiments\\20260613-2143-a8002-dar-retention-split-gsm8k100\\comm_trace_answer_only_noguard_v11.jsonl",
+      "public_states": {
+        "retained_answer_only/retained_subset": 100
+      },
+      "records": 100,
+      "rows_with_context_events": 100,
+      "suppressed_agent_count": {
+        "0": 9,
+        "1": 27,
+        "2": 64
+      },
+      "task_regimes": {
+        "saturated_arithmetic": 100
+      },
+      "transition_by_visible_agent_count": {
+        "right_to_wrong|visible=2": 1,
+        "stable_right|visible=1": 62,
+        "stable_right|visible=2": 24,
+        "stable_right|visible=3": 8,
+        "stable_wrong|visible=1": 2,
+        "stable_wrong|visible=2": 1,
+        "stable_wrong|visible=3": 1,
+        "wrong_to_right|visible=2": 1
+      },
+      "transitions": {
+        "right_to_wrong": 1,
+        "stable_right": 94,
+        "stable_wrong": 4,
+        "wrong_to_right": 1
+      },
+      "visible_agent_count": {
+        "1": 64,
+        "2": 27,
+        "3": 9
+      }
+    },
+    {
+      "context_events": 100,
+      "context_events_per_row": {
+        "1": 100
+      },
+      "derivation_by_public_state": {
+        "from_retention_event|retained_full_reasoning/guarded_retained_subset": 100
+      },
+      "derivations": {
+        "from_retention_event": 100
+      },
+      "merged_agent_count": {
+        "0": 100
+      },
+      "methods": {
+        "filter_critical_guard_full": 100
+      },
+      "path": "experiments\\20260613-2143-a8002-dar-retention-split-gsm8k100\\comm_trace_guard_full_v11.jsonl",
+      "public_states": {
+        "retained_full_reasoning/guarded_retained_subset": 100
+      },
+      "records": 100,
+      "rows_with_context_events": 100,
+      "suppressed_agent_count": {
+        "0": 12,
+        "1": 35,
+        "2": 53
+      },
+      "task_regimes": {
+        "saturated_arithmetic": 100
+      },
+      "transition_by_visible_agent_count": {
+        "stable_right|visible=1": 53,
+        "stable_right|visible=2": 32,
+        "stable_right|visible=3": 10,
+        "stable_wrong|visible=2": 3,
+        "stable_wrong|visible=3": 1,
+        "wrong_to_right|visible=3": 1
+      },
+      "transitions": {
+        "stable_right": 95,
+        "stable_wrong": 4,
+        "wrong_to_right": 1
+      },
+      "visible_agent_count": {
+        "1": 53,
+        "2": 35,
+        "3": 12
+      }
+    },
+    {
+      "context_events": 20,
+      "context_events_per_row": {
+        "4": 5
+      },
+      "derivation_by_public_state": {
+        "from_ism_result|neighbor_context/topology_hop1": 20
+      },
+      "derivations": {
+        "from_ism_result": 20
+      },
+      "merged_agent_count": {
+        "0": 20
+      },
+      "methods": {
+        "Chain": 5
+      },
+      "path": "experiments\\20260613-1740-a8002-moc-hopcheck-n5\\comm_trace_hop1_v11.jsonl",
+      "public_states": {
+        "neighbor_context/topology_hop1": 5
+      },
+      "records": 5,
+      "rows_with_context_events": 5,
+      "suppressed_agent_count": {
+        "0": 20
+      },
+      "task_regimes": {
+        "saturated_arithmetic": 5
+      },
+      "transition_by_visible_agent_count": {
+        "unknown|visible=1": 20
+      },
+      "transitions": {
+        "unknown": 5
+      },
+      "visible_agent_count": {
+        "1": 20
+      }
+    },
+    {
+      "context_events": 20,
+      "context_events_per_row": {
+        "4": 5
+      },
+      "derivation_by_public_state": {
+        "from_ism_result|compressed_summary/topology_merge": 20
+      },
+      "derivations": {
+        "from_ism_result": 20
+      },
+      "merged_agent_count": {
+        "0": 5,
+        "1": 15
+      },
+      "methods": {
+        "Chain": 5
+      },
+      "path": "experiments\\20260613-1740-a8002-moc-hopcheck-n5\\comm_trace_hop2_v11.jsonl",
+      "public_states": {
+        "compressed_summary/topology_merge": 5
+      },
+      "records": 5,
+      "rows_with_context_events": 5,
+      "suppressed_agent_count": {
+        "0": 5,
+        "2": 15
+      },
+      "task_regimes": {
+        "saturated_arithmetic": 5
+      },
+      "transition_by_visible_agent_count": {
+        "unknown|visible=1": 5,
+        "unknown|visible=2": 15
+      },
+      "transitions": {
+        "unknown": 5
+      },
+      "visible_agent_count": {
+        "1": 5,
+        "2": 15
+      }
+    }
+  ]
+}

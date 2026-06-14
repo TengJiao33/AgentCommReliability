@@ -490,10 +490,909 @@ Next:
   - `Action Required`, `Environment State`, and `Action Result` appeared in all 200 agent turns;
   - `Final Answer` appeared in all 50 final turns;
   - no `<think>` spans appeared, so this run did not exercise private-reasoning stripping;
-  - 7 yes/no wrong-EM cases began with the correct yes/no answer, and 9 non-yes/no wrong-EM cases began with the normalized gold answer but added extra text.
+  - 7 yes/no wrong-EM cases began with the correct yes/no answer, and 8 non-yes/no wrong-EM cases began with the normalized gold answer but added extra text.
 - Added local run records and report:
   - `experiments/20260614-1055-a8002-pact-qwen25-7b-hotpot5/`
   - `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/`
   - `reports/20260614-pact-hotpot-smoke.md`
-- Working next check:
-  - add a PACT trace extractor and a postprocessing-only final-answer audit before treating EM as pure reasoning failure.
+- Completed follow-up checks:
+  - the PACT trace extractor, final-answer surface audit, evidence-field audit, extraction-only audit, and stable-wrong follow-up now exist; inspect the five unrecovered-output cases and one polarity mismatch before treating EM as pure reasoning failure or scaling HotpotQA.
+
+## 2026-06-14 Communication Regimes Synthesis
+
+- Updated the project-level reproduction skill so it explicitly distinguishes contact, literature-pressure, and synthesis modes.
+- Added synthesis report:
+  - `reports/20260614-communication-regimes-synthesis.md`
+- The report reframes the current project away from local message-retention variants as the default next move.
+- Current working frame:
+  - decide when LLM agents should communicate;
+  - identify what public state should be transmitted;
+  - preserve silence/routing as possible communication decisions;
+  - separate task regime, context alignment, debate dynamics, and public-state surface.
+- Added evidence-register row `E-025` to mark this as an active synthesis claim, not a new empirical result.
+- Recommended next contact before more GPU:
+  - focused cards for Benefits/Limitations, M2CL, and Demystifying MAD;
+  - a communication-regime harness sketch;
+  - or code-reading contact with M2CL's context generator path.
+- Created focused pressure-mode paper cards:
+  - `papers/cards/benefits-limitations-communication.md`
+  - `papers/cards/m2cl.md`
+  - `papers/cards/demystifying-mad.md`
+- Updated `papers/reading_queue.md` to mark those first paper-card actions as complete.
+
+## 2026-06-14 M2CL Code Contact
+
+- Added M2CL as a tracked upstream submodule:
+  - repo: `https://github.com/HansenHua/M2CL-ICLR26`
+  - commit: `ada64a9089731f4d2e2cfd2048329cf50f65031f`
+  - local path: `baselines/M2CL/upstream`
+- Verified `baselines/M2CL/upstream/main.py` and `baselines/M2CL/upstream/method/M2CL.py` with `py_compile`.
+- Inspected the context-generator path:
+  - `role_generator.gen_role` generates role/context text from `question + peer responses`;
+  - `M2CL.sample` and `M2CL.answer` condition agents on generated role/context plus peer responses;
+  - final answer is produced by a leader/summarizer prompt.
+- Found public-code blockers:
+  - `gen_response` immediately returns `"success generate"`, so intended generation branches are unreachable;
+  - `api_key.txt`, `dataset/`, `model/`, and `t5-small/` are absent locally;
+  - `main.py` hardcodes proxy `http://127.0.0.1:21882`;
+  - README still marks context/generator checkpoint release as TODO;
+  - `trl` is imported but missing from `requirements.txt`;
+  - several per-agent buffers use list multiplication and may alias inner lists.
+- Added baseline notes and report:
+  - `baselines/M2CL/README.md`
+  - `baselines/M2CL/source.md`
+  - `baselines/M2CL/reproduction.md`
+  - `reports/20260614-m2cl-code-contact.md`
+- Added evidence-register row `E-026`.
+- Working interpretation:
+  - do not treat M2CL as the next GPU reproduction target yet;
+  - use it to add a context-state axis to our trace/harness design.
+
+## 2026-06-14 Communication Trace Context Slots
+
+- Updated `scripts/extract_comm_trace_schema.py` from schema version `acr.comm_trace.v1` to `acr.comm_trace.v1.1`.
+- Added optional manual labels:
+  - `task_regime`;
+  - `public_state.surface`;
+  - `public_state.communication_policy`.
+- Added reserved `context_events` field for generated or assigned recipient context states.
+- Updated `docs/comm_trace_schema.md` with the new fields and example labels.
+- At this point the new field was reserved for future context-state data; later v1.1 re-extractions populated derived `context_events` from MAD-MM masks, DAR retention events, and MOC ISM sidecars.
+- Verified `scripts/extract_comm_trace_schema.py` with `py_compile`, subcommand help checks, and a no-file-output DAR extraction smoke on `experiments/20260613-1718-a8002-trace-instrumentation-check/dar_history_gsm8k5_filtercritical.jsonl`.
+- This is a small compatibility step toward the M2CL/context-alignment axis, not a new experiment result.
+
+## 2026-06-14 Communication-Regime Harness Smoke
+
+- Implemented deterministic CPU-only harness:
+  - `harness/communication_regimes.py`
+  - updated `harness/README.md`
+- Harness regimes:
+  - `recall`;
+  - `state_tracking`;
+  - `k_hop`;
+  - `conflict_evidence`;
+  - `saturated_arithmetic`.
+- Harness protocols:
+  - `single_agent`;
+  - `independent_majority`;
+  - `full_broadcast`;
+  - `evidence_state`;
+  - `route_or_silence`.
+- Ran smoke:
+  - run id: `20260614-1214-local-comm-regime-symbolic-smoke`
+  - output: `experiments/20260614-1214-local-comm-regime-symbolic-smoke/`
+  - records: 100 JSONL rows
+  - schema: `acr.comm_trace.v1.1`
+  - every record has 3 `context_events`.
+- First smoke exposed a duplicate-fact issue in `route_or_silence`: recipient context combined private facts and routed facts without de-duplication, causing `state_tracking` operations to be applied twice. Added `unique_facts` and reran the smoke.
+- Validated expected pattern:
+  - `recall`, `state_tracking`, `k_hop`, and `conflict_evidence` are wrong under `independent_majority` and correct under `evidence_state` / `route_or_silence`;
+  - `saturated_arithmetic` is already correct without communication, so communication changes no final answers and mostly adds token cost.
+- Added report:
+  - `reports/20260614-communication-regime-harness-smoke.md`
+- Added evidence-register row `E-027`.
+
+## 2026-06-14 Real Trace v1.1 Regime Labels
+
+- Re-extracted existing local MAD-MM, DAR, and MOC traces into schema `acr.comm_trace.v1.1` without launching any model or using GPU.
+- Added method-specific MAD-MM public-state defaults in `scripts/extract_comm_trace_schema.py`:
+  - `cot`: `none` / `none`;
+  - `mad_naive`: `full_reasoning` / `broadcast`;
+  - `mad_objective`: `masked_full_reasoning` / `objective_memory_mask`;
+  - `mad_subjective`: `masked_full_reasoning` / `subjective_memory_mask`.
+- Outputs:
+  - `experiments/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/comm_trace_madmm_math50_v11.jsonl`
+  - `experiments/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/comm_trace_dar_v11.jsonl`
+  - `experiments/20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100/comm_trace_dar_guarded_v11.jsonl`
+  - `experiments/20260613-2143-a8002-dar-retention-split-gsm8k100/comm_trace_answer_only_noguard_v11.jsonl`
+  - `experiments/20260613-2143-a8002-dar-retention-split-gsm8k100/comm_trace_guard_full_v11.jsonl`
+  - `experiments/20260613-1740-a8002-moc-hopcheck-n5/comm_trace_hop1_v11.jsonl`
+  - `experiments/20260613-1740-a8002-moc-hopcheck-n5/comm_trace_hop2_v11.jsonl`
+- Labels applied:
+  - MAD-MM MATH50: `math_reasoning` plus method-specific defaults for `cot`, `mad_naive`, `mad_objective`, and `mad_subjective`;
+  - DAR original: `saturated_arithmetic`, `retained_full_reasoning`, `retained_subset`;
+  - DAR guarded answer-only: `saturated_arithmetic`, `retained_answer_only`, `guarded_retained_subset`;
+  - DAR answer-only no-guard: `saturated_arithmetic`, `retained_answer_only`, `retained_subset`;
+  - DAR guard-full: `saturated_arithmetic`, `retained_full_reasoning`, `guarded_retained_subset`;
+  - MOC hop1: `saturated_arithmetic`, `neighbor_context`, `topology_hop1`;
+  - MOC hop2: `saturated_arithmetic`, `compressed_summary`, `topology_merge`.
+- Validation:
+  - all seven traces have schema `acr.comm_trace.v1.1`;
+  - row counts are 200/100/100/100/100/5/5;
+  - every row has non-empty `task_regime`, `public_state.surface`, and `public_state.communication_policy`;
+  - derived `context_events` now appear where source structure supports them:
+    - MAD-MM MATH50 debate methods: 150 from `mask_history`;
+    - DAR traces: 400 from `retention_events`;
+    - MOC hop traces: 40 from `ism_result` sidecar events.
+- Caveat:
+  - derived context events identify visible/suppressed source agents or represented merge sources, but they are not raw prompt-level recipient context.
+- Added report:
+  - `reports/20260614-real-trace-v11-regime-labels.md`
+- Added evidence-register row `E-028`.
+
+## 2026-06-14 Derived Context Event Audit
+
+- Added context-event summary script:
+  - `scripts/summarize_context_events.py`
+- Ran local audit without GPU:
+  - run id: `20260614-1245-local-derived-context-event-audit`
+  - output: `experiments/20260614-1245-local-derived-context-event-audit/summary.json`
+  - input traces: 7
+  - records: 610
+  - rows with context events: 560
+  - context events: 590
+- Context-event derivations:
+  - MAD-MM `mask_history`: 150
+  - DAR `retention_events`: 400
+  - MOC `ism_result`: 40
+- Observed context-size patterns:
+  - DAR original `filter_critical`: visible peer count distribution `1:64`, `2:27`, `3:9`;
+  - DAR guard variants: visible peer count distribution `1:53`, `2:35`, `3:12`;
+  - MOC hop2: 15 of 20 target contexts contain a merge representing two source agents.
+- Added report:
+  - `reports/20260614-derived-context-event-audit.md`
+- Added evidence-register row `E-029`.
+
+## 2026-06-14 DAR Context Failure Audit
+
+- Added local audit script:
+  - `scripts/audit_dar_context_failures.py`
+- Ran CPU-only audit over four existing DAR schema v1.1 traces:
+  - run id: `20260614-1248-local-dar-context-failure-audit`
+  - output: `experiments/20260614-1248-local-dar-context-failure-audit/`
+  - records: 400
+  - no model calls and no GPU use.
+- Inputs:
+  - original full-reasoning DAR: `comm_trace_dar_v11.jsonl`
+  - answer-only no-guard: `comm_trace_answer_only_noguard_v11.jsonl`
+  - guarded answer-only: `comm_trace_dar_guarded_v11.jsonl`
+  - guard-full: `comm_trace_guard_full_v11.jsonl`
+- Trace-level outcomes:
+  - original: accuracy `0.93`, `right_to_wrong=3`, `wrong_to_right=1`;
+  - answer-only no-guard: accuracy `0.95`, `right_to_wrong=1`, `wrong_to_right=1`;
+  - guarded answer-only: accuracy `0.95`, `right_to_wrong=1`, `wrong_to_right=1`;
+  - guard-full: accuracy `0.96`, `right_to_wrong=0`, `wrong_to_right=1`.
+- Original right-to-wrong cases split into two surfaces:
+  - case `5`: correct context was visible, but the next round still lost the answer;
+  - cases `20` and `22`: all correct first-round answers were suppressed.
+- Paired against original:
+  - answer-only no-guard fixes cases `5` and `22`;
+  - guarded answer-only fixes cases `5` and `22`, but still fails case `20`;
+  - guard-full fixes cases `5`, `20`, and `22`.
+- Added report:
+  - `reports/20260614-dar-context-failure-audit.md`
+- Added evidence-register row `E-030`.
+
+## 2026-06-14 DAR Case 20 Surface Extract
+
+- Added local raw-surface extractor:
+  - `scripts/extract_dar_case_surface.py`
+- Ran CPU-only extraction for DAR GSM8K100 sample `20`:
+  - run id: `20260614-1253-local-dar-case20-surface-extract`
+  - output: `experiments/20260614-1253-local-dar-case20-surface-extract/`
+  - no model calls and no GPU use.
+- Inputs:
+  - original `filter_critical` history and v1.1 trace;
+  - guarded answer-only history and v1.1 trace;
+  - answer-only no-guard history and v1.1 trace;
+  - guard-full history and v1.1 trace.
+- Confirmed the sample `20` surface mismatch from raw retained messages:
+  - answer-only variants represent Agent3 only as `Previous parsed final answer: 700.0`;
+  - full-message variants retain Agent3's calculation evidence, including `0.30` and `7.00`, despite parsed final answer `700.0`;
+  - guarded answer-only adds Agent1's correct parsed answer but still ends wrong at `12.0`;
+  - guard-full adds Agent1's full response and ends correct at `7.0`.
+- Updated:
+  - `reports/20260614-dar-sample20-retained-surface-note.md`
+- Added evidence-register row `E-031`.
+
+## 2026-06-14 DAR Typed Surface Preview
+
+- Added offline typed-surface preview script:
+  - `scripts/preview_dar_typed_surface.py`
+- Ran CPU-only preview over selected DAR cases:
+  - cases: `5`, `20`, `22`, `37`
+  - variants: original, guarded answer-only, answer-only no-guard, guard-full
+  - run id: `20260614-1258-local-dar-typed-surface-preview`
+  - output: `experiments/20260614-1258-local-dar-typed-surface-preview/`
+  - no model calls and no GPU use.
+- Preview surface:
+  - source agent;
+  - parsed final answer;
+  - two mechanically selected calculation/evidence lines from the retained full response.
+- Aggregate over 32 retained messages:
+  - average answer-only chars: `33.8`
+  - average typed-preview chars: `157.2`
+  - average full-response chars: `1089.0`
+- Sample `20` preview for Agent3 preserves the key mismatch:
+  - parsed final answer: `700.0`
+  - evidence includes `4.00 + 3.00 = 7.00`
+- Caveat:
+  - the line extractor is heuristic and sometimes selects long narrative arithmetic lines, especially in sample `37`; this is a prompt/content preview, not a method result.
+- Added report:
+  - `reports/20260614-dar-typed-surface-preview.md`
+- Added evidence-register row `E-032`.
+
+## 2026-06-14 Public State Surface Alignment
+
+- Added local alignment script:
+  - `scripts/align_public_state_surfaces.py`
+- Ran CPU-only alignment over:
+  - DAR typed preview: `experiments/20260614-1258-local-dar-typed-surface-preview/typed_surface_preview.jsonl`
+  - PACT HotpotQA50 result: `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/pact_qwen25_14b_hotpot50.jsonl`
+  - run id: `20260614-1304-local-public-state-surface-alignment`
+  - output: `experiments/20260614-1304-local-public-state-surface-alignment/`
+  - no model calls and no GPU use.
+- Produced 232 experimental `acr.public_state_surface.v0` records:
+  - DAR typed preview: 32
+  - PACT action-state: 200
+- Field presence:
+  - `Action Required`: 232/232
+  - `Environment State`: 232/232
+  - `Action Result`: 232/232
+  - `Final Answer`: 50/232
+- Average public-state length:
+  - DAR typed preview: `157.2` chars
+  - PACT action-state: `363.9` chars
+- Alignment gaps:
+  - DAR `Action Required` is synthetic;
+  - DAR `Environment State` is extracted from generated retained responses, not original source evidence;
+  - PACT has code-level `strip_think_tags` projection, while DAR typed preview is still offline.
+- Added report:
+  - `reports/20260614-public-state-surface-alignment.md`
+- Added evidence-register row `E-033`.
+
+## 2026-06-14 PACT Trace v1.1 Extraction
+
+- Extended `scripts/extract_comm_trace_schema.py` with a `pact` subcommand.
+- Re-extracted the existing PACT HotpotQA50 result into schema `acr.comm_trace.v1.1`:
+  - output: `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
+  - no model calls and no GPU use.
+- Command:
+  - `python scripts/extract_comm_trace_schema.py pact --run-id 20260614-1100-a8002-pact-qwen25-14b-hotpot50-v11 --result-jsonl experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/pact_qwen25_14b_hotpot50.jsonl --method pact_action_state --task-regime split_evidence_qa --public-state-surface action_state --communication-policy alternating_action_state --out experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
+- Validation:
+  - rows: 50
+  - communication events: 200
+  - derived context events: 150
+  - field counts: `Action Required=200`, `Environment State=200`, `Action Result=200`, `Final Answer=50`
+  - `<think>` spans: 0/200 turns
+  - final exact-match correct count: 17/50
+- Later correction:
+  - PACT HotpotQA gold answers are now preserved as text in the trace instead of using the arithmetic-oriented numeric normalizer.
+  - This fixed cases such as gold `1969 until 1974` being collapsed to `1974` in local trace audits.
+  - Re-ran the final-answer surface and evidence-field audits after the correction.
+- Added report:
+  - `reports/20260614-pact-trace-v11-extraction.md`
+- Added evidence-register row `E-034`.
+
+## 2026-06-14 PACT Final-Answer Surface Audit
+
+- Added local audit script:
+  - `scripts/audit_pact_final_answer_surface.py`
+- Ran CPU-only audit over:
+  - `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
+  - output: `experiments/20260614-1314-local-pact-final-answer-surface-audit/`
+  - no model calls and no GPU use.
+- Official EM remains `17/50`.
+- Among 33 wrong-EM cases:
+  - 7 yes/no final answers begin with the correct `yes` or `no`;
+  - 8 non-yes/no final answers begin with normalized gold;
+  - 2 numeric final answers contain the normalized gold number;
+  - 1 action-result field begins with normalized gold;
+  - 15 have no simple surface signal.
+- Added report:
+  - `reports/20260614-pact-final-answer-surface-audit.md`
+- Added evidence-register row `E-035`.
+
+## 2026-06-14 PACT Evidence Field Audit
+
+- Added local audit script:
+  - `scripts/audit_pact_evidence_fields.py`
+- Ran CPU-only field-level audit over:
+  - `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
+  - output: `experiments/20260614-1326-local-pact-evidence-field-audit/`
+  - no model calls and no GPU use.
+- Official EM remains `17/50`.
+- Among 33 wrong-EM cases:
+  - 23 have an output-field gold or yes/no polarity signal;
+  - 8 have strict gold signal only in environment fields;
+  - 1 has yes/no final polarity mismatch or unclear;
+  - 1 has no strict gold field signal.
+- Among 25 wrong non-yes/no cases:
+  - final answer contains normalized gold: `15`;
+  - action result contains normalized gold: `15`;
+  - final environment state contains normalized gold: `19`;
+  - any environment state contains normalized gold: `23`.
+- Added report:
+  - `reports/20260614-pact-evidence-field-audit.md`
+- Added evidence-register row `E-036`.
+
+## 2026-06-14 PACT Extraction-Only Audit
+
+- Added local audit script:
+  - `scripts/audit_pact_extraction_only.py`
+- Ran CPU-only extraction audit over the corrected trace:
+  - `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
+  - output: `experiments/20260614-1345-local-pact-extraction-only-audit/`
+  - no model calls and no GPU use.
+- Official EM remains `17/50`.
+- Fixed final-answer-only extraction policy:
+  - exact matches: `32/50`;
+  - stable right: `17`;
+  - wrong to right: `15`;
+  - stable wrong: `18`;
+  - right to wrong: `0`.
+- Candidate upper bounds:
+  - final-event fields: `39/50`;
+  - all public action-state fields: `41/50`.
+- Added report:
+  - `reports/20260614-pact-extraction-only-audit.md`
+- Added evidence-register row `E-037`.
+
+## 2026-06-14 PACT Stable-Wrong After Extraction
+
+- Added local audit script:
+  - `scripts/audit_pact_stable_wrong_after_extraction.py`
+- Ran CPU-only join over:
+  - extraction cases: `experiments/20260614-1345-local-pact-extraction-only-audit/cases.jsonl`
+  - evidence cases: `experiments/20260614-1326-local-pact-evidence-field-audit/cases.jsonl`
+  - output: `experiments/20260614-1402-local-pact-stable-wrong-after-extraction/`
+  - no model calls and no GPU use.
+- The fixed final-answer extraction policy leaves `18` stable-wrong cases:
+  - final event has a matching candidate but the final-answer-only policy missed it: `7`;
+  - matching candidate appears only in earlier/wider public state: `2`;
+  - strict environment signal exists but simple candidate extraction missed it: `3`;
+  - yes/no polarity mismatch: `1`;
+  - wrong output signal not recovered by current extractor: `5`.
+- Added report:
+  - `reports/20260614-pact-stable-wrong-after-extraction.md`
+- Added evidence-register row `E-038`.
+
+## 2026-06-14 PACT Unrecovered Case Inspection
+
+- Added focus-case extraction script:
+  - `scripts/extract_pact_unrecovered_focus_cases.py`
+- Extracted and manually inspected:
+  - five `remaining_wrong_output_signal_not_recovered` cases;
+  - one `yes_no_polarity_mismatch` case;
+  - output: `experiments/20260614-1418-local-pact-unrecovered-case-inspection/`
+  - no model calls and no GPU use.
+- Manual labels:
+  - answer-contract or extractor-priority problems: samples `14`, `24`, `43`, `44`;
+  - semantic polarity/predicate problem: sample `13`;
+  - mixed entity-alias and evidence-use conflict: sample `21`.
+- Added report:
+  - `reports/20260614-pact-unrecovered-case-inspection.md`
+- Added evidence-register row `E-039`.
+
+## 2026-06-14 PACT Question-Aware Extraction Probe
+
+- Added local audit script:
+  - `scripts/audit_pact_question_aware_extraction.py`
+- Ran CPU-only question-aware extraction probe over:
+  - `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
+  - output: `experiments/20260614-1432-local-pact-question-aware-extraction/`
+  - no model calls and no GPU use.
+- Diagnostic exact-match counts:
+  - official PACT extraction: `17/50`;
+  - fixed final-answer-only extraction: `32/50`;
+  - question-aware extraction: `38/50`.
+- Compared with fixed final-answer-only extraction:
+  - additional rescues: `6`;
+  - regressions: `0`.
+- Changed cases:
+  - `7`: `3677` -> `3677 seated`;
+  - `14`: full sentence -> `from 1986 to 2013`;
+  - `18`: rule path changed but answer text remains `1969 until 1974`;
+  - `21`: `Sonic the Hedgehog` -> `Sonic`;
+  - `24`: `1992` -> `World's Best Goalkeeper`;
+  - `43`: full sentence -> `sovereignty`;
+  - `44`: `Alfred Balk` -> `Nelson Rockefeller`.
+- Caveat:
+  - sample `21` is surface-recovered but remains a mixed evidence-use conflict from the manual case inspection.
+- Added report:
+  - `reports/20260614-pact-question-aware-extraction.md`
+- Added evidence-register row `E-040`.
+
+## 2026-06-14 PACT Question-Aware Stable-Wrong Audit
+
+- Added local audit script:
+  - `scripts/audit_pact_question_aware_stable_wrong.py`
+- Ran CPU-only join over:
+  - question-aware cases: `experiments/20260614-1432-local-pact-question-aware-extraction/cases.jsonl`
+  - fixed extraction cases: `experiments/20260614-1345-local-pact-extraction-only-audit/cases.jsonl`
+  - evidence-field cases: `experiments/20260614-1326-local-pact-evidence-field-audit/cases.jsonl`
+  - output: `experiments/20260614-1450-local-pact-question-aware-stable-wrong/`
+  - no model calls and no GPU use.
+- The question-aware extraction policy leaves `12` stable-wrong cases:
+  - final event has a matching candidate but the question-aware policy missed it: `7`;
+  - matching candidate appears only in earlier/wider public state: `2`;
+  - strict environment signal exists but current candidate extraction misses it: `2`;
+  - semantic polarity or predicate failure: `1`.
+- Added report:
+  - `reports/20260614-pact-question-aware-stable-wrong.md`
+- Added evidence-register row `E-041`.
+
+## 2026-06-14 PACT Field-Selection Case Inspection
+
+- Added focus-case extraction script:
+  - `scripts/extract_pact_field_selection_focus_cases.py`
+- Extracted and manually inspected the `9` question-aware stable-wrong cases
+  where a matching candidate appears in final or earlier public state:
+  - output: `experiments/20260614-1507-local-pact-field-selection-case-inspection/`
+  - no model calls and no GPU use.
+- Mechanical buckets:
+  - final event has a matching candidate but question-aware policy missed it: `7`;
+  - matching candidate appears only in earlier/wider public state: `2`.
+- Manual families:
+  - final field or anchor selection conflict: samples `1`, `15`, `31`;
+  - answer contract or extractor priority: samples `25`, `28`, `30`, `40`;
+  - earlier state lost or overwritten: samples `19`, `23`.
+- Added report:
+  - `reports/20260614-pact-field-selection-case-inspection.md`
+- Added evidence-register row `E-042`.
+
+## 2026-06-14 PACT Public-State Arbitration Probe
+
+- Added local postprocessing probe:
+  - `scripts/audit_pact_public_state_arbitration.py`
+- Ran CPU-only arbitration policies over:
+  - trace: `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
+  - manual labels: `experiments/20260614-1507-local-pact-field-selection-case-inspection/manual_labels.jsonl`
+  - output: `experiments/20260614-1518-local-pact-public-state-arbitration-probe/`
+  - no model calls and no GPU use.
+- Diagnostic counts:
+  - official PACT extraction: `17/50`;
+  - question-aware policy: `38/50`;
+  - naive final-event arbitration: `38/50`, with `6` rescues and `6` regressions versus question-aware;
+  - guarded final-event arbitration: `44/50`, with `6` rescues and `0` regressions versus question-aware.
+- On the `9` field-selection focus cases, guarded final-event arbitration recovers:
+  - final field or anchor selection conflict: `3/3`;
+  - answer contract or extractor priority: `3/4`;
+  - earlier state lost or overwritten: `0/2`.
+- Added report:
+  - `reports/20260614-pact-public-state-arbitration-probe.md`
+- Added evidence-register row `E-043`.
+
+## 2026-06-14 PACT Final-Answer-Contract GPU Run
+
+- Added an env-gated final-turn prompt control:
+  - `baselines/PACT/upstream/prompts.py`
+  - flag: `PACT_FINAL_ANSWER_CONTRACT=1`
+- Updated the A800_2 runner to log the flag:
+  - `scripts/run_pact_hotpot_smoke_a8002.sh`
+- Ran a real GPU PACT HotpotQA50 variant on A800_2 GPU 7:
+  - model: `/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct`
+  - output: `experiments/20260614-1536-a8002-pact-qwen25-14b-hotpot50-final-contract/`
+  - remote result dir: `/data/xuhaoming/yfy/research_workspace/results/pact-qwen25-14b-hotpot50-final-contract-20260614_1536`
+  - status: `RC=0`.
+- Main metrics:
+  - original PACT50 EM/F1: `17/50`, `0.508`;
+  - final-answer-contract EM/F1: `34/50`, `0.792`;
+  - average final-answer words: `9.92` -> `2.08`;
+  - average communication tokens: `339.3` -> `321.9`.
+- Case transitions against original PACT50:
+  - stable right: `14`;
+  - wrong to right: `20`;
+  - right to wrong: `3`;
+  - stable wrong: `13`.
+- Added comparison and post-run diagnostics:
+  - `scripts/compare_pact_runs.py`
+  - `analysis_summary.json`
+  - `changed_cases.jsonl`
+  - `question_aware_summary.json`
+  - `public_state_arbitration_summary.json`
+- Added report:
+  - `reports/20260614-pact-final-answer-contract-gpu.md`
+- Added evidence-register row `E-044`.
+
+## 2026-06-14 Current Evidence Checkpoint
+
+- Added a state checkpoint:
+  - `reports/20260614-current-evidence-checkpoint.md`
+- Purpose:
+  - preserve the current messy evidence shape before more runs;
+  - avoid forcing the PACT final-answer-contract observation into an immediate novelty claim;
+  - keep the live threads visible across MAD-MM, DAR, MOC, M2CL, PACT, and the local communication-regime harness.
+- Current bias recorded in the checkpoint:
+  - small empirical continuation: PACT neighboring-slice check;
+  - small local continuation: add a less-oracle router to the communication-regime harness.
+- Evidence register:
+  - no new row; this is a checkpoint over existing observations, not a new empirical claim.
+
+## 2026-06-14 PACT Neighboring-Slice Runner Prep
+
+- Added offset support for future PACT HotpotQA neighboring-slice checks:
+  - `baselines/PACT/upstream/run.py`: new `--start_index` argument;
+  - `baselines/PACT/upstream/data.py`: loader yields original HotpotQA `sample_index`;
+  - `baselines/PACT/upstream/methods/pact.py`: JSONL output preserves `sample_index`;
+  - `scripts/run_pact_hotpot_smoke_a8002.sh`: reads `PACT_START_INDEX`;
+  - `scripts/extract_comm_trace_schema.py`: PACT extraction uses preserved `sample_index` when present.
+- Important detail:
+  - the loader still advances the seeded paragraph splitter through skipped rows, so offset sample `50` keeps the same context split it would have had in a full sequential run.
+- Updated PACT source/reproduction notes with the new neighboring-slice command shape.
+- Validation:
+  - `py_compile` passed for PACT `run.py`, `data.py`, `methods/pact.py`, and `scripts/extract_comm_trace_schema.py`;
+  - a temporary local loader smoke confirmed `start_index=2, max_samples=2` yields preserved indices `[2, 3]` and matches the full-run seeded split for sample `2`.
+- No model call or GPU run was launched.
+
+## 2026-06-14 PACT Offset50 Final-Answer-Contract Paired Run
+
+- Ran a paired neighboring-slice PACT check on A800_2 GPU 7:
+  - samples: HotpotQA zero-based `50-99`;
+  - model: `/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct`;
+  - baseline: `PACT_FINAL_ANSWER_CONTRACT=0`;
+  - variant: `PACT_FINAL_ANSWER_CONTRACT=1`;
+  - both runs completed with `RC=0`.
+- Run record:
+  - `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/`
+- Main metrics:
+  - baseline EM/F1: `26/50`, `0.6469`;
+  - final-contract EM/F1: `28/50`, `0.7427`;
+  - average final-answer words: `7.62` -> `2.32`;
+  - average communication tokens: `327.3` -> `324.0`.
+- Case transitions:
+  - stable right: `22`;
+  - wrong to right: `6`;
+  - right to wrong: `4`;
+  - stable wrong: `18`.
+- Diagnostics:
+  - question-aware extraction reaches `29/50` on both baseline and contract traces;
+  - guarded final-event arbitration over the contract trace stays at `28/50`, with one rescue and one regression.
+- Interpretation:
+  - the first-50 final-answer-contract signal does not repeat as a large EM jump on offset50;
+  - the answer-surface effect remains visible through F1 and several exact-match rescues;
+  - the contract also introduces one clear content regression, sample `58`.
+- Added report:
+  - `reports/20260614-pact-offset50-final-answer-contract.md`
+- Added evidence-register row `E-045`.
+
+## 2026-06-14 PACT Offset50 Case Atlas
+
+- Added a CPU-only case atlas builder:
+  - `scripts/build_pact_case_atlas.py`
+- Ran it over the offset50 paired PACT outputs:
+  - output summary: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/case_atlas_summary.json`
+  - all cases: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/case_atlas_cases.jsonl`
+  - focus cases: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/case_atlas_focus_cases.jsonl`
+- Rough focus-case labels:
+  - contract-rescued verbose surface: `5`;
+  - contract-rescued content or field: `1`;
+  - strict-span regression: `3`;
+  - content-drift regression: `1`;
+  - final public state contains gold: `10`;
+  - recoverable from public-state policy: `1`;
+  - near-miss surface/span: `1`;
+  - likely evidence or reasoning failure: `6`.
+- Added report:
+  - `reports/20260614-pact-offset50-case-atlas.md`
+- Added evidence-register row `E-046`.
+
+## 2026-06-14 PACT Offset50 Public-State Gold Case Inspection
+
+- Manually inspected the ten offset50 cases mechanically labeled `final_public_state_contains_gold`.
+- Added manual labels:
+  - `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/public_state_gold_manual_labels.jsonl`
+- Manual families:
+  - missing required token or qualifier: `3` cases (`50`, `55`, `83`);
+  - wrong answer type or slot: `2` cases (`60`, `67`);
+  - over-specific answer: `3` cases (`87`, `89`, `92`);
+  - alias/name granularity: `1` case (`74`);
+  - false-positive string signal: `1` case (`59`).
+- Added report:
+  - `reports/20260614-pact-offset50-public-state-gold-cases.md`
+- Added evidence-register row `E-047`.
+
+## 2026-06-14 PACT Offset50 Sample58 Drift Inspection
+
+- Added a reusable paired-run drift packet builder:
+  - `scripts/build_pact_drift_packet.py`
+- Ran it on offset50 sample `58`, the clear content-drift right-to-wrong case:
+  - packet JSON: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/pact_sample58_drift_packet.json`
+  - packet Markdown: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/pact_sample58_drift_packet.md`
+- Finding:
+  - baseline keeps the target as the population of the city/town in which Kirton End is located and answers `35,124`;
+  - the variant trajectory still sees `35,124` at turn `1`, but later retargets to the population of the civil parish of Kirton and answers `273` from the `Kirton, Nottinghamshire` distractor;
+  - the first observed divergence is turn `1`, before the final-answer-contract prompt applies, so this is a stochastic trajectory and target-slot drift sentinel, not clean causal evidence that the final-turn contract directly caused the wrong number.
+- Added report:
+  - `reports/20260614-pact-offset50-sample58-drift.md`
+- Added evidence-register row `E-048`.
+
+## 2026-06-14 PACT Offset50 Target-Slot Drift Diagnostic
+
+- Added a rough lexical target-slot preservation diagnostic over PACT
+  `Action Required` fields:
+  - `scripts/audit_pact_target_slot_drift.py`
+- Ran it over the offset50 paired focus cases:
+  - focus summary: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/target_slot_drift_summary.json`
+  - focus cases: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/target_slot_drift_cases.jsonl`
+  - focus candidates: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/target_slot_drift_candidates.jsonl`
+- Also ran it over all 50 paired cases:
+  - all-case summary: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/target_slot_drift_all_summary.json`
+  - all-case candidates: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/target_slot_drift_all_candidates.jsonl`
+- Result:
+  - 8 candidates: samples `54`, `55`, `58`, `60`, `82`, `83`, `87`, `89`;
+  - candidates include 2 right-to-wrong and 6 stable-wrong cases;
+  - running over all 50 cases returns the same 8 candidates and no stable-right candidates.
+- Interpretation:
+  - sample `58` remains the clean target-migration sentinel;
+  - several candidates are target under-specification or target/final-answer mismatch rather than true semantic migration;
+  - sample `54` is a useful soft/false-positive warning because the actual failure is mostly strict span surface.
+- Added report:
+  - `reports/20260614-pact-offset50-target-slot-drift.md`
+- Added evidence-register row `E-049`.
+
+## 2026-06-14 PACT Offset100 Target-Contract GPU Run
+
+- Added an env-gated PACT target-slot prompt control:
+  - file: `baselines/PACT/upstream/prompts.py`
+  - flag: `PACT_TARGET_SLOT_CONTRACT=1`
+  - purpose: make the public `Action Required` field preserve the original question target, answer type, qualifier, and anchor entities.
+- Synced the patched prompt and runner to A800_2 and verified remote `py_compile` plus `bash -n`.
+- First launch attempt used an imperfect wrapper that failed to pass all env vars, fell back to default GPU `1`, and hit vLLM OOM before processing samples. No output samples were produced in that failed attempt.
+- Reran successfully on A800_2 GPU `5` with explicit per-command env vars.
+- Slice:
+  - HotpotQA zero-based samples `100-149`
+  - Qwen2.5-14B-Instruct
+  - seed `42`
+  - 50 samples per arm
+- Arms and metrics:
+  - baseline: EM `16/50`, avg F1 `0.5517`, avg communication tokens `361.6`, avg total tokens `4477.0`.
+  - final-answer contract: EM `26/50`, avg F1 `0.6332`, avg communication tokens `331.5`, avg total tokens `4526.8`.
+  - target + final contract: EM `26/50`, avg F1 `0.6494`, avg communication tokens `485.2`, avg total tokens `5266.0`.
+- Paired transitions:
+  - baseline -> final contract: 12 wrong-to-right, 2 right-to-wrong, 14 stable-right, 22 stable-wrong.
+  - final contract -> target + final: 3 wrong-to-right, 3 right-to-wrong, 23 stable-right, 21 stable-wrong.
+  - baseline -> target + final: 14 wrong-to-right, 4 right-to-wrong, 12 stable-right, 20 stable-wrong.
+- Target-slot diagnostic:
+  - baseline -> final contract: 6 candidates over 36 non-stable-right focus cases.
+  - baseline -> target + final: 2 candidates over 38 non-stable-right focus cases.
+  - final contract -> target + final: 1 candidate over 27 non-stable-right focus cases.
+- Interpretation:
+  - final-answer contract again gives a real EM lift on a fresh slice.
+  - naive target-slot preservation improves the visible target-preservation diagnostic and slightly raises F1, but does not improve EM and substantially increases token cost.
+  - this supports target preservation as a separable public-state control surface, not as a finished prompt method.
+- Run record:
+  - `experiments/20260614-1552-a8002-pact-qwen25-14b-hotpot50-offset100-target-contract/`
+- Report:
+  - `reports/20260614-pact-offset100-target-contract-gpu.md`
+- Added evidence-register row `E-050`.
+
+## 2026-06-14 PACT Offset150 Compact Target-State GPU Run
+
+- Added an env-gated compact target-state prompt control:
+  - file: `baselines/PACT/upstream/prompts.py`
+  - flag: `PACT_COMPACT_TARGET_STATE=1`
+  - field: `Target Slot: [answer type; anchor entity or entities; required qualifier]`
+- Updated supporting scripts:
+  - `scripts/run_pact_hotpot_smoke_a8002.sh` logs `PACT_COMPACT_TARGET_STATE`;
+  - `scripts/extract_comm_trace_schema.py` extracts `Target Slot` into PACT communication events;
+  - `scripts/audit_pact_target_slot_drift.py` prefers `Target Slot` when present;
+  - `scripts/audit_pact_target_slot_field.py` audits field presence, generic targets, and per-sample target-slot stability.
+- Added idea memo:
+  - `reports/20260614-public-state-communication-idea-memo.md`
+- Synced prompt and runner to A800_2 and verified remote `py_compile` plus `bash -n`.
+- Ran three PACT HotpotQA arms on A800_2 GPU `5`:
+  - slice: zero-based samples `150-199`
+  - model: `/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct`
+  - seed: `42`
+  - 50 samples per arm
+- Metrics:
+  - final-answer contract: EM `25/50`, avg F1 `0.6777`, avg communication tokens `324.6`, avg total tokens `4662.2`.
+  - compact target + final contract: EM `22/50`, avg F1 `0.6036`, avg communication tokens `497.3`, avg total tokens `5427.8`.
+  - compact target only: EM `19/50`, avg F1 `0.5790`, avg communication tokens `547.4`, avg total tokens `5471.5`.
+- Paired transitions:
+  - final contract -> compact target + final: 5 wrong-to-right, 8 right-to-wrong, 17 stable-right, 20 stable-wrong.
+  - final contract -> compact target only: 3 wrong-to-right, 9 right-to-wrong, 16 stable-right, 22 stable-wrong.
+  - compact target only -> compact target + final: 6 wrong-to-right, 3 right-to-wrong, 16 stable-right, 25 stable-wrong.
+- Target Slot field audit:
+  - compact target + final: `199/200` events with target slot, `49/50` samples have target slot on all turns, `27/50` samples have stable target slot, no generic final target slots.
+  - compact target only: `199/200` events with target slot, `49/50` samples have target slot on all turns, `24/50` samples have stable target slot, no generic final target slots.
+- Interpretation:
+  - compact target-state as generated every turn is not a method win;
+  - the model mostly follows the field format, but different agents/turns instantiate different target slots;
+  - the next target-preservation intervention should freeze or parse the target state from the original question rather than regenerate it at every turn.
+- Run record:
+  - `experiments/20260614-1642-a8002-pact-qwen25-14b-hotpot50-offset150-compact-target/`
+- Report:
+  - `reports/20260614-pact-offset150-compact-target-state.md`
+- Added evidence-register row `E-051`.
+
+## 2026-06-14 PACT Target-State Freeze Inspection
+
+- Added local diagnostic script:
+  - `scripts/build_pact_target_state_freeze_inspection.py`
+- Ran a CPU-only inspection over the offset150 PACT final-contract versus compact-target+final traces:
+  - input run: `experiments/20260614-1642-a8002-pact-qwen25-14b-hotpot50-offset150-compact-target/`
+  - output: `experiments/20260614-1719-local-pact-target-state-freeze-inspection/`
+  - no model calls and no GPU use.
+- Mechanical scan over 50 compact-target+final samples:
+  - `23/50` records have unstable target slots;
+  - `22/50` records have first/final target-slot mismatch;
+  - `4/50` records collapse to a literal target-slot template;
+  - the 8 right-to-wrong cases split into 4 visible target-drift regressions and 4 stable-target regressions.
+- Manual labels over 16 focus cases suggest:
+  - question-derived or anchor-checked target state might help samples `189`, `197`, `199`, and `184`;
+  - first-turn generated target freeze would hurt or preserve error in samples `193`, `176`, `188`, and `160`;
+  - several regressions are answer-surface, extraction, alias, or missing-evidence issues rather than target-state failures.
+- Interpretation:
+  - freezing the first generated `Target Slot` is too crude;
+  - the next local object should be a question-derived target-state projection/checker that allows bridge refinement while flagging anchor, predicate, or answer-type replacement.
+- Added report:
+  - `reports/20260614-pact-target-state-freeze-inspection.md`
+- Added evidence-register row `E-052`.
+
+## 2026-06-14 PACT Target-State Sketchbook
+
+- Added loose case sketchbook:
+  - `reports/20260614-pact-target-state-sketchbook.md`
+- Purpose:
+  - stay with the target-state ambiguity before writing a checker or prompt;
+  - distinguish harmful target replacement from useful bridge refinement;
+  - avoid treating first-turn generated `Target Slot` as an authority.
+- Cases sketched:
+  - harmful or likely harmful target movement: samples `199`, `189`, `197`, `184`, and offset50 sample `58`;
+  - useful target movement: samples `176`, `188`, and `152`;
+  - freeze traps or non-target-state failures: samples `160`, `193`, `153`, `154`, and `182`.
+- Working distinction:
+  - "preserve the target" is too flat;
+  - HotpotQA needs target motion through bridge entities;
+  - the next local object, if any, should be a loose question-derived target-state projection that permits bridge refinement while flagging anchor, predicate, object, or granularity replacement.
+- Evidence register:
+  - no new row; this is a sketchbook over existing evidence, not a new empirical claim.
+
+## 2026-06-14 PACT Question-Target Postcards
+
+- Added an even looser handwritten-style note:
+  - `reports/20260614-pact-question-target-postcards.md`
+- Purpose:
+  - turn the target-state sketchbook into short per-case cards;
+  - record what the original question wants, what bridge it must cross, what public state did, and what must not be lost;
+  - keep the idea in a flexible form before writing any checker.
+- Case clusters that fell out:
+  - clue object is not answer object;
+  - predicate must survive the bridge;
+  - some drift is the task;
+  - first target is not sacred;
+  - target is not always the problem.
+- Working phrase left behind:
+  - `target role preservation across bridge movement`
+- Evidence register:
+  - no new row; these postcards are interpretive notes over existing cases.
+
+## 2026-06-14 Target Role Lens Across Baselines
+
+- Added cross-baseline interpretive note:
+  - `reports/20260614-target-role-lens-cross-baseline-notes.md`
+- Purpose:
+  - step half a pace away from PACT;
+  - ask whether the target-role vocabulary has shadows in DAR, MAD-MM, and MOC;
+  - avoid turning PACT's explicit `Target Slot` field into a universal solution.
+- Working observations:
+  - PACT exposes target role as public action-state fields;
+  - DAR hides target/evidence role inside retained message surface, where answer-only can flatten useful reasoning evidence;
+  - MAD-MM hides target role inside retained memory anchors and reasoning scaffolds;
+  - MOC is a plausible compression/summary site for role loss, but current saturated GSM8K hop checks do not expose it.
+- Loose next drift:
+  - create tiny role cards across systems only if useful, using fields like message, parsed answer, role it played, role it lost, and downstream effect.
+- Evidence register:
+  - no new row; this is an interpretive alignment note over existing reports.
+
+## 2026-06-14 Cross-System Role Cards
+
+- Added tiny cross-system card note:
+  - `reports/20260614-cross-system-role-cards.md`
+- Purpose:
+  - keep the target-role lens concrete across PACT, DAR, MAD-MM, and MOC;
+  - avoid turning PACT's explicit `Target Slot` into a universal abstraction;
+  - record where the lens fits, where it changes shape, and where it is currently blank.
+- Cards included:
+  - PACT `199` and `176`;
+  - DAR `20` and `5`;
+  - MAD-MM `214` and `1237`;
+  - MOC hop2 and an explicit empty card noting that current GSM8K hop smoke does not ask the role-loss question.
+- Working observation:
+  - PACT shows target-role drift;
+  - DAR shows evidence-role flattening;
+  - MAD-MM shows memory-role anchoring and scaffold reuse;
+  - MOC shows a plausible compression site but not yet a role-loss case.
+- Evidence register:
+  - no new row; this is a card file over existing evidence.
+
+## 2026-06-14 MAD-MM 1237 Raw Role Card
+
+- Added raw-log follow-up:
+  - `reports/20260614-madmm-1237-raw-role-card.md`
+- Sources inspected:
+  - `experiments/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/mad_objective_3agents_2rounds_seed41_debate_log.json`
+  - `experiments/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/mad_3agents_2rounds_seed41_debate_log.json`
+  - `experiments/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/mad_subjective_3agents_2rounds_seed41_debate_log.json`
+- What changed:
+  - objective masking retained only Agent3's wrong-answer but useful operation scaffold for case `1237`;
+  - all objective round-2 agents completed `sqrt(1296)=36`, then `sqrt(64)=8`;
+  - naive full retention showed two agents computing the right path in reasoning but still outputting `sqrt(34)`;
+  - subjective masking retained no first-round messages and still got a correct majority on a fresh second pass.
+- Interpretation:
+  - case `1237` should not be treated as clean proof that the retained scaffold caused the fix;
+  - it is better read as separating operation scaffold, wrong answer-surface anchor, and fresh second-pass behavior.
+- Updated:
+  - `reports/20260614-cross-system-role-cards.md` now includes the raw-log caveat.
+- Evidence register:
+  - no new row; this refines an interpretive card rather than adding a durable empirical claim.
+
+## 2026-06-14 MOC Role-Sensitive Split-Evidence Probe
+
+- Added a CPU-only synthetic MOC-style role-loss probe:
+  - `scripts/run_moc_role_loss_probe.py`
+- Ran it locally:
+  - output: `experiments/20260614-1832-local-moc-role-sensitive-split-evidence-probe/`
+  - trace: `comm_trace_moc_role_probe_v11.jsonl`
+  - records: `30` records over `6` hand-built split-evidence cases and `5` public-state policies.
+- Purpose:
+  - fill the previously blank MOC role card with a concrete contact object;
+  - inspect whether compressed multi-hop summaries preserve clue, bridge, requested relation, qualifier, answer, and distractor roles;
+  - avoid launching another saturated GSM8K MOC run.
+- Result:
+  - `hop2_unmerged_context`: `6/6`;
+  - `hop2_role_aware_merge`: `6/6`;
+  - `hop2_flat_entity_merge`: `1/6`;
+  - `hop2_answer_only_merge`: `1/6`;
+  - the one surviving flat/answer-only case is useful bridge refinement, keeping the caveat that target motion is not automatically drift.
+- Added report:
+  - `reports/20260614-moc-role-sensitive-split-evidence-probe.md`
+- Evidence register:
+  - added row `E-053`.
+
+## 2026-06-14 MOC Merge Prompt Role Audit
+
+- Added a merge-only LLM audit for MOC's five structural merge prompt
+  strategies:
+  - `scripts/run_moc_merge_prompt_role_audit.py`
+- Ran it on A800_2 with a temporary vLLM service:
+  - model: `/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct`
+  - served name: `qwen2.5-7b-merge-audit`
+  - GPU: `1`
+  - port: `8022`
+  - run record: `experiments/20260614-1913-a8002-moc-merge-prompt-role-audit/`
+- Stopped the temporary vLLM service after the run and confirmed GPU `1` was
+  released.
+- Scope:
+  - six synthetic split-evidence role cases from the previous MOC role probe;
+  - two surfaces: `labeled_role_messages` and `natural_evidence_messages`;
+  - five merge strategies matching the inspected MOC merge prompt families;
+  - `60` trace records in `comm_trace_moc_merge_prompt_role_audit_v11.jsonl`.
+- Result:
+  - labeled role messages preserved all required slots in `19/30` outputs;
+  - the labeled `technical_precision` strategy preserved all slots in `6/6`;
+  - natural evidence messages preserved all required slots in only `4/30`
+    outputs;
+  - natural evidence losses concentrated on `forbidden_replacement`,
+    `required_qualifier`, `clue_object`, and `requested_relation`.
+- Interpretation:
+  - MOC's compression site is now a concrete role-preservation audit object;
+  - source attribution alone is not enough, since some outputs preserve agent
+    attribution while still losing key role slots;
+  - this is still merge-prompt-only synthetic evidence, not a full MOC result.
+- Added report:
+  - `reports/20260614-moc-merge-prompt-role-audit.md`
+- Evidence register:
+  - added row `E-054`.

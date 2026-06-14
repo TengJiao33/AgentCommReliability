@@ -1,0 +1,194 @@
+{
+  "analysis_summary": {
+    "avg_baseline_final_answer_words": 7.62,
+    "avg_communication_token_delta": -3.3,
+    "avg_f1_delta": 0.09583990308658241,
+    "avg_total_token_delta": 103.68,
+    "avg_variant_final_answer_words": 2.32,
+    "baseline_avg_f1": 0.6468538737248415,
+    "baseline_correct": 26,
+    "baseline_em": 0.52,
+    "correct_delta": 2,
+    "focus_indices": [],
+    "focus_transitions": {},
+    "records": 50,
+    "right_to_wrong_cases": [
+      54,
+      58,
+      64,
+      66
+    ],
+    "stable_wrong_cases": [
+      50,
+      55,
+      59,
+      60,
+      62,
+      67,
+      68,
+      71,
+      74,
+      77,
+      82,
+      83,
+      87,
+      88,
+      89,
+      92,
+      94,
+      97
+    ],
+    "transitions": {
+      "right_to_wrong": 4,
+      "stable_right": 22,
+      "stable_wrong": 18,
+      "wrong_to_right": 6
+    },
+    "type_transitions": {
+      "bridge": {
+        "right_to_wrong": 4,
+        "stable_right": 22,
+        "stable_wrong": 13,
+        "wrong_to_right": 4
+      },
+      "comparison": {
+        "stable_wrong": 5,
+        "wrong_to_right": 2
+      }
+    },
+    "variant_avg_f1": 0.7426937768114239,
+    "variant_correct": 28,
+    "variant_em": 0.56,
+    "wrong_to_right_cases": [
+      57,
+      61,
+      78,
+      85,
+      93,
+      99
+    ]
+  },
+  "focus_label_counts": {
+    "content_drift_regression": 1,
+    "contract_rescued_content_or_field": 1,
+    "contract_rescued_verbose_surface": 5,
+    "final_public_state_contains_gold": 10,
+    "likely_evidence_or_reasoning_failure": 6,
+    "near_miss_surface_or_span": 1,
+    "recoverable_from_public_state_policy": 1,
+    "strict_span_regression": 3
+  },
+  "focus_records": 28,
+  "label_counts": {
+    "content_drift_regression": 1,
+    "contract_rescued_content_or_field": 1,
+    "contract_rescued_verbose_surface": 5,
+    "final_public_state_contains_gold": 10,
+    "likely_evidence_or_reasoning_failure": 6,
+    "near_miss_surface_or_span": 1,
+    "recoverable_from_public_state_policy": 1,
+    "stable_right": 22,
+    "strict_span_regression": 3
+  },
+  "note": "Labels are rough mechanical buckets for inspection. They are not ground-truth error taxonomy.",
+  "records": 50,
+  "sample_indices_by_label": {
+    "content_drift_regression": [
+      58
+    ],
+    "contract_rescued_content_or_field": [
+      61
+    ],
+    "contract_rescued_verbose_surface": [
+      57,
+      78,
+      85,
+      93,
+      99
+    ],
+    "final_public_state_contains_gold": [
+      50,
+      55,
+      59,
+      60,
+      67,
+      74,
+      83,
+      87,
+      89,
+      92
+    ],
+    "likely_evidence_or_reasoning_failure": [
+      68,
+      71,
+      77,
+      82,
+      88,
+      94
+    ],
+    "near_miss_surface_or_span": [
+      97
+    ],
+    "recoverable_from_public_state_policy": [
+      62
+    ],
+    "stable_right": [
+      51,
+      52,
+      53,
+      56,
+      63,
+      65,
+      69,
+      70,
+      72,
+      73,
+      75,
+      76,
+      79,
+      80,
+      81,
+      84,
+      86,
+      90,
+      91,
+      95,
+      96,
+      98
+    ],
+    "strict_span_regression": [
+      54,
+      64,
+      66
+    ]
+  },
+  "transitions_by_label": {
+    "content_drift_regression": {
+      "right_to_wrong": 1
+    },
+    "contract_rescued_content_or_field": {
+      "wrong_to_right": 1
+    },
+    "contract_rescued_verbose_surface": {
+      "wrong_to_right": 5
+    },
+    "final_public_state_contains_gold": {
+      "stable_wrong": 10
+    },
+    "likely_evidence_or_reasoning_failure": {
+      "stable_wrong": 6
+    },
+    "near_miss_surface_or_span": {
+      "stable_wrong": 1
+    },
+    "recoverable_from_public_state_policy": {
+      "stable_wrong": 1
+    },
+    "stable_right": {
+      "stable_right": 22
+    },
+    "strict_span_regression": {
+      "right_to_wrong": 3
+    }
+  }
+}

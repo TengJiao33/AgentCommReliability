@@ -11,6 +11,12 @@ Inspected DAR GSM8K100 sample `20` across four variants:
 
 The goal was to understand why `guard_full` fixed the case while answer-only variants did not.
 
+The manual note is now backed by a reproducible local extraction:
+
+- script: `scripts/extract_dar_case_surface.py`
+- output: `experiments/20260614-1253-local-dar-case20-surface-extract/`
+- full retained-message rows: `experiments/20260614-1253-local-dar-case20-surface-extract/retained_messages.jsonl`
+
 ## What Happened
 
 | Variant | Retained IDs | Message Mode | Round 1 Agent Answers | Final |
@@ -35,6 +41,12 @@ Answer-only retained context loses the distinction between a genuinely wrong ans
 In guarded answer-only, the guard adds Agent1, so the retained answer buckets include `7`, `120`, and `700`. That still leaves Agent2 repeating the `$3.20 / 4 = $0.80` mistake and ending at `12`.
 
 In guard-full, Agent2 sees enough full reasoning context to switch from `120/12` to `7`. Agent3 still outputs `{final answer: 700}`, but its visible reasoning explicitly says the correct total is `$7.00`, so the final majority becomes correct.
+
+The code path for the answer-only variant is also narrower than "short
+reasoning": the DAR patch replaces each retained peer response with
+`Previous parsed final answer: <answer>` before calling `build_normal_msg`.
+For sample `20`, that collapses Agent3 from a parsed-wrong-but-useful full
+message into only `Previous parsed final answer: 700.0`.
 
 ## Interpretation
 

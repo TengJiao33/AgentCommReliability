@@ -36,7 +36,7 @@ So this run mostly tests whether a short public action-state surface is usable. 
 Strict EM is low at `17/50`, but a visible part of the loss is final-answer surface mismatch:
 
 - 7 wrong-EM yes/no cases began with the correct `yes` or `no`, then added a sentence.
-- 9 wrong-EM non-yes/no cases began with the normalized gold answer, then added extra words.
+- 8 wrong-EM non-yes/no cases began with the normalized gold answer, then added extra words.
 
 These are not alternate official scores. They say the next serious check should separate:
 
@@ -57,4 +57,4 @@ In our DAR language, `answer_only` means downstream agents see just the retained
 
 ## Next Check
 
-Add a PACT trace extractor and a postprocessing-only final-answer audit. If the audit shows many answer-surface false negatives, run a small prompt/extractor variant before scaling to a larger HotpotQA slice.
+PACT trace extraction, the postprocessing-only final-answer audit, the evidence-field audit, the extraction-only audit, the stable-wrong follow-up, and the unrecovered-case inspection are now available. Do not scale HotpotQA until the answer-contract and public-state-selection confounds are controlled.

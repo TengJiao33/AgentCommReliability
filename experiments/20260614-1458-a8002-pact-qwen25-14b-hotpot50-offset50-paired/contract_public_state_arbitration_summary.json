@@ -1,0 +1,287 @@
+{
+  "manual_labels": null,
+  "summary": {
+    "all_public_state_arbitration": {
+      "changed_and_correct_cases": [
+        62
+      ],
+      "changed_and_wrong_cases": [
+        50,
+        55,
+        57,
+        58,
+        64,
+        68,
+        70,
+        85,
+        88,
+        91,
+        92,
+        97
+      ],
+      "changed_cases": [
+        50,
+        55,
+        57,
+        58,
+        62,
+        64,
+        68,
+        70,
+        85,
+        88,
+        91,
+        92,
+        97
+      ],
+      "contract_counts": {
+        "choice": 5,
+        "count": 3,
+        "entity": 4,
+        "location": 2,
+        "open": 31,
+        "time": 2,
+        "yes_no": 3
+      },
+      "correct": 26,
+      "em": 0.52,
+      "official_to_policy_transitions": {
+        "right_to_wrong": 4,
+        "stable_right": 24,
+        "stable_wrong": 20,
+        "wrong_to_right": 2
+      },
+      "policy_rule_counts": {
+        "choice:action_result:possessive_owner": 1,
+        "choice:environment_state:leading_span_before_verb": 3,
+        "choice:environment_state:possessive_owner": 1,
+        "count:environment_state:numeric_literal": 3,
+        "entity:environment_state:leading_span_before_verb": 1,
+        "entity:environment_state:parenthetical_subject": 2,
+        "entity:environment_state:possessive_owner": 1,
+        "location:environment_state:leading_span_before_verb": 1,
+        "location:final_answer:full_field": 1,
+        "open:final_answer:full_field": 26,
+        "open:final_answer:parenthetical_subject": 1,
+        "open:final_answer:single_numeric_literal": 4,
+        "time:environment_state:numeric_literal": 2,
+        "yes_no:final_answer:yes_no_first_token": 3
+      },
+      "question_aware_to_policy_transitions": {
+        "right_to_wrong": 4,
+        "stable_right": 25,
+        "stable_wrong": 20,
+        "wrong_to_right": 1
+      },
+      "regressions_vs_official": 4,
+      "regressions_vs_question_aware": 4,
+      "rescues_vs_official": 2,
+      "rescues_vs_question_aware": 1
+    },
+    "final_event_arbitration": {
+      "changed_and_correct_cases": [
+        62
+      ],
+      "changed_and_wrong_cases": [
+        50,
+        55,
+        58,
+        68,
+        85,
+        92,
+        97
+      ],
+      "changed_cases": [
+        50,
+        55,
+        58,
+        62,
+        68,
+        85,
+        92,
+        97
+      ],
+      "contract_counts": {
+        "choice": 5,
+        "count": 3,
+        "entity": 4,
+        "location": 2,
+        "open": 31,
+        "time": 2,
+        "yes_no": 3
+      },
+      "correct": 29,
+      "em": 0.58,
+      "official_to_policy_transitions": {
+        "right_to_wrong": 1,
+        "stable_right": 27,
+        "stable_wrong": 20,
+        "wrong_to_right": 2
+      },
+      "policy_rule_counts": {
+        "choice:action_result:leading_span_before_verb": 1,
+        "choice:environment_state:leading_span_before_verb": 3,
+        "choice:final_answer:full_field": 1,
+        "count:environment_state:numeric_literal": 2,
+        "count:final_answer:full_field": 1,
+        "entity:environment_state:leading_span_before_verb": 2,
+        "entity:environment_state:parenthetical_subject": 1,
+        "entity:environment_state:possessive_owner": 1,
+        "location:environment_state:leading_span_before_verb": 1,
+        "location:final_answer:full_field": 1,
+        "open:final_answer:full_field": 26,
+        "open:final_answer:parenthetical_subject": 1,
+        "open:final_answer:single_numeric_literal": 4,
+        "time:environment_state:numeric_literal": 2,
+        "yes_no:final_answer:yes_no_first_token": 3
+      },
+      "question_aware_to_policy_transitions": {
+        "right_to_wrong": 1,
+        "stable_right": 28,
+        "stable_wrong": 20,
+        "wrong_to_right": 1
+      },
+      "regressions_vs_official": 1,
+      "regressions_vs_question_aware": 1,
+      "rescues_vs_official": 2,
+      "rescues_vs_question_aware": 1
+    },
+    "guarded_all_public_state_arbitration": {
+      "changed_and_correct_cases": [],
+      "changed_and_wrong_cases": [
+        50,
+        55,
+        70,
+        85,
+        88,
+        91,
+        92,
+        97
+      ],
+      "changed_cases": [
+        50,
+        55,
+        70,
+        85,
+        88,
+        91,
+        92,
+        97
+      ],
+      "contract_counts": {
+        "choice": 5,
+        "count": 3,
+        "entity": 4,
+        "location": 2,
+        "open": 31,
+        "time": 2,
+        "yes_no": 3
+      },
+      "correct": 26,
+      "em": 0.52,
+      "official_to_policy_transitions": {
+        "right_to_wrong": 3,
+        "stable_right": 25,
+        "stable_wrong": 21,
+        "wrong_to_right": 1
+      },
+      "policy_rule_counts": {
+        "choice:action_result:possessive_owner": 1,
+        "choice:environment_state:leading_span_before_verb": 3,
+        "choice:environment_state:possessive_owner": 1,
+        "count:environment_state:numeric_literal": 1,
+        "count:final_answer:single_numeric_literal": 2,
+        "entity:final_answer:full_field": 4,
+        "location:environment_state:leading_span_before_verb": 1,
+        "location:final_answer:full_field": 1,
+        "open:final_answer:full_field": 26,
+        "open:final_answer:parenthetical_subject": 1,
+        "open:final_answer:single_numeric_literal": 4,
+        "time:environment_state:numeric_literal": 1,
+        "time:final_answer:single_numeric_literal": 1,
+        "yes_no:final_answer:yes_no_first_token": 3
+      },
+      "question_aware_to_policy_transitions": {
+        "right_to_wrong": 3,
+        "stable_right": 26,
+        "stable_wrong": 21
+      },
+      "regressions_vs_official": 3,
+      "regressions_vs_question_aware": 3,
+      "rescues_vs_official": 1,
+      "rescues_vs_question_aware": 0
+    },
+    "guarded_final_event_arbitration": {
+      "changed_and_correct_cases": [],
+      "changed_and_wrong_cases": [
+        50,
+        55,
+        85,
+        92,
+        97
+      ],
+      "changed_cases": [
+        50,
+        55,
+        85,
+        92,
+        97
+      ],
+      "contract_counts": {
+        "choice": 5,
+        "count": 3,
+        "entity": 4,
+        "location": 2,
+        "open": 31,
+        "time": 2,
+        "yes_no": 3
+      },
+      "correct": 28,
+      "em": 0.56,
+      "official_to_policy_transitions": {
+        "right_to_wrong": 1,
+        "stable_right": 27,
+        "stable_wrong": 21,
+        "wrong_to_right": 1
+      },
+      "policy_rule_counts": {
+        "choice:action_result:leading_span_before_verb": 1,
+        "choice:environment_state:leading_span_before_verb": 3,
+        "choice:final_answer:full_field": 1,
+        "count:final_answer:full_field": 1,
+        "count:final_answer:single_numeric_literal": 2,
+        "entity:final_answer:full_field": 4,
+        "location:environment_state:leading_span_before_verb": 1,
+        "location:final_answer:full_field": 1,
+        "open:final_answer:full_field": 26,
+        "open:final_answer:parenthetical_subject": 1,
+        "open:final_answer:single_numeric_literal": 4,
+        "time:environment_state:numeric_literal": 1,
+        "time:final_answer:single_numeric_literal": 1,
+        "yes_no:final_answer:yes_no_first_token": 3
+      },
+      "question_aware_to_policy_transitions": {
+        "right_to_wrong": 1,
+        "stable_right": 28,
+        "stable_wrong": 21
+      },
+      "regressions_vs_official": 1,
+      "regressions_vs_question_aware": 1,
+      "rescues_vs_official": 1,
+      "rescues_vs_question_aware": 0
+    },
+    "manual_focus_all_public_state_correct_by_family": {},
+    "manual_focus_cases": 0,
+    "manual_focus_family_counts": {},
+    "manual_focus_final_event_correct_by_family": {},
+    "manual_focus_guarded_all_public_state_correct_by_family": {},
+    "manual_focus_guarded_final_event_correct_by_family": {},
+    "note": "Arbitration policies are deterministic postprocessing probes over saved PACT public fields and question text. They do not use gold labels to select outputs; gold is used only for evaluation. They are diagnostics for public-state arbitration and answer contract, not replacement official scores.",
+    "official_correct": 28,
+    "official_em": 0.56,
+    "question_aware_policy_correct": 29,
+    "question_aware_policy_em": 0.58,
+    "records": 50
+  },
+  "trace": "experiments\\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\\comm_trace_pact_offset50_final_contract_v11.jsonl"
+}

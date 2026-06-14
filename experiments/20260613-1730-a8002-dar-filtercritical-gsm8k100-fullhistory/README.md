@@ -68,9 +68,27 @@ HF_HOME=/data/xuhaoming/yfy/research_workspace/hf_home \
 Small local copies:
 
 - `comm_trace_dar.jsonl`
+- `comm_trace_dar_v11.jsonl`
 - `dar_history_gsm8k100_filtercritical.jsonl`
 - `analysis_summary.json`
 - `run.log`
+
+## Derived Schema v1.1 Trace
+
+Created locally without rerunning the model:
+
+```bash
+python scripts/extract_comm_trace_schema.py dar \
+  --history-jsonl experiments/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/dar_history_gsm8k100_filtercritical.jsonl \
+  --run-id 20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory-v11 \
+  --method filter_critical \
+  --task-regime saturated_arithmetic \
+  --public-state-surface retained_full_reasoning \
+  --communication-policy retained_subset \
+  --out experiments/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/comm_trace_dar_v11.jsonl
+```
+
+Validation: 100 rows, schema `acr.comm_trace.v1.1`, with one derived `context_events` entry per row from `retention_events`.
 
 ## What Happened
 

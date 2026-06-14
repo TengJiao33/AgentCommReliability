@@ -8,3 +8,6 @@
 [submodule "baselines/PACT/upstream"]
 	path = baselines/PACT/upstream
 	url = https://github.com/iNLP-Lab/PACT.git
+[submodule "baselines/M2CL/upstream"]
+	path = baselines/M2CL/upstream
+	url = https://github.com/HansenHua/M2CL-ICLR26.git

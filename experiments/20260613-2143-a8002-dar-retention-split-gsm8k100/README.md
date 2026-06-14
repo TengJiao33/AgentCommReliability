@@ -96,8 +96,36 @@ Shared core args:
 - `dar_history_guard_full_gsm8k100.jsonl`
 - `comm_trace_answer_only_noguard.jsonl`
 - `comm_trace_guard_full.jsonl`
+- `comm_trace_answer_only_noguard_v11.jsonl`
+- `comm_trace_guard_full_v11.jsonl`
 - `analysis_summary.json`
 - `changed_cases.jsonl`
+
+## Derived Schema v1.1 Traces
+
+Created locally without rerunning the model:
+
+```bash
+python scripts/extract_comm_trace_schema.py dar \
+  --history-jsonl experiments/20260613-2143-a8002-dar-retention-split-gsm8k100/dar_history_answer_only_noguard_gsm8k100.jsonl \
+  --run-id 20260613-2143-a8002-dar-answer-only-noguard-gsm8k100-v11 \
+  --method filter_critical_answer_only_no_guard \
+  --task-regime saturated_arithmetic \
+  --public-state-surface retained_answer_only \
+  --communication-policy retained_subset \
+  --out experiments/20260613-2143-a8002-dar-retention-split-gsm8k100/comm_trace_answer_only_noguard_v11.jsonl
+
+python scripts/extract_comm_trace_schema.py dar \
+  --history-jsonl experiments/20260613-2143-a8002-dar-retention-split-gsm8k100/dar_history_guard_full_gsm8k100.jsonl \
+  --run-id 20260613-2143-a8002-dar-guard-full-gsm8k100-v11 \
+  --method filter_critical_guard_full \
+  --task-regime saturated_arithmetic \
+  --public-state-surface retained_full_reasoning \
+  --communication-policy guarded_retained_subset \
+  --out experiments/20260613-2143-a8002-dar-retention-split-gsm8k100/comm_trace_guard_full_v11.jsonl
+```
+
+Validation: both traces have 100 rows, schema `acr.comm_trace.v1.1`, and one derived `context_events` entry per row from `retention_events`.
 
 ## What Happened
 

@@ -1,0 +1,14 @@
+{
+  "case_indices": [
+    20
+  ],
+  "command": "python scripts\\extract_dar_case_surface.py --case-index 20 --history original=experiments\\20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory\\dar_history_gsm8k100_filtercritical.jsonl --history guarded_answer_only=experiments\\20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100\\dar_history_guarded_answer_diversity_gsm8k100.jsonl --history answer_only_no_guard=experiments\\20260613-2143-a8002-dar-retention-split-gsm8k100\\dar_history_answer_only_noguard_gsm8k100.jsonl --history guard_full=experiments\\20260613-2143-a8002-dar-retention-split-gsm8k100\\dar_history_guard_full_gsm8k100.jsonl --trace original=experiments\\20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory\\comm_trace_dar_v11.jsonl --trace guarded_answer_only=experiments\\20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100\\comm_trace_dar_guarded_v11.jsonl --trace answer_only_no_guard=experiments\\20260613-2143-a8002-dar-retention-split-gsm8k100\\comm_trace_answer_only_noguard_v11.jsonl --trace guard_full=experiments\\20260613-2143-a8002-dar-retention-split-gsm8k100\\comm_trace_guard_full_v11.jsonl --summary-out experiments\\20260614-1253-local-dar-case20-surface-extract\\summary.json --messages-out experiments\\20260614-1253-local-dar-case20-surface-extract\\retained_messages.jsonl",
+  "created_date": "2026-06-14",
+  "outputs": [
+    "experiments/20260614-1253-local-dar-case20-surface-extract/summary.json",
+    "experiments/20260614-1253-local-dar-case20-surface-extract/retained_messages.jsonl"
+  ],
+  "resource_profile": "local CPU-only; no model calls; no GPU",
+  "run_id": "20260614-1253-local-dar-case20-surface-extract",
+  "script": "scripts/extract_dar_case_surface.py"
+}

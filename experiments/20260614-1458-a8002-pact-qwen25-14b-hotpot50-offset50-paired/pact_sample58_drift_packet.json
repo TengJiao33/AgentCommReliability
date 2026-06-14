@@ -1,0 +1,259 @@
+{
+  "case": {
+    "baseline_correct": true,
+    "baseline_f1": 1.0,
+    "baseline_final_answer": "35,124",
+    "gold_answer": "35124",
+    "instance_id": "5ae32e125542991a06ce9946",
+    "question": "According to the 2001 census, what was the population of the city in which Kirton End is located?",
+    "sample_index": 58,
+    "transition": "right_to_wrong",
+    "variant_correct": false,
+    "variant_f1": 0.0,
+    "variant_final_answer": "273"
+  },
+  "final_prompt_hits": {
+    "baseline": [
+      {
+        "text": "Kirton is a village in Nottinghamshire, England. It is located 3 mi east of Ollerton. According to the United Kingdom Census 2001 it had a population of 273, reducing to 261 at the 2011 census.",
+        "title": "Kirton, Nottinghamshire"
+      },
+      {
+        "text": "Boston ( ) is a town and small port in Lincolnshire, on the east coast of England. It is the largest town of the wider Borough of Boston local government district. The borough had a total population of 66,900, at the ONS mid 2015 estimates, while the town itself had a population of 35,124 at the 2001 census. It is due north of Greenwich on the Prime Meridian.",
+        "title": "Boston, Lincolnshire"
+      }
+    ],
+    "variant": [
+      {
+        "text": "Kirton is a village in Nottinghamshire, England. It is located 3 mi east of Ollerton. According to the United Kingdom Census 2001 it had a population of 273, reducing to 261 at the 2011 census.",
+        "title": "Kirton, Nottinghamshire"
+      },
+      {
+        "text": "Boston ( ) is a town and small port in Lincolnshire, on the east coast of England. It is the largest town of the wider Borough of Boston local government district. The borough had a total population of 66,900, at the ONS mid 2015 estimates, while the town itself had a population of 35,124 at the 2001 census. It is due north of Greenwich on the Prime Meridian.",
+        "title": "Boston, Lincolnshire"
+      }
+    ]
+  },
+  "first_divergence": {
+    "actor_agent_id": "Agent B",
+    "changed_fields": [
+      "action_required",
+      "action_result"
+    ],
+    "turn": 1
+  },
+  "paired_events": [
+    {
+      "actor_agent_id": "Agent A",
+      "baseline": {
+        "action_required": "Provide information about the location of Kirton End.",
+        "action_required_numbers": [],
+        "action_result": "Kirton End is located in the civil parish of Kirton in the Boston district of Lincolnshire, England.",
+        "action_result_numbers": [],
+        "actor_agent_id": "Agent A",
+        "environment_state": "Kirton End is a hamlet in the civil parish of Kirton in the Boston district of Lincolnshire, England.",
+        "environment_state_numbers": [],
+        "final_answer": null,
+        "final_answer_numbers": [],
+        "output_tokens": 65,
+        "stage": "turn_0_public_message",
+        "turn": 0
+      },
+      "changed_fields": [],
+      "turn": 0,
+      "variant": {
+        "action_required": "Provide information about the location of Kirton End.",
+        "action_required_numbers": [],
+        "action_result": "Kirton End is located in the civil parish of Kirton in the Boston district of Lincolnshire, England.",
+        "action_result_numbers": [],
+        "actor_agent_id": "Agent A",
+        "environment_state": "Kirton End is a hamlet in the civil parish of Kirton in the Boston district of Lincolnshire, England.",
+        "environment_state_numbers": [],
+        "final_answer": null,
+        "final_answer_numbers": [],
+        "output_tokens": 65,
+        "stage": "turn_0_public_message",
+        "turn": 0
+      }
+    },
+    {
+      "actor_agent_id": "Agent B",
+      "baseline": {
+        "action_required": "Provide the population of the city in which Kirton End is located according to the 2001 census.",
+        "action_required_numbers": [
+          "2001"
+        ],
+        "action_result": "The population of Boston, the town in which Kirton End is located, was 35,124 according to the 2001 census.",
+        "action_result_numbers": [
+          "35,124",
+          "2001"
+        ],
+        "actor_agent_id": "Agent B",
+        "environment_state": "The borough had a total population of 66,900, at the ONS mid 2015 estimates, while the town itself had a population of 35,124 at the 2001 census.",
+        "environment_state_numbers": [
+          "66,900",
+          "2015",
+          "35,124",
+          "2001"
+        ],
+        "final_answer": null,
+        "final_answer_numbers": [],
+        "output_tokens": 116,
+        "stage": "turn_1_public_message",
+        "turn": 1
+      },
+      "changed_fields": [
+        "action_required",
+        "action_result"
+      ],
+      "turn": 1,
+      "variant": {
+        "action_required": "Provide information about the population of Boston district in 2001 census.",
+        "action_required_numbers": [
+          "2001"
+        ],
+        "action_result": "The population of Boston district in the 2001 census was 35,124.",
+        "action_result_numbers": [
+          "2001",
+          "35,124"
+        ],
+        "actor_agent_id": "Agent B",
+        "environment_state": "The borough had a total population of 66,900, at the ONS mid 2015 estimates, while the town itself had a population of 35,124 at the 2001 census.",
+        "environment_state_numbers": [
+          "66,900",
+          "2015",
+          "35,124",
+          "2001"
+        ],
+        "final_answer": null,
+        "final_answer_numbers": [],
+        "output_tokens": 98,
+        "stage": "turn_1_public_message",
+        "turn": 1
+      }
+    },
+    {
+      "actor_agent_id": "Agent A",
+      "baseline": {
+        "action_required": "Provide the population of the city in which Kirton End is located according to the 2001 census.",
+        "action_required_numbers": [
+          "2001"
+        ],
+        "action_result": "The city in which Kirton End is located, Boston, had a population of 35,124 according to the 2001 census.",
+        "action_result_numbers": [
+          "35,124",
+          "2001"
+        ],
+        "actor_agent_id": "Agent A",
+        "environment_state": "It lies on the B1391 road, 4 mi south-west from Boston, and 1.5 mi north-east from Kirton.",
+        "environment_state_numbers": [
+          "4",
+          "1.5"
+        ],
+        "final_answer": null,
+        "final_answer_numbers": [],
+        "output_tokens": 96,
+        "stage": "turn_2_public_message",
+        "turn": 2
+      },
+      "changed_fields": [
+        "action_required",
+        "environment_state",
+        "action_result"
+      ],
+      "turn": 2,
+      "variant": {
+        "action_required": "Provide information about the population of the civil parish of Kirton in 2001 census.",
+        "action_required_numbers": [
+          "2001"
+        ],
+        "action_result": "The population of the civil parish of Kirton in the 2001 census is not provided in the given context.",
+        "action_result_numbers": [
+          "2001"
+        ],
+        "actor_agent_id": "Agent A",
+        "environment_state": "According to the 2001 census, Kirton End is a hamlet in the civil parish of Kirton in the Boston district of Lincolnshire, England.",
+        "environment_state_numbers": [
+          "2001"
+        ],
+        "final_answer": null,
+        "final_answer_numbers": [],
+        "output_tokens": 88,
+        "stage": "turn_2_public_message",
+        "turn": 2
+      }
+    },
+    {
+      "actor_agent_id": "Agent B",
+      "baseline": {
+        "action_required": "Provide the population of the city in which Kirton End is located according to the 2001 census.",
+        "action_required_numbers": [
+          "2001"
+        ],
+        "action_result": "The population of Boston, the town in which Kirton End is located, was 35,124 according to the 2001 census.",
+        "action_result_numbers": [
+          "35,124",
+          "2001"
+        ],
+        "actor_agent_id": "Agent B",
+        "environment_state": "The town itself had a population of 35,124 at the 2001 census.",
+        "environment_state_numbers": [
+          "35,124",
+          "2001"
+        ],
+        "final_answer": "35,124",
+        "final_answer_numbers": [
+          "35,124"
+        ],
+        "output_tokens": 98,
+        "stage": "turn_3_public_message",
+        "turn": 3
+      },
+      "changed_fields": [
+        "action_required",
+        "environment_state",
+        "action_result",
+        "final_answer"
+      ],
+      "turn": 3,
+      "variant": {
+        "action_required": "Provide information about the population of the civil parish of Kirton in 2001 census.",
+        "action_required_numbers": [
+          "2001"
+        ],
+        "action_result": "The population of the civil parish of Kirton in the 2001 census was 273.",
+        "action_result_numbers": [
+          "2001",
+          "273"
+        ],
+        "actor_agent_id": "Agent B",
+        "environment_state": "According to the United Kingdom Census 2001 it had a population of 273, reducing to 261 at the 2011 census.",
+        "environment_state_numbers": [
+          "2001",
+          "273",
+          "261",
+          "2011"
+        ],
+        "final_answer": "273",
+        "final_answer_numbers": [
+          "273"
+        ],
+        "output_tokens": 95,
+        "stage": "turn_3_public_message",
+        "turn": 3
+      }
+    }
+  ],
+  "sources": {
+    "baseline_raw": "experiments\\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\\pact_qwen25_14b_hotpot50_offset50_baseline.jsonl",
+    "baseline_trace": "experiments\\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\\comm_trace_pact_offset50_baseline_v11.jsonl",
+    "changed_cases": "experiments\\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\\changed_cases.jsonl",
+    "variant_raw": "experiments\\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\\pact_qwen25_14b_hotpot50_offset50_final_contract.jsonl",
+    "variant_trace": "experiments\\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\\comm_trace_pact_offset50_final_contract_v11.jsonl"
+  },
+  "watch_terms": [
+    "35124",
+    "35,124",
+    "273"
+  ]
+}

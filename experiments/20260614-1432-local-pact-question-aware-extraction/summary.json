@@ -1,0 +1,97 @@
+{
+  "summary": {
+    "additional_rescues_vs_baseline_policy": 6,
+    "baseline_final_answer_policy_correct": 32,
+    "baseline_final_answer_policy_em": 0.64,
+    "baseline_to_question_aware_transitions": {
+      "stable_right": 32,
+      "stable_wrong": 12,
+      "wrong_to_right": 6
+    },
+    "examples_by_official_to_question_aware_transition": {
+      "stable_right": [
+        3,
+        4,
+        5,
+        11,
+        12,
+        16,
+        18,
+        29,
+        35,
+        36
+      ],
+      "stable_wrong": [
+        1,
+        13,
+        15,
+        19,
+        23,
+        25,
+        28,
+        30,
+        31,
+        32
+      ],
+      "wrong_to_right": [
+        0,
+        2,
+        6,
+        7,
+        8,
+        9,
+        10,
+        14,
+        17,
+        20
+      ]
+    },
+    "note": "Question-aware rules are generated from saved PACT outputs and question text without using gold labels. Gold is used only to evaluate exact match. This remains a postprocessing diagnostic, not a replacement official score.",
+    "official_correct": 17,
+    "official_em": 0.34,
+    "official_to_question_aware_transitions": {
+      "stable_right": 17,
+      "stable_wrong": 12,
+      "wrong_to_right": 21
+    },
+    "policy_changed_and_correct_cases": [
+      7,
+      14,
+      18,
+      21,
+      24,
+      43,
+      44
+    ],
+    "policy_changed_and_wrong_cases": [],
+    "policy_changed_cases": [
+      7,
+      14,
+      18,
+      21,
+      24,
+      43,
+      44
+    ],
+    "question_aware_policy_correct": 38,
+    "question_aware_policy_em": 0.76,
+    "question_aware_policy_rule_counts": {
+      "environment_state:question_seated_capacity": 1,
+      "final_answer:full_field": 18,
+      "final_answer:leading_span_before_verb": 9,
+      "final_answer:parenthetical_subject": 1,
+      "final_answer:question_hedgehog_alias": 1,
+      "final_answer:question_secured_object": 1,
+      "final_answer:question_timeframe": 2,
+      "final_answer:question_under_vice_president": 1,
+      "final_answer:question_voted_title": 1,
+      "final_answer:single_numeric_literal": 5,
+      "final_answer:yes_no_first_token": 10
+    },
+    "question_aware_regressions_vs_official": 0,
+    "question_aware_rescues_vs_official": 21,
+    "records": 50,
+    "regressions_vs_baseline_policy": 0
+  },
+  "trace": "experiments\\20260614-1100-a8002-pact-qwen25-14b-hotpot50\\comm_trace_pact_v11.jsonl"
+}

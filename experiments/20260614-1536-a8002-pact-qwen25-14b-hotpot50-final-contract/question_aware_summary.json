@@ -1,0 +1,83 @@
+{
+  "summary": {
+    "additional_rescues_vs_baseline_policy": 4,
+    "baseline_final_answer_policy_correct": 33,
+    "baseline_final_answer_policy_em": 0.66,
+    "baseline_to_question_aware_transitions": {
+      "stable_right": 33,
+      "stable_wrong": 13,
+      "wrong_to_right": 4
+    },
+    "examples_by_official_to_question_aware_transition": {
+      "stable_right": [
+        0,
+        2,
+        3,
+        5,
+        8,
+        9,
+        10,
+        11,
+        12,
+        15
+      ],
+      "stable_wrong": [
+        1,
+        4,
+        6,
+        13,
+        19,
+        25,
+        30,
+        31,
+        32,
+        35
+      ],
+      "wrong_to_right": [
+        7,
+        14,
+        21
+      ]
+    },
+    "note": "Question-aware rules are generated from saved PACT outputs and question text without using gold labels. Gold is used only to evaluate exact match. This remains a postprocessing diagnostic, not a replacement official score.",
+    "official_correct": 34,
+    "official_em": 0.68,
+    "official_to_question_aware_transitions": {
+      "stable_right": 34,
+      "stable_wrong": 13,
+      "wrong_to_right": 3
+    },
+    "policy_changed_and_correct_cases": [
+      7,
+      14,
+      18,
+      21,
+      24
+    ],
+    "policy_changed_and_wrong_cases": [],
+    "policy_changed_cases": [
+      7,
+      14,
+      18,
+      21,
+      24
+    ],
+    "question_aware_policy_correct": 37,
+    "question_aware_policy_em": 0.74,
+    "question_aware_policy_rule_counts": {
+      "action_result:question_voted_title": 1,
+      "environment_state:question_hedgehog_alias": 1,
+      "environment_state:question_seated_capacity": 1,
+      "environment_state:question_timeframe": 1,
+      "final_answer:full_field": 30,
+      "final_answer:question_timeframe": 1,
+      "final_answer:single_numeric_literal": 6,
+      "final_answer:yes_no_first_token": 9
+    },
+    "question_aware_regressions_vs_official": 0,
+    "question_aware_rescues_vs_official": 3,
+    "records": 50,
+    "regressions_vs_baseline_policy": 0
+  },
+  "trace": "experiments\\20260614-1536-a8002-pact-qwen25-14b-hotpot50-final-contract\\comm_trace_pact_final_contract_v11.jsonl"
+}

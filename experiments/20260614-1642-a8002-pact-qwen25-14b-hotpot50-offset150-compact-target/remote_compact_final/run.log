@@ -1,0 +1,1522 @@
+/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:
+No module named 'vllm._version'
+  from vllm.version import __version__ as VLLM_VERSION
+[vLLM] Loading /mnt/quarkfs/share_model/Qwen2.5-14B-Instruct with tensor_parallel_size=1
+INFO 06-14 16:44:14 llm_engine.py:237] Initializing an LLM engine (vdev) with config: model='/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct', speculative_config=None, tokenizer='/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, rope_scaling=None, rope_theta=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=8192, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct, use_v2_block_manager=True, num_scheduler_steps=1, chunked_prefill_enabled=False multi_step_stream_outputs=True, enable_prefix_caching=False, use_async_output_proc=True, use_cached_outputs=False, mm_processor_kwargs=None)
+INFO 06-14 16:44:15 model_runner.py:1060] Starting to load model /mnt/quarkfs/share_model/Qwen2.5-14B-Instruct...
+Loading safetensors checkpoint shards:   0% Completed | 0/8 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:  12% Completed | 1/8 [00:10<01:16, 10.97s/it]
+Loading safetensors checkpoint shards:  25% Completed | 2/8 [00:22<01:07, 11.32s/it]
+Loading safetensors checkpoint shards:  38% Completed | 3/8 [00:33<00:56, 11.31s/it]
+Loading safetensors checkpoint shards:  50% Completed | 4/8 [00:44<00:44, 11.21s/it]
+Loading safetensors checkpoint shards:  62% Completed | 5/8 [00:55<00:33, 11.16s/it]
+Loading safetensors checkpoint shards:  75% Completed | 6/8 [01:06<00:22, 11.11s/it]
+Loading safetensors checkpoint shards:  88% Completed | 7/8 [01:18<00:11, 11.10s/it]
+Loading safetensors checkpoint shards: 100% Completed | 8/8 [01:22<00:00,  9.07s/it]
+Loading safetensors checkpoint shards: 100% Completed | 8/8 [01:22<00:00, 10.35s/it]
+
+INFO 06-14 16:45:39 model_runner.py:1071] Loading model weights took 27.5680 GB
+INFO 06-14 16:45:40 gpu_executor.py:122] # GPU blocks: 12839, # CPU blocks: 1365
+INFO 06-14 16:45:40 gpu_executor.py:126] Maximum concurrency for 8192 tokens per request: 25.08x
+INFO 06-14 16:45:42 model_runner.py:1402] Capturing the model for CUDA graphs. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI.
+INFO 06-14 16:45:42 model_runner.py:1406] CUDA graphs can take additional 1~3 GiB memory per GPU. If you are running out of memory, consider decreasing `gpu_memory_utilization` or enforcing eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 06-14 16:45:52 model_runner.py:1530] Graph capturing finished in 11 secs.
+pact:   0%|          | 0/50 [00:00<?, ?it/s]pact:   2%|▏         | 1/50 [00:09<08:00,  9.80s/it]pact:   4%|▍         | 2/50 [00:19<07:47,  9.74s/it]pact:   6%|▌         | 3/50 [00:31<08:36, 10.99s/it]pact:   8%|▊         | 4/50 [00:41<08:07, 10.59s/it]
+============================================================
+Problem #151
+Question: What occupation was shared by David Yates and Pietro Germi?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [occupation; David Yates, Pietro Germi; shared]
+Action Required: Provide the occupation shared by David Yates and Pietro Germi.
+Environment State: David Yates is an English filmmaker who has directed feature films, short films, and television productions.
+Action Result: To be determined
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [occupation; David Yates, Pietro Germi; shared]
+Action Required: Provide the shared occupation of David Yates and Pietro Germi.
+Environment State: Pietro Germi was an Italian actor, screenwriter, and director.
+Action Result: David Yates and Pietro Germi are both directors.
+Compact targe
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [occupation; David Yates, Pietro Germi; shared]
+Action Required: Confirm the shared occupation of David Yates and Pietro Germi.
+Environment State: David Yates is an English filmmaker who has directed feature films, short films, and television productions.
+Action Result: David Yates and 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [occupation; David Yates, Pietro Germi; shared]
+Action Required: [confirm the shared occupation of David Yates and Pietro Germi]
+Environment State: [David Yates is an English filmmaker who has directed feature films, short films, and television productions. Pietro Germi was an Italian a
+
+  Pred : director
+  Gold : director
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #152
+Question: Marcus Wayne Garland spent nine seasons with an American professional baseball team that is based in Baltimore, Maryland, and was one of the AMerican League's original eight charter franchises when the league was established in what year?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [year; American League; establishment]
+Action Required: Provide the year the American League was established.
+Environment State: The Cleveland team originated in 1900 as the Lake Shores, when the American League (AL) was officially a minor league. One of the AL's eight charter franchise
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [year; American League; establishment]
+Action Required: Provide the year the American League was established.
+Environment State: As one of the AL's original eight charter franchises when the league was established in 1901, this particular franchise spent its first year as a major league
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [year; American League; establishment]
+Action Required: Provide the year the American League was established.
+Environment State: One of the AL's eight charter franchises, the major league incarnation of the club was founded in Cleveland in 1901.
+Action Result: The American League was es
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [year; American League; establishment]
+Action Required: Provide the year the American League was established.
+Environment State: As one of the AL's original eight charter franchises when the league was established in 1901, this particular franchise spent its first year as a major league
+
+  Pred : 1901
+  Gold : 1901
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #153
+Question: The lamp used in many lighthouses is similiar to this type of lamp patented in 1780 by Aimé Argand?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [lamp type; Argand; patented in 1780]
+Action Required: Provide information on the lamp patented by Argand in 1780.
+Environment State: In 1779, he returned to Paris and opened his own pharmacy there.
+Action Result: Aimé Argand patented a lamp in 1780.
+Compact target-state rule:
+- Keep Ta
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [Argand lamp; patented in 1780]
+Action Required: Provide details about the Argand lamp patented in 1780.
+Environment State: The Argand lamp, a kind of oil lamp, was invented and patented in 1780 by Aimé Argand.
+Action Result: The Argand lamp is a kind of oil lamp.
+Compact target-state r
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [Argand lamp; patented in 1780; oil lamp]
+Action Required: Provide information on the similarity of the lamp used in lighthouses to the Argand lamp.
+Environment State: The Lewis lamp used a similar design to an Argand lamp, adding a parabolic reflector behind the lamp and a magnifying l
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [Argand lamp; patented in 1780; oil lamp]
+Action Required: Provide information on the similarity of the lamp used in lighthouses to the Argand lamp.
+Environment State: The Lewis lamp used a similar design to an Argand lamp, adding a parabolic reflector behind the lamp and a magnifying l
+
+  Pred : argand lamp
+  Gold : argand lamp
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #154
+Question: The songs from the sountrack to "When Harry Met Sally" are performed by a singer that has had how many top 20 US albums?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the number of top 20 US albums for Harry Connick Jr.
+Environment State: The songs are performed by pianist Harry Connick Jr., who won the Grammy Award for Best Jazz Male Vocal Performance.
+Action Result: Harry Connick Jr. performed the songs from the soundtrack to "When Harr
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [number; Harry Connick Jr.; top 20 US albums]
+Action Required: Provide the number of top 20 US albums for Harry Connick Jr.
+Environment State: He has had seven top20 US albums, and ten number-one US jazz albums, earning more number-one albums than any other artist in US jazz chart histo
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [number; Harry Connick Jr.; top 20 US albums]
+Action Required: Confirm the number of top 20 US albums for Harry Connick Jr.
+Environment State: He has had seven top20 US albums, and ten number-one US jazz albums, earning more number-one albums than any other artist in US jazz chart histo
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [number; Harry Connick Jr.; top 20 US albums]
+Action Required: Provide the number of top 20 US albums for Harry Connick Jr.
+Environment State: He has had seven top20 US albums, and ten number-one US jazz albums, earning more number-one albums than any other artist in US jazz chart histo
+
+  Pred : 7
+  Gold : seven
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #155
+Question: Are Broughtonia and Laeliocattleya both orchids?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [yes/no; Broughtonia and Laeliocattleya; both orchids]
+Action Required: Provide if Laeliocattleya is an orchid.
+Environment State: Broughtonia is a genus of orchids (family Orchidaceae) native to the Bahamas and the Greater Antilles.
+Action Result: Laeliocattleya is an orchid.
+Compact t
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [yes/no; Broughtonia and Laeliocattleya; both orchids]
+Action Required: Provide if Broughtonia is an orchid.
+Environment State: Broughtonia is a genus of orchids (family Orchidaceae) native to the Bahamas and the Greater Antilles.
+Action Result: Broughtonia is an orchid.
+Compact target-
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [yes/no; Broughtonia and Laeliocattleya; both orchids]
+Action Required: Confirm if Laeliocattleya is an orchid.
+Environment State: Otaara is an intergeneric hybrid of orchids, with "Brassavola", "Broughtonia", "Cattleya", "Laelia" and "Sophronitis" as parent genera.
+Action Result: Laeli
+
+  ----- Agent B (pact_b_turn3) -----
+pact:  10%|█         | 5/50 [00:49<07:14,  9.65s/it]pact:  12%|█▏        | 6/50 [01:04<08:17, 11.31s/it]pact:  14%|█▍        | 7/50 [01:15<07:58, 11.12s/it]pact:  16%|█▌        | 8/50 [01:25<07:35, 10.86s/it]pact:  18%|█▊        | 9/50 [01:37<07:44, 11.33s/it]  Output: Target Slot: [yes/no; Broughtonia and Laeliocattleya; both orchids]
+Action Required: Confirm if Broughtonia and Laeliocattleya are both orchids.
+Environment State: Broughtonia is a genus of orchids (family Orchidaceae) native to the Bahamas and the Greater Antilles.
+Action Result: Yes
+Compact target
+
+  Pred : compact targetstate rule
+  Gold : yes
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #156
+Question: Where was the world cup hosted that Algeria qualified for the first time into the round of 16?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [year; Algeria; qualified for the round of 16]
+Action Required: Provide the year Algeria qualified for the round of 16.
+Environment State: Algeria have appeared in the finals of the FIFA World Cup on four occasions in 1982, 1986, 2010 and 2014. They have once qualified for the knockout 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [year; Algeria; qualified for the round of 16]
+Action Required: Provide the year the world cup was hosted when Algeria qualified for the round of 16.
+Environment State: The 2014 FIFA World Cup was the 20th FIFA World Cup, the quadrennial world championship for men's national football te
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [location; 2014 World Cup; held]
+Action Required: Provide the location where the 2014 World Cup was held.
+Environment State: The 2014 FIFA World Cup was the 20th FIFA World Cup, the quadrennial world championship for men's national football teams organized by FIFA. It took place in Braz
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [location; 2014 World Cup; held]
+Action Required: Provide the location where the 2014 World Cup was held.
+Environment State: The 2014 FIFA World Cup was the 20th FIFA World Cup, the quadrennial world championship for men's national football teams organized by FIFA. It took place in Braz
+
+  Pred : brazil
+  Gold : brazil
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #157
+Question: Which was fought earlier in our nation's history, the Seven Days Battles or the Battle of Manila?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [date; Seven Days Battles; ]
+Action Required: Provide the date of the Seven Days Battles.
+Environment State: The Seven Days Battles were a series of six major battles over the seven days from June 25 to July 1, 1862, near Richmond, Virginia, during the American Civil War.
+Action Result:
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [date; Battle of Manila; ]
+Action Required: Provide the date of the Battle of Manila.
+Environment State: The Battle of Manila (February 3, 1945 – March 3, 1945) was a major battle of the Philippine campaign of 1944-45, during the Second World War.
+Action Result: The Battle of Manila occ
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [answer type; Seven Days Battles; earlier]
+Action Required: Provide the information that Seven Days Battles is earlier than Battle of Manila.
+Environment State: The Seven Days Battles occurred from June 25 to July 1, 1862.
+Action Result: The Seven Days Battles occurred from June 25 to J
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [answer type; anchor entity or entities; required qualifier]
+Action Required: Provide the information that Seven Days Battles is earlier than Battle of Manila.
+Environment State: The Seven Days Battles occurred from June 25 to July 1, 1862, which is earlier than the Battle of Manila (Fe
+
+  Pred : seven days battles
+  Gold : seven days battles
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #158
+Question: What retailer in ABQ Uptown is headquarted in Poole, Dorset, United Kingdom?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [retailer; ABQ Uptown; headquartered in Poole, Dorset, United Kingdom]
+Action Required: Provide information about retailers headquartered in Poole, Dorset, United Kingdom.
+Environment State: Baron de Mauley, of Canford in the County of Dorset, is a title in the Peerage of the United Kin
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [retailer; ABQ Uptown; headquartered in Poole, Dorset, United Kingdom]
+Action Required: Provide information about a retailer headquartered in Poole, Dorset, United Kingdom.
+Environment State: Lush Ltd. is a cosmetics retailer headquartered in Poole, Dorset, United Kingdom.
+Action Result
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [retailer; ABQ Uptown; headquartered in Poole, Dorset, United Kingdom]
+Action Required: Provide information about retailers in ABQ Uptown.
+Environment State: ABQ Uptown is an outdoor luxury shopping mall owned by Simon Property Group in Albuquerque, New Mexico.  It is one of four malls 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [retailer; ABQ Uptown; headquartered in Poole, Dorset, United Kingdom]
+Action Required: Provide information about a retailer headquartered in Poole, Dorset, United Kingdom.
+Environment State: Lush Ltd. is a cosmetics retailer headquartered in Poole, Dorset, United Kingdom.
+Action Result
+
+  Pred : lush
+  Gold : lush ltd
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #159
+Question: What football club plays in the area between the old tool gates: Brook Bar and Trafford bar?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [football club; plays in; area between old tool gates Brook Bar and Trafford bar]
+Action Required: Provide information about football clubs in the area between Brook Bar and Trafford Bar.
+Environment State: Manchester United Football Club is a professional football club based in Old Tra
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [football club; plays in; area between old tool gates Brook Bar and Trafford bar]
+Action Required: Provide information about the football club that plays in the area between the old tool gates Brook Bar and Trafford Bar.
+Environment State: Old Trafford is an area of Stretford, in the Me
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [football club; plays in; area between old tool gates Brook Bar and Trafford bar]
+Action Required: Provide information about the football club that plays in Old Trafford.
+Environment State: Manchester United Football Club is a professional football club based in Old Trafford, Greater Ma
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [football club; plays in; area between old tool gates Brook Bar and Trafford bar]
+Action Required: Provide information about Manchester United Football Club.
+Environment State: Manchester United Football Club is a professional football club based in Old Trafford, Greater Manchester, Eng
+
+  Pred : manchester united football club
+  Gold : manchester united
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #160
+Question: The song "Chim Chim Cher-ee" can be heard  in the "Mary Poppins" scene of a Disney ride that debuted in what year?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [year; The Great Movie Ride; debut year]
+Action Required: Provide the debut year of The Great Movie Ride.
+Environment State: The song can be heard in the "Mary Poppins" scene of The Great Movie Ride at Disney's Hollywood Studios and during the "Mary Poppins" segment of "" at Disneyland.
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [year; The Great Movie Ride; debut year]
+Action Required: Provide the year The Great Movie Ride debuted.
+Environment State: The Great Movie Ride was located inside a replica of Grauman's Chinese Theatre and debuted with the park on May 1, 1989.
+Action Result: The Great Movie Ride debute
+
+  ----- Agent A (pact_a_turn2) -----
+pact:  20%|██        | 10/50 [01:46<06:53, 10.35s/it]pact:  22%|██▏       | 11/50 [02:04<08:21, 12.86s/it]pact:  24%|██▍       | 12/50 [02:19<08:30, 13.44s/it]pact:  26%|██▌       | 13/50 [02:29<07:45, 12.58s/it]pact:  28%|██▊       | 14/50 [02:40<07:09, 11.94s/it]  Output: Target Slot: [year; The Great Movie Ride; debut year]
+Action Required: Confirm the year The Great Movie Ride debuted.
+Environment State: The Great Movie Ride was located inside a replica of Grauman's Chinese Theatre and debuted with the park on May 1, 1989.
+Action Result: The Great Movie Ride debute
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [year; The Great Movie Ride; debut year]
+Action Required: Provide the year The Great Movie Ride debuted.
+Environment State: The Great Movie Ride was located inside a replica of Grauman's Chinese Theatre and debuted with the park on May 1, 1989.
+Action Result: The Great Movie Ride debute
+
+  Pred : 1989
+  Gold : 1989
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #161
+Question: Who held the record for the longest service in the Australian Parliament for a woman, and was surpassed by  a former Australian politician who was the 29th Speaker of the House of Representatives?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [person; Kathy Sullivan; held longest service record for woman]
+Action Required: Provide the name of the person who held the record for the longest service in the Australian Parliament for a woman.
+Environment State: Kathy Jean Martin "Kathy" Sullivan AM (born 8 March 1942), Australian 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [person; Bronwyn Bishop; 29th Speaker of the House of Representatives]
+Action Required: Provide the name of the person who was the 29th Speaker of the House of Representatives.
+Environment State: Bronwyn Kathleen Bishop (née Setright; born 19 October 1942) is a former Australian politic
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [answer type; Kathy Sullivan; Bronwyn Bishop]
+Action Required: Confirm if the person who held the longest service record for a woman in the Australian Parliament was surpassed by the 29th Speaker of the House of Representatives.
+Environment State: This record has since been surpassed by
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [answer type; Kathy Sullivan; ]
+Action Required: Provide the name of the person who held the longest service record for a woman in the Australian Parliament.
+Environment State: Kathy Jean Martin "Kathy" Sullivan AM (born 8 March 1942), Australian politician, was a Liberal member of the 
+
+  Pred : kathy sullivan
+  Gold : kathryn jean martin
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #162
+Question: Which man who presented the Australia 2022 FIFA World Cup bid was born on October 22, 1930?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [person; presented Australia 2022 FIFA World Cup bid; born October 22, 1930]
+Action Required: Provide information about who presented the Australia 2022 FIFA World Cup bid.
+Environment State: Australia submitted an unsuccessful bid for the 2022 FIFA World Cup. On 2 December 2010 FIFA an
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [person; presented Australia 2022 FIFA World Cup bid; born October 22, 1930]
+Action Required: Provide information about the birth date of Frank Lowy.
+Environment State: Frank P. Lowy (born 22 October 1930) is an Australian-Israeli businessman and Chairman of Westfield Corporation.
+Actio
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [person; presented Australia 2022 FIFA World Cup bid; born October 22, 1930]
+Action Required: Provide information about who presented the Australia 2022 FIFA World Cup bid and their birth date.
+Environment State: The bid was presented by Frank Lowy, Ben Buckley, Quentin Bryce and Elle M
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [person; presented Australia 2022 FIFA World Cup bid; born October 22, 1930]
+Action Required: [who presented the Australia 2022 FIFA World Cup bid and their birth date]
+Environment State: Frank P. Lowy (born 22 October 1930) is an Australian-Israeli businessman and Chairman of Westfield
+
+  Pred : frank lowy
+  Gold : frank lowy
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #163
+Question: What major city is the Faith Lutheran Middle School and High School located by?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [city; Faith Lutheran Middle School and High School; located by]
+Action Required: Provide the name of the major city located by Faith Lutheran Middle School and High School.
+Environment State: Faith Lutheran Middle School & High School is a private Christian school located in Summerlin,
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [city; Faith Lutheran Middle School and High School; located by]
+Action Required: Provide the name of the major city located by Faith Lutheran Middle School and High School.
+Environment State: Faith Lutheran High School, commonly referred to as Faith or FLHS, is a private high school lo
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [city; Faith Lutheran Middle School and High School; located by]
+Action Required: Provide the name of the major city located by Faith Lutheran Middle School and High School.
+Environment State: Faith Lutheran Middle School & High School is a private Christian school located in Summerlin,
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [city; Faith Lutheran Middle School and High School; located by]
+Action Required: Provide the name of the major city located by Faith Lutheran Middle School and High School.
+Environment State: Faith Lutheran Middle School & High School is a private Christian school located in Summerlin,
+
+  Pred : las vegas
+  Gold : las vegas
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #164
+Question: What British singer-songwriter hosted the 16th Annual Young Hollywood Awards?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [person; host; 16th Annual Young Hollywood Awards]
+Action Required: Provide the host of the 16th Annual Young Hollywood Awards.
+Environment State: The 16th Annual Young Hollywood Awards were held on Monday, July 28, 2014 in Los Angeles, California, previously recorded the day before. Ke
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [person; host; 16th Annual Young Hollywood Awards]
+Action Required: Verify if Kelly Osbourne is a British singer-songwriter.
+Environment State: Kelly Lee Osbourne (born 27 October 1984) is a British singer-songwriter, actress, television presenter and fashion designer.
+Action Result: Ke
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [answer type; anchor entity or entities; required qualifier]
+Action Required: Confirm if Kelly Osbourne is the British singer-songwriter who hosted the 16th Annual Young Hollywood Awards.
+Environment State: Kelly Osbourne hosted the show, with Justin Bieber being honored for his charity
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [answer type; anchor entity or entities; required qualifier]
+Action Required: Verify if Kelly Osbourne is the British singer-songwriter who hosted the 16th Annual Young Hollywood Awards.
+Environment State: Kelly Lee Osbourne (born 27 October 1984) is a British singer-songwriter, actress
+
+  Pred : kelly osbourne
+  Gold : kelly lee osbourne
+  EM   : False  |  F1: 0.800
+
+============================================================
+Problem #165
+Question: Who did the Star and Dagger bass player marry?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the Star and Dagger bass player's marriage.
+Environment State: Double Dagger was a post-punk trio from Baltimore, Maryland composed of only drums, vocals, and a very loud bass guitar which fills the space a guitar would normally take.
+Action Result: The con
+
+  ----- Agent B (pact_b_turn1) -----
+pact:  30%|███       | 15/50 [02:49<06:25, 11.02s/it]pact:  32%|███▏      | 16/50 [03:02<06:36, 11.67s/it]pact:  34%|███▍      | 17/50 [03:11<06:01, 10.94s/it]pact:  36%|███▌      | 18/50 [03:23<05:57, 11.18s/it]pact:  38%|███▊      | 19/50 [03:38<06:18, 12.21s/it]  Output: Target Slot: [person; Star and Dagger bass player; spouse]
+Action Required: Provide information about Sean Yseult's marriage.
+Environment State: Sean Yseult (born June 6, 1966) is an American rock musician. She currently plays bass in the band Star & Dagger.
+Action Result: Sean Yseult is the Star an
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [person; Star and Dagger bass player; spouse]
+Action Required: Request information about Sean Yseult's spouse.
+Environment State: Sean Yseult (born June 6, 1966) is an American rock musician. She currently plays bass in the band Star & Dagger.
+Action Result: No information about Sean Ys
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [person; Star and Dagger bass player; spouse]
+Action Required: Request information about Sean Yseult's spouse.
+Environment State: Sean Yseult is the Star and Dagger bass player, but no information about her spouse is provided in the context.
+Action Result: None of the provided paragraph
+
+  Pred : unknown
+  Gold : sean yseult
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #166
+Question: In 2017, what was 3/4th of the organization that also has a Center for Veterinary Medicine as well as part of the U.S. Department of Health and Human Services, spent on?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [amount spent; Center for Veterinary Medicine; part of U.S. Department of Health and Human Services]
+Action Required: Provide information about the amount spent by the Center for Veterinary Medicine in 2017.
+Environment State: The Supporting Healthy Marriage Project is part of the Healt
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [amount spent; Center for Veterinary Medicine; part of U.S. Department of Health and Human Services]
+Action Required: Provide information about the amount spent by the Center for Veterinary Medicine in 2017.
+Environment State: The Food and Drug Administration (FDA or USFDA) is a federal
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [amount spent; Center for Veterinary Medicine; part of U.S. Department of Health and Human Services]
+Action Required: Request information about the spending of the Center for Veterinary Medicine in 2017 from the U.S. Department of Health and Human Services.
+Environment State: The Food a
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [amount spent; Center for Veterinary Medicine; part of U.S. Department of Health and Human Services]
+Action Required: Provide information about the amount spent by the Center for Veterinary Medicine in 2017.
+Environment State: The Food and Drug Administration (FDA or USFDA) is a federal
+
+  Pred : 525000000
+  Gold : prescription drug user fee act
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #167
+Question: Which came out first, Dinosaur or McFarland, USA
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [year; Dinosaur (film); release]
+Action Required: I provide the release year of Dinosaur (film).
+Environment State: Dinosaur is a 2000 American CGI animated adventure film produced by Walt Disney Feature Animation and The Secret Lab and released by Walt Disney Pictures.
+Action Result: T
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [year; McFarland, USA; release]
+Action Required: Provide the release year of McFarland, USA.
+Environment State: McFarland, USA (also known as McFarland) is a 2015 American sports drama film directed by Niki Caro, produced by Mark Ciardi and Gordon Gray, written by Christopher Cleveland,
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [answer type; Dinosaur (film), McFarland, USA; earlier release]
+Action Required: Compare the release years to determine which came out first.
+Environment State: Dinosaur is a 2000 American CGI animated adventure film produced by Walt Disney Feature Animation and The Secret Lab and relea
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [answer type; anchor entity or entities; required qualifier]
+Action Required: Compare the release years to determine which came out first.
+Environment State: The release year of Dinosaur (film) is 2000.
+Action Result: Dinosaur (film) came out first compared to McFarland, USA.
+Final Answ
+
+  Pred : dinosaur
+  Gold : dinosaur
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #168
+Question: Both Bishop Carroll Catholic High School and Kapaun Mt. Carmel Catholic High School are located in which city in Kansas?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [city; Bishop Carroll Catholic High School, Kapaun Mt. Carmel Catholic High School; located in]
+Action Required: Provide the city where both schools are located.
+Environment State: Bishop Carroll Catholic High School is a private high school located in Wichita, Kansas, United States.
+Ac
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [city; Bishop Carroll Catholic High School, Kapaun Mt. Carmel Catholic High School; located in]
+Action Required: Provide the city where both Kapaun Mt. Carmel Catholic High School and Bishop Carroll Catholic High School are located.
+Environment State: Kapaun Mt. Carmel Catholic High Sch
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [city; Bishop Carroll Catholic High School, Kapaun Mt. Carmel Catholic High School; located in]
+Action Required: Confirm the city where both schools are located based on Agent B's information.
+Environment State: Kapaun Mt. Carmel Catholic High School is located in the east side of Wichi
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [city; Bishop Carroll Catholic High School, Kapaun Mt. Carmel Catholic High School; located in]
+Action Required: Confirm the city where both schools are located based on Agent B's information.
+Environment State: Kapaun Mt. Carmel Catholic High School, sometimes called Kapaun, is a priva
+
+  Pred : wichita kansas
+  Gold : wichita
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #169
+Question: What was the 58th quadrennial American presidential election held after the 2016 Michigan Democratic primary?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [year; United States presidential election; held after the 2016 Michigan Democratic primary]
+Action Required: Provide the year of the 58th quadrennial American presidential election after the 2016 Michigan Democratic primary.
+Environment State: The 2016 Michigan Democratic primary took 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [year; United States presidential election; held after the 2016 Michigan Democratic primary]
+Action Required: Provide the year of the 58th quadrennial American presidential election.
+Environment State: The United States presidential election of 2016 was the 58th quadrennial American pre
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [year; United States presidential election; held after the 2016 Michigan Democratic primary]
+Action Required: Confirm the year of the 58th quadrennial American presidential election held after the 2016 Michigan Democratic primary.
+Environment State: The United States presidential electi
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [year; United States presidential election; held after the 2016 Michigan Democratic primary]
+Action Required: Provide the year of the 58th quadrennial American presidential election after the 2016 Michigan Democratic primary.
+Environment State: The United States presidential election of
+
+  Pred : 2016
+  Gold : united states presidential election of 2016
+  EM   : False  |  F1: 0.286
+
+============================================================
+Problem #170
+Question: This Celtic ruler who was born in AD 43 ruled southeastern Britain prior to conquest by which empire?
+
+  ----- Agent A (pact_a_turn0) -----
+pact:  40%|████      | 20/50 [03:52<06:24, 12.83s/it]pact:  42%|████▏     | 21/50 [04:01<05:44, 11.86s/it]pact:  44%|████▍     | 22/50 [04:12<05:24, 11.57s/it]pact:  46%|████▌     | 23/50 [04:22<04:55, 10.94s/it]pact:  48%|████▊     | 24/50 [04:34<04:53, 11.28s/it]  Output: Target Slot: [empire; conqueror; prior to AD 43]
+Action Required: Provide the empire that conquered Britain prior to AD 43.
+Environment State: The Romans, who began their conquest of Britain in AD 43, first campaigned in what is now northeast Wales in 48 against the Deceangli, and gained total contr
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [empire; conqueror; prior to AD 43]
+Action Required: Provide the empire that conquered Britain prior to AD 43.
+Environment State: The Romans, who began their conquest of Britain in AD 43, first campaigned in what is now northeast Wales in 48 against the Deceangli, and gained total contr
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [empire; conqueror; prior to AD 43]
+Action Required: Provide the empire that conquered Britain prior to AD 43.
+Environment State: The Romans, who began their conquest of Britain in AD 43, first campaigned in what is now northeast Wales in 48 against the Deceangli, and gained total contr
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [empire; conqueror; prior to AD 43]
+Action Required: Provide the empire that conquered Britain prior to AD 43.
+Environment State: The Romans, who began their conquest of Britain in AD 43, first campaigned in what is now northeast Wales in 48 against the Deceangli, and gained total contr
+
+  Pred : roman empire
+  Gold : roman
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #171
+Question: What is the name of the detective novelist parent of the author of '"Q" Is for Quarry'?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the name of the detective novelist parent of the author of '"Q" Is for Quarry'.
+Environment State: "Q" Is for Quarry is the 17th novel in Sue Grafton's "Alphabet" series of mystery novels and features Kinsey Millhone, a private eye based in Santa Teresa, California.
+Action R
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [person; Sue Grafton's parent; detective novelist]
+Action Required: Provide the name of Sue Grafton's parent who is a detective novelist.
+Environment State: The daughter of detective novelist C. W. Grafton, she has said the strongest influence on her crime novels is author Ross Macdonal
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [person; Sue Grafton's parent; detective novelist]
+Action Required: Confirm the name of Sue Grafton's parent who is a detective novelist.
+Environment State: C. W. Grafton is the detective novelist parent of Sue Grafton.
+Action Result: C. W. Grafton is the detective novelist parent of Su
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [person; Sue Grafton's parent; detective novelist]
+Action Required: Provide the name of Sue Grafton's parent who is a detective novelist.
+Environment State: The daughter of detective novelist C. W. Grafton, she has said the strongest influence on her crime novels is author Ross Macdonal
+
+  Pred : c w grafton
+  Gold : c w grafton
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #172
+Question: What is the birthplace of the Senator who represents the first of 62 districts in the State Senate?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [location; Senator; represents first district]
+Action Required: Please provide the birthplace of the Senator who represents the first district in New York's State Senate.
+Environment State: New York's 1st State Senate district is one of 62 districts of the New York State Senate. It is c
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [location; Kenneth LaValle; birthplace]
+Action Required: Provide the birthplace of Senator Kenneth LaValle.
+Environment State: Kenneth P. LaValle (born May 22, 1939 in Brooklyn, New York) represents District 1 in the New York State Senate, which comprises the five East End towns of Long
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [location; Kenneth LaValle; birthplace]
+Action Required: The birthplace of Senator Kenneth LaValle is Brooklyn, New York.
+Environment State: Kenneth P. LaValle (born May 22, 1939 in Brooklyn, New York) represents District 1 in the New York State Senate, which comprises the five East End
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [location; Kenneth LaValle; birthplace]
+Action Required: The birthplace of Senator Kenneth LaValle is Brooklyn, New York.
+Environment State: Kenneth P. LaValle (born May 22, 1939 in Brooklyn, New York) represents District 1 in the New York State Senate, which comprises the five East End
+
+  Pred : brooklyn new york
+  Gold : brooklyn new york
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #173
+Question: The Memphis Hustle are based in a suburb of a city with a population of what in 2010?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [number; Memphis; population in 2010]
+Action Required: Provide the 2010 population of the city where the Memphis Hustle's suburb is located.
+Environment State: The Memphis Hustle are an American professional basketball team of the NBA G League announced to begin play for the 2017–18 sea
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [number; Memphis; population in 2010]
+Action Required: Provide the 2010 population of Memphis.
+Environment State: As of census 2010 the MSA had a population of 1,324,108 .
+Action Result: The Memphis metropolitan area had a population of 1,324,108 in 2010.
+Compact target-state rule:
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [number; Memphis; population in 2010]
+Action Required: Provide the 2010 population of Memphis.
+Environment State: The city's population was 646,889 at the 2010 U.S. Census.
+Action Result: The population of Memphis was 646,889 in 2010.
+Compact target-state rule:
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [number; Memphis; population in 2010]
+Action Required: Provide the 2010 population of Memphis.
+Environment State: The city's population was 646,889 at the 2010 U.S. Census.
+Action Result: The population of Memphis was 646,889 in 2010.
+Final Answer: 646,889
+Compact target-state rule:
+
+  Pred : 646889
+  Gold : 48982
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #174
+Question: Which songwriting duo composed music for "La La Land", and created lyrics for "A Christmas Story: The Musical"?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the songwriting duo that composed "La La Land" and created lyrics for "A Christmas Story: The Musical".
+Environment State: The musical has music and lyrics written by Pasek & Paul and the book by Joseph Robinette.
+Action Result: Pasek & Paul created lyrics for "A Christmas S
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [songwriting duo; composed "La La Land"; created lyrics for "A Christmas Story: The Musical"]
+Action Required: Provide the songwriting duo that composed "La La Land".
+Environment State: Benj Pasek and Justin Paul, known together as Pasek and Paul, are an American songwriting duo and com
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [answer type; songwriting duo; composed "La La Land" and created lyrics for "A Christmas Story: The Musical"]
+Action Required: Confirm the songwriting duo for both musical works.
+Environment State: The song was composed by Justin Hurwitz with lyrics by Benj Pasek and Justin Paul, and ch
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [answer type; anchor entity or entities; required qualifier]
+Action Required: [Pasek and Paul composed "La La Land"]
+Environment State: [Benj Pasek and Justin Paul, known together as Pasek and Paul, are an American songwriting duo and composing team for musical theater, films, and telev
+
+  Pred : pasek paul
+  Gold : pasek paul
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #175
+pact:  50%|█████     | 25/50 [04:43<04:23, 10.54s/it]pact:  52%|█████▏    | 26/50 [04:52<04:05, 10.21s/it]pact:  54%|█████▍    | 27/50 [05:04<04:04, 10.63s/it]pact:  56%|█████▌    | 28/50 [05:14<03:51, 10.53s/it]Question: Which of the city at the south of Shelly Beach, New South Wales is a local government area in the Hunter region of New South Wales, Australia?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [city; south of Shelly Beach; local government area in Hunter region]
+Action Required: Provide information about the city south of Shelly Beach that is in the Hunter region.
+Environment State: Shelly Beach is a coastal suburb of the Central Coast region of New South Wales, Australia, lo
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [city; south of Shelly Beach; local government area in Hunter region]
+Action Required: Provide information about the city south of Shelly Beach that is in the Hunter region.
+Environment State: Niagara Park is a suburb of the Central Coast region of New South Wales, Australia 6 km north 
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [city; south of Shelly Beach; local government area in Hunter region]
+Action Required: Provide information about the City of Cessnock.
+Environment State: Bucketty is a locality in the City of Cessnock local government area (LGA), in New South Wales, Australia.
+Action Result: City of Ces
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [city; south of Shelly Beach; local government area in Hunter region]
+Action Required: Provide information about the City of Newcastle.
+Environment State: The City of Newcastle is a local government area in the Hunter region of New South Wales, Australia.
+Action Result: City of Newcastl
+
+  Pred : city of newcastle
+  Gold : city of newcastle
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #176
+Question: Are Bamboo Mañalac and Danny Jones both musicians?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [yes/no; Bamboo Mañalac; musician]
+Action Required: Provide information about Danny Jones being a musician.
+Environment State: Francisco Gaudencio Lope Belardo Mañalac (born March 21, 1976), popularly known as Bamboo Mañalac or simply by the mononym Bamboo, is a Filipino American musici
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [yes/no; Danny Jones; musician]
+Action Required: Provide information about Danny Jones being a musician.
+Environment State: Danny Jones (born 12 March 1986) is a British musician who is one of the lead vocalists and guitarists for pop-rock band McFly.
+Action Result: Danny Jones is a mus
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [yes/no; Bamboo Mañalac; musician]
+Action Required: Confirm Bamboo Mañalac is a musician.
+Environment State: Francisco Gaudencio Lope Belardo Mañalac (born March 21, 1976), popularly known as Bamboo Mañalac or simply by the mononym Bamboo, is a Filipino American musician and singer-song
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [yes/no; Bamboo Mañalac; Danny Jones; both musicians]
+Action Required: Confirm Danny Jones is a musician.
+Environment State: Danny Jones (born 12 March 1986) is a British musician who is one of the lead vocalists and guitarists for pop-rock band McFly.
+Action Result: Danny Jones is a mu
+
+  Pred : yes
+  Gold : yes
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #177
+Question: Works by Hanna Leena Kristiina Varis are part of a collection in a museum that houses approximately 65,000 what?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [artworks; Hanna Leena Kristiina Varis; part of a museum collection]
+Action Required: Provide information about the museum collection size related to Hanna Leena Kristiina Varis's works.
+Environment State: Her works are part of major art collections in Finland and abroad, such as the Ki
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [artworks; Albertina; approximately 65,000]
+Action Required: The Albertina houses approximately 65,000 drawings.
+Environment State: The Albertina is a museum in the Innere Stadt (First District) of Vienna, Austria. It houses one of the largest and most important print rooms in the world
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [drawings; Albertina; approximately 65,000]
+Action Required: Provide information about the Albertina's collection size related to drawings.
+Environment State: The Albertina is a museum in the Innere Stadt (First District) of Vienna, Austria. It houses one of the largest and most importa
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [drawings; Albertina; approximately 65,000]
+Action Required: The Albertina houses approximately 65,000 drawings.
+Environment State: The Albertina is a museum in the Innere Stadt (First District) of Vienna, Austria. It houses one of the largest and most important print rooms in the world
+
+  Pred : drawings
+  Gold : drawings
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #178
+Question: When was the Western Germanic language spoken from which the small settlement situated on the river Leda opposite Leer derives its name?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [centuries; Old Frisian; derivation of name]
+Action Required: Provide the time period when Old Frisian was spoken.
+Environment State: The Muhde, from the Old Frisian "mutha" meaning "(river) mouth"), is the name of the small settlement.
+Action Result: Old Frisian was spoken around the t
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [centuries; Old Saxon; derivation of name]
+Action Required: Provide the time period when Old Saxon was spoken.
+Environment State: Old Saxon, also known as Old Low German, was a Germanic language and the earliest recorded form of Low German (spoken nowadays in Northern Germany, the north
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [centuries; Old Frisian; derivation of name]
+Action Required: Provide the time period when Old Frisian was spoken.
+Environment State: The Muhde, from the Old Frisian "mutha" meaning "(river) mouth"), is the name of the small settlement.
+Action Result: Old Frisian was spoken around the t
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [centuries; Old Frisian; derivation of name]
+Action Required: Provide the time period when Old Frisian was spoken.
+Environment State: Old Frisian is a West Germanic language spoken between the 8th and 16th centuries in the area between the Rhine and Weser on the European North Sea coast
+
+  Pred : 8th to 16th centuries
+  Gold : between 8th and 16th centuries
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #179
+Question: Born on 6 March 1937, this man was also a citizen of the United Kingdom.
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the citizen of the United Kingdom born on 6 March 1937.
+Environment State: Sir Matthew Alistair Grant {'1': ", '2': ", '3': ", '4': "} (6 March 1937 – 21 January 2001) was a British businessman.
+Action Result: Alistair Grant was a British citizen born on 6 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Action Required: Provide information about Robin John Bailie.
+Environment State: Robin John Bailie (born 6 March 1937) is a Northern Irish solicitor and former politician.
+Action Result: Robin John Bailie was born on 6 March 1937 and is a citizen of the United Kingdom.
+Compact target-state rule:
+Tar
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Action Required: Confirm if Robin John Bailie is the correct answer.
+Environment State: Robin John Bailie (born 6 March 1937) is a Northern Irish solicitor and former politician.
+Action Result: Robin John Bailie was born on 6 March 1937 and is a citizen of the United Kingdom.
+Compact target-state ru
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [person; Robin John Bailie; citizen of the United Kingdom]
+Action Required: Provided by Agent A.
+Environment State: Robin John Bailie (born 6 March 1937) is a Northern Irish solicitor and former politician.
+Action Result: Robin John Bailie was born on 6 March 1937 and is a citizen of th
+
+  Pred : robin john bailie
+pact:  58%|█████▊    | 29/50 [05:23<03:29,  9.96s/it]pact:  60%|██████    | 30/50 [05:31<03:09,  9.49s/it]pact:  62%|██████▏   | 31/50 [05:43<03:11, 10.08s/it]pact:  64%|██████▍   | 32/50 [05:52<02:59,  9.99s/it]pact:  66%|██████▌   | 33/50 [06:03<02:52, 10.16s/it]  Gold : alistair grant
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #180
+Question: What country does Hatton Hill and Hatton Castle, Angus have in common?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [country; Hatton Hill and Hatton Castle; located in]
+Action Required: Provide the country where both Hatton Hill and Hatton Castle are located.
+Environment State: Hatton Hill is a mountain landform in Angus, Scotland and is the most easterly peak of the Sidlaw Hills.  Hatton Castle stan
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [country; Hatton Hill and Hatton Castle; located in]
+Action Required: Both Hatton Hill and Hatton Castle are located in Scotland.
+Environment State: Hatton Castle stands on the lower part of Hatton Hill, the most easterly of the Sidlaw Hills, to the south of Newtyle in Angus, Scotland.
+
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [country; Hatton Hill and Hatton Castle; located in]
+Action Required: Confirm the country where both Hatton Hill and Hatton Castle are located.
+Environment State: Hatton Hill is a mountain landform in Angus, Scotland and is the most easterly peak of the Sidlaw Hills. Hatton Castle stand
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [country; Hatton Hill and Hatton Castle; located in]
+Action Required: Both Hatton Hill and Hatton Castle are located in Scotland.
+Environment State: Hatton Castle stands on the lower part of Hatton Hill, the most easterly of the Sidlaw Hills, to the south of Newtyle in Angus, Scotland.
+
+
+  Pred : scotland
+  Gold : scotland
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #181
+Question: What podcast was the cheif executive officer of Nerdist Industries a guest on?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [podcast; Chris Hardwick; CEO of Nerdist Industries]
+Action Required: Confirm if Chris Hardwick was a guest on The Drop-In.
+Environment State: The Drop-In is an At Will Radio podcast hosted by Will Malnati. In each episode, Malnati has a candid conversation with an interesting person in
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [podcast; Chris Hardwick; CEO of Nerdist Industries]
+Action Required: Confirm if Chris Hardwick was a guest on any other podcast mentioned.
+Environment State: Chris Hardwick is the chief executive officer of Nerdist Industries, the digital division of Legendary Entertainment.
+Action Res
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [podcast; Chris Hardwick; CEO of Nerdist Industries]
+Action Required: Confirm if any other podcasts mentioned have Chris Hardwick as a guest.
+Environment State: Maltin on Movies is a podcast launched in 2014, on Nerdist Industries, following a 2010 to 2014 television-broadcast movie rev
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [podcast; Chris Hardwick; CEO of Nerdist Industries]
+Action Required: Confirm if Chris Hardwick was a guest on The Drop-In.
+Environment State: In each episode, Malnati has a candid conversation with an interesting person in popular culture or leader in entertainment, hospitality and bus
+
+  Pred : dropin
+  Gold : comedy film nerds
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #182
+Question: Randall Cunningham II was a multi-sport athlete at the high school located in what Nevada city?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [city; Bishop Gorman High School; located in]
+Action Required: Please provide the city where Bishop Gorman High School is located.
+Environment State: He was a high jumper and quarterback at Bishop Gorman High School. He is a five-time Nevada Interscholastic Activities Association (NIAA)
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [city; Bishop Gorman High School; located in]
+Action Required: Provide the city where Bishop Gorman High School is located.
+Environment State: Bishop Gorman High School (also commonly referred to as Gorman High School or BGHS) is a Roman Catholic, private, preparatory school located in 
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [city; Bishop Gorman High School; located in]
+Action Required: Provide the city where Bishop Gorman High School is located.
+Environment State: Bishop Gorman High School (also commonly referred to as Gorman High School or BGHS) is a Roman Catholic, private, preparatory school located in 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [city; Bishop Gorman High School; located in]
+Action Required: Provide the city where Bishop Gorman High School is located.
+Environment State: Bishop Gorman High School (also commonly referred to as Gorman High School or BGHS) is a Roman Catholic, private, preparatory school located in 
+
+  Pred : summerlin
+  Gold : summerlin
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #183
+Question: Which English musician is known for both the songs "See Yourself" and "Withing You Without You"?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [musician; George Harrison; known for both "See Yourself" and "Within You Without You"]
+Action Required: Request information about "Within You Without You" from Agent B.
+Environment State: [See Yourself] "See Yourself" is a song by English musician George Harrison, released on his 1976 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [musician; George Harrison; known for both "See Yourself" and "Within You Without You"]
+Action Required: Confirm if "Within You Without You" was written by George Harrison.
+Environment State: "Within You Without You" is a song written by George Harrison and released on the Beatles' 1967
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [musician; George Harrison; known for both "See Yourself" and "Within You Without You"]
+Action Required: Confirm if George Harrison is the answer.
+Environment State: "See Yourself" is a song by English musician George Harrison, released on his 1976 album "Thirty Three & 1/3".
+Action Res
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [musician; George Harrison; known for both "See Yourself" and "Within You Without You"]
+Action Required: Confirm if George Harrison is known for both songs.
+Environment State: "Within You Without You" is a song written by George Harrison and released on the Beatles' 1967 album "Sgt. Pep
+
+  Pred : action result george harrison
+  Gold : george harrison
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #184
+Question: Which professional ice hockey position does the Captain of the National Hockey League All-Star Game "Away Team" play?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [position; Jonathan Toews; Captain of the Away Team]
+Action Required: Provide the position Jonathan Toews plays.
+Environment State: The team captains were chosen by NHL Hockey Operations: Nick Foligno of the All-Star Game-hosting Blue Jackets served as captain for the home team, and Jon
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [position; Jonathan Toews; Captain of the Away Team]
+Action Required: Provide the position Jonathan Toews plays.
+Environment State: Jonathan Bryan Toews, {'1': ", '2': ", '3': ", '4': "} ( ; born April 29, 1988) is a Canadian professional ice hockey centre who currently serves as captai
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [position; Jonathan Toews; Captain of the Away Team]
+Action Required: Provide the position Jonathan Toews plays.
+Environment State: Jonathan Bryan Toews, {'1': ", '2': ", '3': ", '4': "} ( ; born April 29, 1988) is a Canadian professional ice hockey centre who currently serves as captai
+
+  ----- Agent B (pact_b_turn3) -----
+pact:  68%|██████▊   | 34/50 [06:13<02:41, 10.12s/it]pact:  70%|███████   | 35/50 [06:22<02:29,  9.96s/it]pact:  72%|███████▏  | 36/50 [06:35<02:29, 10.69s/it]pact:  74%|███████▍  | 37/50 [06:47<02:23, 11.01s/it]pact:  76%|███████▌  | 38/50 [07:05<02:37, 13.14s/it]  Output: Target Slot: [position; Jonathan Toews; Captain of the Away Team]
+Action Required: Provide the position Jonathan Toews plays.
+Environment State: Jonathan Bryan Toews, {'1': ", '2': ", '3': ", '4': "} ( ; born April 29, 1988) is a Canadian professional ice hockey centre who currently serves as captai
+
+  Pred : centre
+  Gold : canadian professional ice hockey centre
+  EM   : False  |  F1: 0.333
+
+============================================================
+Problem #185
+Question: What year did the series on CBS, starring the actor who known for his role in "Rebel Without a Cause," air?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [year; actor; starred in "Rebel Without a Cause"]
+Action Required: Provide the name of the actor who starred in "Rebel Without a Cause".
+Environment State: James Dean's character's father in "Rebel Without a Cause", and Thurston Howell III, on the 1960s sitcom "Gilligan's Island".
+Actio
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [year; Jim Backus; starred in his own show]
+Action Required: Provide the year Jim Backus starred in his own show.
+Environment State: He also starred in his own show of one season, "The Jim Backus Show", also known as "Hot Off the Wire".
+Action Result: The show "The Jim Backus Show" aire
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [year; "The Jim Backus Show"; aired]
+Action Required: Provide the year "The Jim Backus Show" aired.
+Environment State: He also starred in his own show of one season, "The Jim Backus Show", also known as "Hot Off the Wire".
+Action Result: "The Jim Backus Show" aired in 1976.
+Compact targ
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [year; "Rebel Without a Cause"; aired]
+Action Required: Provide the year "Rebel Without a Cause" aired.
+Environment State: James Dean starred in "Rebel Without a Cause" (1955).
+Action Result: 1955
+Final Answer: 1955
+
+  Pred : 1955
+  Gold : 1952
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #186
+Question: What season was the character introduced that becomes the main antagonist in the  following season, from the animated television series created by Bryan Konietzko and Michael Dante DiMartino as a sequel to "", which aired from 2005 to 2008?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide the season of introduction and antagonist status of Kuvira.
+Environment State: General Kuvira (古維拉 , Gǔ Wéi Lā ) is a fictional character and a character in "The Legend of Korra", created by Michael Dante DiMartino and Bryan Konietzko. Introduced in the third season of the s
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [Season; Kuvira; introduced and main antagonist]
+Action Required: Provide the season of introduction and antagonist status of Kuvira.
+Environment State: General Kuvira (古維拉 , Gǔ Wéi Lā ) is a fictional character and a character in "The Legend of Korra", created by Michael Dante DiMartin
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [Season; Kuvira; introduced and main antagonist]
+Action Required: Confirm if the provided information about Kuvira is sufficient to answer the question.
+Environment State: General Kuvira (古維拉 , Gǔ Wéi Lā ) is a fictional character and a character in "The Legend of Korra", created by Mic
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [Season; Kuvira; introduced and main antagonist]
+Action Required: [Kuvira is introduced in the third season and becomes the main antagonist in the fourth season.]
+Environment State: General Kuvira (古維拉 , Gǔ Wéi Lā ) is a fictional character and a character in "The Legend of Korra", crea
+
+  Pred : third
+  Gold : third
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #187
+Question: Who were the directors of the 2009 American science fiction film starring the actor who played Dexter Morgan in the Showtime TV Network series "Dexter"?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [directors; 2009 American science fiction film; Michael C. Hall played Dexter Morgan]
+Action Required: Provide the directors of the 2009 American science fiction film where Michael C. Hall starred.
+Environment State: Gamer is a 2009 American science fiction action film written and direc
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [directors; 2009 American science fiction film; Michael C. Hall played Dexter Morgan]
+Action Required: Provide the directors of the 2009 American science fiction film where Michael C. Hall starred.
+Environment State: Michael C. Hall is an American actor, known for his roles as Dexter Mo
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [directors; 2009 American science fiction film; Michael C. Hall played Dexter Morgan]
+Action Required: Confirm the directors of the 2009 American science fiction film where Michael C. Hall starred.
+Environment State: Gamer is a 2009 American science fiction action film written and direc
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [directors; 2009 American science fiction film; Michael C. Hall played Dexter Morgan]
+Action Required: Provide the directors of the 2009 American science fiction film where Michael C. Hall starred.
+Environment State: Gamer is a 2009 American science fiction action film written and direc
+
+  Pred : mark neveldine and brian taylor
+  Gold : mark neveldine and brian taylor
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #188
+Question: Which travel parody series featured American actor, comedian, and radio host best known as the host of "The Joe Schmo Show"?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [travel parody series; Lance Krall; host of "The Joe Schmo Show"]
+Action Required: Provide information on a travel parody series that features Lance Krall.
+Environment State: Free Radio is a television show, created by Lance Krall and Rory Rosegarten.
+Action Result: Free Radio does not 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [travel parody series; Ralph Garman; host of "The Joe Schmo Show"]
+Action Required: Provide information on a travel parody series that features Ralph Garman.
+Environment State: Ralph Garman (born November 17, 1964) is an American actor, comedian, and radio host best known as the host of
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [travel parody series; Lance Krall; host of "The Joe Schmo Show"]
+Action Required: Provide information on a travel parody series that features Lance Krall as the host of "The Joe Schmo Show".
+Environment State: Free Radio is a television show, created by Lance Krall and Rory Rosegarten.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [travel parody series; Ralph Garman; host of "The Joe Schmo Show"]
+Action Required: [Vaycay with Johnny Sneed is a travel parody series featuring Ralph Garman]
+Environment State: [Vaycay with Johnny Sneed is a travel parody series that parodies various travel and reality TV shows, and f
+
+  Pred : vaycay with johnny sneed
+  Gold : hidden america with jonah ray
+  EM   : False  |  F1: 0.222
+
+============================================================
+Problem #189
+Question: Do The Importance of Being Icelandic and The Five Obstructions belong to different film genres ?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [genre; The Importance of Being Icelandic; documentary]
+Action Required: Provide the genre of The Importance of Being Icelandic.
+Environment State: The Importance of Being Icelandic is a 1998 documentary film by the filmmaker Jon Gustafsson (born in Iceland and living in Canada) that tr
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [genre; The Five Obstructions; documentary]
+Action Required: Provide the genre of The Five Obstructions.
+Environment State: The Five Obstructions is a 2003 Danish documentary film directed by Lars von Trier and Jørgen Leth.
+Action Result: The Five Obstructions is a documentary.
+
+  ----- Agent A (pact_a_turn2) -----
+pact:  78%|███████▊  | 39/50 [07:13<02:08, 11.65s/it]pact:  80%|████████  | 40/50 [07:23<01:50, 11.04s/it]pact:  82%|████████▏ | 41/50 [07:35<01:42, 11.39s/it]pact:  84%|████████▍ | 42/50 [07:46<01:30, 11.37s/it]pact:  86%|████████▌ | 43/50 [07:59<01:22, 11.75s/it]  Output: Target Slot: [answer type; The Importance of Being Icelandic and The Five Obstructions; different genres]
+Action Required: Provide if The Importance of Being Icelandic and The Five Obstructions belong to different film genres.
+Environment State: The Importance of Being Icelandic is a documentary and
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [answer type; The Importance of Being Icelandic and The Five Obstructions; different genres]
+Action Required: Compare the genres of The Importance of Being Icelandic and The Five Obstructions.
+Environment State: The Importance of Being Icelandic is a documentary and The Five Obstruction
+
+  Pred : no
+  Gold : no
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #190
+Question: Tefik Selim Mborja was a part of a party that held power in Albania until what year?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [year; Albanian Fascist Party; held power]
+Action Required: Provide the year when the Albanian Fascist Party lost power.
+Environment State: Tefik Selim Mborja (1888-1954) was an Albanian politician and lawyer. He served as the general secretary of the Albanian Fascist Party during the S
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [year; Albanian Fascist Party; lost power]
+Action Required: Provide the year when the Albanian Fascist Party lost power.
+Environment State: The Albanian Fascist Party (Albanian: "Partia Fashiste e Shqipërisë" , or PFSh) was a Fascist organization active during World War II which held no
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [year; Albanian Fascist Party; lost power]
+Action Required: Provide the year when the Albanian Fascist Party lost power.
+Environment State: The Albanian Fascist Party lost power in 1943.
+Action Result: The Albanian Fascist Party lost power in 1943.
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [year; Party of Labour of Albania; held power]
+Action Required: Provide the year when the Party of Labour of Albania lost power.
+Environment State: The People's Socialist Republic was officially dissolved on 28 November 1998 upon the adoption of the new Constitution of Albania.
+Action R
+
+  Pred : 1992
+  Gold : 1943
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #191
+Question: Joe Walker played for which team that ends their regular season with the Civil War rivalry game?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [team; Joe Walker; ends regular season with Civil War game]
+Action Required: Provide information about the team Joe Walker played for in college that ends their regular season with the Civil War game.
+Environment State: Joe Walker (born December 11, 1992) is an American football linebac
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [team; Joe Walker; ends regular season with Civil War game]
+Action Required: Provide information about the team Joe Walker played for in college that ends their regular season with the Civil War game.
+Environment State: The Oregon Ducks football program is a college football team for th
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [team; Joe Walker; ends regular season with Civil War game]
+Action Required: Provide information about the team Joe Walker played for in college that ends their regular season with the Civil War game.
+Environment State: The Civil War is the colloquial name for an American college footba
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [team; Joe Walker; ends regular season with Civil War game]
+Action Required: Provide information about the team Joe Walker played for in college that ends their regular season with the Civil War game.
+Environment State: Oregon plays its home games at the 54,000 seat Autzen Stadium in Eu
+
+  Pred : oregon ducks
+  Gold : oregon ducks football
+  EM   : False  |  F1: 0.800
+
+============================================================
+Problem #192
+Question: What station broadcast the episode "Marry Me a Little, Marry Me a Little More" , of the series created by Max Mutchnick and David Kohan?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [station; Marry Me a Little, Marry Me a Little More; broadcast]
+Action Required: Provide the station that broadcast the episode "Marry Me a Little, Marry Me a Little More".
+Environment State: "Marry Me a Little, Marry Me a Little More" is a double-length episode of the American televisi
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [station; Marry Me a Little, Marry Me a Little More; broadcast]
+Action Required: Provide the station that broadcast the episode "Marry Me a Little, Marry Me a Little More".
+Environment State: It was broadcast on the National Broadcasting Company (NBC) in the United States on November 21
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [station; Marry Me a Little, Marry Me a Little More; broadcast]
+Action Required: The episode "Marry Me a Little, Marry Me a Little More" was broadcast on NBC.
+Environment State: The episode originally aired on the National Broadcasting Company (NBC) in the United States on November 21, 
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [station; Marry Me a Little, Marry Me a Little More; broadcast]
+Action Required: The episode "Marry Me a Little, Marry Me a Little More" was broadcast on the National Broadcasting Company (NBC).
+Environment State: The episode originally aired on the National Broadcasting Company (NBC) i
+
+  Pred : nbc
+  Gold : national broadcasting company
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #193
+Question: Georges-Henri Bousquet translated the work of a historian who is of what heritage?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about the historian translated by Georges-Henri Bousquet.
+Environment State: He is also known for his translation work of the great Muslim authors, Al-Ghazali, a theologian who died in 1111 and Tunisian historian Ibn Khaldun (1332-1406).
+Action Result: Ibn Khaldu
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [heritage; Ibn Khaldun; historian]
+Action Required: Provide the heritage of Ibn Khaldun.
+Environment State: Ibn Khaldun ( ; Arabic: أبو زيد عبد الرحمن بن محمد بن خلدون الحضرمي‎ ‎ , "Abū Zayd ‘Abd ar-Raḥmān ibn Muḥammad ibn Khaldūn al-Ḥaḍramī" ; 27 May 1332 – 17 March 1406) was a North A
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [heritage; Ibn Khaldun; historian]
+Action Required: Provide the heritage of Ibn Khaldun.
+Environment State: Ibn Khaldun ( ; Arabic: أبو زيد عبد الرحمن بن محمد بن خلدون الحضرمي‎ ‎ , "Abū Zayd ‘Abd ar-Raḥmān ibn Muḥammad ibn Khaldūn al-Ḥaḍramī" ; 27 May 1332 – 17 March 1406) was a North A
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [heritage; Ibn Khaldun; historian]
+Action Required: Provide the heritage of Ibn Khaldun.
+Environment State: Ibn Khaldun ( ; Arabic: أبو زيد عبد الرحمن بن محمد بن خلدون الحضرمي‎ ‎ , "Abū Zayd ‘Abd ar-Raḥmān ibn Muḥammad ibn Khaldūn al-Ḥaḍramī" ; 27 May 1332 – 17 March 1406) was a North A
+
+  Pred : arab
+  Gold : north african arab
+  EM   : False  |  F1: 0.500
+
+============================================================
+Problem #194
+Question: In which city are the headquarters of the American research and scientific development company where Ravi Sethi worked as computer scientist located?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [city; Ravi Sethi; worked as computer scientist]
+Action Required: Provide information about the city where Ravi Sethi worked.
+Environment State: Ravi Sethi (born 1947) is an Indian computer scientist retired from Bell Labs and president of Avaya Labs Research. He also serves as a member
+
+  ----- Agent B (pact_b_turn1) -----
+pact:  88%|████████▊ | 44/50 [08:09<01:07, 11.23s/it]pact:  90%|█████████ | 45/50 [08:20<00:55, 11.11s/it]pact:  92%|█████████▏| 46/50 [08:30<00:43, 10.84s/it]pact:  94%|█████████▍| 47/50 [08:45<00:36, 12.19s/it]pact:  96%|█████████▌| 48/50 [08:52<00:21, 10.58s/it]  Output: Target Slot: [city; Bell Labs; headquarters]
+Action Required: Provide information about the headquarters city of Bell Labs.
+Environment State: Nokia Bell Labs (formerly named AT&T Bell Laboratories, Bell Telephone Laboratories and Bell Labs) is an American research and scientific development company
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [city; Bell Labs; headquarters]
+Action Required: Provide information on the city where Bell Labs' headquarters is located.
+Environment State: Nokia Bell Labs (formerly named AT&T Bell Laboratories, Bell Telephone Laboratories and Bell Labs) is an American research and scientific develop
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [city; Bell Labs; headquarters]
+Action Required: The city where Bell Labs' headquarters is located.
+Environment State: Its headquarters are located in Murray Hill, New Jersey, in addition to other laboratories around the rest of the United States and in other countries.
+Action Result: M
+
+  Pred : murray hill new jersey
+  Gold : murray hill
+  EM   : False  |  F1: 0.667
+
+============================================================
+Problem #195
+Question: What is the full name of the viral respiratory disease in which Yi Guan's research helped to prevent the outbreak of?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [disease name; Yi Guan; prevented outbreak]
+Action Required: Provide the name of the viral respiratory disease Yi Guan's research helped prevent.
+Environment State: Yi Guan is a Chinese virologist who, in 2014, was ranked as 11th in the world by Thomson Reuters (now known as Clarivate A
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [Severe acute respiratory syndrome; Yi Guan; prevented outbreak]
+Action Required: Confirm the full name of the viral respiratory disease.
+Environment State: Severe acute respiratory syndrome (SARS) is a viral respiratory disease of zoonotic origin caused by the SARS coronavirus (SARS-Co
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [Severe acute respiratory syndrome; Yi Guan; prevented outbreak]
+Action Required: Confirm the full name of the viral respiratory disease.
+Environment State: Severe acute respiratory syndrome (SARS) is a viral respiratory disease of zoonotic origin caused by the SARS coronavirus (SARS-Co
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [Severe acute respiratory syndrome; Yi Guan; prevented outbreak]
+Action Required: Confirm the full name of the viral respiratory disease.
+Environment State: Severe acute respiratory syndrome (SARS) is a viral respiratory disease of zoonotic origin caused by the SARS coronavirus (SARS-Co
+
+  Pred : severe acute respiratory syndrome
+  Gold : severe acute respiratory syndrome
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #196
+Question: Which Kentucky Writers Hall of Fame author has had works published by Dim Gray Bar Press?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Action Required: Provide information about authors published by Dim Gray Bar Press.
+Environment State: Subsequent works, handprinted in editions of usually 100 copies or less, included work by Wendell Berry, Eavan Boland, Guy Davenport, Sharon Dolin, Mark Doty, Jonathan Greene, Rachel Hadas, Andrew 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [author; Wendell Berry; Kentucky Writers Hall of Fame]
+Action Required: Confirm if Wendell Berry is a member of the Kentucky Writers Hall of Fame.
+Environment State: Wendell Berry was named the recipient of the 2013 Richard C. Holbrooke Distinguished Achievement Award. On January 28, 20
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [answer type; author; Kentucky Writers Hall of Fame]
+Action Required: Confirm if Wendell Berry has had works published by Dim Gray Bar Press.
+Environment State: Subsequent works, handprinted in editions of usually 100 copies or less, included work by Wendell Berry.
+Action Result: Wendel
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [answer type; author; Kentucky Writers Hall of Fame]
+Action Required: Wendell Berry has had works published by Dim Gray Bar Press.
+Environment State: Subsequent works, handprinted in editions of usually 100 copies or less, included work by Wendell Berry.
+Action Result: Wendell Berry
+Com
+
+  Pred : wendell berry
+  Gold : wendell berry
+  EM   : True  |  F1: 1.000
+
+============================================================
+Problem #197
+Question: What director worked with Vikram Bhatt on a film starring actors Rajneesh Duggal and Adah Sharma?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [director; 1920 (film series); starring Rajneesh Duggal and Adah Sharma]
+Action Required: Provide the director of the 1920 film series.
+Environment State: 1920 is a series of Indian horror films. It is directed by Vikram Bhatt, Bhushan Patel and Tinu Suresh Desai, in each of three films
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [director; 1920 (film); starring Rajneesh Duggal and Adah Sharma]
+Action Required: Provide the director of the 1920 film starring Rajneesh Duggal and Adah Sharma.
+Environment State: 1920 is a 2008 Indian horror film written and directed by Vikram Bhatt.  Filmed in Hindi, the film revolv
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [director; 1920 (film); starring Rajneesh Duggal and Adah Sharma]
+Action Required: Provide the director of the 1920 film starring Rajneesh Duggal and Adah Sharma.
+Environment State: 1920 is a 2008 Indian horror film written and directed by Vikram Bhatt. Filmed in Hindi, the film revolve
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [director; 1920 (film); starring Rajneesh Duggal and Adah Sharma]
+Action Required: Provide the director of the 1920 film starring Rajneesh Duggal and Adah Sharma.
+Environment State: 1920 is a 2008 Indian horror film written and directed by Vikram Bhatt. Filmed in Hindi, the film revolve
+
+  Pred : vikram bhatt
+  Gold : tinu suresh desai
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #198
+Question: Robert Smith founded the multinational company headquartered in what city?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [city; Robert Smith; founded company]
+Action Required: Provide information about the city where Robert Smith founded his company.
+Environment State: Robert Smith (June 12, 1802 – December 21, 1867) was a U.S. Representative from Illinois, nephew of Jeremiah Smith and Samuel Smith of New
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [city; General Mills; founded]
+Action Required: Provide the city where General Mills was founded.
+Environment State: General Mills, Inc., is an American multinational manufacturer and marketer of branded consumer foods sold through retail stores. It is headquartered in Golden Valley, Mi
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [city; General Mills; founded]
+Action Required: Provide the city where General Mills was founded.
+Environment State: Smith founded General Mills in 1856.
+Action Result: The context does not specify the city where General Mills was founded.
+Compact target-state rule:
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [city; General Mills; founded]
+Action Required: Provide the city where General Mills was founded.
+Environment State: It is headquartered in Golden Valley, Minnesota, a suburb of Minneapolis.
+Action Result: Golden Valley, Minnesota
+Compact target-state rule:
+
+  Pred : compact targetstate rule
+  Gold : golden valley minnesota
+  EM   : False  |  F1: 0.000
+
+============================================================
+Problem #199
+Question: What amount was the settlement that the character from the Son of al Quada got in 2017?
+
+  ----- Agent A (pact_a_turn0) -----
+pact:  98%|█████████▊| 49/50 [09:04<00:10, 10.88s/it]pact: 100%|██████████| 50/50 [09:19<00:00, 12.18s/it]pact: 100%|██████████| 50/50 [09:19<00:00, 11.18s/it]
+  Output: Action Required: Provide the settlement amount for the character from Son of al Qaeda in 2017.
+Environment State: Son of al Qaeda is a documentary about Abdurahman Khadr, a young Canadian whose father was an associate of Osama bin Laden, produced by Terence McKenna and Nazim Baksh.
+Action Result: Th
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [number; Abdurahman Khadr; settlement in 2017]
+Action Required: Provide the settlement amount for Omar Khadr in 2017.
+Environment State: In 2017, Omar Khadr sued the Canadian government for infringing his rights under the Charter of Rights and Freedoms; this lawsuit was settled with a $
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [number; Abdurahman Khadr; settlement in 2017]
+Action Required: Request the settlement amount for Abdurahman Khadr in 2017 if available.
+Environment State: Not applicable; no further relevant information in this context.
+Action Result: There is no settlement information available for Ab
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [number; Omar Khadr; settlement in 2017]
+Action Required: Provide the settlement amount for Omar Khadr in 2017.
+Environment State: In 2017, Omar Khadr sued the Canadian government for infringing his rights under the Charter of Rights and Freedoms; this lawsuit was settled with a $10.5 m
+
+  Pred : 105 million usd 8 million
+  Gold : 105 million
+  EM   : False  |  F1: 0.571
+
+============================================================
+Problem #200
+Question: Considered the strongest recorded tropical cyclone, which cyclone had a film made about it in 2007?
+
+  ----- Agent A (pact_a_turn0) -----
+  Output: Target Slot: [film; 1999 Odisha cyclone; 2007]
+Action Required: Provide information about a film made about a cyclone in 2007.
+Environment State: Kathantara (Odia: କଥାନ୍ତର , English "Another Story") is a 2007 Indian Oriya language disaster film directed by Himansu Khatua, a story of tribulations of 
+
+  ----- Agent B (pact_b_turn1) -----
+  Output: Target Slot: [film; Cyclone Gonu; 2007]
+Action Required: Provide information about a film made about Cyclone Gonu in 2007.
+Environment State: With a favorable upper-level environment and warm sea surface temperatures, it rapidly intensified to attain peak winds of 235 km/h (145 mph) on June 4, accor
+
+  ----- Agent A (pact_a_turn2) -----
+  Output: Target Slot: [film; 1999 Odisha cyclone; 2007]
+Action Required: Provide information about a film made about the 1999 Odisha cyclone in 2007.
+Environment State: Kathantara (Odia: କଥାନ୍ତର , English "Another Story") is a 2007 Indian Oriya language disaster film directed by Himansu Khatua, a story of tr
+
+  ----- Agent B (pact_b_turn3) -----
+  Output: Target Slot: [film; Cyclone Gonu; 2007]
+Action Required: Provide information about a film made about Cyclone Gonu in 2007.
+Environment State: No film about Cyclone Gonu is mentioned in the given context.
+Action Result: No film about Cyclone Gonu is mentioned in the given context.
+Final Answer: Katha
+
+  Pred : kathantara
+  Gold : 1999 odisha cyclone
+  EM   : False  |  F1: 0.000
+
+============================================================
+RESULTS:
+{
+  "method": "pact",
+  "model": "/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct",
+  "dataset": "hotpotqa",
+  "data_path": "data/hotpot_dev_distractor_v1.json",
+  "seed": 42,
+  "start_index": 150,
+  "max_samples": 50,
+  "exact_match": 0.44,
+  "avg_f1": 0.6036,
+  "correct": 22,
+  "avg_turns": 4.0,
+  "avg_output_tokens_per_turn": 124.3,
+  "avg_communication_tokens": 497.3,
+  "avg_total_tokens": 5427.8,
+  "total_time_sec": 559.22,
+  "time_per_sample_sec": 11.1843
+}
+
+Per-sample results saved to: /data/xuhaoming/yfy/research_workspace/results/pact-qwen25-14b-hotpot50-offset150-compact-final-contract-20260614_gpu/pact_qwen25_14b_hotpot50_offset150_compact_final_contract.jsonl

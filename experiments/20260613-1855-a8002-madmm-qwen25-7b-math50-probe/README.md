@@ -94,12 +94,40 @@ Small local copies:
 - `mad_objective_3agents_2rounds_seed41.json`
 - `mad_subjective_3agents_2rounds_seed41.json`
 - `comm_trace_madmm_math50.jsonl`
+- `comm_trace_madmm_math50_v11.jsonl`
 - `analysis_summary.json`
 - `analysis_subjective_addendum.json`
 - `run.log`
 - `outer.log`
 - `madmm_math_subjective_probe50_20260613_1935.log`
 - `madmm_math_subjective_probe50_20260613_1935.outer.log`
+
+## Derived Schema v1.1 Trace
+
+Created locally without rerunning the model:
+
+```bash
+python scripts/extract_comm_trace_schema.py madmm \
+  --run-id 20260613-1855-a8002-madmm-qwen25-7b-math50-probe-v11 \
+  --results-dir experiments/20260613-1855-a8002-madmm-qwen25-7b-math50-probe \
+  --methods cot mad_naive mad_objective mad_subjective \
+  --task-regime math_reasoning \
+  --out experiments/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/comm_trace_madmm_math50_v11.jsonl
+```
+
+Validation: 200 rows, schema `acr.comm_trace.v1.1`, with method-specific public-state labels:
+
+| Method | Public State Surface | Communication Policy |
+| --- | --- | --- |
+| `cot` | `none` | `none` |
+| `mad_naive` | `full_reasoning` | `broadcast` |
+| `mad_objective` | `masked_full_reasoning` | `objective_memory_mask` |
+| `mad_subjective` | `masked_full_reasoning` | `subjective_memory_mask` |
+
+Context-event validation:
+
+- `cot`: 0 context events per row;
+- `mad_naive`, `mad_objective`, and `mad_subjective`: 1 derived context event per row from `mask_history`.
 
 ## What Happened
 

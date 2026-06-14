@@ -1,0 +1,17 @@
+{
+  "run_id": "20260614-1418-local-pact-unrecovered-case-inspection",
+  "type": "local_case_inspection",
+  "created_date": "2026-06-14",
+  "model_calls": false,
+  "gpu_used": false,
+  "inputs": {
+    "stable_cases": "experiments/20260614-1402-local-pact-stable-wrong-after-extraction/cases.jsonl",
+    "trace": "experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl"
+  },
+  "outputs": {
+    "summary": "experiments/20260614-1418-local-pact-unrecovered-case-inspection/summary.json",
+    "focus_cases": "experiments/20260614-1418-local-pact-unrecovered-case-inspection/focus_cases.jsonl",
+    "manual_labels": "experiments/20260614-1418-local-pact-unrecovered-case-inspection/manual_labels.jsonl"
+  },
+  "script": "scripts/extract_pact_unrecovered_focus_cases.py"
+}

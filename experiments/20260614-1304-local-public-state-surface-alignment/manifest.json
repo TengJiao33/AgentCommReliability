@@ -1,0 +1,15 @@
+{
+  "command": "python scripts\\align_public_state_surfaces.py --dar-preview experiments\\20260614-1258-local-dar-typed-surface-preview\\typed_surface_preview.jsonl --pact-result experiments\\20260614-1100-a8002-pact-qwen25-14b-hotpot50\\pact_qwen25_14b_hotpot50.jsonl --summary-out experiments\\20260614-1304-local-public-state-surface-alignment\\summary.json --records-out experiments\\20260614-1304-local-public-state-surface-alignment\\public_state_surface_records.jsonl",
+  "created_date": "2026-06-14",
+  "inputs": [
+    "experiments/20260614-1258-local-dar-typed-surface-preview/typed_surface_preview.jsonl",
+    "experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/pact_qwen25_14b_hotpot50.jsonl"
+  ],
+  "outputs": [
+    "experiments/20260614-1304-local-public-state-surface-alignment/summary.json",
+    "experiments/20260614-1304-local-public-state-surface-alignment/public_state_surface_records.jsonl"
+  ],
+  "resource_profile": "local CPU-only; no model calls; no GPU",
+  "run_id": "20260614-1304-local-public-state-surface-alignment",
+  "script": "scripts/align_public_state_surfaces.py"
+}
