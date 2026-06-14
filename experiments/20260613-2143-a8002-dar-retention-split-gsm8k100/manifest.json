@@ -1,0 +1,30 @@
+{
+  "created_at": "2026-06-13",
+  "dataset": "gsm8k",
+  "machine": "A800_2",
+  "method": "DAR retention split ablation",
+  "model": "qwen2.5-7b",
+  "remote": {
+    "answer_only_no_guard": {
+      "history_jsonl": "/data/xuhaoming/yfy/research_workspace/results/dar-answer-only-noguard-qwen25-7b-gsm8k100-20260613_2143/out/history/gsm8k_100__qwen2.5-7b_N=3_R=1_P=True_V=True_K=None_M=filter_critical_S=42.jsonl",
+      "log": "/data/xuhaoming/yfy/research_workspace/logs/dar-answer-only-noguard-qwen25-7b-gsm8k100-20260613_2143.log",
+      "result_dir": "/data/xuhaoming/yfy/research_workspace/results/dar-answer-only-noguard-qwen25-7b-gsm8k100-20260613_2143/out",
+      "unified_trace": "/data/xuhaoming/yfy/research_workspace/results/unified-traces/dar-answer-only-noguard-gsm8k100-20260613_2143.comm_trace.jsonl"
+    },
+    "guard_full": {
+      "history_jsonl": "/data/xuhaoming/yfy/research_workspace/results/dar-guard-full-qwen25-7b-gsm8k100-20260613_2143/out/history/gsm8k_100__qwen2.5-7b_N=3_R=1_P=True_V=True_K=None_M=filter_critical_S=42_G=answer_diversity_GM=3_MSG=full.jsonl",
+      "log": "/data/xuhaoming/yfy/research_workspace/logs/dar-guard-full-qwen25-7b-gsm8k100-20260613_2143.log",
+      "result_dir": "/data/xuhaoming/yfy/research_workspace/results/dar-guard-full-qwen25-7b-gsm8k100-20260613_2143/out",
+      "unified_trace": "/data/xuhaoming/yfy/research_workspace/results/unified-traces/dar-guard-full-gsm8k100-20260613_2143.comm_trace.jsonl"
+    },
+    "summary_dir": "/data/xuhaoming/yfy/research_workspace/results/dar-retention-ablation-20260613_2143"
+  },
+  "run_id": "20260613-2143-a8002-dar-retention-split-gsm8k100",
+  "sample_count": 100,
+  "seed": 42,
+  "status": "completed",
+  "variants": [
+    "answer_only_no_guard",
+    "guard_full"
+  ]
+}

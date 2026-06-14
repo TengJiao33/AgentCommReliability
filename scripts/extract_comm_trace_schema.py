@@ -80,7 +80,7 @@ def is_correct(pred: Any, gold: Any) -> Optional[bool]:
         return None
     if isinstance(pred_norm, (int, float)) and isinstance(gold_norm, (int, float)):
         return abs(float(pred_norm) - float(gold_norm)) < 1e-9
-    return str(pred_norm).strip() == str(gold_norm).strip()
+    return str(pred_norm).strip().lower() == str(gold_norm).strip().lower()
 
 
 def transition_type(before: Optional[bool], after: Optional[bool]) -> str:
@@ -415,6 +415,14 @@ def extract_dar(args: argparse.Namespace) -> List[Dict[str, Any]]:
                             "dropped_correct_count": None,
                             "token_cost": event.get("filter_tokens"),
                             "candidate_agent_ids": event.get("candidate_agent_ids"),
+                            "original_retained_agent_ids": event.get("original_retained_agent_ids"),
+                            "guard_mode": event.get("guard_mode"),
+                            "guard_added_agent_ids": event.get("guard_added_agent_ids"),
+                            "guard_removed_agent_ids": event.get("guard_removed_agent_ids"),
+                            "guard_notes": event.get("guard_notes"),
+                            "guard_parseable_buckets": event.get("guard_parseable_buckets"),
+                            "guard_missing_parseable_buckets": event.get("guard_missing_parseable_buckets"),
+                            "retention_message_mode": event.get("retention_message_mode"),
                             "raw_filter_response": event.get("raw_filter_response"),
                         }
                     )

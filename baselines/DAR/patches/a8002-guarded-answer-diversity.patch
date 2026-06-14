@@ -1,0 +1,292 @@
+diff --git a/src/dev.py b/src/dev.py
+index 335990f..a6e84f2 100644
+--- a/src/dev.py
++++ b/src/dev.py
+@@ -147,6 +147,136 @@ def parse_filter_response(raw, peers):
+     return selected if len(selected) > 0 else peers
+ 
+ 
++def _answer_bucket(answer):
++    if answer is None:
++        return None
++    if isinstance(answer, str):
++        text = answer.strip()
++        return text if text else None
++    if isinstance(answer, float) and answer.is_integer():
++        return str(int(answer))
++    return str(answer)
++
++
++def _ordered_unique(values):
++    seen = set()
++    unique = []
++    for value in values:
++        if value in seen:
++            continue
++        seen.add(value)
++        unique.append(value)
++    return unique
++
++
++def apply_retention_guard(result, peers, last_round_final_ans, args):
++    if getattr(args, "retention_guard", "none") != "answer_diversity":
++        return result
++    if last_round_final_ans is None:
++        return result
++
++    max_retained = max(1, int(getattr(args, "retention_guard_max", len(peers))))
++    answers_by_peer = {
++        peer: last_round_final_ans[i] if i < len(last_round_final_ans) else None
++        for i, peer in enumerate(peers)
++    }
++    bucket_to_peers = {}
++    for peer in peers:
++        bucket = _answer_bucket(answers_by_peer.get(peer))
++        if bucket is not None and bucket not in bucket_to_peers:
++            bucket_to_peers[bucket] = peer
++
++    original = [peer for peer in _ordered_unique(result.get("retained_ids") or []) if peer in peers]
++    retained = list(original)
++    added = []
++    removed = []
++    notes = []
++    parseable_buckets = list(bucket_to_peers.keys())
++
++    if len(retained) == 0:
++        result["guard_mode"] = "reset"
++        result["original_retained_ids"] = original
++        result["guard_added_ids"] = []
++        result["guard_removed_ids"] = []
++        result["guard_notes"] = ["empty_retention_treated_as_reset"]
++        result["guard_parseable_buckets"] = parseable_buckets
++        result["guard_missing_parseable_buckets"] = parseable_buckets
++        return result
++
++    def retained_parseable_buckets():
++        buckets = []
++        for peer in retained:
++            bucket = _answer_bucket(answers_by_peer.get(peer))
++            if bucket is not None:
++                buckets.append(bucket)
++        return _ordered_unique(buckets)
++
++    if parseable_buckets and not retained_parseable_buckets():
++        unparseable_retained = [
++            peer for peer in retained if _answer_bucket(answers_by_peer.get(peer)) is None
++        ]
++        for peer in unparseable_retained:
++            retained.remove(peer)
++            removed.append(peer)
++        if unparseable_retained:
++            notes.append("replaced_unparseable_only_retention")
++
++    def duplicate_retained_peers():
++        seen_buckets = set()
++        duplicates = []
++        for peer in retained:
++            bucket = _answer_bucket(answers_by_peer.get(peer))
++            if bucket is None:
++                continue
++            if bucket in seen_buckets:
++                duplicates.append(peer)
++            else:
++                seen_buckets.add(bucket)
++        return duplicates
++
++    while True:
++        selected_buckets = set(retained_parseable_buckets())
++        missing_buckets = [bucket for bucket in parseable_buckets if bucket not in selected_buckets]
++        if not missing_buckets:
++            break
++
++        if len(retained) >= max_retained:
++            removable = duplicate_retained_peers()
++            if not removable:
++                removable = [
++                    peer for peer in retained if _answer_bucket(answers_by_peer.get(peer)) is None
++                ]
++            if not removable:
++                break
++            peer = removable[-1]
++            retained.remove(peer)
++            removed.append(peer)
++
++        bucket = missing_buckets[0]
++        peer = bucket_to_peers[bucket]
++        if peer not in retained:
++            retained.append(peer)
++            added.append(peer)
++
++    selected_buckets = set(retained_parseable_buckets())
++    missing_buckets = [bucket for bucket in parseable_buckets if bucket not in selected_buckets]
++    if added:
++        notes.append("added_missing_parseable_answer_bucket")
++    if missing_buckets:
++        notes.append("max_retained_prevented_full_answer_diversity")
++
++    result["original_retained_ids"] = original
++    result["retained_ids"] = retained
++    result["dropped_ids"] = [peer for peer in peers if peer not in retained]
++    result["guard_mode"] = "guarded"
++    result["guard_added_ids"] = added
++    result["guard_removed_ids"] = removed
++    result["guard_notes"] = notes
++    result["guard_parseable_buckets"] = parseable_buckets
++    result["guard_missing_parseable_buckets"] = missing_buckets
++    return result
++
++
+ def run_filter_batch_across_samples(batch_inputs, args, llm):
+     # Keep the same per-sample logic, but execute LLM-based filtering in one vLLM batch call.
+     if len(batch_inputs) == 0:
+@@ -157,10 +287,17 @@ def run_filter_batch_across_samples(batch_inputs, args, llm):
+     results = [
+         {
+             "candidate_ids": inp["peers"],
++            "original_retained_ids": inp["peers"],
+             "retained_ids": inp["peers"],
+             "dropped_ids": [],
+             "filter_tokens": None,
+             "raw_filter_response": None,
++            "guard_mode": "none",
++            "guard_added_ids": [],
++            "guard_removed_ids": [],
++            "guard_notes": [],
++            "guard_parseable_buckets": [],
++            "guard_missing_parseable_buckets": [],
+         }
+         for inp in batch_inputs
+     ]
+@@ -182,9 +319,11 @@ def run_filter_batch_across_samples(batch_inputs, args, llm):
+                 selected = [p for i, p in enumerate(peers) if last_round_final_ans[i] != last_vote_ans]
+ 
+             retained = selected if selected else peers
++            results[idx]["original_retained_ids"] = retained
+             results[idx]["retained_ids"] = retained
+             results[idx]["dropped_ids"] = [p for p in peers if p not in retained]
+             results[idx]["raw_filter_response"] = f"{sub_role}_rule"
++            results[idx] = apply_retention_guard(results[idx], peers, last_round_final_ans, args)
+             continue
+ 
+         filter_prompt = build_filter_prompt_batch(
+@@ -216,11 +355,18 @@ def run_filter_batch_across_samples(batch_inputs, args, llm):
+             peers = batch_inputs[global_i]["peers"]
+             selected = parse_filter_response(chosen[local_i].strip(), peers)
+             raw_response = chosen[local_i].strip()
++            results[global_i]["original_retained_ids"] = selected
+             results[global_i]["retained_ids"] = selected
+             results[global_i]["dropped_ids"] = [p for p in peers if p not in selected]
+             results[global_i]["raw_filter_response"] = raw_response
+             if token_stats and local_i < len(token_stats):
+                 results[global_i]["filter_tokens"] = token_stats[local_i]
++            results[global_i] = apply_retention_guard(
++                results[global_i],
++                peers,
++                batch_inputs[global_i].get("last_round_final_ans"),
++                args
++            )
+ 
+     return results
+ 
+@@ -234,12 +380,19 @@ def get_new_message_global(
+     last_vote_ans=None, 
+     # last_round_final_ans=None,
+     precomputed_retained_ids=None,
+-    precomputed_filter_tokens=None
++    precomputed_filter_tokens=None,
++    last_round_final_ans=None
+ ):
+     new_message = {}
+     agents = list(responses.keys())
+ 
+     multi_agent = len(agents) > 1
++    answer_by_agent = {}
++    if last_round_final_ans is not None:
++        answer_by_agent = {
++            agent: last_round_final_ans[i] if i < len(last_round_final_ans) else None
++            for i, agent in enumerate(agents)
++        }
+ 
+     # DAR
+     filtered_peers_map = None
+@@ -294,7 +447,17 @@ def get_new_message_global(
+                     )
+ 
+             
+-            msg = build_normal_msg(agent, peers, responses, last_vote_ans)
++            message_responses = responses
++            if (
++                multi_agent
++                and args.m_role.startswith("filter")
++                and getattr(args, "retention_message_mode", "full") == "answer_only"
++            ):
++                message_responses = dict(responses)
++                for pid in peers:
++                    message_responses[pid] = f"Previous parsed final answer: {answer_by_agent.get(pid)}"
++
++            msg = build_normal_msg(agent, peers, message_responses, last_vote_ans)
+ 
+             msg += f"""\n\nUse these opinions carefully as additional advice to revise your recent opinion to give your final answer to the question:
+             {sample}"""
+diff --git a/src/main.py b/src/main.py
+index 8d43ea6..a471878 100644
+--- a/src/main.py
++++ b/src/main.py
+@@ -75,6 +75,9 @@ def get_args():
+     # new module
+     parser.add_argument('--m_role', type=str, default='None', choices=['filter','filter_certain','filter_support','filter_disagree', 'filter_critical', 'end', 'filter_vote', 'filter_nonvote', 'filter_nonindex'])
+     parser.add_argument('--separate_moderator', type=str, default='None')
++    parser.add_argument('--retention_guard', type=str, default='none', choices=['none', 'answer_diversity'])
++    parser.add_argument('--retention_guard_max', type=int, default=3)
++    parser.add_argument('--retention_message_mode', type=str, default='full', choices=['full', 'answer_only'])
+ 
+     return parser.parse_args()
+ 
+@@ -118,6 +121,8 @@ def main(args):
+     elif args.centralized : fname += '_CENTRAL'
+     if args.bae : fname += '_BAE'
+     if args.multi_persona : fname += '_HETERO'
++    if args.retention_guard != 'none':
++        fname += f"_G={args.retention_guard}_GM={args.retention_guard_max}_MSG={args.retention_message_mode}"
+     args.fname = fname
+     
+     agent_names = []
+@@ -278,7 +283,8 @@ def main(args):
+                     suffix=SUFFIX,
+                     last_vote_ans=last_vote_ans,
+                     precomputed_retained_ids=precomputed_retained_ids,
+-                    precomputed_filter_tokens=precomputed_filter_tokens
++                    precomputed_filter_tokens=precomputed_filter_tokens,
++                    last_round_final_ans=final_resps
+                 )
+             else:
+                 new_agent_messages = get_new_message_global(
+@@ -288,7 +294,8 @@ def main(args):
+                     suffix=SUFFIX,
+                     last_vote_ans=last_vote_ans,
+                     precomputed_retained_ids=precomputed_retained_ids,
+-                    precomputed_filter_tokens=precomputed_filter_tokens
++                    precomputed_filter_tokens=precomputed_filter_tokens,
++                    last_round_final_ans=final_resps
+                 )
+             
+             round_r_messages.extend(list(new_agent_messages.values()))
+@@ -337,10 +344,18 @@ def main(args):
+                     "stage": f"round_{r}_filter",
+                     "mechanism": args.m_role,
+                     "candidate_agent_ids": filter_info.get("candidate_ids"),
++                    "original_retained_agent_ids": filter_info.get("original_retained_ids"),
+                     "retained_agent_ids": filter_info.get("retained_ids"),
+                     "dropped_agent_ids": filter_info.get("dropped_ids"),
+                     "filter_tokens": filter_info.get("filter_tokens"),
+                     "raw_filter_response": filter_info.get("raw_filter_response"),
++                    "guard_mode": filter_info.get("guard_mode"),
++                    "guard_added_agent_ids": filter_info.get("guard_added_ids"),
++                    "guard_removed_agent_ids": filter_info.get("guard_removed_ids"),
++                    "guard_notes": filter_info.get("guard_notes"),
++                    "guard_parseable_buckets": filter_info.get("guard_parseable_buckets"),
++                    "guard_missing_parseable_buckets": filter_info.get("guard_missing_parseable_buckets"),
++                    "retention_message_mode": args.retention_message_mode,
+                 }
+ 
+             # Data Dictionary

@@ -14,6 +14,10 @@ baselines/<method>/
   patches/
 ```
 
+If a baseline is tracked as a git submodule, keep project-local patch files outside
+the submodule so the parent repository can track them. Current example:
+`baselines/MAD-MM-patches/`.
+
 Record:
 
 - upstream URL;

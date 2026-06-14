@@ -1,0 +1,178 @@
+{
+  "rows": 100,
+  "transitions": {
+    "stable_right": 92,
+    "right_to_wrong": 3,
+    "stable_wrong": 4,
+    "wrong_to_right": 1
+  },
+  "final_correct": {
+    "True": 93,
+    "False": 7
+  },
+  "retained_count_distribution": {
+    "1": 64,
+    "2": 27,
+    "3": 9
+  },
+  "dropped_count_distribution": {
+    "0": 9,
+    "1": 27,
+    "2": 64
+  },
+  "retained_correct_count_distribution": {
+    "0": 16,
+    "1": 53,
+    "2": 23,
+    "3": 8
+  },
+  "dropped_correct_count_distribution": {
+    "0": 16,
+    "1": 23,
+    "2": 61
+  },
+  "samples_with_any_correct_dropped": 84,
+  "samples_with_all_correct_dropped": 13,
+  "right_to_wrong_cases": [
+    {
+      "sample_index": 5,
+      "gold_answer": 5,
+      "before_answer": 5,
+      "after_answer": 3,
+      "retained_agent_ids": [
+        "gsm8k_100__qwen2.5-7b__None__Agent1",
+        "gsm8k_100__qwen2.5-7b__None__Agent2"
+      ],
+      "dropped_agent_ids": [
+        "gsm8k_100__qwen2.5-7b__None__Agent3"
+      ],
+      "retained_correct_count": 2,
+      "dropped_correct_count": 0,
+      "round0_answers": [
+        {
+          "agent_id": "Agent1",
+          "answer": 5,
+          "correct": true
+        },
+        {
+          "agent_id": "Agent2",
+          "answer": 5,
+          "correct": true
+        },
+        {
+          "agent_id": "Agent3",
+          "answer": "",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "sample_index": 20,
+      "gold_answer": 7,
+      "before_answer": 7,
+      "after_answer": 700,
+      "retained_agent_ids": [
+        "gsm8k_100__qwen2.5-7b__None__Agent2",
+        "gsm8k_100__qwen2.5-7b__None__Agent3"
+      ],
+      "dropped_agent_ids": [
+        "gsm8k_100__qwen2.5-7b__None__Agent1"
+      ],
+      "retained_correct_count": 0,
+      "dropped_correct_count": 1,
+      "round0_answers": [
+        {
+          "agent_id": "Agent1",
+          "answer": 7,
+          "correct": true
+        },
+        {
+          "agent_id": "Agent2",
+          "answer": 120,
+          "correct": false
+        },
+        {
+          "agent_id": "Agent3",
+          "answer": 700,
+          "correct": false
+        }
+      ]
+    },
+    {
+      "sample_index": 22,
+      "gold_answer": 131250,
+      "before_answer": 131250,
+      "after_answer": "",
+      "retained_agent_ids": [
+        "gsm8k_100__qwen2.5-7b__None__Agent1"
+      ],
+      "dropped_agent_ids": [
+        "gsm8k_100__qwen2.5-7b__None__Agent2",
+        "gsm8k_100__qwen2.5-7b__None__Agent3"
+      ],
+      "retained_correct_count": 0,
+      "dropped_correct_count": 2,
+      "round0_answers": [
+        {
+          "agent_id": "Agent1",
+          "answer": "",
+          "correct": false
+        },
+        {
+          "agent_id": "Agent2",
+          "answer": 131250,
+          "correct": true
+        },
+        {
+          "agent_id": "Agent3",
+          "answer": 131250,
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "wrong_to_right_cases": [
+    {
+      "sample_index": 37,
+      "gold_answer": 11,
+      "before_answer": 1,
+      "after_answer": 11,
+      "retained_agent_ids": [
+        "gsm8k_100__qwen2.5-7b__None__Agent2",
+        "gsm8k_100__qwen2.5-7b__None__Agent3"
+      ],
+      "dropped_agent_ids": [
+        "gsm8k_100__qwen2.5-7b__None__Agent1"
+      ],
+      "retained_correct_count": 1,
+      "dropped_correct_count": 0,
+      "round0_answers": [
+        {
+          "agent_id": "Agent1",
+          "answer": 12,
+          "correct": false
+        },
+        {
+          "agent_id": "Agent2",
+          "answer": 11,
+          "correct": true
+        },
+        {
+          "agent_id": "Agent3",
+          "answer": 1,
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "filter_token_total": {
+    "input_tokens": 105514,
+    "output_tokens": 8143,
+    "total_tokens": 113657
+  },
+  "generation_token_total_from_history": {
+    "input_tokens": 284174,
+    "output_tokens": 144667,
+    "total_tokens": 428841
+  }
+}

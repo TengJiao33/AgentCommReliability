@@ -117,6 +117,7 @@ timeout 90m /data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/bin/pytho
 - graph structures: `/data/xuhaoming/yfy/research_workspace/baselines/MOC/graph_structures/gsm8k`
 - local run record: `experiments/20260613-a8002-moc-qwen25-7b-gsm8k-topology5/`
 - local forced-merge record: `experiments/20260613-1425-a8002-moc-qwen25-7b-gsm8k-hop2-forcedmerge-smoke/`
+- local hop-depth trace check: `experiments/20260613-1740-a8002-moc-hopcheck-n5/`
 
 ## Result Snapshot
 
@@ -128,12 +129,14 @@ timeout 90m /data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/bin/pytho
 | Random | 5 | 3 | 1 | 1.0 | 13,967 | 26.208s |
 | Chain forced merge | 1 | 5 | 2 | 1.0 | 5,894 + 13,846 compressed | 54.319s |
 | Chain forced merge | 5 | 5 | 2 | 1.0 | 22,718 + 50,906 compressed | 191.101s |
+| Chain hop1 instrumented | 5 | 5 | 1 | 1.0 | 20,977 + 0 compressed | 51.308s |
+| Chain hop2 instrumented | 5 | 5 | 2 | 1.0 | 22,422 + 50,699 compressed | 190.727s |
 
 ## Deviations From Upstream
 
 - Added `VLLMChat` because upstream routes `qwen` model names to Ollama and its `GPTChat` expects a custom gateway, not OpenAI-compatible vLLM.
 - Patched `Graph.merge_multiple_messages` to route structural merge calls through `LLMRegistry.get(self.llm_name)` / `VLLMChat` instead of hard-coded Ollama `gemma2:9b`.
-- Prepared trace-only instrumentation patch `baselines/MOC/patches/a8002-comm-trace-events.patch` to write ISM merge/result sidecar events when `MOC_COMM_TRACE_JSONL` is set. This patch has not yet produced a remote run.
+- Added trace-only instrumentation patch `baselines/MOC/patches/a8002-comm-trace-events.patch` to write ISM merge/result sidecar events when `MOC_COMM_TRACE_JSONL` is set. A n=1 forced-merge check produced 7 sidecar events and a unified trace under `experiments/20260613-1718-a8002-trace-instrumentation-check/`.
 - Used deterministic hash embeddings because the expected local sentence-transformer model was absent.
 - Created `gsm8k_test_n1.csv` and `gsm8k_test_n5.csv` from the upstream `gsm8k_test_n300.csv` for bounded smoke runs.
 - Added a minimal `pyairports.airports` compatibility module inside the env because the installed `pyairports==0.0.1` wheel lacked the module required by `outlines`.
@@ -147,7 +150,7 @@ timeout 90m /data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/bin/pytho
 | `sentence_transformers` import conflicted with local `datasets/` package and local embedding model was absent. | Graph import smoke | hash embedding fallback patch | yes for node-feature semantics in smoke |
 | Upstream model registry routed `qwen` to Ollama. | code inspection and adapter smoke | `VLLMChat` adapter and `vllm:` prefix | no prompt/topology/eval change |
 | `merge_multiple_messages` hard-coded Ollama `gemma2:9b`. | code inspection and forced-merge smoke | route merge calls through the configured `VLLMChat`; account those tokens under compressed counters | backend plumbing only |
-| MOC detail JSON lacked per-sample merge source IDs. | unified trace extraction caveat | prepared `a8002-comm-trace-events.patch` to write sidecar JSONL events | no method behavior change expected |
+| MOC detail JSON lacked per-sample merge source IDs. | unified trace extraction caveat | `a8002-comm-trace-events.patch` writes sidecar JSONL events; verified on n=1 trace check | no method behavior change expected |
 | 4096-token vLLM context failed after the first forced-merge preflight reached final decision. | `/data/xuhaoming/yfy/research_workspace/logs/moc-forcedmerge-chain5-hop2-n1-20260613_1420_forcedmerge.log` | restarted vLLM with `--max-model-len 8192` | backend capacity only |
 | vLLM returned 500 because `outlines` imported broken `pyairports`. | vLLM server log | added minimal compatibility module | no |
 
@@ -160,4 +163,4 @@ timeout 90m /data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/bin/pytho
 
 ## Next Small Check
 
-First apply `a8002-comm-trace-events.patch` and rerun a tiny forced-merge smoke with `MOC_COMM_TRACE_JSONL`; then run a modest `neighbor_hops=1` vs `neighbor_hops=2` comparison on shared samples and use the unified trace schema to inspect answer flips and merge-induced information loss.
+Scale the instrumented `neighbor_hops=1` vs `neighbor_hops=2` comparison beyond 5 shared samples if answer flips or summary information loss become worth inspecting.

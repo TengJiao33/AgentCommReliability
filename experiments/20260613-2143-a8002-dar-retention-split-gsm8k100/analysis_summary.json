@@ -1,0 +1,1119 @@
+{
+  "baseline_label": "original",
+  "paired_comparisons": {
+    "answer_only_no_guard": {
+      "baseline_label": "original",
+      "changed_final_cases": [
+        {
+          "after_answer": 5,
+          "baseline_after_answer": 3,
+          "baseline_final_correct": false,
+          "baseline_label": "original",
+          "baseline_transition": "right_to_wrong",
+          "before_answer": 5,
+          "dropped_agent_ids": [
+            "Agent3"
+          ],
+          "final_correct": true,
+          "gold_answer": 5,
+          "guard_added_agent_ids": [],
+          "guard_notes": [],
+          "guard_removed_agent_ids": [],
+          "instance_id": "5",
+          "label": "answer_only_no_guard",
+          "original_retained_agent_ids": [
+            "Agent1",
+            "Agent2"
+          ],
+          "retained_agent_ids": [
+            "Agent1",
+            "Agent2"
+          ],
+          "retention_message_mode": "answer_only",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 5,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 5,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": "",
+              "correct": false
+            }
+          ],
+          "sample_index": 5,
+          "transition": "stable_right"
+        },
+        {
+          "after_answer": 131250,
+          "baseline_after_answer": "",
+          "baseline_final_correct": false,
+          "baseline_label": "original",
+          "baseline_transition": "right_to_wrong",
+          "before_answer": 131250,
+          "dropped_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "final_correct": true,
+          "gold_answer": 131250,
+          "guard_added_agent_ids": [],
+          "guard_notes": [],
+          "guard_removed_agent_ids": [],
+          "instance_id": "22",
+          "label": "answer_only_no_guard",
+          "original_retained_agent_ids": [
+            "Agent1"
+          ],
+          "retained_agent_ids": [
+            "Agent1"
+          ],
+          "retention_message_mode": "answer_only",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": "",
+              "correct": false
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 131250,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 131250,
+              "correct": true
+            }
+          ],
+          "sample_index": 22,
+          "transition": "stable_right"
+        }
+      ],
+      "final_correct_transition_counts": {
+        "False_to_False": 5,
+        "False_to_True": 2,
+        "True_to_True": 93
+      },
+      "label": "answer_only_no_guard"
+    },
+    "guard_full": {
+      "baseline_label": "original",
+      "changed_final_cases": [
+        {
+          "after_answer": 5,
+          "baseline_after_answer": 3,
+          "baseline_final_correct": false,
+          "baseline_label": "original",
+          "baseline_transition": "right_to_wrong",
+          "before_answer": 5,
+          "dropped_agent_ids": [
+            "Agent3"
+          ],
+          "final_correct": true,
+          "gold_answer": 5,
+          "guard_added_agent_ids": [],
+          "guard_notes": [],
+          "guard_removed_agent_ids": [],
+          "instance_id": "5",
+          "label": "guard_full",
+          "original_retained_agent_ids": [
+            "Agent1",
+            "Agent2"
+          ],
+          "retained_agent_ids": [
+            "Agent1",
+            "Agent2"
+          ],
+          "retention_message_mode": "full",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 5,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 5,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": "",
+              "correct": false
+            }
+          ],
+          "sample_index": 5,
+          "transition": "stable_right"
+        },
+        {
+          "after_answer": 7,
+          "baseline_after_answer": 700,
+          "baseline_final_correct": false,
+          "baseline_label": "original",
+          "baseline_transition": "right_to_wrong",
+          "before_answer": 7,
+          "dropped_agent_ids": [],
+          "final_correct": true,
+          "gold_answer": 7,
+          "guard_added_agent_ids": [
+            "Agent1"
+          ],
+          "guard_notes": [
+            "added_missing_parseable_answer_bucket"
+          ],
+          "guard_removed_agent_ids": [],
+          "instance_id": "20",
+          "label": "guard_full",
+          "original_retained_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "retained_agent_ids": [
+            "Agent2",
+            "Agent3",
+            "Agent1"
+          ],
+          "retention_message_mode": "full",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 7,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 120,
+              "correct": false
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 700,
+              "correct": false
+            }
+          ],
+          "sample_index": 20,
+          "transition": "stable_right"
+        },
+        {
+          "after_answer": 131250,
+          "baseline_after_answer": "",
+          "baseline_final_correct": false,
+          "baseline_label": "original",
+          "baseline_transition": "right_to_wrong",
+          "before_answer": 131250,
+          "dropped_agent_ids": [
+            "Agent1",
+            "Agent3"
+          ],
+          "final_correct": true,
+          "gold_answer": 131250,
+          "guard_added_agent_ids": [
+            "Agent2"
+          ],
+          "guard_notes": [
+            "replaced_unparseable_only_retention",
+            "added_missing_parseable_answer_bucket"
+          ],
+          "guard_removed_agent_ids": [
+            "Agent1"
+          ],
+          "instance_id": "22",
+          "label": "guard_full",
+          "original_retained_agent_ids": [
+            "Agent1"
+          ],
+          "retained_agent_ids": [
+            "Agent2"
+          ],
+          "retention_message_mode": "full",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": "",
+              "correct": false
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 131250,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 131250,
+              "correct": true
+            }
+          ],
+          "sample_index": 22,
+          "transition": "stable_right"
+        }
+      ],
+      "final_correct_transition_counts": {
+        "False_to_False": 4,
+        "False_to_True": 3,
+        "True_to_True": 93
+      },
+      "label": "guard_full"
+    },
+    "guarded_answer_only": {
+      "baseline_label": "original",
+      "changed_final_cases": [
+        {
+          "after_answer": 5,
+          "baseline_after_answer": 3,
+          "baseline_final_correct": false,
+          "baseline_label": "original",
+          "baseline_transition": "right_to_wrong",
+          "before_answer": 5,
+          "dropped_agent_ids": [
+            "Agent3"
+          ],
+          "final_correct": true,
+          "gold_answer": 5,
+          "guard_added_agent_ids": [],
+          "guard_notes": [],
+          "guard_removed_agent_ids": [],
+          "instance_id": "5",
+          "label": "guarded_answer_only",
+          "original_retained_agent_ids": [
+            "Agent1",
+            "Agent2"
+          ],
+          "retained_agent_ids": [
+            "Agent1",
+            "Agent2"
+          ],
+          "retention_message_mode": "answer_only",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 5,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 5,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": "",
+              "correct": false
+            }
+          ],
+          "sample_index": 5,
+          "transition": "stable_right"
+        },
+        {
+          "after_answer": 131250,
+          "baseline_after_answer": "",
+          "baseline_final_correct": false,
+          "baseline_label": "original",
+          "baseline_transition": "right_to_wrong",
+          "before_answer": 131250,
+          "dropped_agent_ids": [
+            "Agent1",
+            "Agent3"
+          ],
+          "final_correct": true,
+          "gold_answer": 131250,
+          "guard_added_agent_ids": [
+            "Agent2"
+          ],
+          "guard_notes": [
+            "replaced_unparseable_only_retention",
+            "added_missing_parseable_answer_bucket"
+          ],
+          "guard_removed_agent_ids": [
+            "Agent1"
+          ],
+          "instance_id": "22",
+          "label": "guarded_answer_only",
+          "original_retained_agent_ids": [
+            "Agent1"
+          ],
+          "retained_agent_ids": [
+            "Agent2"
+          ],
+          "retention_message_mode": "answer_only",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": "",
+              "correct": false
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 131250,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 131250,
+              "correct": true
+            }
+          ],
+          "sample_index": 22,
+          "transition": "stable_right"
+        }
+      ],
+      "final_correct_transition_counts": {
+        "False_to_False": 5,
+        "False_to_True": 2,
+        "True_to_True": 93
+      },
+      "label": "guarded_answer_only"
+    }
+  },
+  "summaries": {
+    "answer_only_no_guard": {
+      "filter_token_total": {
+        "input_tokens": 105514,
+        "output_tokens": 8143,
+        "total_tokens": 113657
+      },
+      "final_correct": {
+        "False": 5,
+        "True": 95
+      },
+      "generation_plus_filter_token_total": {
+        "input_tokens": 280934,
+        "output_tokens": 138246,
+        "total_tokens": 419180
+      },
+      "generation_token_total": {
+        "input_tokens": 175420,
+        "output_tokens": 130103,
+        "total_tokens": 305523
+      },
+      "retention": {
+        "changed_retention_sets": 0,
+        "dropped_correct_count_distribution": {
+          "0": 16,
+          "1": 23,
+          "2": 61
+        },
+        "dropped_count_distribution": {
+          "0": 9,
+          "1": 27,
+          "2": 64
+        },
+        "dropped_parseable_count_distribution": {
+          "0": 11,
+          "1": 26,
+          "2": 63
+        },
+        "guard_added_count_distribution": {
+          "0": 100
+        },
+        "guard_lost_any_correct": 0,
+        "guard_modes": {
+          "none": 100
+        },
+        "guard_notes": {},
+        "guard_recovered_any_correct": 0,
+        "guard_removed_count_distribution": {
+          "0": 100
+        },
+        "message_modes": {
+          "answer_only": 100
+        },
+        "retained_correct_count_distribution": {
+          "0": 16,
+          "1": 53,
+          "2": 23,
+          "3": 8
+        },
+        "retained_count_distribution": {
+          "1": 64,
+          "2": 27,
+          "3": 9
+        },
+        "retained_parseable_count_distribution": {
+          "0": 3,
+          "1": 61,
+          "2": 27,
+          "3": 9
+        }
+      },
+      "right_to_wrong_cases": [
+        {
+          "after_answer": 12,
+          "before_answer": 7,
+          "dropped_agent_ids": [
+            "Agent1"
+          ],
+          "final_correct": false,
+          "gold_answer": 7,
+          "guard_added_agent_ids": [],
+          "guard_notes": [],
+          "guard_removed_agent_ids": [],
+          "instance_id": "20",
+          "label": "answer_only_no_guard",
+          "original_retained_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "retained_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "retention_message_mode": "answer_only",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 7,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 120,
+              "correct": false
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 700,
+              "correct": false
+            }
+          ],
+          "sample_index": 20,
+          "transition": "right_to_wrong"
+        }
+      ],
+      "round_accuracy": {
+        "0": 0.95,
+        "1": 0.95
+      },
+      "rows": 100,
+      "transitions": {
+        "right_to_wrong": 1,
+        "stable_right": 94,
+        "stable_wrong": 4,
+        "wrong_to_right": 1
+      },
+      "wrong_to_right_cases": [
+        {
+          "after_answer": 11,
+          "before_answer": 1,
+          "dropped_agent_ids": [
+            "Agent1"
+          ],
+          "final_correct": true,
+          "gold_answer": 11,
+          "guard_added_agent_ids": [],
+          "guard_notes": [],
+          "guard_removed_agent_ids": [],
+          "instance_id": "37",
+          "label": "answer_only_no_guard",
+          "original_retained_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "retained_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "retention_message_mode": "answer_only",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 12,
+              "correct": false
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 11,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 1,
+              "correct": false
+            }
+          ],
+          "sample_index": 37,
+          "transition": "wrong_to_right"
+        }
+      ]
+    },
+    "guard_full": {
+      "filter_token_total": {
+        "input_tokens": 105514,
+        "output_tokens": 8143,
+        "total_tokens": 113657
+      },
+      "final_correct": {
+        "False": 4,
+        "True": 96
+      },
+      "generation_plus_filter_token_total": {
+        "input_tokens": 391311,
+        "output_tokens": 154209,
+        "total_tokens": 545520
+      },
+      "generation_token_total": {
+        "input_tokens": 285797,
+        "output_tokens": 146066,
+        "total_tokens": 431863
+      },
+      "retention": {
+        "changed_retention_sets": 17,
+        "dropped_correct_count_distribution": {
+          "0": 18,
+          "1": 32,
+          "2": 50
+        },
+        "dropped_count_distribution": {
+          "0": 12,
+          "1": 35,
+          "2": 53
+        },
+        "dropped_parseable_count_distribution": {
+          "0": 15,
+          "1": 35,
+          "2": 50
+        },
+        "guard_added_count_distribution": {
+          "0": 83,
+          "1": 17
+        },
+        "guard_lost_any_correct": 0,
+        "guard_modes": {
+          "guarded": 100
+        },
+        "guard_notes": {
+          "added_missing_parseable_answer_bucket": 17,
+          "replaced_unparseable_only_retention": 3
+        },
+        "guard_recovered_any_correct": 13,
+        "guard_removed_count_distribution": {
+          "0": 97,
+          "1": 3
+        },
+        "message_modes": {
+          "full": 100
+        },
+        "retained_correct_count_distribution": {
+          "0": 3,
+          "1": 66,
+          "2": 23,
+          "3": 8
+        },
+        "retained_count_distribution": {
+          "1": 53,
+          "2": 35,
+          "3": 12
+        },
+        "retained_parseable_count_distribution": {
+          "1": 53,
+          "2": 35,
+          "3": 12
+        }
+      },
+      "right_to_wrong_cases": [],
+      "round_accuracy": {
+        "0": 0.95,
+        "1": 0.96
+      },
+      "rows": 100,
+      "transitions": {
+        "stable_right": 95,
+        "stable_wrong": 4,
+        "wrong_to_right": 1
+      },
+      "wrong_to_right_cases": [
+        {
+          "after_answer": 11,
+          "before_answer": 1,
+          "dropped_agent_ids": [],
+          "final_correct": true,
+          "gold_answer": 11,
+          "guard_added_agent_ids": [
+            "Agent1"
+          ],
+          "guard_notes": [
+            "added_missing_parseable_answer_bucket"
+          ],
+          "guard_removed_agent_ids": [],
+          "instance_id": "37",
+          "label": "guard_full",
+          "original_retained_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "retained_agent_ids": [
+            "Agent2",
+            "Agent3",
+            "Agent1"
+          ],
+          "retention_message_mode": "full",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 12,
+              "correct": false
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 11,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 1,
+              "correct": false
+            }
+          ],
+          "sample_index": 37,
+          "transition": "wrong_to_right"
+        }
+      ]
+    },
+    "guarded_answer_only": {
+      "filter_token_total": {
+        "input_tokens": 105514,
+        "output_tokens": 8143,
+        "total_tokens": 113657
+      },
+      "final_correct": {
+        "False": 5,
+        "True": 95
+      },
+      "generation_plus_filter_token_total": {
+        "input_tokens": 281066,
+        "output_tokens": 137361,
+        "total_tokens": 418427
+      },
+      "generation_token_total": {
+        "input_tokens": 175552,
+        "output_tokens": 129218,
+        "total_tokens": 304770
+      },
+      "retention": {
+        "changed_retention_sets": 17,
+        "dropped_correct_count_distribution": {
+          "0": 18,
+          "1": 32,
+          "2": 50
+        },
+        "dropped_count_distribution": {
+          "0": 12,
+          "1": 35,
+          "2": 53
+        },
+        "dropped_parseable_count_distribution": {
+          "0": 15,
+          "1": 35,
+          "2": 50
+        },
+        "guard_added_count_distribution": {
+          "0": 83,
+          "1": 17
+        },
+        "guard_lost_any_correct": 0,
+        "guard_modes": {
+          "guarded": 100
+        },
+        "guard_notes": {
+          "added_missing_parseable_answer_bucket": 17,
+          "replaced_unparseable_only_retention": 3
+        },
+        "guard_recovered_any_correct": 13,
+        "guard_removed_count_distribution": {
+          "0": 97,
+          "1": 3
+        },
+        "message_modes": {
+          "answer_only": 100
+        },
+        "retained_correct_count_distribution": {
+          "0": 3,
+          "1": 66,
+          "2": 23,
+          "3": 8
+        },
+        "retained_count_distribution": {
+          "1": 53,
+          "2": 35,
+          "3": 12
+        },
+        "retained_parseable_count_distribution": {
+          "1": 53,
+          "2": 35,
+          "3": 12
+        }
+      },
+      "right_to_wrong_cases": [
+        {
+          "after_answer": 12,
+          "before_answer": 7,
+          "dropped_agent_ids": [],
+          "final_correct": false,
+          "gold_answer": 7,
+          "guard_added_agent_ids": [
+            "Agent1"
+          ],
+          "guard_notes": [
+            "added_missing_parseable_answer_bucket"
+          ],
+          "guard_removed_agent_ids": [],
+          "instance_id": "20",
+          "label": "guarded_answer_only",
+          "original_retained_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "retained_agent_ids": [
+            "Agent2",
+            "Agent3",
+            "Agent1"
+          ],
+          "retention_message_mode": "answer_only",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 7,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 120,
+              "correct": false
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 700,
+              "correct": false
+            }
+          ],
+          "sample_index": 20,
+          "transition": "right_to_wrong"
+        }
+      ],
+      "round_accuracy": {
+        "0": 0.95,
+        "1": 0.95
+      },
+      "rows": 100,
+      "transitions": {
+        "right_to_wrong": 1,
+        "stable_right": 94,
+        "stable_wrong": 4,
+        "wrong_to_right": 1
+      },
+      "wrong_to_right_cases": [
+        {
+          "after_answer": 11,
+          "before_answer": 1,
+          "dropped_agent_ids": [],
+          "final_correct": true,
+          "gold_answer": 11,
+          "guard_added_agent_ids": [
+            "Agent1"
+          ],
+          "guard_notes": [
+            "added_missing_parseable_answer_bucket"
+          ],
+          "guard_removed_agent_ids": [],
+          "instance_id": "37",
+          "label": "guarded_answer_only",
+          "original_retained_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "retained_agent_ids": [
+            "Agent2",
+            "Agent3",
+            "Agent1"
+          ],
+          "retention_message_mode": "answer_only",
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 12,
+              "correct": false
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 11,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 1,
+              "correct": false
+            }
+          ],
+          "sample_index": 37,
+          "transition": "wrong_to_right"
+        }
+      ]
+    },
+    "original": {
+      "filter_token_total": {
+        "input_tokens": 105514,
+        "output_tokens": 8143,
+        "total_tokens": 113657
+      },
+      "final_correct": {
+        "False": 7,
+        "True": 93
+      },
+      "generation_plus_filter_token_total": {
+        "input_tokens": 389688,
+        "output_tokens": 152810,
+        "total_tokens": 542498
+      },
+      "generation_token_total": {
+        "input_tokens": 284174,
+        "output_tokens": 144667,
+        "total_tokens": 428841
+      },
+      "retention": {
+        "changed_retention_sets": 0,
+        "dropped_correct_count_distribution": {
+          "0": 16,
+          "1": 23,
+          "2": 61
+        },
+        "dropped_count_distribution": {
+          "0": 9,
+          "1": 27,
+          "2": 64
+        },
+        "dropped_parseable_count_distribution": {
+          "0": 11,
+          "1": 26,
+          "2": 63
+        },
+        "guard_added_count_distribution": {
+          "0": 100
+        },
+        "guard_lost_any_correct": 0,
+        "guard_modes": {
+          "None": 100
+        },
+        "guard_notes": {},
+        "guard_recovered_any_correct": 0,
+        "guard_removed_count_distribution": {
+          "0": 100
+        },
+        "message_modes": {
+          "None": 100
+        },
+        "retained_correct_count_distribution": {
+          "0": 16,
+          "1": 53,
+          "2": 23,
+          "3": 8
+        },
+        "retained_count_distribution": {
+          "1": 64,
+          "2": 27,
+          "3": 9
+        },
+        "retained_parseable_count_distribution": {
+          "0": 3,
+          "1": 61,
+          "2": 27,
+          "3": 9
+        }
+      },
+      "right_to_wrong_cases": [
+        {
+          "after_answer": 3,
+          "before_answer": 5,
+          "dropped_agent_ids": [
+            "Agent3"
+          ],
+          "final_correct": false,
+          "gold_answer": 5,
+          "guard_added_agent_ids": [],
+          "guard_notes": null,
+          "guard_removed_agent_ids": [],
+          "instance_id": "5",
+          "label": "original",
+          "original_retained_agent_ids": [],
+          "retained_agent_ids": [
+            "Agent1",
+            "Agent2"
+          ],
+          "retention_message_mode": null,
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 5,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 5,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": "",
+              "correct": false
+            }
+          ],
+          "sample_index": 5,
+          "transition": "right_to_wrong"
+        },
+        {
+          "after_answer": 700,
+          "before_answer": 7,
+          "dropped_agent_ids": [
+            "Agent1"
+          ],
+          "final_correct": false,
+          "gold_answer": 7,
+          "guard_added_agent_ids": [],
+          "guard_notes": null,
+          "guard_removed_agent_ids": [],
+          "instance_id": "20",
+          "label": "original",
+          "original_retained_agent_ids": [],
+          "retained_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "retention_message_mode": null,
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 7,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 120,
+              "correct": false
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 700,
+              "correct": false
+            }
+          ],
+          "sample_index": 20,
+          "transition": "right_to_wrong"
+        },
+        {
+          "after_answer": "",
+          "before_answer": 131250,
+          "dropped_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "final_correct": false,
+          "gold_answer": 131250,
+          "guard_added_agent_ids": [],
+          "guard_notes": null,
+          "guard_removed_agent_ids": [],
+          "instance_id": "22",
+          "label": "original",
+          "original_retained_agent_ids": [],
+          "retained_agent_ids": [
+            "Agent1"
+          ],
+          "retention_message_mode": null,
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": "",
+              "correct": false
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 131250,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 131250,
+              "correct": true
+            }
+          ],
+          "sample_index": 22,
+          "transition": "right_to_wrong"
+        }
+      ],
+      "round_accuracy": {
+        "0": 0.95,
+        "1": 0.93
+      },
+      "rows": 100,
+      "transitions": {
+        "right_to_wrong": 3,
+        "stable_right": 92,
+        "stable_wrong": 4,
+        "wrong_to_right": 1
+      },
+      "wrong_to_right_cases": [
+        {
+          "after_answer": 11,
+          "before_answer": 1,
+          "dropped_agent_ids": [
+            "Agent1"
+          ],
+          "final_correct": true,
+          "gold_answer": 11,
+          "guard_added_agent_ids": [],
+          "guard_notes": null,
+          "guard_removed_agent_ids": [],
+          "instance_id": "37",
+          "label": "original",
+          "original_retained_agent_ids": [],
+          "retained_agent_ids": [
+            "Agent2",
+            "Agent3"
+          ],
+          "retention_message_mode": null,
+          "round0_answers": [
+            {
+              "agent_id": "Agent1",
+              "answer": 12,
+              "correct": false
+            },
+            {
+              "agent_id": "Agent2",
+              "answer": 11,
+              "correct": true
+            },
+            {
+              "agent_id": "Agent3",
+              "answer": 1,
+              "correct": false
+            }
+          ],
+          "sample_index": 37,
+          "transition": "wrong_to_right"
+        }
+      ]
+    }
+  },
+  "traces": [
+    {
+      "label": "original",
+      "path": "/data/xuhaoming/yfy/research_workspace/results/unified-traces/dar-trace-filtercritical-gsm8k100-fullhistory.comm_trace.jsonl"
+    },
+    {
+      "label": "guarded_answer_only",
+      "path": "/data/xuhaoming/yfy/research_workspace/results/unified-traces/dar-guarded-answer-diversity-gsm8k100-20260613_2038.comm_trace.jsonl"
+    },
+    {
+      "label": "answer_only_no_guard",
+      "path": "/data/xuhaoming/yfy/research_workspace/results/unified-traces/dar-answer-only-noguard-gsm8k100-20260613_2143.comm_trace.jsonl"
+    },
+    {
+      "label": "guard_full",
+      "path": "/data/xuhaoming/yfy/research_workspace/results/unified-traces/dar-guard-full-gsm8k100-20260613_2143.comm_trace.jsonl"
+    }
+  ]
+}

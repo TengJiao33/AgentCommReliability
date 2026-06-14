@@ -1,0 +1,40 @@
+{
+  "run_id": "20260613-1740-a8002-moc-hopcheck-n5",
+  "status": "complete",
+  "method": "MOC hop-depth trace check",
+  "model": "Qwen2.5-7B-Instruct",
+  "dataset": "GSM8K",
+  "samples": 5,
+  "machine": "A800_2",
+  "gpu_ids": [7],
+  "started_at": "2026-06-13 17:37",
+  "ended_at": "2026-06-13 17:42",
+  "upstream_repo": "https://github.com/yao-guan/MOC",
+  "upstream_commit": "9c67c92507570704a7df73e452552a3f49e83897",
+  "local_changes": [
+    "baselines/MOC/patches/a8002-smoke-embedding-fallback.patch",
+    "baselines/MOC/patches/a8002-vllm-openai-adapter.patch",
+    "baselines/MOC/patches/a8002-vllm-structural-merge.patch",
+    "baselines/MOC/patches/a8002-comm-trace-events.patch"
+  ],
+  "result_paths": [
+    "/data/xuhaoming/yfy/research_workspace/results/unified-traces/moc-hopcheck-hop1-n5.comm_trace.jsonl",
+    "/data/xuhaoming/yfy/research_workspace/results/unified-traces/moc-hopcheck-hop2-n5.comm_trace.jsonl"
+  ],
+  "metrics": {
+    "hop1_accuracy": 1.0,
+    "hop1_total_tokens": 20977,
+    "hop1_compressed_total_tokens": 0,
+    "hop1_ism_result_events": 20,
+    "hop1_ism_merge_events": 0,
+    "hop2_accuracy": 1.0,
+    "hop2_total_tokens": 22422,
+    "hop2_compressed_total_tokens": 50699,
+    "hop2_ism_result_events": 20,
+    "hop2_ism_merge_events": 15
+  },
+  "caveats": [
+    "Tiny 5-sample diagnostic.",
+    "Hop2 uses forced merge with ism_r=0 and hash embeddings."
+  ]
+}

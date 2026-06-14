@@ -1,0 +1,39 @@
+/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:
+No module named 'vllm._version'
+  from vllm.version import __version__ as VLLM_VERSION
+Warning: result/debate_logs.jsonl already exists. New logs will be appended to this file.
+Warning: result/token_logs.jsonl already exists. New logs will be appended to this file.
+INFO 06-13 21:43:36 llm_engine.py:237] Initializing an LLM engine (vdev) with config: model='/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct', speculative_config=None, tokenizer='/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, rope_scaling=None, rope_theta=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=32768, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=42, served_model_name=/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct, use_v2_block_manager=True, num_scheduler_steps=1, chunked_prefill_enabled=False multi_step_stream_outputs=True, enable_prefix_caching=False, use_async_output_proc=True, use_cached_outputs=False, mm_processor_kwargs=None)
+INFO 06-13 21:43:37 model_runner.py:1060] Starting to load model /mnt/quarkfs/share_model/Qwen2.5-7B-Instruct...
+Loading safetensors checkpoint shards:   0% Completed | 0/4 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:  25% Completed | 1/4 [00:10<00:30, 10.12s/it]
+Loading safetensors checkpoint shards:  50% Completed | 2/4 [00:19<00:19,  9.91s/it]
+Loading safetensors checkpoint shards:  75% Completed | 3/4 [00:29<00:09,  9.88s/it]
+Loading safetensors checkpoint shards: 100% Completed | 4/4 [00:38<00:00,  9.27s/it]
+Loading safetensors checkpoint shards: 100% Completed | 4/4 [00:38<00:00,  9.52s/it]
+
+INFO 06-13 21:44:16 model_runner.py:1071] Loading model weights took 14.2487 GB
+INFO 06-13 21:44:18 gpu_executor.py:122] # GPU blocks: 61209, # CPU blocks: 4681
+INFO 06-13 21:44:18 gpu_executor.py:126] Maximum concurrency for 32768 tokens per request: 29.89x
+INFO 06-13 21:44:20 model_runner.py:1402] Capturing the model for CUDA graphs. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI.
+INFO 06-13 21:44:20 model_runner.py:1406] CUDA graphs can take additional 1~3 GiB memory per GPU. If you are running out of memory, consider decreasing `gpu_memory_utilization` or enforcing eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 06-13 21:44:31 model_runner.py:1530] Graph capturing finished in 11 secs.
+Experiment Name:  gsm8k_100__qwen2.5-7b_N=3_R=1_P=True_V=True_K=None_M=filter_critical_S=42
+
+Gathering initial opinions for ALL samples (Round 0)...
+Eval Round 0:   0%|          | 0/100 [00:00<?, ?it/s]Eval Round 0: 100%|██████████| 100/100 [00:00<00:00, 11897.38it/s]
+
+Debating round 1 for ALL samples...
+Eval Round 1:   0%|          | 0/100 [00:00<?, ?it/s]Eval Round 1: 100%|██████████| 100/100 [00:00<00:00, 12397.08it/s]
+ROUND 1 Sample 0 : [120.0, 120.0, 120.0] (answer = 120)
+ROUND 1 Sample 1 : [200.0, 200.0, 200.0] (answer = 200)
+ROUND 1 Sample 2 : [19.0, 19.0, 19.0] (answer = 19)
+ROUND 1 Sample 3 : [100.0, 100.0, 100.0] (answer = 100)
+ROUND 1 Sample 4 : [5.0, 5.0, 5.0] (answer = 5)
+Total number of sample responses:  100
+Round 0 Acc.: 0.9500
+Round 1 Acc.: 0.9500
+DONE:  gsm8k_100__qwen2.5-7b_N=3_R=1_P=True_V=True_K=None_M=filter_critical_S=42
+======================
+Total Time Taken: 0:01:55
+======================

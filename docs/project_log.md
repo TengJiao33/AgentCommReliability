@@ -211,3 +211,241 @@ Next:
   - DAR instrumentation patch applies after `a8002-respect-out-dir.patch` on a clean upstream checkout and `src/dev.py` / `src/main.py` pass `py_compile`.
   - MOC instrumentation patch is prepared for the A800_2 MOC checkout after the existing vLLM structural-merge adaptation; local Windows `git apply` validation is noisy around old MOC patch context and should be repeated on the remote Linux checkout before rerunning.
 - Next useful check: apply both instrumentation patches on A800_2 and run tiny MOC/DAR checks before any larger comparison.
+
+## 2026-06-13 Trace Instrumentation Check
+
+- Repaired `baselines/MOC/patches/a8002-comm-trace-events.patch` hunk counts so it is valid unified diff.
+- Added `baselines/MAD-MM-patches/a8002-local-qwen-and-runtime-overrides.patch` to preserve the current MAD-MM submodule A800_2 local-path/runtime override changes from the parent repository.
+- Updated `baselines/README.md` to document external patch placement for git submodules.
+- Applied instrumentation patches on A800_2:
+  - MOC: `a8002-comm-trace-events.patch`; applied with `git apply --ignore-whitespace --recount` because the transferred MOC source has CRLF line endings; `experiments/common.py` and `src/graph/graph.py` pass `py_compile`.
+  - DAR: `a8002-filter-retention-history.patch`; `src/dev.py` and `src/main.py` pass `py_compile`.
+- Started temporary MOC vLLM server on GPU 7, port `8027`, served as `qwen2.5-7b-trace`; stopped it after the MOC check and confirmed GPU 7 was released.
+- Completed MOC trace instrumentation n=1 forced-merge check:
+  - run record: `experiments/20260613-1718-a8002-trace-instrumentation-check/`
+  - accuracy `1/1`, total tokens `5,822`, compressed tokens `13,602`.
+  - sidecar `moc_comm_events.jsonl` has 7 events: 3 `ism_merge`, 4 `ism_result`.
+  - unified trace has 1 row with 7 `communication_events`.
+- Completed DAR `filter_critical` GSM8K5 full-history trace check:
+  - round 0 accuracy `5/5`; round 1 accuracy `4/5`.
+  - history JSONL has 5 rows, each with `retention_events`.
+  - unified trace has 5 rows: 4 `stable_right`, 1 `right_to_wrong`.
+  - the right-to-wrong sample retained Agent2 and Agent3 while dropping Agent1, shifting the debate answer from correct `200` to wrong `240`.
+- Synced the latest `scripts/extract_comm_trace_schema.py` to A800_2 and extracted:
+  - `/data/xuhaoming/yfy/research_workspace/results/unified-traces/moc-trace-instrumentation-n1.comm_trace.jsonl`
+  - `/data/xuhaoming/yfy/research_workspace/results/unified-traces/dar-trace-filtercritical-gsm8k5.comm_trace.jsonl`
+
+## 2026-06-13 DAR Full-History And MOC Hop Trace Checks
+
+- Reran DAR GSM8K 100-sample `filter_critical` with `--save_full_history` on A800_2 GPU 7:
+  - run record: `experiments/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/`
+  - round 0 accuracy `0.95`; round 1 accuracy `0.93`.
+  - unified trace has 100 rows and 100 retention events.
+  - transition counts: 92 `stable_right`, 3 `right_to_wrong`, 1 `wrong_to_right`, 4 `stable_wrong`.
+  - retention-size distribution: 1 retained ID for 64 samples, 2 for 27, 3 for 9.
+  - `filter_critical` dropped at least one correct first-round agent in 84 samples and all correct first-round agents in 13 samples.
+  - filter-token total matched the earlier short matrix: `113,657`.
+- Ran MOC n=5 hop-depth trace check on A800_2 GPU 7 with temporary vLLM port `8028`; stopped vLLM and confirmed GPU 7 was released:
+  - run record: `experiments/20260613-1740-a8002-moc-hopcheck-n5/`
+  - hop1: `5/5`, total tokens `20,977`, compressed tokens `0`, 20 `ism_result` events and no merge.
+  - hop2 forced merge: `5/5`, total tokens `22,422`, compressed tokens `50,699`, 20 `ism_result` events and 15 `ism_merge` events.
+  - unified traces:
+    - `/data/xuhaoming/yfy/research_workspace/results/unified-traces/moc-hopcheck-hop1-n5.comm_trace.jsonl`
+    - `/data/xuhaoming/yfy/research_workspace/results/unified-traces/moc-hopcheck-hop2-n5.comm_trace.jsonl`
+
+## 2026-06-13 MAD-MM MATH Benchmark Probe
+
+- Added a MAD-MM sample-count override patch:
+  - `baselines/MAD-MM-patches/a8002-sample-count-override.patch`
+  - adds `--sample_count` to `src/args.py`;
+  - routes `math`, `gsm8k`, and `mmlu_pro` default bounded sample counts through `args.sample_count or 100`.
+- Added one-GPU MATH probe launcher:
+  - `scripts/run_madmm_math_probe_a8002.sh`
+- Applied the patch on A800_2 MAD-MM checkout and verified:
+  - `chain_of_thoughts.py`, `multi_agent_debate.py`, and `src/args.py` pass `py_compile`.
+- Ran MAD-MM on A800_2 GPU 7:
+  - model: Qwen2.5-7B-Instruct
+  - dataset: MATH
+  - seed: 41
+  - samples: 50
+  - methods: CoT, MAD naive, MAD-MM objective masking
+  - GPU 7 was released after completion.
+- Results:
+  - CoT: accuracy `0.46`, total tokens `28,790`.
+  - MAD naive: accuracy `0.60`, total tokens `410,691`.
+  - MAD-MM objective: accuracy `0.66`, total tokens `273,177`.
+  - objective masking used `66.5%` of naive MAD tokens while improving accuracy by 6 points on this probe.
+- Supplemental subjective masking run on the same 50-sample slice:
+  - accuracy `0.60`, total tokens `494,163`, runtime `228.879s`.
+  - tied naive MAD accuracy, used `120.3%` of naive MAD tokens, and used `180.9%` of objective masking tokens.
+  - GPU 7 was released after completion.
+- Unified trace:
+  - `/data/xuhaoming/yfy/research_workspace/results/unified-traces/madmm-qwen25-7b-math50-probe.comm_trace.jsonl`
+  - 200 rows: 50 samples x 4 methods.
+- Trace-level transitions:
+  - MAD naive vs CoT: 7 `wrong_to_right`, 0 `right_to_wrong`.
+  - MAD-MM objective vs CoT: 9 `wrong_to_right`, 0 `right_to_wrong`.
+  - MAD-MM objective vs MAD naive: 2 `wrong_to_right`, 0 `right_to_wrong`.
+  - MAD-MM subjective vs CoT: 7 `wrong_to_right`, 1 `right_to_wrong`.
+  - MAD-MM subjective vs MAD naive: 1 `wrong_to_right`, 2 `right_to_wrong`.
+  - MAD-MM subjective vs MAD-MM objective: 0 `wrong_to_right`, 3 `right_to_wrong`.
+  - caveat: transition counts use the local trace normalizer, while accuracy above is the MAD-MM official MATH evaluator.
+- Objective mask behavior:
+  - retained 1 memory in all 50 samples.
+  - dropped at least one correct round-0 agent in 29 samples.
+  - dropped all correct round-0 agents in 1 sample (`2965`), but that sample still ended correct.
+- Subjective mask behavior under the local trace normalizer:
+  - retained 128 of 150 round-0 memories, averaging 2.56 retained memories per sample.
+  - retained all 3 memories in 35 samples; retained none in 2 samples.
+  - dropped at least one correct round-0 agent in 1 sample and all correct round-0 agents in the same sample.
+- Added run record:
+  - `experiments/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/`
+- Working interpretation:
+  - This MATH probe exposed a much wider communication-method spread than the earlier saturated GSM8K short subset, so benchmark pressure is a faster way to see gaps before spending time on larger matrices.
+  - Subjective masking remained a poor tradeoff on this slice: it was the most expensive method and did not beat naive MAD, while objective masking was both cheaper and more accurate.
+
+## 2026-06-13 MAD-MM And DAR Trace Case Follow-Up
+
+- Inspected local trace cases without launching a new GPU run:
+  - MAD-MM MATH50 cases `494`, `1237`, and `2965`.
+  - DAR GSM8K100 full-history cases `5`, `20`, `22`, and contrast case `37`.
+- Added short report:
+  - `reports/20260613-madmm-dar-trace-case-followup.md`
+- Case-level observations:
+  - MAD-MM objective masking can help by retaining the only correct first-round answer, but it can also help by retaining an incomplete or wrong-looking reasoning scaffold that the next round completes.
+  - DAR `filter_critical` right-to-wrong cases include direct bad-retention failures and continuation/parser failures after apparently useful retention.
+- Next useful non-GPU check:
+  - hand-label a few retained messages by role, such as correct answer, useful scaffold, invalid answer, or post-retention format failure.
+
+## 2026-06-13 Retained Message Role Audit
+
+- Hand-labeled retained/dropped message roles for selected MAD-MM MATH50 and DAR GSM8K100 trace cases.
+- Added report:
+  - `reports/20260613-retained-message-role-audit.md`
+- Cases covered:
+  - MAD-MM: objective cases `494`, `1237`, `2965`; subjective cases `570`, `843`, `1237`, `494`.
+  - DAR: `5`, `20`, `22`, `37`.
+- Labels used:
+  - `correct_answer`, `useful_scaffold`, `wrong_answer`, `format_or_parse_failure`, `harmful_majority`, `zero_retention_reset`.
+- Observations:
+  - MAD-MM `570` is a clean subjective dropped-correct-minority failure: retained wrong `288` and `8`, dropped correct `1152`.
+  - MAD-MM `494` shows that retaining a correct minority is not enough when full retained reasoning lets wrong alternatives dominate the next round.
+  - MAD-MM `843` and `1237` show empty subjective masks behaving like a fresh solve; both ended correct, so zero retention should be logged as reset behavior rather than silently treated as filtering.
+  - DAR `20` and `22` expose parser-compatibility failures: the filter can retain malformed or unparseable answers while dropping parseable correct alternatives.
+  - DAR `37` shows mixed retention can help when a parseable correct dissenting answer remains visible.
+- Candidate next check:
+  - implement an offline post-filter wrapper on existing traces that preserves answer diversity and parseable answers before spending another GPU run.
+
+## 2026-06-13 Guarded Retention Offline Simulation
+
+- Added offline audit script:
+  - `scripts/simulate_guarded_retention.py`
+  - simulates a post-filter guard over unified traces without rerunning any model.
+  - rule: record empty retention as reset, avoid retaining only unparseable messages when parseable alternatives exist, and add representatives from missing parseable answer buckets.
+- Ran the script over:
+  - `experiments/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/comm_trace_madmm_math50.jsonl`
+  - `experiments/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/comm_trace_dar.jsonl`
+- Added local run record:
+  - `experiments/20260613-guarded-retention-offline-simulation/`
+- Added short report:
+  - `reports/20260613-guarded-retention-offline-simulation.md`
+- Main `max_retained=3` results:
+  - DAR `filter_critical`: 17 of 100 retained sets changed; 13 cases recovered at least one correct first-round message that the original filter missed; 2 of 3 right-to-wrong cases were selection failures addressed by the guard.
+  - MAD-MM objective: 25 of 50 retained sets changed; 1 case recovered a correct first-round message, but this mostly makes objective masking less sparse.
+  - MAD-MM subjective: 11 of 50 retained sets changed; case `570` recovered the dropped correct answer bucket.
+- Caveat:
+  - this is a retention-decision audit, not an accuracy result. DAR `5` and MAD-MM subjective right-to-wrong `4616` remain downstream continuation/parser or full-reasoning failures rather than simple selection failures.
+
+## 2026-06-13 DAR Guarded Variant Prep
+
+- Prepared an experimental DAR patch:
+  - `baselines/DAR/patches/a8002-guarded-answer-diversity.patch`
+  - applies after the existing A800_2 DAR patch stack.
+  - adds `--retention_guard answer_diversity`, `--retention_guard_max`, and `--retention_message_mode`.
+  - records `original_retained_agent_ids`, guard-added/removed IDs, guard notes, and message mode inside DAR `retention_events`.
+  - supports `--retention_message_mode answer_only` so retained peer context can pass parsed answers instead of full prior reasoning.
+- Added launcher:
+  - `scripts/run_dar_guarded_retention_a8002.sh`
+  - target: Qwen2.5-7B-Instruct, GSM8K100, 3 agents, 1 debate round, `filter_critical` plus answer-diversity guard, answer-only retained-message surface, full history.
+- Updated `scripts/extract_comm_trace_schema.py` so DAR unified traces preserve guard metadata from `retention_events`.
+- Local validation:
+  - the new patch applies after the existing DAR A800_2 patch stack on a fresh upstream checkout.
+  - `src/dev.py` and `src/main.py` pass `py_compile` in the patched temp checkout.
+
+## 2026-06-13 DAR Guarded Answer-Diversity Run
+
+- Applied `baselines/DAR/patches/a8002-guarded-answer-diversity.patch` on the A800_2 DAR checkout after the existing local patches.
+- Verified remote `src/dev.py` and `src/main.py` with `py_compile`.
+- Launched bounded run on A800_2 GPU 7:
+  - launcher: `scripts/run_dar_guarded_retention_a8002.sh`
+  - run id: `20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100`
+  - model: Qwen2.5-7B-Instruct
+  - dataset: GSM8K100
+  - seed: 42
+  - setting: 3 agents, 1 debate round, `filter_critical`, `--retention_guard answer_diversity`, `--retention_guard_max 3`, `--retention_message_mode answer_only`, `--save_full_history`
+  - wall time: about 2m04s
+  - GPU 7 was released after completion.
+- Results:
+  - round 0 accuracy `0.95`; round 1 accuracy `0.95`.
+  - transition counts: 94 `stable_right`, 1 `right_to_wrong`, 1 `wrong_to_right`, 4 `stable_wrong`.
+  - changed retained sets: 17/100.
+  - guard recovered at least one correct retained first-round message in 13 cases and lost none.
+  - generation-plus-filter total tokens: `418,427`, about `77.1%` of the original DAR `filter_critical` full-history run's `542,498`.
+- Case notes:
+  - original right-to-wrong sample `22` became stable-right after replacing unparseable retained `Agent1` with parseable correct `Agent2`.
+  - original right-to-wrong sample `5` became stable-right even though retained IDs did not change, suggesting the answer-only message surface helped with the prior continuation/parser failure.
+  - original right-to-wrong sample `20` remained right-to-wrong even after adding correct `Agent1`, so answer diversity alone is not sufficient.
+- Added run record and report:
+  - `experiments/20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100/`
+  - `reports/20260613-dar-guarded-answer-diversity-run.md`
+
+## 2026-06-13 MAD-MM Benchmark Sweep
+
+- Added one-GPU benchmark sweep launcher:
+  - `scripts/run_madmm_benchmark_sweep_a8002.sh`
+  - default scope: MATH50, MMLU-Pro50, AIME24 full local set, AIME25 full local set.
+  - methods: CoT, MAD naive, MAD-MM objective.
+- Ran on A800_2 GPU 7 with Qwen2.5-7B-Instruct, seed 41:
+  - stamp: `20260613_205520`
+  - run window: 2026-06-13 20:55:20 to 21:23:27 CST
+  - GPU 7 was released after completion.
+- Official accuracy results:
+  - MATH50: CoT `0.46`, naive `0.60`, objective `0.66`.
+  - MMLU-Pro50: CoT `0.26`, naive `0.36`, objective `0.34`.
+  - AIME24: CoT `0.1667`, naive `0.1667`, objective `0.1333`.
+  - AIME25: CoT `0.10`, naive `0.0667`, objective `0.10`.
+- Extracted unified traces:
+  - `/data/xuhaoming/yfy/research_workspace/results/unified-traces/madmm-benchmark-sweep-20260613_205520-math-50.comm_trace.jsonl`
+  - `/data/xuhaoming/yfy/research_workspace/results/unified-traces/madmm-benchmark-sweep-20260613_205520-mmlu_pro-50.comm_trace.jsonl`
+  - `/data/xuhaoming/yfy/research_workspace/results/unified-traces/madmm-benchmark-sweep-20260613_205520-aime24-all.comm_trace.jsonl`
+  - `/data/xuhaoming/yfy/research_workspace/results/unified-traces/madmm-benchmark-sweep-20260613_205520-aime25-all.comm_trace.jsonl`
+- Added local run record and report:
+  - `experiments/20260613-2055-a8002-madmm-benchmark-sweep/`
+  - `reports/20260613-madmm-benchmark-atlas.md`
+- Updated `scripts/extract_comm_trace_schema.py` to compare textual labels case-insensitively, fixing MMLU-Pro trace correctness for lower-case model predictions against upper-case gold labels.
+
+## 2026-06-13 DAR Retention Split Ablation
+
+- Added split-ablation launcher:
+  - `scripts/run_dar_retention_ablation_a8002.sh`
+  - variants: `answer_only_no_guard` and `guard_full`.
+- Added summary helper:
+  - `scripts/summarize_dar_retention_ablation.py`
+  - summarizes DAR unified traces, token totals, transitions, guard metadata, and paired final-correct changes.
+- Ran on A800_2 GPU 7 with Qwen2.5-7B-Instruct, seed 42:
+  - stamp: `20260613_2143`
+  - `answer_only_no_guard`: `--retention_guard none`, `--retention_message_mode answer_only`
+  - `guard_full`: `--retention_guard answer_diversity`, `--retention_guard_max 3`, `--retention_message_mode full`
+  - GPU 7 was released after completion.
+- Results on the same GSM8K100 slice:
+  - original DAR `filter_critical`: round 1 `0.93`, 3 `right_to_wrong`, generation-plus-filter tokens `542,498`.
+  - `answer_only_no_guard`: round 1 `0.95`, 1 `right_to_wrong`, tokens `419,180`.
+  - guarded answer-only: round 1 `0.95`, 1 `right_to_wrong`, tokens `418,427`.
+  - `guard_full`: round 1 `0.96`, 0 `right_to_wrong`, tokens `545,520`.
+- Case notes:
+  - `answer_only_no_guard` recovered original right-to-wrong samples `5` and `22`, matching the earlier guarded answer-only run.
+  - `guard_full` recovered samples `5`, `20`, and `22`.
+  - sample `20` stayed wrong under answer-only but became correct when the guard added correct `Agent1` and full retained reasoning was visible.
+- Added local run record and report:
+  - `experiments/20260613-2143-a8002-dar-retention-split-gsm8k100/`
+  - `reports/20260613-dar-retention-split-ablation.md`

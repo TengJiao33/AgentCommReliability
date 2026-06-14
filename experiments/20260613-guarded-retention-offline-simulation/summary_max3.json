@@ -1,0 +1,259 @@
+{
+  "changed_case_count": 55,
+  "created_at": "2026-06-13T20:22:09",
+  "groups": {
+    "dar_gsm8k100|DAR|filter_critical": {
+      "any_correct_available": 97,
+      "changed_by_guard": 17,
+      "guard_added_agent": 17,
+      "guard_lost_any_correct": 0,
+      "guard_recovered_any_correct": 13,
+      "guard_removed_agent": 3,
+      "guarded_only_unparseable_with_parseable_available": 0,
+      "guarded_retained_any_correct": 97,
+      "guarded_retained_count_distribution": {
+        "1": 53,
+        "2": 35,
+        "3": 12
+      },
+      "guarded_retained_parseable_count_distribution": {
+        "1": 53,
+        "2": 35,
+        "3": 12
+      },
+      "method": "filter_critical",
+      "method_family": "DAR",
+      "original_empty_retention": 0,
+      "original_only_unparseable_with_parseable_available": 3,
+      "original_retained_any_correct": 84,
+      "original_retained_count_distribution": {
+        "1": 64,
+        "2": 27,
+        "3": 9
+      },
+      "original_retained_parseable_count_distribution": {
+        "0": 3,
+        "1": 61,
+        "2": 27,
+        "3": 9
+      },
+      "parseable_bucket_count_distribution": {
+        "1": 85,
+        "2": 13,
+        "3": 2
+      },
+      "records": 100,
+      "records_with_retention": 100,
+      "reset_modes": 0,
+      "right_to_wrong": 3,
+      "right_to_wrong_changed": 2,
+      "right_to_wrong_recovered_any_correct": 2,
+      "trace_label": "dar_gsm8k100",
+      "transition_counts": {
+        "right_to_wrong": 3,
+        "stable_right": 92,
+        "stable_wrong": 4,
+        "wrong_to_right": 1
+      }
+    },
+    "madmm_math50|MAD-MM|cot": {
+      "any_correct_available": 0,
+      "changed_by_guard": 0,
+      "guard_added_agent": 0,
+      "guard_lost_any_correct": 0,
+      "guard_recovered_any_correct": 0,
+      "guard_removed_agent": 0,
+      "guarded_only_unparseable_with_parseable_available": 0,
+      "guarded_retained_any_correct": 0,
+      "guarded_retained_count_distribution": {},
+      "guarded_retained_parseable_count_distribution": {},
+      "method": "cot",
+      "method_family": "MAD-MM",
+      "original_empty_retention": 0,
+      "original_only_unparseable_with_parseable_available": 0,
+      "original_retained_any_correct": 0,
+      "original_retained_count_distribution": {},
+      "original_retained_parseable_count_distribution": {},
+      "parseable_bucket_count_distribution": {},
+      "records": 50,
+      "records_with_retention": 0,
+      "reset_modes": 0,
+      "right_to_wrong": 0,
+      "right_to_wrong_changed": 0,
+      "right_to_wrong_recovered_any_correct": 0,
+      "trace_label": "madmm_math50",
+      "transition_counts": {
+        "unknown": 50
+      }
+    },
+    "madmm_math50|MAD-MM|mad_naive": {
+      "any_correct_available": 34,
+      "changed_by_guard": 0,
+      "guard_added_agent": 0,
+      "guard_lost_any_correct": 0,
+      "guard_recovered_any_correct": 0,
+      "guard_removed_agent": 0,
+      "guarded_only_unparseable_with_parseable_available": 0,
+      "guarded_retained_any_correct": 34,
+      "guarded_retained_count_distribution": {
+        "3": 50
+      },
+      "guarded_retained_parseable_count_distribution": {
+        "3": 50
+      },
+      "method": "mad_naive",
+      "method_family": "MAD-MM",
+      "original_empty_retention": 0,
+      "original_only_unparseable_with_parseable_available": 0,
+      "original_retained_any_correct": 34,
+      "original_retained_count_distribution": {
+        "3": 50
+      },
+      "original_retained_parseable_count_distribution": {
+        "3": 50
+      },
+      "parseable_bucket_count_distribution": {
+        "1": 25,
+        "2": 16,
+        "3": 9
+      },
+      "records": 50,
+      "records_with_retention": 50,
+      "reset_modes": 0,
+      "right_to_wrong": 0,
+      "right_to_wrong_changed": 0,
+      "right_to_wrong_recovered_any_correct": 0,
+      "trace_label": "madmm_math50",
+      "transition_counts": {
+        "stable_right": 29,
+        "stable_wrong": 17,
+        "wrong_to_right": 4
+      }
+    },
+    "madmm_math50|MAD-MM|mad_objective": {
+      "any_correct_available": 34,
+      "changed_by_guard": 25,
+      "guard_added_agent": 25,
+      "guard_lost_any_correct": 0,
+      "guard_recovered_any_correct": 1,
+      "guard_removed_agent": 0,
+      "guarded_only_unparseable_with_parseable_available": 0,
+      "guarded_retained_any_correct": 34,
+      "guarded_retained_count_distribution": {
+        "1": 25,
+        "2": 16,
+        "3": 9
+      },
+      "guarded_retained_parseable_count_distribution": {
+        "1": 25,
+        "2": 16,
+        "3": 9
+      },
+      "method": "mad_objective",
+      "method_family": "MAD-MM",
+      "original_empty_retention": 0,
+      "original_only_unparseable_with_parseable_available": 0,
+      "original_retained_any_correct": 33,
+      "original_retained_count_distribution": {
+        "1": 50
+      },
+      "original_retained_parseable_count_distribution": {
+        "1": 50
+      },
+      "parseable_bucket_count_distribution": {
+        "1": 25,
+        "2": 16,
+        "3": 9
+      },
+      "records": 50,
+      "records_with_retention": 50,
+      "reset_modes": 0,
+      "right_to_wrong": 0,
+      "right_to_wrong_changed": 0,
+      "right_to_wrong_recovered_any_correct": 0,
+      "trace_label": "madmm_math50",
+      "transition_counts": {
+        "stable_right": 29,
+        "stable_wrong": 15,
+        "wrong_to_right": 6
+      }
+    },
+    "madmm_math50|MAD-MM|mad_subjective": {
+      "any_correct_available": 34,
+      "changed_by_guard": 11,
+      "guard_added_agent": 11,
+      "guard_lost_any_correct": 0,
+      "guard_recovered_any_correct": 1,
+      "guard_removed_agent": 0,
+      "guarded_only_unparseable_with_parseable_available": 0,
+      "guarded_retained_any_correct": 34,
+      "guarded_retained_count_distribution": {
+        "0": 2,
+        "2": 3,
+        "3": 45
+      },
+      "guarded_retained_parseable_count_distribution": {
+        "0": 2,
+        "2": 3,
+        "3": 45
+      },
+      "method": "mad_subjective",
+      "method_family": "MAD-MM",
+      "original_empty_retention": 2,
+      "original_only_unparseable_with_parseable_available": 0,
+      "original_retained_any_correct": 33,
+      "original_retained_count_distribution": {
+        "0": 2,
+        "1": 3,
+        "2": 10,
+        "3": 35
+      },
+      "original_retained_parseable_count_distribution": {
+        "0": 2,
+        "1": 3,
+        "2": 10,
+        "3": 35
+      },
+      "parseable_bucket_count_distribution": {
+        "1": 25,
+        "2": 16,
+        "3": 9
+      },
+      "records": 50,
+      "records_with_retention": 50,
+      "reset_modes": 2,
+      "right_to_wrong": 1,
+      "right_to_wrong_changed": 0,
+      "right_to_wrong_recovered_any_correct": 0,
+      "trace_label": "madmm_math50",
+      "transition_counts": {
+        "right_to_wrong": 1,
+        "stable_right": 28,
+        "stable_wrong": 17,
+        "wrong_to_right": 4
+      }
+    }
+  },
+  "max_retained": 3,
+  "rule": {
+    "description": "Post-filter guard over first-round retained messages.",
+    "oracle_correctness_only_for_audit_metrics": true,
+    "steps": [
+      "Treat empty retention as reset.",
+      "Never keep only unparseable messages when parseable candidates exist.",
+      "Add one representative from missing parseable answer buckets until max_retained is reached.",
+      "Prefer answer diversity over duplicate retained answer buckets when a replacement is needed."
+    ],
+    "uses_oracle_correctness": false
+  },
+  "traces": [
+    {
+      "label": "madmm_math50",
+      "path": "experiments\\20260613-1855-a8002-madmm-qwen25-7b-math50-probe\\comm_trace_madmm_math50.jsonl"
+    },
+    {
+      "label": "dar_gsm8k100",
+      "path": "experiments\\20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory\\comm_trace_dar.jsonl"
+    }
+  ]
+}

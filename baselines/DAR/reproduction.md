@@ -67,6 +67,8 @@ Expected upstream paths:
 - `out/history/*.jsonl`
 - `result/debate_logs.jsonl`
 - `result/token_logs.jsonl`
+- instrumented full-history check: `experiments/20260613-1718-a8002-trace-instrumentation-check/`
+- instrumented GSM8K100 full-history check: `experiments/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/`
 
 ## Result Snapshot
 
@@ -80,6 +82,9 @@ Expected upstream paths:
 | Basic MAD short | qwen2.5-7b | gsm8k | 42 | 100 | round 0/1 accuracy `0.95/0.95` | not normalized | complete |
 | Top-K uncertainty short | qwen2.5-7b | gsm8k | 42 | 100 | round 0/1 accuracy `0.95/0.94` | not normalized | complete |
 | DAR `filter_critical` short | qwen2.5-7b | gsm8k | 42 | 100 | round 0/1 accuracy `0.95/0.93` | filter tokens `113,657` | complete |
+| DAR guarded answer-only | qwen2.5-7b | gsm8k | 42 | 100 | round 0/1 accuracy `0.95/0.95` | generation + filter tokens `418,427` | complete |
+| DAR answer-only no guard | qwen2.5-7b | gsm8k | 42 | 100 | round 0/1 accuracy `0.95/0.95` | generation + filter tokens `419,180` | complete |
+| DAR guard full | qwen2.5-7b | gsm8k | 42 | 100 | round 0/1 accuracy `0.95/0.96` | generation + filter tokens `545,520` | complete |
 
 ## Deviations From Upstream
 
@@ -89,6 +94,7 @@ Expected upstream paths:
 - Output directory patch prepared: `baselines/DAR/patches/a8002-respect-out-dir.patch`.
 - GSM8K offline JSONL fallback patch prepared: `baselines/DAR/patches/a8002-gsm8k-local-jsonl-fallback.patch`.
 - Filter retention history patch prepared: `baselines/DAR/patches/a8002-filter-retention-history.patch`.
+- Guarded answer-diversity patch prepared and run in bounded variants: `baselines/DAR/patches/a8002-guarded-answer-diversity.patch`.
 - Planned runs should use explicit GPU visibility and timeout wrappers.
 
 ## Failures And Fixes
@@ -99,15 +105,17 @@ Expected upstream paths:
 | Qwen2.5-7B-Instruct Round 1 answers used escaped braces such as `\\{final answer: 371.75\\}`, causing `evaluate_arithmetics` to parse empty answers. | `/data/xuhaoming/yfy/research_workspace/logs/dar-smoke-qwen25-7b-arith2-20260612_182826.log`; history JSONL under remote DAR `out/history/` | allow optional escaped braces in arithmetic answer regex | evaluation parser changed; communication method unchanged |
 | Upstream history and TSV paths ignored `--out_dir` and wrote to repository `out/`. | `src/main.py` path construction | write history and TSV under `args.out_dir` | artifact placement changed; method logic unchanged |
 | A800_2 could not reach `huggingface.co` for `openai/gsm8k`, and no dataset cache entry existed. | data-only GSM8K smoke before GPU launch | load project-local MAD-MM processed GSM8K JSONL when available, or use `DAR_GSM8K_JSONL` | data loading changed, method logic unchanged |
-| DAR history omitted retained/dropped filter IDs and non-debug mode saved only first 10 samples. | unified trace extraction caveat | prepared `a8002-filter-retention-history.patch` with per-round `retention_events` and `--save_full_history` | trace-only instrumentation |
+| DAR history omitted retained/dropped filter IDs and non-debug mode saved only first 10 samples. | unified trace extraction caveat | `a8002-filter-retention-history.patch` adds per-round `retention_events` and `--save_full_history`; verified on GSM8K5 trace check | trace-only instrumentation |
+| DAR `filter_critical` can drop parseable dissenting answers or retain only unparseable answers. | `reports/20260613-guarded-retention-offline-simulation.md` | `a8002-guarded-answer-diversity.patch` adds an optional `--retention_guard answer_diversity` post-filter guard and `--retention_message_mode answer_only` | experimental method variant |
 
 ## Caveats
 
 - Existing 100-sample runs cover generated arithmetic and GSM8K, but each uses one seed and one model.
-- Matched total-token accounting across methods is not yet extracted.
+- Matched total-token accounting is available for the full-history DAR variants, but not for every older non-instrumented run.
 - Non-debug history stores only the first 10 samples.
-- Retained/dropped ID instrumentation is prepared but not yet represented in a completed remote run.
+- Retained/dropped ID instrumentation is represented by a 5-sample GSM8K diagnostic run and a 100-sample GSM8K `filter_critical` rerun; the rest of the matrix has not been rerun with full history.
+- Guarded retention evidence is still one seed/model/GSM8K100 slice and should not be treated as a general method ranking.
 
 ## Next Small Check
 
-- Apply `a8002-filter-retention-history.patch` and rerun a small GSM8K `filter_critical` check with `--save_full_history`.
+- Inspect sample `20` from the retention split ablation, then try a harder slice such as MATH50 or MMLU-Pro50 before expanding GSM8K.

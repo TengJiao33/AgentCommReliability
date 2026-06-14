@@ -1,0 +1,134 @@
+{
+  "aime24-all": {
+    "cot": {
+      "n": 30,
+      "correct": 5,
+      "wrong": 25,
+      "unknown": 0,
+      "transitions": {
+        "unknown": 30
+      }
+    },
+    "mad_naive": {
+      "n": 30,
+      "correct": 5,
+      "wrong": 25,
+      "unknown": 0,
+      "transitions": {
+        "stable_right": 5,
+        "stable_wrong": 25
+      }
+    },
+    "mad_objective": {
+      "n": 30,
+      "correct": 4,
+      "wrong": 26,
+      "unknown": 0,
+      "transitions": {
+        "stable_right": 4,
+        "stable_wrong": 25,
+        "right_to_wrong": 1
+      }
+    }
+  },
+  "aime25-all": {
+    "cot": {
+      "n": 30,
+      "correct": 3,
+      "wrong": 25,
+      "unknown": 2,
+      "transitions": {
+        "unknown": 30
+      }
+    },
+    "mad_naive": {
+      "n": 30,
+      "correct": 2,
+      "wrong": 28,
+      "unknown": 0,
+      "transitions": {
+        "stable_right": 2,
+        "stable_wrong": 27,
+        "right_to_wrong": 1
+      }
+    },
+    "mad_objective": {
+      "n": 30,
+      "correct": 3,
+      "wrong": 27,
+      "unknown": 0,
+      "transitions": {
+        "stable_right": 3,
+        "stable_wrong": 27
+      }
+    }
+  },
+  "math-50": {
+    "cot": {
+      "n": 50,
+      "correct": 26,
+      "wrong": 24,
+      "unknown": 0,
+      "transitions": {
+        "unknown": 50
+      }
+    },
+    "mad_naive": {
+      "n": 50,
+      "correct": 33,
+      "wrong": 17,
+      "unknown": 0,
+      "transitions": {
+        "stable_right": 29,
+        "wrong_to_right": 4,
+        "stable_wrong": 17
+      }
+    },
+    "mad_objective": {
+      "n": 50,
+      "correct": 35,
+      "wrong": 15,
+      "unknown": 0,
+      "transitions": {
+        "stable_right": 29,
+        "wrong_to_right": 6,
+        "stable_wrong": 15
+      }
+    }
+  },
+  "mmlu_pro-50": {
+    "cot": {
+      "n": 50,
+      "correct": 13,
+      "wrong": 37,
+      "unknown": 0,
+      "transitions": {
+        "unknown": 50
+      }
+    },
+    "mad_naive": {
+      "n": 50,
+      "correct": 18,
+      "wrong": 32,
+      "unknown": 0,
+      "transitions": {
+        "stable_wrong": 31,
+        "stable_right": 11,
+        "right_to_wrong": 1,
+        "wrong_to_right": 7
+      }
+    },
+    "mad_objective": {
+      "n": 50,
+      "correct": 17,
+      "wrong": 33,
+      "unknown": 0,
+      "transitions": {
+        "wrong_to_right": 6,
+        "stable_wrong": 32,
+        "stable_right": 11,
+        "right_to_wrong": 1
+      }
+    }
+  }
+}

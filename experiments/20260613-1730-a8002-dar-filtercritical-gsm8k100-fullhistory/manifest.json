@@ -1,0 +1,41 @@
+{
+  "run_id": "20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory",
+  "status": "complete",
+  "method": "DAR filter_critical",
+  "model": "Qwen2.5-7B-Instruct",
+  "dataset": "GSM8K",
+  "seed": 42,
+  "samples": 100,
+  "machine": "A800_2",
+  "gpu_ids": [7],
+  "started_at": "2026-06-13 17:30",
+  "ended_at": "2026-06-13 17:33",
+  "upstream_repo": "https://github.com/DA2I2-SLM/DAR",
+  "upstream_commit": "f3c6e9d7c5f9805113f4398c20cbf7d732d60dd0",
+  "local_changes": [
+    "baselines/DAR/patches/a8002-local-qwen-paths.patch",
+    "baselines/DAR/patches/a8002-arithmetic-escaped-brace-parser.patch",
+    "baselines/DAR/patches/a8002-respect-out-dir.patch",
+    "baselines/DAR/patches/a8002-gsm8k-local-jsonl-fallback.patch",
+    "baselines/DAR/patches/a8002-filter-retention-history.patch"
+  ],
+  "log_path": "/data/xuhaoming/yfy/research_workspace/logs/dar-trace-filtercritical-gsm8k100-fullhistory-20260613_1730.log",
+  "result_paths": [
+    "/data/xuhaoming/yfy/research_workspace/results/dar-trace-filtercritical-gsm8k100-fullhistory-20260613_1730/out/history/gsm8k_100__qwen2.5-7b_N=3_R=1_P=True_V=True_K=None_M=filter_critical_S=42.jsonl",
+    "/data/xuhaoming/yfy/research_workspace/results/unified-traces/dar-trace-filtercritical-gsm8k100-fullhistory.comm_trace.jsonl"
+  ],
+  "metrics": {
+    "round0_accuracy": 0.95,
+    "round1_accuracy": 0.93,
+    "stable_right": 92,
+    "right_to_wrong": 3,
+    "wrong_to_right": 1,
+    "stable_wrong": 4,
+    "filter_total_tokens": 113657,
+    "samples_with_all_correct_agents_dropped": 13
+  },
+  "caveats": [
+    "Only filter_critical was rerun.",
+    "One seed, one model, 100 GSM8K examples."
+  ]
+}

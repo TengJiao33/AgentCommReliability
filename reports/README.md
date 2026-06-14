@@ -39,3 +39,9 @@ What We Tried -> What Happened -> Things Noticed -> Failures / Friction -> Loose
 - `20260612-multi-agent-frontier-scan.md`
 - `20260613-moc-gsm8k-topology-smoke.md`
 - `20260613-moc-forced-merge-smoke.md`
+- `20260613-madmm-dar-trace-case-followup.md`
+- `20260613-retained-message-role-audit.md`
+- `20260613-guarded-retention-offline-simulation.md`
+- `20260613-dar-guarded-answer-diversity-run.md`
+- `20260613-madmm-benchmark-atlas.md`
+- `20260613-dar-retention-split-ablation.md`

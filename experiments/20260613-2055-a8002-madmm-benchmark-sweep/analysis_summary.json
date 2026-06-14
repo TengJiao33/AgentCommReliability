@@ -1,0 +1,209 @@
+{
+  "result_count": 4,
+  "results": [
+    {
+      "benchmark": "aime24",
+      "result_dir": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_aime24_all\\qwen2.5-7b\\aime24",
+      "sample_count": 30,
+      "method_count": 3,
+      "accuracy_spread": 0.033333333333333326,
+      "methods": {
+        "cot": {
+          "method": "cot",
+          "label": "CoT",
+          "accuracy": 0.16666666666666666,
+          "sample_count": 30,
+          "total_tokens": 31129,
+          "tokens_per_sample": 1037.6333333333334,
+          "input_tokens": 5832,
+          "output_tokens": 25297,
+          "call_count": 1,
+          "file": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_aime24_all\\qwen2.5-7b\\aime24\\cot_seed41.json",
+          "accuracy_delta_vs_cot": 0.0,
+          "token_ratio_vs_cot": 1.0
+        },
+        "mad_naive": {
+          "method": "mad_naive",
+          "label": "MAD naive",
+          "accuracy": 0.16666666666666666,
+          "sample_count": 30,
+          "total_tokens": 415526,
+          "tokens_per_sample": 13850.866666666667,
+          "input_tokens": 275805,
+          "output_tokens": 139721,
+          "call_count": 6,
+          "file": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_aime24_all\\qwen2.5-7b\\aime24\\mad_3agents_2rounds_seed41.json",
+          "accuracy_delta_vs_cot": 0.0,
+          "token_ratio_vs_cot": 13.348517459603585
+        },
+        "mad_objective": {
+          "method": "mad_objective",
+          "label": "MAD-MM objective",
+          "accuracy": 0.13333333333333333,
+          "sample_count": 30,
+          "total_tokens": 271351,
+          "tokens_per_sample": 9045.033333333333,
+          "input_tokens": 127065,
+          "output_tokens": 144286,
+          "call_count": 6,
+          "file": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_aime24_all\\qwen2.5-7b\\aime24\\mad_objective_3agents_2rounds_seed41.json",
+          "accuracy_delta_vs_cot": -0.033333333333333326,
+          "token_ratio_vs_cot": 8.716984162677889
+        }
+      }
+    },
+    {
+      "benchmark": "aime25",
+      "result_dir": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_aime25_all\\qwen2.5-7b\\aime25",
+      "sample_count": 30,
+      "method_count": 3,
+      "accuracy_spread": 0.03333333333333334,
+      "methods": {
+        "cot": {
+          "method": "cot",
+          "label": "CoT",
+          "accuracy": 0.1,
+          "sample_count": 30,
+          "total_tokens": 30402,
+          "tokens_per_sample": 1013.4,
+          "input_tokens": 7393,
+          "output_tokens": 23009,
+          "call_count": 1,
+          "file": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_aime25_all\\qwen2.5-7b\\aime25\\cot_seed41.json",
+          "accuracy_delta_vs_cot": 0.0,
+          "token_ratio_vs_cot": 1.0
+        },
+        "mad_naive": {
+          "method": "mad_naive",
+          "label": "MAD naive",
+          "accuracy": 0.06666666666666667,
+          "sample_count": 30,
+          "total_tokens": 398136,
+          "tokens_per_sample": 13271.2,
+          "input_tokens": 263364,
+          "output_tokens": 134772,
+          "call_count": 6,
+          "file": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_aime25_all\\qwen2.5-7b\\aime25\\mad_3agents_2rounds_seed41.json",
+          "accuracy_delta_vs_cot": -0.03333333333333334,
+          "token_ratio_vs_cot": 13.095717387014012
+        },
+        "mad_objective": {
+          "method": "mad_objective",
+          "label": "MAD-MM objective",
+          "accuracy": 0.1,
+          "sample_count": 30,
+          "total_tokens": 264225,
+          "tokens_per_sample": 8807.5,
+          "input_tokens": 128256,
+          "output_tokens": 135969,
+          "call_count": 6,
+          "file": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_aime25_all\\qwen2.5-7b\\aime25\\mad_objective_3agents_2rounds_seed41.json",
+          "accuracy_delta_vs_cot": 0.0,
+          "token_ratio_vs_cot": 8.69104006315374
+        }
+      }
+    },
+    {
+      "benchmark": "math",
+      "result_dir": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_math_50\\qwen2.5-7b\\math",
+      "sample_count": 50,
+      "method_count": 3,
+      "accuracy_spread": 0.2,
+      "methods": {
+        "cot": {
+          "method": "cot",
+          "label": "CoT",
+          "accuracy": 0.46,
+          "sample_count": 50,
+          "total_tokens": 28790,
+          "tokens_per_sample": 575.8,
+          "input_tokens": 7062,
+          "output_tokens": 21728,
+          "call_count": 1,
+          "file": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_math_50\\qwen2.5-7b\\math\\cot_seed41.json",
+          "accuracy_delta_vs_cot": 0.0,
+          "token_ratio_vs_cot": 1.0
+        },
+        "mad_naive": {
+          "method": "mad_naive",
+          "label": "MAD naive",
+          "accuracy": 0.6,
+          "sample_count": 50,
+          "total_tokens": 410691,
+          "tokens_per_sample": 8213.82,
+          "input_tokens": 268668,
+          "output_tokens": 142023,
+          "call_count": 6,
+          "file": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_math_50\\qwen2.5-7b\\math\\mad_3agents_2rounds_seed41.json",
+          "accuracy_delta_vs_cot": 0.13999999999999996,
+          "token_ratio_vs_cot": 14.265057311566515
+        },
+        "mad_objective": {
+          "method": "mad_objective",
+          "label": "MAD-MM objective",
+          "accuracy": 0.66,
+          "sample_count": 50,
+          "total_tokens": 273177,
+          "tokens_per_sample": 5463.54,
+          "input_tokens": 127710,
+          "output_tokens": 145467,
+          "call_count": 6,
+          "file": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_math_50\\qwen2.5-7b\\math\\mad_objective_3agents_2rounds_seed41.json",
+          "accuracy_delta_vs_cot": 0.2,
+          "token_ratio_vs_cot": 9.488607155262244
+        }
+      }
+    },
+    {
+      "benchmark": "mmlu_pro",
+      "result_dir": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_mmlu_pro_50\\qwen2.5-7b\\mmlu_pro",
+      "sample_count": 50,
+      "method_count": 3,
+      "accuracy_spread": 0.09999999999999998,
+      "methods": {
+        "cot": {
+          "method": "cot",
+          "label": "CoT",
+          "accuracy": 0.26,
+          "sample_count": 50,
+          "total_tokens": 29046,
+          "tokens_per_sample": 580.92,
+          "input_tokens": 12052,
+          "output_tokens": 16994,
+          "call_count": 1,
+          "file": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_mmlu_pro_50\\qwen2.5-7b\\mmlu_pro\\cot_seed41.json",
+          "accuracy_delta_vs_cot": 0.0,
+          "token_ratio_vs_cot": 1.0
+        },
+        "mad_naive": {
+          "method": "mad_naive",
+          "label": "MAD naive",
+          "accuracy": 0.36,
+          "sample_count": 50,
+          "total_tokens": 338428,
+          "tokens_per_sample": 6768.56,
+          "input_tokens": 230088,
+          "output_tokens": 108340,
+          "call_count": 6,
+          "file": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_mmlu_pro_50\\qwen2.5-7b\\mmlu_pro\\mad_3agents_2rounds_seed41.json",
+          "accuracy_delta_vs_cot": 0.09999999999999998,
+          "token_ratio_vs_cot": 11.65144942504992
+        },
+        "mad_objective": {
+          "method": "mad_objective",
+          "label": "MAD-MM objective",
+          "accuracy": 0.34,
+          "sample_count": 50,
+          "total_tokens": 234132,
+          "tokens_per_sample": 4682.64,
+          "input_tokens": 129837,
+          "output_tokens": 104295,
+          "call_count": 6,
+          "file": "experiments\\20260613-2055-a8002-madmm-benchmark-sweep\\benchmark_sweep_20260613_205520_mmlu_pro_50\\qwen2.5-7b\\mmlu_pro\\mad_objective_3agents_2rounds_seed41.json",
+          "accuracy_delta_vs_cot": 0.08000000000000002,
+          "token_ratio_vs_cot": 8.060731253873167
+        }
+      }
+    }
+  ]
+}
