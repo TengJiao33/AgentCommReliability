@@ -449,3 +449,21 @@ Next:
 - Added local run record and report:
   - `experiments/20260613-2143-a8002-dar-retention-split-gsm8k100/`
   - `reports/20260613-dar-retention-split-ablation.md`
+
+## 2026-06-14 DAR Sample 20 Retained Surface Check
+
+- Inspected DAR GSM8K100 sample `20` across:
+  - original `filter_critical`;
+  - guarded answer-only;
+  - answer-only no-guard;
+  - guard-full.
+- Confirmed the case is not a simple answer-diversity selection failure:
+  - first-round Agent1 parsed correct answer `7`;
+  - Agent2 parsed wrong answer `120`;
+  - Agent3 parsed wrong answer `700`, but its reasoning actually computes `$7.00`.
+- The answer-only variants remained right-to-wrong, ending at `12`, even when the guard added Agent1.
+- `guard_full` became stable-right because full retained reasoning let Agent2 switch to `7`; Agent3 still emitted `{final answer: 700}` despite reasoning toward `$7.00`.
+- Added short note:
+  - `reports/20260614-dar-sample20-retained-surface-note.md`
+- Working next check:
+  - try an intermediate retained surface such as parsed answer plus short calculation/evidence before expanding GSM8K or running a harder matrix.

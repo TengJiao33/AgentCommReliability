@@ -45,3 +45,4 @@ What We Tried -> What Happened -> Things Noticed -> Failures / Friction -> Loose
 - `20260613-dar-guarded-answer-diversity-run.md`
 - `20260613-madmm-benchmark-atlas.md`
 - `20260613-dar-retention-split-ablation.md`
+- `20260614-dar-sample20-retained-surface-note.md`
