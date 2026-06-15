@@ -1912,3 +1912,750 @@ Next:
   - `README.md`
   - `docs/README.md`
   - `project_intake.md`
+
+## 2026-06-15 Peer Slot-Control MATH12 Pressure
+
+- Added deterministic slot-control peer surfaces to:
+  - `scripts/run_peer_exposure_probe.py`
+  - schema bumped to `acr.peer_exposure.v0.5`.
+- Added audit helper:
+  - `scripts/audit_peer_slot_control.py`
+  - reads a completed peer-exposure run directory and emits
+    `slot_control_audit.json` plus `slot_transition_cards.jsonl`.
+- Remote preflight:
+  - machine: A800_2 through direct SSH;
+  - GPU `3`;
+  - port `8028`;
+  - model: Qwen2.5-7B-Instruct served as `qwen2.5-7b-peer-slot`;
+  - vLLM log:
+    - remote: `/data/xuhaoming/yfy/research_workspace/logs/peer-slot-vllm-20260615_1010.log`;
+  - stopped the temporary service after the run and confirmed GPU `3`
+    returned to idle.
+- Ran slot-control pressure over all available MATH50 mixed-correctness
+  candidates from the saved MAD-MM trace:
+  - output:
+    - `experiments/20260615-1010-a8002-peer-slot-control-math12/`
+  - cases: `1`, `9`, `10`, `15`, `22`, `24`, `26`, `33`, `38`, `41`, `42`,
+    `47`;
+  - records: `132`;
+  - auto-evidence extraction calls: `0`.
+- Conditions:
+  - final-answer slot: `correct_answer_only`, `wrong_answer_only`;
+  - full rationale reference: `correct_rationale`, `wrong_rationale`;
+  - explicit final-answer slot blanked:
+    `correct_redacted_rationale`, `wrong_redacted_rationale`;
+  - numeric tokens masked:
+    `correct_number_masked_rationale`, `wrong_number_masked_rationale`;
+  - equation / number-bearing surface:
+    `correct_equation_surface`, `wrong_equation_surface`.
+- Main counts:
+  - no-peer: `8/12`, with `3` unparseable;
+  - `correct_answer_only`: `10/12`, `1` wrong-to-right;
+  - `correct_rationale`: `10/12`, `1` wrong-to-right;
+  - `correct_redacted_rationale`: `9/12`, no answer-changing transitions;
+  - `correct_number_masked_rationale`: `7/12`, `1` right-to-wrong;
+  - `wrong_answer_only`: `7/12`, `1` right-to-wrong;
+  - `wrong_redacted_rationale`: `7/12`, `1` right-to-wrong;
+  - `wrong_equation_surface`: `7/12`, `1` right-to-wrong;
+  - `wrong_rationale`: `8/12`, no right-to-wrong;
+  - `wrong_number_masked_rationale`: `8/12`, no right-to-wrong.
+- Added sidecars:
+  - `experiments/20260615-1010-a8002-peer-slot-control-math12/slot_control_audit.json`
+  - `experiments/20260615-1010-a8002-peer-slot-control-math12/slot_transition_cards.jsonl`
+- Main small observations:
+  - MATH `47` remains the key harmful-slot sentinel:
+    `wrong_answer_only` moved `28800 -> 14400`, while
+    `wrong_redacted_rationale` and `wrong_equation_surface` moved
+    `28800 -> 1152`;
+  - wrong number/role surfaces can matter beyond the final-answer slot, because
+    `wrong_number_masked_rationale` stayed correct on MATH `47`;
+  - MATH `26` shows the opposite boundary: `correct_number_masked_rationale`
+    moved `156 -> 75`, so stripping numeric slots can itself create an
+    unnatural harmful prompt surface;
+  - MATH `9` was rescued by `correct_answer_only` and `correct_rationale`, but
+    not by correct redacted, masked, or equation-only surfaces.
+- Added report:
+  - `reports/20260615-peer-slot-control-math12.md`
+- Evidence register:
+  - added row `E-065`.
+
+## 2026-06-15 Peer Probe Script Decoupling
+
+- Split pure helper code out of the monolithic peer-exposure runner:
+  - `scripts/peer_probe/io_utils.py`: JSON / JSONL helpers;
+  - `scripts/peer_probe/answers.py`: answer normalization, parsing,
+    correctness, transition labels, and terminal-state parsing;
+  - `scripts/peer_probe/surfaces.py`: peer-surface condition constants,
+    answer-only/full-rationale/relation/auto-evidence/slot-control surface
+    construction;
+  - `scripts/peer_probe/run_notes.py`: generic experiment README renderer.
+- Kept `scripts/run_peer_exposure_probe.py` as the backwards-compatible CLI
+  entry point.
+- Added reusable slot-control audit script:
+  - `scripts/audit_peer_slot_control.py`
+  - regenerated:
+    - `experiments/20260615-1010-a8002-peer-slot-control-math12/slot_control_audit.json`
+    - `experiments/20260615-1010-a8002-peer-slot-control-math12/slot_transition_cards.jsonl`
+- Documentation boundary tightened in:
+  - `docs/README.md`
+  - run facts and commands -> experiment README;
+  - chronological facts -> project log;
+  - machine-readable joins -> experiment sidecars;
+  - bounded interpretation -> reports;
+  - durable claims -> evidence register.
+- Validation:
+  - `py_compile` passed for the peer-exposure runner, slot-control audit
+    helper, and all `scripts/peer_probe/` modules;
+  - MAD-MM/MATH dry-run selected the same 12 slot-control cases;
+  - DAR/GSM8K dry-run selected the existing default six-case order;
+  - regenerated slot-control audit files matched the checked-in sidecars.
+- Friction memory:
+  - added a local PowerShell inline-Python rule to
+    `skills/repro-friction-memory/SKILL.md` after a bash-style heredoc failed.
+
+## 2026-06-15 Peer Slot-Control Outside Check
+
+- Ran a narrow outside-check pass before naming the MATH12 slot-control
+  observation as a mechanism.
+- Checked:
+  - local `ArXiv_Daily_Digest` radar;
+  - recent public papers around peer influence, conformity, sycophancy,
+    groupthink, hidden-profile tasks, debate failure modes, shared context, and
+    decision-aware context compression.
+- Added bounded report:
+  - `reports/20260615-peer-slot-control-outside-check.md`
+- Updated reading queue with pressure hits:
+  - identity-bias/anonymization;
+  - cost-of-consensus / contextual-fragility;
+  - Talk Isn't Always Cheap;
+  - Kairos peer-pressure benchmark;
+  - BenchForm conformity benchmark;
+  - Hidden Profile tasks;
+  - Can LLM Agents Really Debate?;
+  - Decentralized MAS with Shared Context;
+  - Decision-Aware Memory Cards.
+- Current interpretation:
+  - slot-control is not ready as a paper story or novelty claim;
+  - it is a useful diagnostic handle inside an already active public
+    peer-influence / conformity / debate-process-loss neighborhood;
+  - next useful contact is a larger MATH disagreement pool plus utility,
+    resistance, robustness, and source-identity/anonymization controls.
+
+## 2026-06-15 Typed Public-State Candidate
+
+- Tried to sharpen the peer slot-control observations into an explicit
+  candidate idea instead of another local probe.
+- Added typed public-state surfaces to the peer-exposure runner:
+  - `correct_typed_public_state`;
+  - `wrong_typed_public_state`;
+  - implemented in `scripts/peer_probe/surfaces.py`.
+- Added source-identity control to the runner:
+  - `--peer-source-mode named|anonymous`;
+  - implemented in `scripts/run_peer_exposure_probe.py`.
+- Added local preview builder:
+  - `scripts/build_typed_public_state_preview.py`
+  - output:
+    - `experiments/20260615-local-typed-public-state-preview/`
+- Preview over the 12 MATH slot-control source cases:
+  - records: `24`;
+  - source identity hidden in all typed records;
+  - mechanical source-answer containment remains in `8/12`
+    `correct_typed_public_state` records and `6/12`
+    `wrong_typed_public_state` records;
+  - this makes typed public state a diagnostic surface, not a leakage-free
+    method.
+- Added synthesis memo:
+  - `reports/20260615-typed-public-state-candidate.md`
+- Candidate spine:
+  - standard peer messages collapse source identity, final-answer authority,
+    target predicate, relation skeleton, and numeric/role slots into one
+    natural-language blob;
+  - field-level public-state controls may be a sharper reliability object than
+    answer redaction or message compression alone.
+- Validation:
+  - `py_compile` passed for the runner, preview builder, and peer-surface
+    helpers;
+  - dry-run accepted typed public-state conditions over the same 12 MATH cases;
+  - sample anonymous prompt construction confirmed `Agent*` labels can be
+    hidden while preserving the original source in metadata.
+
+## 2026-06-15 Typed Public-State GPU Check
+
+- Discarded a local CPU Qwen2.5-0.5B smoke as non-evidence:
+  - local cache model loaded and generated;
+  - on the MATH12 no-peer baseline scan, `11/12` outputs were unparseable;
+  - this was useful only for plumbing and should not be used as a research
+    signal.
+- Synced typed-public-state runner changes to A800_2:
+  - `scripts/run_peer_exposure_probe.py`;
+  - `scripts/peer_probe/`;
+  - `scripts/build_typed_public_state_preview.py`.
+- Started temporary vLLM on A800_2:
+  - GPU: `2`;
+  - port: `8029`;
+  - model: `/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct`;
+  - served model name: `qwen2.5-7b-typed-state`;
+  - remote log:
+    `/data/xuhaoming/yfy/research_workspace/logs/typed-state-vllm-20260615_1118.log`;
+- Ran a 3-case smoke first:
+  - output:
+    `experiments/20260615-1119-a8002-typed-public-state-mini3/`;
+  - cases: `9`, `26`, `47`;
+  - key signal: on case `47`, `wrong_equation_surface` moved
+    `28800 -> 1152`, while `wrong_typed_public_state` kept `28800`.
+- Ran the full saved MATH12 typed-public-state packet:
+  - output:
+    `experiments/20260615-1124-a8002-typed-public-state-math12-anon/`;
+  - records: `132`;
+  - peer source mode: `anonymous`;
+  - no-peer baseline: `8/12`, with `3` unparseable.
+- Main counts:
+  - `correct_answer_only`: `10/12`, `1` wrong-to-right;
+  - `correct_rationale`: `10/12`, `1` wrong-to-right;
+  - `correct_typed_public_state`: `8/12`, no rescues;
+  - `wrong_answer_only`: `7/12`, `1` right-to-wrong;
+  - `wrong_redacted_rationale`: `7/12`, `1` right-to-wrong;
+  - `wrong_equation_surface`: `7/12`, `1` right-to-wrong;
+  - `wrong_typed_public_state`: `8/12`, no parseable right-to-wrong, but
+    `4` unknown/unparseable rows.
+- Case-level signal:
+  - MATH `47` is the key sentinel:
+    - `wrong_answer_only`: `28800 -> 14400`;
+    - `wrong_redacted_rationale`: `28800 -> 1152`;
+    - `wrong_equation_surface`: `28800 -> 1152`;
+    - `wrong_typed_public_state`: `28800 -> 28800`.
+- Added report:
+  - `reports/20260615-typed-public-state-math12-gpu.md`
+- Updated:
+  - `reports/20260615-typed-public-state-candidate.md`;
+  - `docs/evidence_register.md` (`E-066`, `E-067`).
+- Stopped the temporary vLLM service after the run and confirmed GPU `2`
+  returned to idle (`4 MiB` used / `81149 MiB` free).
+
+## 2026-06-15 Typed Public-State MATH200 Statistical Pressure
+
+- Built a larger MATH disagreement pool before making a stronger typed-state
+  claim:
+  - ran MAD-MM naive on `math:200` with Qwen2.5-7B-Instruct;
+  - source accuracy: `120/200 = 0.600`;
+  - source token count: `1,559,005`;
+  - extracted unified trace:
+    `experiments/20260615-1151-a8002-typed-public-state-math200-anon/madmm-qwen25-7b-math200-naive-20260615_1142.comm_trace.jsonl`.
+- Selected `59` mixed-correctness source cases from the MATH200 trace and
+  reran the anonymous peer-exposure diagnostic with:
+  - answer-only;
+  - full rationale;
+  - redacted rationale;
+  - equation surface;
+  - typed public state;
+  - correct and wrong peer variants.
+- Output:
+  - `experiments/20260615-1151-a8002-typed-public-state-math200-anon/`;
+  - `649` records;
+  - `59` source cases;
+  - temporary vLLM log:
+    `experiments/typed-state-math200-vllm-20260615_1150.log`;
+  - probe log:
+    `experiments/typed-public-state-math200-probe-20260615_1151.log`.
+- Added statistical audit helper:
+  - `scripts/audit_peer_exposure_statistics.py`;
+  - output:
+    `experiments/20260615-1151-a8002-typed-public-state-math200-anon/statistical_audit.md`;
+    `experiments/20260615-1151-a8002-typed-public-state-math200-anon/statistical_audit.json`.
+- Added parser-sensitivity audit helper:
+  - `scripts/audit_math_parser_sensitivity.py`;
+  - output:
+    `experiments/20260615-1151-a8002-typed-public-state-math200-anon/math_parser_sensitivity_audit.md`;
+    `experiments/20260615-1151-a8002-typed-public-state-math200-anon/math_parser_sensitivity_audit.json`.
+- Main statistical result:
+  - no-peer baseline: `37/59 = 0.627`, with `9/59` unparseable;
+  - wrong full rationale caused `9/37` right-to-wrong transitions,
+    Wilson 95% `[0.134, 0.401]`;
+  - wrong typed public state caused `3/37` right-to-wrong transitions,
+    Wilson 95% `[0.028, 0.213]`;
+  - wrong equation surface also caused `3/37` right-to-wrong transitions;
+  - paired exact sign test for `wrong_typed_public_state` over
+    `wrong_rationale`: `9` typed-only-correct vs `2`
+    rationale-only-correct cases, `p = 0.0654`;
+  - paired tests did not show a typed advantage over wrong redacted rationale,
+    wrong equation surface, or wrong answer-only.
+- Parser-sensitivity check:
+  - `21/59` source cases have non-plain-numeric boxed MATH answers under the
+    current numeric normalizer;
+  - on the remaining `38` plain-numeric cases, wrong full rationale caused
+    `6/24` right-to-wrong transitions, while wrong typed public state caused
+    `1/24`;
+  - paired exact sign test on the plain-numeric subset:
+    `6` typed-only-correct vs `1` rationale-only-correct case,
+    `p = 0.1250`.
+- Utility boundary:
+  - `correct_typed_public_state` rescued only `1/13` baseline-wrong cases;
+  - `correct_rationale` and `correct_redacted_rationale` each rescued `5/13`.
+- Interpretation:
+  - the MATH12 sentinel survives as a bounded diagnostic hint, not a broad method
+    claim;
+  - typed public state seems to remove part of the full-rationale contamination
+    channel;
+  - it does not yet beat simpler equation or answer controls and loses much of
+    the utility of correct rationale.
+- Caveat:
+  - current MATH answer parsing/normalization is now a major confound for
+    symbolic answers, complex values, radicals, and formatting variants; the
+    plain-numeric subset keeps the directional typed-vs-full-rationale contrast
+    but leaves smaller sample size and wider uncertainty.
+- Added report:
+  - `reports/20260615-typed-public-state-math200-statistical-pressure.md`.
+
+## 2026-06-15 MATH Semantic Correctness Audit
+
+- Added conservative MATH answer-equivalence helpers:
+  - `scripts/peer_probe/math_eval.py`
+  - handles common saved-output forms including explicit `{final answer: ...}`,
+    boxed gold answers, fractions, mixed numbers, radicals, `pi`, complex `i`,
+    symbolic expressions, units, and thousands separators;
+  - returns semantic unknown instead of falling back to the last numeric token
+    when comparison is not reliable.
+- Added semantic re-audit script:
+  - `scripts/audit_math_semantic_correctness.py`.
+- Recomputed the existing MATH200 typed-public-state peer-exposure results
+  without any new model calls:
+  - `experiments/20260615-1151-a8002-typed-public-state-math200-anon/semantic_correctness_records.jsonl`
+  - `experiments/20260615-1151-a8002-typed-public-state-math200-anon/semantic_correctness_audit.md`
+  - `experiments/20260615-1151-a8002-typed-public-state-math200-anon/semantic_correctness_audit.json`
+- Semantic audit facts:
+  - source-label-reliable cases: `47/59`;
+  - numeric-vs-semantic labels over `649` records:
+    - `521` unchanged known records;
+    - `29` changed known records;
+    - `99` semantic-unknown records;
+  - all cases:
+    - no-peer baseline: `37/59`, with `13/59` semantic unknown;
+    - wrong full rationale: `9/37` right-to-wrong;
+    - wrong typed public state: `3/37` right-to-wrong;
+    - wrong equation surface: `3/37` right-to-wrong;
+  - source-label-reliable cases:
+    - no-peer baseline: `32/47`, with `8/47` semantic unknown;
+    - wrong full rationale: `9/32` right-to-wrong;
+    - wrong typed public state: `3/32` right-to-wrong;
+    - wrong equation surface: `3/32` right-to-wrong.
+- Interpretation update:
+  - semantic re-audit does not overturn the bounded MATH200 result;
+  - typed public state still reduces the full-rationale contamination channel
+    relative to wrong full rationale;
+  - typed public state still does not beat equation surface and still has low
+    utility under correct peer information;
+  - remaining semantic unknowns and source-label-unreliable cases should be
+    inspected before another GPU run.
+- Updated:
+  - `reports/20260615-typed-public-state-math200-statistical-pressure.md`
+  - `experiments/20260615-1151-a8002-typed-public-state-math200-anon/README.md`
+  - `docs/evidence_register.md` (`E-068`, `E-069`, `E-070`)
+
+## 2026-06-15 Slot-Level Story And Benchmark Language Revision
+
+- Incorporated external story-pressure analysis from:
+  - PACT / action-state communication;
+  - DeLM / shared verified context;
+  - Decision-Aware Memory Cards;
+  - Cost of Consensus;
+  - Identity Bias / anonymization;
+  - KAIROS peer-pressure benchmark;
+  - HiddenBench / Hidden Profile tasks.
+- Main story revision:
+  - downgraded "typed public state" from possible method/novelty claim to a
+    diagnostic surface;
+  - reframed the live candidate as slot-level peer-message failure diagnosis:
+    relation skeleton, numeric/role slots, target predicate, equation surface,
+    source identity, and final-answer authority may carry different revision
+    hazards and utilities.
+- Benchmark-language alignment:
+  - MATH12/MATH200 should be described as peer-influence diagnostics on math
+    reasoning cases, not as general multi-agent communication benchmarks;
+  - KAIROS/Identity Bias vocabulary fits current peer-exposure probes:
+    utility, resistance, robustness, peer-answer adoption, conformity,
+    obstinacy, source identity bias;
+  - PACT/HotpotQA/2Wiki/MuSiQue vocabulary fits split-evidence public-state
+    handoff;
+  - HiddenBench vocabulary fits distributed-information integration and
+    communication-necessity claims;
+  - DeLM/Memory Cards vocabulary fits shared verified context and agentic
+    workflow settings.
+- Updated:
+  - `reports/20260615-typed-public-state-candidate.md`
+  - `reports/20260615-peer-slot-control-outside-check.md`
+  - `papers/reading_queue.md`
+  - `docs/evidence_register.md` (`E-066`, `E-071`)
+
+## 2026-06-15 Peer Influence Protocol Audit
+
+- Added KAIROS-style protocol audit helper:
+  - `scripts/audit_peer_influence_protocol.py`
+  - reads semantic peer-exposure records without rerunning the model;
+  - computes utility, resistance, harm, robustness, semantic-unknown rate, and
+    saved peer-answer adoption;
+  - reports both all cases and source-label-reliable cases.
+- Extended peer-source controls in `scripts/run_peer_exposure_probe.py`:
+  - `--peer-source-mode randomized`;
+  - replaces displayed peer labels with deterministic seed-based aliases while
+    preserving `original_source` metadata;
+  - this enables the next named / anonymous / randomized source-content
+    disentanglement packet without changing peer content.
+- Ran the protocol audit over the MATH200 semantic records:
+  - input:
+    `experiments/20260615-1151-a8002-typed-public-state-math200-anon/semantic_correctness_records.jsonl`;
+  - outputs:
+    `experiments/20260615-1151-a8002-typed-public-state-math200-anon/peer_influence_protocol_audit.md`;
+    `experiments/20260615-1151-a8002-typed-public-state-math200-anon/peer_influence_protocol_audit.json`.
+- Source-label-reliable protocol readout:
+  - wrong full rationale is high-harm: `9/32`;
+  - wrong typed public state and wrong equation surface tie at `3/32`;
+  - correct typed public state has low utility: `1/7`, versus `5/7` for correct
+    full rationale.
+- Added bounded synthesis report:
+  - `reports/20260615-slot-level-peer-influence-protocol.md`.
+- Updated:
+  - `reports/20260615-typed-public-state-candidate.md`;
+  - `reports/20260615-typed-public-state-math200-statistical-pressure.md`;
+  - `experiments/20260615-1151-a8002-typed-public-state-math200-anon/README.md`;
+  - `docs/evidence_register.md` (`E-072`).
+
+## 2026-06-15 Peer Source-Label MATH200 Packet
+
+- Ran the next source/content disentanglement packet required by the
+  post-pressure story:
+  - same MATH200 source cases as the typed-public-state run;
+  - same peer content and condition set;
+  - varied only displayed source labels.
+- Added runner capability before launching:
+  - `scripts/run_peer_exposure_probe.py` supports
+    `--peer-source-mode named|anonymous|randomized`;
+  - `randomized` uses deterministic seed-based aliases and preserves
+    `original_source` metadata.
+- Added remote launcher:
+  - `scripts/run_peer_source_label_packet_a8002.sh`.
+- Remote execution:
+  - machine: A800_2;
+  - GPU: `5`;
+  - temporary vLLM port: `8031`;
+  - model: Qwen2.5-7B-Instruct served as `qwen2.5-7b-source-label`;
+  - temporary service was stopped after the run and GPU `5` returned to idle.
+- New run outputs:
+  - `experiments/20260615-1404-a8002-source-label-math200-named/`
+  - `experiments/20260615-1404-a8002-source-label-math200-randomized/`
+  - each has `649` peer-exposure records plus semantic and protocol audits.
+- Added packet comparison helper:
+  - `scripts/audit_peer_source_label_packet.py`
+  - output:
+    `experiments/20260615-1404-a8002-source-label-math200-packet/source_label_packet_audit.md`;
+    `experiments/20260615-1404-a8002-source-label-math200-packet/source_label_packet_audit.json`.
+- Main source-label-reliable readout:
+  - wrong full rationale harm:
+    anonymous `9/32`, named `9/32`, randomized `8/32`;
+  - wrong typed public state harm:
+    anonymous `3/32`, named `3/32`, randomized `3/32`;
+  - correct typed public state utility:
+    anonymous `1/7`, named `1/7`, randomized `0/7`.
+- Interpretation:
+  - source-label variation does not explain away the main field-level harm
+    pattern;
+  - typed public state remains a diagnostic surface with low utility, not a
+    method win;
+  - this is not an identity-bias benchmark because named labels are simple
+    agent labels rather than authority titles or social identities.
+- Added report:
+  - `reports/20260615-peer-source-label-math200-packet.md`.
+- Evidence register:
+  - added row `E-073`.
+
+## 2026-06-15 MATH200 Peer Claim Hygiene
+
+- Added offline claim-hygiene packet builder:
+  - `scripts/build_peer_claim_hygiene_packet.py`;
+  - reads saved MATH200 semantic peer-exposure records and source-label audits;
+  - does not run a model or recompute correctness.
+- Generated local packet:
+  - `experiments/20260615-local-math200-peer-claim-hygiene/README.md`;
+  - `claim_hygiene_summary.json`;
+  - `semantic_unknown_records.jsonl`;
+  - `semantic_unknown_cases.jsonl`;
+  - `source_label_unreliable_cases.jsonl`;
+  - `source_label_sensitive_rows.jsonl`;
+  - `baseline_mode_drift_rows.jsonl`;
+  - `field_label_packet.jsonl`.
+- Main hygiene facts:
+  - `99/649` anonymous MATH200 records remain semantic unknown across `16/59`
+    cases;
+  - `12/59` source cases have semantically unreliable saved correct/wrong peer
+    labels;
+  - the clean claim-bearing subset has `37/59` cases and `407` records;
+  - no-peer baseline rows have `0` drift across anonymous, named, and randomized
+    source-label modes.
+- Clean subset readout:
+  - wrong full rationale harm remains `9/31`;
+  - wrong typed public state and wrong equation surface each have `3/31` harm;
+  - correct typed public state has `1/6` utility versus `4/6` for correct full
+    rationale.
+- Added answer-only surface audit:
+  - `experiments/20260615-local-math200-peer-claim-hygiene/answer_only_surface_issue_rows.jsonl`;
+  - anonymous run has `27` semantic mismatches and `7` unknown-equivalence
+    answer-only rows out of `118`;
+  - the clean subset has `15` semantic-mismatch case/condition pairs, repeated
+    across the three source-label modes as `45` rows.
+- Added bounded report:
+  - `reports/20260615-math200-peer-claim-hygiene.md`.
+- Added manual seed labels for the `21` clean anonymous right-to-wrong rows:
+  - `experiments/20260615-local-math200-peer-claim-hygiene/manual_seed_labels.jsonl`;
+  - `11/21` labeled harms occur with the final-answer slot hidden;
+  - `18/21` are labeled as wrong relation skeletons;
+  - `14/21` are labeled as wrong numeric/role slots.
+- Added source-label-sensitive seed labels for the `23` clean rows:
+  - `experiments/20260615-local-math200-peer-claim-hygiene/manual_source_label_sensitive_seed_labels.jsonl`;
+  - categories are `9` rescue-lost, `6` harm-removed, `6` harm-added, and `2`
+    rescue-added;
+  - `15/23` have the final-answer slot hidden;
+  - `1/23` is marked as an answer-only parser-surface confound.
+- Evidence register:
+  - added rows `E-074`, `E-075`, `E-076`, and `E-077`.
+
+## 2026-06-15 Raw Answer-Only Surface Repair
+
+- Added a raw final-answer text extractor:
+  - `scripts/peer_probe/answers.py`
+  - `extract_raw_final_answer_text(...)`.
+- Added future peer-exposure conditions:
+  - `correct_raw_answer_only`;
+  - `wrong_raw_answer_only`;
+  - implemented in `scripts/peer_probe/surfaces.py`.
+- Kept legacy `correct_answer_only` / `wrong_answer_only` unchanged so existing
+  MATH200 artifacts remain reproducible.
+- Updated audit/protocol scripts to recognize the new raw answer-only
+  conditions:
+  - `scripts/audit_peer_influence_protocol.py`;
+  - `scripts/audit_math_semantic_correctness.py`;
+  - `scripts/audit_peer_exposure_statistics.py`;
+  - `scripts/audit_peer_source_label_packet.py`.
+- Added local preview builder:
+  - `scripts/build_raw_answer_only_preview.py`.
+- Generated local preview packet without model calls:
+  - `experiments/20260615-local-raw-answer-only-preview/`;
+  - over the saved MATH200 source cases, legacy answer-only rows are
+    `84/118` equivalent to raw peer answers, `27/118` semantic mismatches, and
+    `7/118` unknown-equivalence;
+  - spot checks now show raw symbolic answers such as `2\sqrt{3}`,
+    `1 - 12i`, and `8\pi - 16` instead of old numeric-parser slots `3`,
+    `12`, and `16`.
+- Added bounded report:
+  - `reports/20260615-raw-answer-only-surface-repair.md`.
+- Validation:
+  - `py_compile` passed for the updated runner, surface helpers, audit scripts,
+    and preview builder.
+- Interpretation:
+  - this repairs a future control surface only;
+  - no model was rerun;
+  - existing MATH200 answer-only rows remain a legacy/parser-surface diagnostic,
+    not clean final-answer-authority evidence.
+
+## 2026-06-15 Peer Field-Label Coverage Summary
+
+- Added manual label summary helper:
+  - `scripts/summarize_peer_field_labels.py`;
+  - reads the MATH200 claim-hygiene `field_label_packet.jsonl` plus existing
+    manual seed labels;
+  - does not infer new labels.
+- Generated sidecars under:
+  - `experiments/20260615-local-math200-peer-claim-hygiene/`
+- Outputs:
+  - `manual_label_summary.md`;
+  - `manual_label_summary.json`;
+  - `manual_unlabeled_rows.jsonl`;
+  - `merged_manual_seed_labels.jsonl`;
+  - `merged_manual_source_label_sensitive_seed_labels.jsonl`.
+- Coverage:
+  - field-label packet rows: `97`;
+  - unique labeled seed rows: `44`;
+  - unlabeled rows: `53`;
+  - unlabeled behavior-changing rows: `15`;
+  - unlabeled source-label-sensitive rows: `38`.
+- Seed-label readout remains bounded:
+  - anonymous behavior labels: `18/21` wrong relation skeletons and `14/21`
+    wrong numeric/role slots;
+  - source-label-sensitive seed labels: `15/23` final-answer authority hidden
+    and `1/23` parser-surface confound.
+- Interpretation:
+  - current labels support a bounded field-level diagnostic claim;
+  - they are not enough for a population taxonomy;
+  - if MATH is continued, the next manual pass should start from
+    `manual_unlabeled_rows.jsonl`, especially the remaining `15`
+    behavior-changing rows.
+
+## 2026-06-15 Workspace Cleanup
+
+- Removed low-value local/runtime artifacts that do not carry project evidence:
+  - `.vscode/settings.json`, because editor-local submodule preferences should
+    not be part of the research record;
+  - root-level copied vLLM/probe logs under `experiments/*.log`, keeping run
+    directories, summaries, manifests, reports, and remote log paths as the
+    source of truth;
+  - ignored `.tmp/` verification outputs, script bytecode caches, and the local
+    ignored MAD-MM `raw_results/` copy already summarized by derived artifacts;
+  - obsolete card packet
+    `experiments/20260615-0036-local-peer-disjoint-math-relation-slot-cards/`,
+    which was superseded by
+    `experiments/20260615-0040-local-peer-disjoint-math-case10-surface/`.
+- Added `.gitignore` coverage for future root-level `experiments/*.log` copies.
+
+## 2026-06-15 PACT Public-State Field Bridge
+
+- Added an offline bridge audit:
+  - `scripts/audit_pact_public_state_field_bridge.py`;
+  - reads PACT offset50 `case_atlas_focus_cases.jsonl`, the ten manual
+    public-state-gold labels, and the target-slot drift cases.
+- Generated a local bridge packet:
+  - `experiments/20260615-local-pact-public-state-field-bridge/summary.json`;
+  - `experiments/20260615-local-pact-public-state-field-bridge/bridge_cases.jsonl`;
+  - `experiments/20260615-local-pact-public-state-field-bridge/bridge_packet.md`.
+- Added report:
+  - `reports/20260615-pact-public-state-field-bridge.md`.
+- Counts over the 28 PACT focus cases:
+  - `6` positive contract rescues;
+  - `12` final-answer commitment failures;
+  - `2` target-contract failures;
+  - `2` target/final-alignment failures;
+  - `5` likely evidence-carriage failures;
+  - `1` diagnostic string false positive.
+- Interpretation:
+  - typed public state should stay demoted to a diagnostic surface;
+  - the larger object is field-level public-state reliability:
+    target contract preservation, evidence carriage, and final-answer
+    commitment;
+  - the next bold move should be a split-evidence/public-state task packet,
+    not another small typed/MATH variant.
+
+## 2026-06-15 PACT Public-State Field Packet
+
+- Added packet builder:
+  - `scripts/build_pact_public_state_field_packet.py`.
+- Generated model-ready packet:
+  - `experiments/20260615-local-pact-public-state-field-packet/field_packet.jsonl`;
+  - `experiments/20260615-local-pact-public-state-field-packet/summary.json`;
+  - `experiments/20260615-local-pact-public-state-field-packet/README.md`;
+  - `experiments/20260615-local-pact-public-state-field-packet/scoring_plan.md`.
+- Packet shape:
+  - `50` HotpotQA offset50 samples;
+  - `2` source runs: baseline and final-answer contract;
+  - `5` field-visibility conditions per source/sample;
+  - `500` prompt rows total.
+- Field conditions:
+  - question + public state + final-answer candidate;
+  - question + public state without final answer;
+  - question + evidence without public target;
+  - frozen question-derived target + evidence;
+  - public target + evidence with original question hidden.
+- Added evaluator:
+  - `scripts/evaluate_pact_public_state_field_packet.py`;
+  - accepts future model outputs keyed by `packet_id`;
+  - slices by source run, condition, bridge layer/family, and target-slot
+    candidate status.
+- Added OpenAI-compatible packet runner:
+  - `scripts/run_pact_public_state_field_packet.py`;
+  - writes `outputs.jsonl`, optional `failures.jsonl`, and `manifest.json`;
+  - supports condition/source/sample filters plus resume mode.
+- Smoke evaluation:
+  - `experiments/20260615-local-pact-public-state-field-packet/official-final-answer-smoke/`;
+  - official-source scoring reproduces known source-run scores:
+    baseline EM `0.520`, F1 `0.647`;
+    final-contract EM `0.560`, F1 `0.743`.
+- Added report:
+  - `reports/20260615-pact-public-state-field-packet.md`.
+- Evidence register:
+  - added `E-081`.
+
+## 2026-06-15 PACT Public-State Field Qwen2.5-14B Pressure
+
+- Added A800_2 packet launcher:
+  - `scripts/run_pact_public_state_field_packet_a8002.sh`.
+- Ran the full public-state field packet on A800_2:
+  - run id `20260615-1655-a8002-pact-public-state-field-qwen25-14b`;
+  - Qwen2.5-14B-Instruct served by vLLM on GPU `7`;
+  - `500/500` rows completed, `0` failed.
+- Synced run artifacts locally:
+  - `experiments/20260615-1655-a8002-pact-public-state-field-qwen25-14b/outputs.jsonl`;
+  - `experiments/20260615-1655-a8002-pact-public-state-field-qwen25-14b/manifest.json`;
+  - `experiments/20260615-1655-a8002-pact-public-state-field-qwen25-14b/evaluation/summary.json`;
+  - `experiments/20260615-1655-a8002-pact-public-state-field-qwen25-14b/evaluation/summary.md`.
+- Added paired delta audit:
+  - `scripts/analyze_pact_public_state_field_results.py`;
+  - `experiments/20260615-1655-a8002-pact-public-state-field-qwen25-14b/field_delta_audit/delta_summary.json`;
+  - `experiments/20260615-1655-a8002-pact-public-state-field-qwen25-14b/field_delta_audit/delta_summary.md`;
+  - `experiments/20260615-1655-a8002-pact-public-state-field-qwen25-14b/field_delta_audit/delta_cards.jsonl`.
+- Main condition scores:
+  - question + evidence without public target: EM `0.590`, F1 `0.725`;
+  - frozen question-derived target + evidence: EM `0.580`, F1 `0.734`;
+  - question + public state + final candidate: EM `0.550`, F1 `0.710`;
+  - question + public state without final candidate: EM `0.520`, F1 `0.688`;
+  - public target + evidence with original question hidden: EM `0.440`, F1 `0.591`.
+- Paired deltas against `question_plus_public_state_no_final`:
+  - hiding the public target: `11` rescues, `4` regressions;
+  - freezing the question-derived target: `10` rescues, `4` regressions;
+  - hiding the question while keeping public target: `2` rescues, `10` regressions;
+  - showing final-answer candidate: `6` rescues, `3` regressions, candidate-copy rate `0.740`.
+- Added run README:
+  - `experiments/20260615-1655-a8002-pact-public-state-field-qwen25-14b/README.md`.
+- Added report:
+  - `reports/20260615-pact-public-state-field-qwen25-14b-pressure.md`.
+- Evidence register:
+  - added `E-082`.
+- Interpretation:
+  - the useful object is field-level public-state reliability, not typed public
+    state as a method name;
+  - public target fields are not reliable task contracts by themselves;
+  - the next intervention should verify target/evidence/final-answer licensing
+    before exposing public fields.
+
+## 2026-06-15 PACT Field-Contract Quarantine
+
+- Added a first field-contract verifier and packet builder:
+  - `scripts/build_pact_field_contract_verifier_packet.py`.
+- Generated verifier artifacts:
+  - `experiments/20260615-local-pact-field-contract-verifier/verifier_records.jsonl`;
+  - `experiments/20260615-local-pact-field-contract-verifier/verified_packet.jsonl`;
+  - `experiments/20260615-local-pact-field-contract-verifier/verified_quarantine_packet.jsonl`;
+  - `experiments/20260615-local-pact-field-contract-verifier/summary.json`;
+  - `experiments/20260615-local-pact-field-contract-verifier/summary.md`.
+- First verifier result:
+  - candidate licensing was too permissive (`91/100` candidates shown) and
+    underperformed fixed target controls;
+  - the useful route was stricter target quarantine:
+    hide risky public targets, otherwise replace the public target with a
+    question-derived frozen contract, and hide final-answer candidates.
+- Offline routing over prior pressure outputs:
+  - `verifier_hide_risky_else_freeze`: EM `0.610`, F1 `0.759`;
+  - always hide public target: EM `0.590`, F1 `0.725`;
+  - always freeze question target: EM `0.580`, F1 `0.734`.
+- Ran the target-quarantine packet on A800_2:
+  - run id `20260615-1807-a8002-pact-field-contract-quarantine-qwen25-14b`;
+  - Qwen2.5-14B-Instruct served by vLLM on GPU `7`;
+  - `100/100` rows completed, `0` failed.
+- Model result:
+  - overall EM `0.610`, F1 `0.753`;
+  - baseline source run EM `0.600`, F1 `0.728`;
+  - final-contract source run EM `0.620`, F1 `0.778`.
+- Added paired delta audit:
+  - `scripts/analyze_pact_field_contract_quarantine_results.py`;
+  - `experiments/20260615-1807-a8002-pact-field-contract-quarantine-qwen25-14b/quarantine_delta_audit/quarantine_delta_summary.json`;
+  - `experiments/20260615-1807-a8002-pact-field-contract-quarantine-qwen25-14b/quarantine_delta_audit/quarantine_delta_summary.md`;
+  - `experiments/20260615-1807-a8002-pact-field-contract-quarantine-qwen25-14b/quarantine_delta_audit/quarantine_delta_cards.jsonl`.
+- Paired deltas:
+  - vs original public-state/no-final: `12` rescues, `3` regressions;
+  - vs always hidden public target: `5` rescues, `3` regressions;
+  - vs always frozen target: `5` rescues, `2` regressions;
+  - vs final-answer candidate visible: `11` rescues, `5` regressions.
+- Added report:
+  - `reports/20260615-pact-field-contract-quarantine.md`.
+- Evidence register:
+  - added `E-083`.
+- Interpretation:
+  - target quarantine is now a real live handle;
+  - final-answer candidate licensing should be paused;
+  - the next verifier should remove dependence on paired target-slot diagnostics
+    and add a final-span/granularity check before testing a neighboring slice.

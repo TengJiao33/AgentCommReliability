@@ -1,6 +1,6 @@
 ---
 name: research-story-synthesis
-description: Project-level skill for judging and shaping research-paper stories from reproduced evidence. Use when Codex needs to decide whether observations support a solid root-cause story, a genuinely novel angle, or only a known limitation; to align motivation, method modules, ablations, qualitative cases, quantitative results, and caveats into a paper or mentor narrative without inventing claims.
+description: Project-level skill for judging and shaping research-paper stories from reproduced evidence. Use when Codex needs to decide whether observations support a solid root-cause story, a genuinely novel angle, a live diagnostic handle, or only a known limitation; to align motivation, contribution shape, ablations, qualitative cases, quantitative results, and caveats into a paper or mentor narrative without inventing claims.
 ---
 
 # Research Story Synthesis
@@ -21,8 +21,8 @@ A research story must earn at least one of these reader reactions:
   surprising. This is harder than a solid story and needs stronger evidence
   against obvious "just another variant" explanations.
 
-If the work earns neither reaction yet, say so. Return to reproduction-first
-contact instead of turning a known limitation into a paper claim.
+If the work earns neither reaction yet, say so. If a live handle is emerging,
+name the next pressure object; otherwise return to reproduction-first contact.
 
 Start from artifacts already in the repository: `docs/evidence_register.md`,
 `docs/project_log.md`, reports, experiment summaries, trace records, manual
@@ -46,8 +46,8 @@ Use this skill when there is enough reproduced material to ask:
 
 - Is this merely a known limitation, or a deeper tension/root cause?
 - Is the story solid, novel, or not ready?
-- What are A, B, and C: previous approach, diagnosed cause, proposed fix?
-- Do the method and experiments tightly follow from the motivation?
+- What are A, B, and C: previous approach, diagnosed cause, contribution shape?
+- Do the contribution and experiments tightly follow from the motivation?
 
 ## The Paper Spine
 
@@ -56,41 +56,32 @@ Prefer an A/B/C story spine:
 - Prior work or the current baseline uses A, but A does not work under problem
   or condition P.
 - Theory, traces, ablations, or repeated observations suggest the reason is B.
-- The project proposes C because C attacks B directly.
+- The project proposes C because C attacks, exposes, or measures B directly.
 - With C, metric M improves; more importantly, diagnostic D shows that B is
   reduced, removed, or controlled.
 - Without C, or with C removed, A's original failure mode returns or remains.
+
+C may be a method, diagnostic protocol, benchmark packet, evaluation lens,
+field taxonomy, or intervention surface. If it is not a method, judge whether
+it makes B inspectable and sets up a decisive pressure test.
 
 Do not accept a story if it only says:
 
 - A is weak, so add C, without a precise B.
 - C improves M, but there is no evidence that C affects B.
-- B exists, but the method does not actually target B.
+- B exists, but C does not actually target, expose, or measure B.
 - Qualitative cases look nice, but they are not tied to quantitative or
   diagnostic evidence.
 
 ## Solid Versus Novel
 
-Use the solid route when the project can make a well-based root-cause argument:
+Use the solid route when the project can explain why earlier methods fail and
+show that C reduces that failure. Use the novel route only when the framing,
+object, intervention point, evaluation lens, or decomposition feels genuinely
+surprising and survives boring alternative explanations.
 
-- motivation comes from theory, repeated experimental observation, or both;
-- the insight helps readers understand why earlier methods did not work;
-- the method is a response to that cause, not a module shopping list;
-- ablations compare with and without the B-targeting component;
-- diagnostics show the old failure mode is weaker after adding C;
-- qualitative cases make the mechanism legible, not just impressive.
-
-Use the novel route only when the project changes what seems possible or natural:
-
-- a surprising formulation, intervention point, supervision signal, evaluation
-  lens, or system decomposition;
-- a contribution that does not collapse into "a standard module in a new place";
-- clear evidence that the surprising move works for reasons the reader can
-  inspect;
-- careful comparisons against the most boring alternative explanations.
-
-Novel is higher-risk and higher-threshold than solid. If the novelty is thin,
-prefer a strong solid story over a weak novelty claim.
+Novel is higher-threshold than solid. Prefer a strong root-cause story over a
+thin novelty claim.
 
 ## Known Limitation Or Deep Tension
 
@@ -124,6 +115,26 @@ For this project, ask whether the evidence exposes a mechanism such as:
 These are diagnostic handles, not automatic contributions. Use them only when
 local artifacts support them.
 
+## Live Handles
+
+Not-ready stories split into two kinds:
+
+- stale: a known limitation, local quirk, parser issue, or unsupported hunch;
+- live: a repeated diagnostic handle with artifacts, boundaries, and a concrete
+  next pressure object.
+
+For a live handle, preserve:
+
+- the short name;
+- the strongest artifact and strongest caveat;
+- the current C-shape: method, protocol, benchmark, lens, taxonomy, or surface;
+- the next pressure test;
+- the retirement condition.
+
+If a handle has appeared across three reports, do not end with only `not ready`.
+Choose: retire it, scale it, bridge it to a better task, prototype the protocol,
+or promote it to a bounded story candidate.
+
 ## Evidence First
 
 Before writing a story, build a compact evidence map:
@@ -156,13 +167,13 @@ A weak motivation:
 - uses one selected example as the whole motivation;
 - adds modules before naming the failure mechanism.
 
-## Method Coupling
+## Contribution Coupling
 
-For every proposed module, design choice, or analysis handle, answer:
+For every proposed module, protocol, benchmark, lens, or analysis handle, answer:
 
 - Which B does it address?
 - Why should it affect B?
-- What ablation removes it?
+- What ablation, perturbation, or control removes it?
 - What diagnostic should change if it works?
 - What qualitative trace or case would make the mechanism visible?
 
@@ -174,7 +185,7 @@ add-on rather than a story-bearing contribution.
 The experiment section should close the story loop:
 
 - main quantitative result: C versus A or strong baselines;
-- ablation: C with the B-targeting part removed;
+- ablation/control: C with the B-targeting part removed or perturbed;
 - diagnostic: direct evidence that B is reduced, controlled, or no longer
   causes the old failure;
 - qualitative cases: before/after examples showing the mechanism, not just
@@ -199,34 +210,28 @@ Useful story units:
   inspectable;
 - next pressure: the smallest check that would make the story more honest.
 
-For this project, recurring story handles may include:
-
-- public surface versus private reasoning;
-- final-answer slot versus relation skeleton;
-- numeric or role-slot preservation;
-- target-predicate drift or preservation;
-- context construction and recipient visibility;
-- communication cost versus evidential value;
-- parser or answer-contract confounds.
-
-Do not use these handles as a fixed agenda. They are vocabulary for already
-observed contact, not a checklist every run must satisfy.
+Recurring handles include public surface versus private reasoning,
+final-answer slot versus relation skeleton, numeric/role slots,
+target-predicate drift, recipient visibility, communication cost, and
+parser/answer-contract confounds. Treat them as vocabulary, not a checklist.
 
 ## Synthesis Workflow
 
 1. Re-read the relevant top-level evidence rows and recent reports.
 2. Separate facts, active interpretations, hypotheses, and caveats.
-3. Classify the candidate as solid, novel, known limitation, or not ready.
-4. Name A, B, C, M, and D: baseline, diagnosed cause, proposed fix, metric, and
-   diagnostic.
-5. Check that each method component targets B.
+3. Classify the candidate as solid, novel, live diagnostic, known limitation,
+   or stale/not ready.
+4. Name A, B, C, M, and D: baseline, diagnosed cause, contribution shape,
+   metric, and diagnostic.
+5. Check that each contribution component targets, exposes, or measures B.
 6. Check that each experiment tests either performance, B-reduction, or a
    confound.
 7. Add at least one boundary case or counterexample.
 8. State what the current evidence cannot prove.
 9. Choose the next pressure point only after the story is bounded.
 
-When the story is not ready, say so and return to contact mode.
+When the story is not ready, say so. If it is live, preserve the handle and
+next escalation. If it is stale, return to contact mode.
 
 ## Output Artifacts
 
@@ -246,7 +251,7 @@ A good synthesis in this project:
 
 - cites local artifacts by path;
 - distinguishes run results from interpretation;
-- makes the solid/novel/not-ready classification explicit;
+- makes the solid/novel/live/stale classification explicit;
 - identifies A, B, C, M, and D when proposing a paper story;
 - checks whether the observation is a known limitation or a deep tension;
 - includes caveats near the claim, not buried at the end;
@@ -261,6 +266,7 @@ A weak synthesis:
 - mistakes a known limitation for a root-cause insight;
 - proposes a module that is not tightly coupled to the motivation;
 - reports a score gain without diagnosing whether the original B improved;
+- says `not ready` without naming the live handle or retirement condition;
 - turns a selected-case manual label into a population claim;
 - ignores parser, prompt-surface, or answer-contract confounds;
 - ends with a generic "do more experiments" instead of a concrete pressure.
@@ -269,8 +275,8 @@ A weak synthesis:
 
 ```text
 Given these reports and evidence rows, decide whether the candidate story is
-solid, novel, a known limitation, or not ready. Identify A, B, C, M, D, the
-strongest caveat, and the next pressure point.
+solid, novel, live diagnostic, known limitation, or stale. Identify A, B, C, M,
+D, the strongest caveat, and the next pressure point.
 ```
 
 ```text
@@ -285,6 +291,7 @@ and reports. List the exact artifacts that support, bound, or contradict it.
 ```
 
 ```text
-For this proposed module, explain which diagnosed failure cause it targets, what
-ablation removes it, and what diagnostic should improve if the story is true.
+For this proposed contribution shape, explain which diagnosed failure cause it
+targets or exposes, what control removes it, and what diagnostic should improve
+if the story is true.
 ```

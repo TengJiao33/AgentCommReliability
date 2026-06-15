@@ -1,0 +1,196 @@
+{
+  "candidate_action_by_bridge_layer": {
+    "diagnostic_noise": {
+      "show": 2
+    },
+    "evidence_carriage": {
+      "hide": 2,
+      "show": 8
+    },
+    "final_answer_commitment": {
+      "hide": 3,
+      "show": 21
+    },
+    "positive_contract_rescue": {
+      "hide": 2,
+      "show": 10
+    },
+    "stable_right_or_not_focus": {
+      "show": 44
+    },
+    "target_contract": {
+      "show": 4
+    },
+    "target_final_alignment": {
+      "hide": 2,
+      "show": 2
+    }
+  },
+  "candidate_action_counts": {
+    "hide": 9,
+    "show": 91
+  },
+  "candidate_reason_counts": {
+    "candidate_not_concise": 7,
+    "candidate_restates_question": 5,
+    "low_evidence_support": 8,
+    "shown": 88
+  },
+  "condition_by_source_run": {
+    "baseline": {
+      "verified_freeze_on_risk_no_final": 50,
+      "verified_freeze_with_licensed_final": 50,
+      "verified_hide_risky_target_no_final": 50,
+      "verified_quarantine_risky_else_frozen_no_final": 50
+    },
+    "final_contract": {
+      "verified_freeze_on_risk_no_final": 50,
+      "verified_freeze_with_licensed_final": 50,
+      "verified_hide_risky_target_no_final": 50,
+      "verified_quarantine_risky_else_frozen_no_final": 50
+    }
+  },
+  "condition_counts": {
+    "verified_freeze_on_risk_no_final": 100,
+    "verified_freeze_with_licensed_final": 100,
+    "verified_hide_risky_target_no_final": 100,
+    "verified_quarantine_risky_else_frozen_no_final": 100
+  },
+  "note": "Verifier decisions do not use gold answers. Offline routing scores reuse the previous pressure-run outputs and are diagnostic only.",
+  "offline_routing": {
+    "always_base_public_state": {
+      "avg_f1": 0.6876267751855987,
+      "chosen_condition_counts": {
+        "question_plus_public_state_no_final": 100
+      },
+      "exact_match": 0.52,
+      "exact_matches": 52,
+      "records": 100
+    },
+    "always_freeze_question_target": {
+      "avg_f1": 0.7341279387279387,
+      "chosen_condition_counts": {
+        "frozen_target_plus_evidence_no_final": 100
+      },
+      "exact_match": 0.58,
+      "exact_matches": 58,
+      "records": 100
+    },
+    "always_hide_public_target": {
+      "avg_f1": 0.7247645846217274,
+      "chosen_condition_counts": {
+        "question_plus_evidence_no_target_no_final": 100
+      },
+      "exact_match": 0.59,
+      "exact_matches": 59,
+      "records": 100
+    },
+    "always_show_final_candidate": {
+      "avg_f1": 0.7100699298095478,
+      "chosen_condition_counts": {
+        "question_plus_public_state_with_final": 100
+      },
+      "exact_match": 0.55,
+      "exact_matches": 55,
+      "records": 100
+    },
+    "verifier_freeze_risky_else_base": {
+      "avg_f1": 0.6851517482517483,
+      "chosen_condition_counts": {
+        "frozen_target_plus_evidence_no_final": 33,
+        "question_plus_public_state_no_final": 67
+      },
+      "exact_match": 0.54,
+      "exact_matches": 54,
+      "records": 100
+    },
+    "verifier_hide_risky_else_base": {
+      "avg_f1": 0.7104891774891775,
+      "chosen_condition_counts": {
+        "question_plus_evidence_no_target_no_final": 33,
+        "question_plus_public_state_no_final": 67
+      },
+      "exact_match": 0.57,
+      "exact_matches": 57,
+      "records": 100
+    },
+    "verifier_hide_risky_else_freeze": {
+      "avg_f1": 0.7594653679653679,
+      "chosen_condition_counts": {
+        "frozen_target_plus_evidence_no_final": 67,
+        "question_plus_evidence_no_target_no_final": 33
+      },
+      "exact_match": 0.61,
+      "exact_matches": 61,
+      "records": 100
+    },
+    "verifier_licensed_final_else_freeze": {
+      "avg_f1": 0.6829367217894976,
+      "chosen_condition_counts": {
+        "frozen_target_plus_evidence_no_final": 5,
+        "question_plus_public_state_no_final": 4,
+        "question_plus_public_state_with_final": 91
+      },
+      "exact_match": 0.54,
+      "exact_matches": 54,
+      "records": 100
+    },
+    "verifier_licensed_final_else_hide": {
+      "avg_f1": 0.689465293218069,
+      "chosen_condition_counts": {
+        "question_plus_evidence_no_target_no_final": 5,
+        "question_plus_public_state_no_final": 4,
+        "question_plus_public_state_with_final": 91
+      },
+      "exact_match": 0.55,
+      "exact_matches": 55,
+      "records": 100
+    }
+  },
+  "paths": {
+    "evaluated": "experiments\\20260615-1655-a8002-pact-public-state-field-qwen25-14b\\evaluation\\evaluated_rows.jsonl",
+    "packet": "experiments\\20260615-local-pact-public-state-field-packet\\field_packet.jsonl",
+    "verified_packet": "experiments\\20260615-local-pact-field-contract-verifier\\verified_packet.jsonl",
+    "verified_quarantine_packet": "experiments\\20260615-local-pact-field-contract-verifier\\verified_quarantine_packet.jsonl",
+    "verifier_records": "experiments\\20260615-local-pact-field-contract-verifier\\verifier_records.jsonl"
+  },
+  "records": 400,
+  "source_units": 100,
+  "target_action_by_bridge_layer": {
+    "diagnostic_noise": {
+      "keep": 2
+    },
+    "evidence_carriage": {
+      "keep": 10
+    },
+    "final_answer_commitment": {
+      "freeze": 14,
+      "keep": 10
+    },
+    "positive_contract_rescue": {
+      "freeze": 4,
+      "keep": 8
+    },
+    "stable_right_or_not_focus": {
+      "freeze": 9,
+      "keep": 35
+    },
+    "target_contract": {
+      "freeze": 4
+    },
+    "target_final_alignment": {
+      "freeze": 2,
+      "keep": 2
+    }
+  },
+  "target_action_counts": {
+    "freeze": 33,
+    "keep": 67
+  },
+  "target_reason_counts": {
+    "generic_low_overlap_target": 14,
+    "kept": 67,
+    "target_slot_drift_candidate": 16,
+    "under_specified_target": 18
+  }
+}

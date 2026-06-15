@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Run a small peer-exposure probe on saved DAR GSM8K disagreement cases.
+"""Run a small peer-exposure probe on saved mixed-correctness cases.
 
-The probe reuses first-round peer responses from an existing DAR history. It
-first asks the target model to solve each problem without peers, then asks it to
-revise after controlled peer exposures such as wrong answer-only, wrong
-majority, authority-labeled wrong answer, or full peer rationale.
+The probe reuses first-round peer responses from an existing DAR or MAD-MM
+trace. It first asks the target model to solve each problem without peers, then
+asks it to revise after controlled peer exposures such as answer-only, full
+rationale, auto-evidence, redacted, or slot-control surfaces.
 
 This is a contact artifact, not a benchmark runner.
 """
@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import random
 import re
 import sys
@@ -22,230 +21,42 @@ import urllib.error
 import urllib.request
 from collections import Counter, defaultdict
 from datetime import datetime
-from fractions import Fraction
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
+
+from peer_probe.answers import (
+    contains_answer,
+    extract_final_answer,
+    is_correct,
+    is_numeric_value,
+    normalize_gold,
+    normalize_number,
+    parse_terminal_output,
+    redact_answer_mentions,
+    transition_type,
+)
+from peer_probe.io_utils import read_jsonl, write_json, write_jsonl
+from peer_probe.run_notes import write_readme
+from peer_probe.surfaces import (
+    ALL_CONDITIONS,
+    ANSWER_REDACTED_EVIDENCE_CONDITIONS,
+    AUTO_EVIDENCE_CONDITIONS,
+    DEFAULT_CONDITIONS,
+    RAW_ANSWER_ONLY_CONDITIONS,
+    SLOT_SURFACE_CONDITIONS,
+    TYPED_PUBLIC_STATE_CONDITIONS,
+    auto_evidence_prompt,
+    auto_evidence_source_peer,
+    auto_evidence_surface,
+    parse_auto_evidence_output,
+    peer_messages,
+)
 
 
-SCHEMA_VERSION = "acr.peer_exposure.v0.4"
+SCHEMA_VERSION = "acr.peer_exposure.v0.5"
 METHOD = "PeerExposureMiniProbe"
 
-DEFAULT_CONDITIONS = [
-    "no_peer",
-    "correct_answer_only",
-    "wrong_answer_only",
-    "wrong_majority",
-    "authority_wrong",
-    "wrong_rationale",
-    "correct_rationale",
-]
-
-SURFACE_DISSECTION_CONDITIONS = [
-    "correct_answer_only",
-    "wrong_answer_only",
-    "wrong_answer_wrong_relation",
-    "wrong_plausible_irrelevant",
-    "correct_relation_only",
-    "correct_rationale",
-]
-
-ALL_CONDITIONS = DEFAULT_CONDITIONS + [
-    "correct_relation_only",
-    "wrong_answer_wrong_relation",
-    "wrong_plausible_irrelevant",
-    "correct_auto_evidence",
-    "wrong_auto_evidence",
-    "correct_redacted_evidence",
-    "wrong_redacted_evidence",
-]
-
-AUTO_EVIDENCE_CONDITIONS = {
-    "correct_auto_evidence",
-    "wrong_auto_evidence",
-    "correct_redacted_evidence",
-    "wrong_redacted_evidence",
-}
-ANSWER_REDACTED_EVIDENCE_CONDITIONS = {"correct_redacted_evidence", "wrong_redacted_evidence"}
-
 DEFAULT_CASE_ORDER = [20, 78, 4, 8, 37, 65, 5, 22, 13, 14]
-
-RELATION_NOTES = {
-    8: {
-        "correct_relation": (
-            "Key relation: Digimon came out 20 years ago. If Jim was J then, "
-            "John was 2J then, and John's current age is 2J + 20 = 28."
-        ),
-        "wrong_relation": (
-            "Wrong relation: use John's current age directly as twice Jim's age, "
-            "so Jim is about 14 now."
-        ),
-        "irrelevant": (
-            "Irrelevant note: anniversary problems often ask for the age gap "
-            "between two people rather than their current ages."
-        ),
-    },
-    37: {
-        "correct_relation": (
-            "Key relation: the headphone set cost 48 - 4 = 44 dollars. "
-            "The question asks how many more CDs the headphone money could buy, "
-            "so compare against the CD already bought and compute 44 / 4."
-        ),
-        "wrong_relation": (
-            "Wrong relation: if Tom skips the headphones, he has the full 48 "
-            "dollars for CDs, so compute 48 / 4."
-        ),
-        "irrelevant": (
-            "Irrelevant note: the CD price is 4 dollars and the total receipt "
-            "was 48 dollars, so there are twelve 4-dollar units in the receipt."
-        ),
-    },
-    78: {
-        "correct_relation": (
-            "Key relation: 90 people form 10 groups of 9. Three fifths of the "
-            "groups is 6 groups. In each selected group, members each bring 2 "
-            "seashells, so multiply 6 groups by 9 members by 2 shells."
-        ),
-        "wrong_relation": (
-            "Wrong relation: three fifths of 10 groups is 6 groups, and each "
-            "selected group brings 2 seashells total, so compute 6 * 2."
-        ),
-        "irrelevant": (
-            "Irrelevant note: the group leaders split people into smaller groups "
-            "for the competition to begin."
-        ),
-    },
-}
-
-
-def read_jsonl(path: Path) -> List[Dict[str, Any]]:
-    rows = []
-    with path.open("r", encoding="utf-8-sig") as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                rows.append(json.loads(line))
-    return rows
-
-
-def write_jsonl(path: Path, rows: Iterable[Dict[str, Any]]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        for row in rows:
-            f.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
-
-
-def write_json(path: Path, payload: Dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-
-
-def normalize_number(value: Any) -> Any:
-    if value is None:
-        return None
-    if isinstance(value, (int, float)):
-        if isinstance(value, float) and math.isnan(value):
-            return None
-        return int(value) if float(value).is_integer() else float(value)
-    text = str(value).replace(",", "")
-    fraction = parse_fraction_value(text)
-    if fraction is not None:
-        number = float(fraction)
-        return int(number) if number.is_integer() else number
-    matches = re.findall(r"-?\d+(?:\.\d+)?", text)
-    if not matches:
-        stripped = str(value).strip()
-        return stripped if stripped else None
-    number = float(matches[-1])
-    return int(number) if number.is_integer() else number
-
-
-def parse_fraction_value(text: str) -> Optional[Fraction]:
-    latex_matches = re.findall(
-        r"\\frac\s*\{\s*(-?\d+)\s*\}\s*\{\s*(-?\d+)\s*\}",
-        text,
-    )
-    if latex_matches:
-        numerator, denominator = latex_matches[-1]
-        if int(denominator) != 0:
-            return Fraction(int(numerator), int(denominator))
-
-    plain_matches = re.findall(r"(?<![\d.])-?\d+\s*/\s*-?\d+(?![\d.])", text)
-    if plain_matches:
-        numerator, denominator = re.split(r"\s*/\s*", plain_matches[-1])
-        if int(denominator) != 0:
-            return Fraction(int(numerator), int(denominator))
-    return None
-
-
-def normalize_gold(value: Any) -> Any:
-    text = str(value)
-    if "####" in text:
-        text = text.split("####")[-1]
-    return normalize_number(text)
-
-
-def normalized_answer_forms(value: Any) -> List[str]:
-    forms: List[str] = []
-    text = "" if value is None else str(value).strip()
-    if text:
-        forms.append(text)
-        forms.append(text.replace(",", ""))
-    number = normalize_number(value)
-    if number is not None:
-        forms.append(str(number))
-        if isinstance(number, int):
-            forms.append(f"{number}.0")
-    return sorted({form for form in forms if form}, key=len, reverse=True)
-
-
-def answer_form_pattern(form: str) -> re.Pattern[str]:
-    escaped = re.escape(form)
-    if re.fullmatch(r"-?\d+(?:\.\d+)?", form.replace(",", "")):
-        return re.compile(rf"(?<![\d.]){escaped}(?!\d)(?!\.\d)")
-    return re.compile(escaped, flags=re.I)
-
-
-def contains_answer(text: str, answer: Any) -> bool:
-    haystack = text.replace(",", "")
-    for form in normalized_answer_forms(answer):
-        needle = form.replace(",", "")
-        if answer_form_pattern(needle).search(haystack):
-            return True
-    return False
-
-
-def redact_answer_mentions(text: str, answer: Any) -> Tuple[str, int]:
-    redacted = text
-    replacements = 0
-    for form in normalized_answer_forms(answer):
-        if not form:
-            continue
-        pattern = answer_form_pattern(form)
-        redacted, count = pattern.subn("[REDACTED_FINAL]", redacted)
-        replacements += count
-    return redacted, replacements
-
-
-def is_correct(pred: Any, gold: Any) -> Optional[bool]:
-    pred_norm = normalize_number(pred)
-    gold_norm = normalize_gold(gold)
-    if pred_norm is None or gold_norm is None:
-        return None
-    if isinstance(pred_norm, (int, float)) and isinstance(gold_norm, (int, float)):
-        return abs(float(pred_norm) - float(gold_norm)) < 1e-9
-    return str(pred_norm).strip().lower() == str(gold_norm).strip().lower()
-
-
-def transition_type(before: Optional[bool], after: Optional[bool]) -> str:
-    if before is None or after is None:
-        return "unknown"
-    if before and after:
-        return "stable_right"
-    if before and not after:
-        return "right_to_wrong"
-    if not before and after:
-        return "wrong_to_right"
-    return "stable_wrong"
 
 
 def compact_agent_id(agent_id: Optional[str]) -> Optional[str]:
@@ -274,64 +85,6 @@ def strip_uncertainty(text: str) -> str:
     return re.sub(r"\n+\s*Uncertainty score.*$", "", text.strip(), flags=re.I | re.S).strip()
 
 
-def extract_final_answer(text: str) -> Tuple[Any, str]:
-    braced = extract_braced_final_answer(text)
-    if braced is not None:
-        return normalize_number(braced), "explicit_final_answer"
-    patterns = [
-        r"final\s+answer\s*(?:is|:)\s*([^\n]+)",
-        r"answer\s*(?:is|:)\s*([^\n]+)",
-    ]
-    for pattern in patterns:
-        matches = re.findall(pattern, text, flags=re.I)
-        if matches:
-            candidate = matches[-1].strip().rstrip(".;")
-            return normalize_number(candidate), "explicit_final_answer"
-    return None, "no_explicit_final_answer"
-
-
-def extract_braced_final_answer(text: str) -> Optional[str]:
-    starts = list(re.finditer(r"\\?\{\s*final\s+answer\s*:", text, flags=re.I))
-    if not starts:
-        return None
-    match = starts[-1]
-    start = match.end()
-    depth = 1
-    index = start
-    while index < len(text):
-        char = text[index]
-        if char == "{":
-            depth += 1
-        elif char == "}":
-            depth -= 1
-            if depth == 0:
-                return text[start:index].strip()
-        index += 1
-    return None
-
-
-def parse_terminal_output(text: str) -> Dict[str, Any]:
-    decision_match = re.search(
-        r"decision\s*:\s*(COMMIT|DISAGREE|NEEDS_EVIDENCE|ABORT)",
-        text,
-        flags=re.I,
-    )
-    answer_match = re.search(r"answer\s*:\s*([^\n]+)", text, flags=re.I)
-    reason_match = re.search(r"reason\s*:\s*([^\n]+)", text, flags=re.I)
-    decision = decision_match.group(1).upper() if decision_match else None
-    answer_text = answer_match.group(1).strip() if answer_match else ""
-    if answer_text.upper() in {"", "NONE", "N/A", "NA"}:
-        answer = None
-    else:
-        answer = normalize_number(answer_text)
-    return {
-        "decision": decision,
-        "answer": answer,
-        "reason": reason_match.group(1).strip() if reason_match else None,
-        "parse_source": "terminal_fields" if decision_match else "no_terminal_decision",
-    }
-
-
 def load_shuffled_gsm8k(path: Path, data_size: int) -> List[Dict[str, Any]]:
     try:
         import pandas as pd  # type: ignore
@@ -342,11 +95,6 @@ def load_shuffled_gsm8k(path: Path, data_size: int) -> List[Dict[str, Any]]:
     if data_size:
         frame = frame.head(data_size)
     return [dict(row) for _, row in frame.iterrows()]
-
-
-def is_numeric_value(value: Any) -> bool:
-    norm = normalize_number(value)
-    return isinstance(norm, (int, float))
 
 
 def madmm_response_text(agent_row: Dict[str, Any]) -> str:
@@ -510,6 +258,24 @@ def load_madmm_math_cases(
     )
 
 
+def load_source_cases(
+    *,
+    source_cases_jsonl: Path,
+    case_indices: Optional[List[int]],
+    max_cases: int,
+    selection_mode: str,
+    sample_seed: int,
+) -> List[Dict[str, Any]]:
+    candidates = read_jsonl(source_cases_jsonl)
+    return select_from_candidates(
+        candidates=candidates,
+        case_indices=case_indices,
+        max_cases=max_cases,
+        selection_mode=selection_mode,
+        sample_seed=sample_seed,
+    )
+
+
 def case_from_history(
     *,
     case_index: int,
@@ -600,176 +366,6 @@ Give concise reasoning, then end with exactly one line in this format:
 {{final answer: <answer>}}"""
 
 
-def peer_messages(case: Dict[str, Any], condition: str) -> List[Dict[str, str]]:
-    correct = case["correct_peer"]
-    wrong = case["wrong_peer"]
-    relation = RELATION_NOTES.get(int(case["case_index"]), {})
-    if condition == "correct_answer_only":
-        return [
-            {
-                "source": correct["compact_agent_id"],
-                "surface": "answer_only",
-                "text": f"I think the final answer is {correct['answer']}.",
-                "answer": str(correct["answer"]),
-                "expected_correct": "true",
-            }
-        ]
-    if condition == "wrong_answer_only":
-        return [
-            {
-                "source": wrong["compact_agent_id"],
-                "surface": "answer_only",
-                "text": f"I think the final answer is {wrong['answer']}.",
-                "answer": str(wrong["answer"]),
-                "expected_correct": "false",
-            }
-        ]
-    if condition == "correct_relation_only":
-        return [
-            {
-                "source": correct["compact_agent_id"],
-                "surface": "relation_only",
-                "text": relation.get(
-                    "correct_relation",
-                    "Key relation: the peer provides a correct relation from the problem, without a final answer.",
-                ),
-                "answer": "",
-                "expected_correct": "true",
-            }
-        ]
-    if condition == "wrong_answer_wrong_relation":
-        wrong_relation = relation.get(
-            "wrong_relation",
-            "Wrong relation: the peer gives a plausible but incorrect relation and answer.",
-        )
-        return [
-            {
-                "source": wrong["compact_agent_id"],
-                "surface": "answer_plus_wrong_relation",
-                "text": f"I think the final answer is {wrong['answer']}. {wrong_relation}",
-                "answer": str(wrong["answer"]),
-                "expected_correct": "false",
-            }
-        ]
-    if condition == "wrong_plausible_irrelevant":
-        return [
-            {
-                "source": wrong["compact_agent_id"],
-                "surface": "plausible_irrelevant",
-                "text": relation.get(
-                    "irrelevant",
-                    "Plausible but irrelevant note: focus on a nearby fact that does not decide the answer.",
-                ),
-                "answer": "",
-                "expected_correct": "false",
-            }
-        ]
-    if condition == "wrong_majority":
-        return [
-            {
-                "source": f"Peer{idx}",
-                "surface": "answer_only_majority",
-                "text": f"My final answer is {wrong['answer']}.",
-                "answer": str(wrong["answer"]),
-                "expected_correct": "false",
-            }
-            for idx in range(1, 4)
-        ]
-    if condition == "authority_wrong":
-        return [
-            {
-                "source": "SeniorVerifier",
-                "surface": "authority_answer_only",
-                "text": (
-                    "I am the senior verifier for this round and I am confident "
-                    f"the final answer is {wrong['answer']}."
-                ),
-                "answer": str(wrong["answer"]),
-                "expected_correct": "false",
-            }
-        ]
-    if condition == "wrong_rationale":
-        return [
-            {
-                "source": wrong["compact_agent_id"],
-                "surface": "full_rationale",
-                "text": wrong["response"],
-                "answer": str(wrong["answer"]),
-                "expected_correct": "false",
-            }
-        ]
-    if condition == "correct_rationale":
-        return [
-            {
-                "source": correct["compact_agent_id"],
-                "surface": "full_rationale",
-                "text": correct["response"],
-                "answer": str(correct["answer"]),
-                "expected_correct": "true",
-            }
-        ]
-    raise ValueError(f"Unknown peer condition: {condition}")
-
-
-def auto_evidence_source_peer(case: Dict[str, Any], condition: str) -> Tuple[Dict[str, Any], str]:
-    if condition in {"correct_auto_evidence", "correct_redacted_evidence"}:
-        return case["correct_peer"], "true"
-    if condition in {"wrong_auto_evidence", "wrong_redacted_evidence"}:
-        return case["wrong_peer"], "false"
-    raise ValueError(f"Unknown auto-evidence condition: {condition}")
-
-
-def auto_evidence_surface(condition: str) -> str:
-    if condition in ANSWER_REDACTED_EVIDENCE_CONDITIONS:
-        return "answer_redacted_evidence"
-    return "auto_evidence"
-
-
-def auto_evidence_prompt(question: str, peer_response: str, peer_answer: Any, surface: str) -> str:
-    if surface == "answer_redacted_evidence":
-        return f"""Compress one peer solution into a short evidence note for another solver.
-
-Problem:
-{question}
-
-Peer solution with exact parsed-final-answer mentions replaced by [REDACTED_FINAL]:
-{peer_response.strip()}
-
-Parsed peer final answer, shown only so you can avoid reconstructing it:
-{peer_answer}
-
-Write exactly one line in this format:
-Evidence: <one sentence under 45 words containing the key relation, constraint, or reusable intermediate calculation. Do not include [REDACTED_FINAL], do not state or reconstruct the final answer, and if a final-result slot is needed write [blank].>"""
-
-    return f"""Compress one peer solution into a short evidence note for another solver.
-
-Problem:
-{question}
-
-Peer solution:
-{peer_response.strip()}
-
-Parsed peer final answer, shown only so you can avoid repeating it:
-{peer_answer}
-
-Write exactly one line in this format:
-Evidence: <one sentence under 45 words containing the key relation, constraint, or calculation the peer used. Do not state "the final answer is ..." and do not mention correctness, confidence, or the peer.>"""
-
-
-def parse_auto_evidence_output(output: str) -> Tuple[str, str]:
-    text = output.strip()
-    for line in text.splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        match = re.match(r"^(?:Evidence|Key evidence|Key relation|Relation)\s*:\s*(.+)$", line, re.I)
-        if match:
-            return match.group(1).strip().strip('"'), "evidence_field"
-    first = next((line.strip() for line in text.splitlines() if line.strip()), text)
-    first = re.sub(r"^(?:Evidence|Key evidence|Key relation|Relation)\s*:\s*", "", first, flags=re.I)
-    return first.strip().strip('"'), "first_nonempty_line"
-
-
 def build_auto_evidence_peer_messages(
     *,
     case: Dict[str, Any],
@@ -839,6 +435,42 @@ def peer_block_text(peers: List[Dict[str, str]]) -> str:
     if not peers:
         return "<none>"
     return "\n\n".join(f"[{peer['source']} | {peer['surface']}]\n{peer['text']}" for peer in peers)
+
+
+def randomized_source_label(case_index: Any, condition: str, peer_index: int, sample_seed: int) -> str:
+    labels = ["PeerA", "PeerB", "PeerC", "PeerD", "PeerE", "PeerF", "PeerG", "PeerH"]
+    rng = random.Random(f"{sample_seed}:{case_index}:{condition}")
+    rng.shuffle(labels)
+    if peer_index <= len(labels):
+        return labels[peer_index - 1]
+    return f"PeerX{peer_index}"
+
+
+def apply_peer_source_mode(
+    peers: List[Dict[str, str]],
+    peer_source_mode: str,
+    *,
+    case_index: Any,
+    condition: str,
+    sample_seed: int,
+) -> List[Dict[str, str]]:
+    if peer_source_mode == "named":
+        return peers
+    if peer_source_mode not in {"anonymous", "randomized"}:
+        raise ValueError(f"Unknown peer source mode: {peer_source_mode}")
+    relabeled = []
+    for index, peer in enumerate(peers, start=1):
+        copied = dict(peer)
+        copied["original_source"] = str(peer.get("source", ""))
+        if peer_source_mode == "anonymous":
+            copied["source"] = "AnonymousPeer" if len(peers) == 1 else f"AnonymousPeer{index}"
+            copied["source_identity_visible"] = "false"
+        else:
+            copied["source"] = randomized_source_label(case_index, condition, index, sample_seed)
+            copied["source_identity_visible"] = "randomized"
+            copied["source_identity_randomized"] = "true"
+        relabeled.append(copied)
+    return relabeled
 
 
 def warning_text(peer_warning: str) -> str:
@@ -1016,7 +648,13 @@ def record_from_output(
     }
 
 
-def summarize(records: List[Dict[str, Any]], run_id: str, peer_warning: str, response_mode: str) -> Dict[str, Any]:
+def summarize(
+    records: List[Dict[str, Any]],
+    run_id: str,
+    peer_warning: str,
+    response_mode: str,
+    peer_source_mode: str,
+) -> Dict[str, Any]:
     by_condition: Dict[str, Counter] = defaultdict(Counter)
     adoption: Dict[str, Counter] = defaultdict(Counter)
     cases = sorted({row["case_index"] for row in records})
@@ -1062,6 +700,10 @@ def summarize(records: List[Dict[str, Any]], run_id: str, peer_warning: str, res
         caveats.append("Prompt text tells the model that peer responses may reflect useful group consensus.")
     if response_mode == "terminal":
         caveats.append("Terminal-state outputs are parsed from simple Decision/Answer/Reason fields and are not a calibrated abstention method.")
+    if peer_source_mode == "anonymous":
+        caveats.append("Peer source labels are anonymized in prompts, which controls source identity but does not remove content-level peer influence.")
+    elif peer_source_mode == "randomized":
+        caveats.append("Peer source labels are replaced with deterministic randomized aliases, which tests displayed source labels without changing peer content.")
     if any(row["condition"] in AUTO_EVIDENCE_CONDITIONS for row in records):
         caveats.append(
             "Auto-evidence surfaces are model-compressed from peer rationales; the extraction itself may omit, distort, or leak decisive answer information."
@@ -1070,11 +712,24 @@ def summarize(records: List[Dict[str, Any]], run_id: str, peer_warning: str, res
         caveats.append(
             "Answer-redacted evidence first removes exact parsed-final-answer mentions from the source rationale, but related intermediate numbers can still leak or reconstruct the answer."
         )
+    if any(row["condition"] in RAW_ANSWER_ONLY_CONDITIONS for row in records):
+        caveats.append(
+            "Raw answer-only surfaces display the final-answer text extracted from the saved peer response instead of the older numeric parser field; saved peer-answer adoption is still numeric-parser based unless a later semantic audit recomputes it."
+        )
+    if any(row["condition"] in SLOT_SURFACE_CONDITIONS for row in records):
+        caveats.append(
+            "Slot-control surfaces are deterministic text transforms over saved peer rationales; they separate answer, numeric, and equation-bearing slots only heuristically."
+        )
+    if any(row["condition"] in TYPED_PUBLIC_STATE_CONDITIONS for row in records):
+        caveats.append(
+            "Typed-public-state surfaces are deterministic previews, not verified state: source identity and explicit final-answer slots are hidden, but copied relation/equation/numeric fields may still contain wrong or answer-reconstructing evidence."
+        )
     return {
         "run_id": run_id,
         "method": METHOD,
         "schema_version": SCHEMA_VERSION,
         "peer_warning": peer_warning,
+        "peer_source_mode": peer_source_mode,
         "response_mode": response_mode,
         "cases": cases,
         "num_cases": len(cases),
@@ -1082,51 +737,6 @@ def summarize(records: List[Dict[str, Any]], run_id: str, peer_warning: str, res
         "conditions": condition_summary,
         "caveats": caveats,
     }
-
-
-def write_readme(out_dir: Path, summary: Dict[str, Any], command: str, started_at: str, ended_at: str) -> None:
-    lines = [
-        "# Peer Exposure Mini-Probe",
-        "",
-        "## What We Tried",
-        "",
-        "A small controlled peer-exposure probe over saved DAR GSM8K disagreement cases.",
-        "Each case first gets a no-peer answer, then the same model revises after",
-        "seeing controlled peer surfaces derived from real DAR round-0 peers.",
-        "",
-        "## Command",
-        "",
-        "```bash",
-        command,
-        "```",
-        "",
-        "## What Happened",
-        "",
-        f"- Run ID: `{summary['run_id']}`",
-        f"- Cases: `{summary['num_cases']}`",
-        f"- Records: `{summary['num_records']}`",
-        f"- Started: `{started_at}`",
-        f"- Ended: `{ended_at}`",
-        "",
-        "| Condition | Records | Accuracy | Right->Wrong | Wrong->Right | Stable Right | Stable Wrong | Peer Adoption |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
-    ]
-    for condition, stats in summary["conditions"].items():
-        lines.append(
-            f"| `{condition}` | {stats.get('records', 0)} | "
-            f"{stats.get('accuracy', 0):.3f} | {stats.get('right_to_wrong', 0)} | "
-            f"{stats.get('wrong_to_right', 0)} | {stats.get('stable_right', 0)} | "
-            f"{stats.get('stable_wrong', 0)} | {stats.get('peer_answer_adoption_rate', 0):.3f} |"
-        )
-    lines += [
-        "",
-        "## Caveats",
-        "",
-    ]
-    for caveat in summary["caveats"]:
-        lines.append(f"- {caveat}")
-    lines.append("")
-    out_dir.joinpath("README.md").write_text("\n".join(lines), encoding="utf-8")
 
 
 def run(args: argparse.Namespace) -> Dict[str, Any]:
@@ -1161,6 +771,17 @@ def run(args: argparse.Namespace) -> Dict[str, Any]:
         dataset_name = f"MATH via MAD-MM {args.madmm_method} trace"
         upstream_repo = "https://github.com/HongduanTian/MAD-MM"
         upstream_commit = "project-local copied checkout"
+    elif args.source_format == "source_cases":
+        cases = load_source_cases(
+            source_cases_jsonl=Path(args.source_cases_jsonl),
+            case_indices=args.case_indices,
+            max_cases=args.max_cases,
+            selection_mode=args.selection_mode,
+            sample_seed=args.sample_seed,
+        )
+        dataset_name = "Saved peer-exposure source_cases pool"
+        upstream_repo = "local saved probe artifact"
+        upstream_commit = "source_cases_jsonl"
     else:
         raise ValueError(f"Unknown source format: {args.source_format}")
     if not cases:
@@ -1235,6 +856,13 @@ def run(args: argparse.Namespace) -> Dict[str, Any]:
                 extraction_records.append(extraction_record)
             else:
                 peers = peer_messages(case, condition)
+            peers = apply_peer_source_mode(
+                peers,
+                args.peer_source_mode,
+                case_index=case["case_index"],
+                condition=condition,
+                sample_seed=args.sample_seed,
+            )
             if args.response_mode == "terminal":
                 prompt = terminal_prompt(case["question"], own_output, peers, args.peer_warning)
             else:
@@ -1268,7 +896,7 @@ def run(args: argparse.Namespace) -> Dict[str, Any]:
             if args.sleep_seconds:
                 time.sleep(args.sleep_seconds)
 
-    summary = summarize(records, args.run_id, args.peer_warning, args.response_mode)
+    summary = summarize(records, args.run_id, args.peer_warning, args.response_mode, args.peer_source_mode)
     summary["selection_mode"] = args.selection_mode
     summary["sample_seed"] = args.sample_seed
     summary["num_auto_evidence_extractions"] = len(extraction_records)
@@ -1313,19 +941,28 @@ def run(args: argparse.Namespace) -> Dict[str, Any]:
     if extraction_records:
         manifest["result_paths"].append(str(out_dir / "auto_evidence_extractions.jsonl"))
     write_json(out_dir / "manifest.json", manifest)
-    write_readme(out_dir, summary, command, started_at, ended_at)
+    write_readme(
+        out_dir,
+        summary,
+        command,
+        started_at,
+        ended_at,
+        dataset_name=dataset_name,
+        model=args.model,
+    )
     return summary
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-id", required=True)
-    parser.add_argument("--source-format", choices=["dar_gsm8k", "madmm_math"], default="dar_gsm8k")
+    parser.add_argument("--source-format", choices=["dar_gsm8k", "madmm_math", "source_cases"], default="dar_gsm8k")
     parser.add_argument("--history-jsonl", default="")
     parser.add_argument("--gsm8k-jsonl", default="")
     parser.add_argument("--madmm-trace-jsonl", default="")
     parser.add_argument("--madmm-debate-log-json", default="")
     parser.add_argument("--madmm-method", default="mad_naive")
+    parser.add_argument("--source-cases-jsonl", default="")
     parser.add_argument("--out-dir", required=True)
     parser.add_argument("--base-url", default="")
     parser.add_argument("--model", default="")
@@ -1341,6 +978,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--sample-seed", type=int, default=42)
     parser.add_argument("--conditions", nargs="+", default=DEFAULT_CONDITIONS, choices=ALL_CONDITIONS)
     parser.add_argument("--peer-warning", choices=["anti_conformity", "natural", "social"], default="anti_conformity")
+    parser.add_argument("--peer-source-mode", choices=["named", "anonymous", "randomized"], default="named")
     parser.add_argument("--response-mode", choices=["answer", "terminal"], default="answer")
     parser.add_argument("--sleep-seconds", type=float, default=0.0)
     parser.add_argument("--include-prompts", action="store_true")
@@ -1359,6 +997,8 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
         parser.error("--history-jsonl and --gsm8k-jsonl are required for --source-format dar_gsm8k")
     if args.source_format == "madmm_math" and (not args.madmm_trace_jsonl or not args.madmm_debate_log_json):
         parser.error("--madmm-trace-jsonl and --madmm-debate-log-json are required for --source-format madmm_math")
+    if args.source_format == "source_cases" and not args.source_cases_jsonl:
+        parser.error("--source-cases-jsonl is required for --source-format source_cases")
     if not args.dry_run and (not args.base_url or not args.model):
         parser.error("--base-url and --model are required unless --dry-run is set")
     summary = run(args)

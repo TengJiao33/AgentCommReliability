@@ -1,0 +1,216 @@
+{
+  "atlas_label_counts": {
+    "content_drift_regression": 1,
+    "contract_rescued_content_or_field": 1,
+    "contract_rescued_verbose_surface": 5,
+    "final_public_state_contains_gold": 10,
+    "likely_evidence_or_reasoning_failure": 6,
+    "near_miss_surface_or_span": 1,
+    "recoverable_from_public_state_policy": 1,
+    "strict_span_regression": 3
+  },
+  "bridge_family_counts": {
+    "alias_or_name_granularity": 1,
+    "contract_rescued_content_or_field": 1,
+    "contract_rescued_verbose_surface": 5,
+    "false_positive_string_signal": 1,
+    "likely_evidence_or_reasoning_failure": 5,
+    "missing_required_token_or_qualifier": 3,
+    "near_miss_surface_or_span": 1,
+    "over_specific_answer": 3,
+    "recoverable_from_public_state_policy": 1,
+    "strict_span_regression": 2,
+    "strict_span_regression_with_soft_target_shift": 1,
+    "target_migration_regression": 1,
+    "target_under_specification_or_anchor_loss": 1,
+    "wrong_answer_type_or_slot": 2
+  },
+  "bridge_layer_counts": {
+    "diagnostic_noise": 1,
+    "evidence_carriage": 5,
+    "final_answer_commitment": 12,
+    "positive_contract_rescue": 6,
+    "target_contract": 2,
+    "target_final_alignment": 2
+  },
+  "interpretation": "Field-level public-state reliability is the larger object: target contract preservation, evidence carriage, and final-answer commitment explain the PACT focus cases better than another typed public-state mini-variant.",
+  "manual_family_counts": {
+    "alias_or_name_granularity": 1,
+    "false_positive_string_signal": 1,
+    "missing_required_token_or_qualifier": 3,
+    "over_specific_answer": 3,
+    "wrong_answer_type_or_slot": 2
+  },
+  "manual_label_count": 10,
+  "note": "Offline re-read only; bridge labels are inspection handles over a single saved 50-sample HotpotQA offset slice.",
+  "records": 28,
+  "sample_indices_by_family": {
+    "alias_or_name_granularity": [
+      74
+    ],
+    "contract_rescued_content_or_field": [
+      61
+    ],
+    "contract_rescued_verbose_surface": [
+      57,
+      78,
+      85,
+      93,
+      99
+    ],
+    "false_positive_string_signal": [
+      59
+    ],
+    "likely_evidence_or_reasoning_failure": [
+      68,
+      71,
+      77,
+      88,
+      94
+    ],
+    "missing_required_token_or_qualifier": [
+      50,
+      55,
+      83
+    ],
+    "near_miss_surface_or_span": [
+      97
+    ],
+    "over_specific_answer": [
+      87,
+      89,
+      92
+    ],
+    "recoverable_from_public_state_policy": [
+      62
+    ],
+    "strict_span_regression": [
+      64,
+      66
+    ],
+    "strict_span_regression_with_soft_target_shift": [
+      54
+    ],
+    "target_migration_regression": [
+      58
+    ],
+    "target_under_specification_or_anchor_loss": [
+      82
+    ],
+    "wrong_answer_type_or_slot": [
+      60,
+      67
+    ]
+  },
+  "sample_indices_by_layer": {
+    "diagnostic_noise": [
+      59
+    ],
+    "evidence_carriage": [
+      68,
+      71,
+      77,
+      88,
+      94
+    ],
+    "final_answer_commitment": [
+      50,
+      54,
+      55,
+      62,
+      64,
+      66,
+      74,
+      83,
+      87,
+      89,
+      92,
+      97
+    ],
+    "positive_contract_rescue": [
+      57,
+      61,
+      78,
+      85,
+      93,
+      99
+    ],
+    "target_contract": [
+      58,
+      82
+    ],
+    "target_final_alignment": [
+      60,
+      67
+    ]
+  },
+  "source_paths": {
+    "atlas_focus": "experiments\\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\\case_atlas_focus_cases.jsonl",
+    "manual_public_state_labels": "experiments\\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\\public_state_gold_manual_labels.jsonl",
+    "target_slot_cases": "experiments\\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\\target_slot_drift_cases.jsonl"
+  },
+  "target_slot_drift_candidate_count": 8,
+  "target_slot_drift_candidate_indices": [
+    54,
+    55,
+    58,
+    60,
+    82,
+    83,
+    87,
+    89
+  ],
+  "target_slot_drift_candidates_by_transition": {
+    "right_to_wrong": 2,
+    "stable_wrong": 6
+  },
+  "transition_by_bridge_family": {
+    "alias_or_name_granularity": {
+      "stable_wrong": 1
+    },
+    "contract_rescued_content_or_field": {
+      "wrong_to_right": 1
+    },
+    "contract_rescued_verbose_surface": {
+      "wrong_to_right": 5
+    },
+    "false_positive_string_signal": {
+      "stable_wrong": 1
+    },
+    "likely_evidence_or_reasoning_failure": {
+      "stable_wrong": 5
+    },
+    "missing_required_token_or_qualifier": {
+      "stable_wrong": 3
+    },
+    "near_miss_surface_or_span": {
+      "stable_wrong": 1
+    },
+    "over_specific_answer": {
+      "stable_wrong": 3
+    },
+    "recoverable_from_public_state_policy": {
+      "stable_wrong": 1
+    },
+    "strict_span_regression": {
+      "right_to_wrong": 2
+    },
+    "strict_span_regression_with_soft_target_shift": {
+      "right_to_wrong": 1
+    },
+    "target_migration_regression": {
+      "right_to_wrong": 1
+    },
+    "target_under_specification_or_anchor_loss": {
+      "stable_wrong": 1
+    },
+    "wrong_answer_type_or_slot": {
+      "stable_wrong": 2
+    }
+  },
+  "transition_counts": {
+    "right_to_wrong": 4,
+    "stable_wrong": 18,
+    "wrong_to_right": 6
+  }
+}

@@ -22,8 +22,10 @@ Auxiliary factual references:
 Rule of thumb:
 
 ```text
-facts -> project_log or experiment README
+run facts and commands -> experiment README
+chronological facts -> project_log
+machine-readable post-hoc joins -> experiment sidecars
+bounded interpretation -> reports
 durable observations or claims -> evidence_register
-commands and run metadata -> experiment README
 project posture, story-taste synthesis, and friction memory -> top-level skills
 ```

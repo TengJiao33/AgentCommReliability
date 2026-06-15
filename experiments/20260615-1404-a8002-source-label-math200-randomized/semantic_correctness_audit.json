@@ -1,0 +1,5551 @@
+{
+  "math_jsonl": "baselines/MAD-MM/processed_data/math/math_test.jsonl",
+  "num_cases": 59,
+  "num_records": 649,
+  "num_source_label_reliable_cases": 47,
+  "numeric_semantic_comparison": {
+    "changed_or_unknown_records": [
+      {
+        "case_index": 9,
+        "condition": "correct_typed_public_state",
+        "gold_raw": "8",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 11,
+        "condition": "wrong_answer_only",
+        "gold_raw": "2\\sqrt3",
+        "numeric_answer": 3,
+        "numeric_correct": true,
+        "raw_answer": "\\(\\frac{8\\sqrt{3}}{3}\\)",
+        "semantic_correct": false,
+        "semantic_status": "sympy_compare"
+      },
+      {
+        "case_index": 12,
+        "condition": "no_peer",
+        "gold_raw": "4",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 12,
+        "condition": "correct_answer_only",
+        "gold_raw": "4",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 12,
+        "condition": "wrong_answer_only",
+        "gold_raw": "4",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 12,
+        "condition": "correct_equation_surface",
+        "gold_raw": "4",
+        "numeric_answer": 4,
+        "numeric_correct": true,
+        "raw_answer": "4\\sqrt{6} - 4",
+        "semantic_correct": false,
+        "semantic_status": "sympy_compare"
+      },
+      {
+        "case_index": 12,
+        "condition": "wrong_equation_surface",
+        "gold_raw": "4",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 12,
+        "condition": "correct_typed_public_state",
+        "gold_raw": "4",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 12,
+        "condition": "wrong_typed_public_state",
+        "gold_raw": "4",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 14,
+        "condition": "no_peer",
+        "gold_raw": "144 \\mbox{ m}^3",
+        "numeric_answer": 144,
+        "numeric_correct": false,
+        "raw_answer": "144 m³",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 14,
+        "condition": "correct_answer_only",
+        "gold_raw": "144 \\mbox{ m}^3",
+        "numeric_answer": 144,
+        "numeric_correct": false,
+        "raw_answer": "144 m³",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 14,
+        "condition": "wrong_answer_only",
+        "gold_raw": "144 \\mbox{ m}^3",
+        "numeric_answer": 144,
+        "numeric_correct": false,
+        "raw_answer": "144 m³",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 14,
+        "condition": "correct_rationale",
+        "gold_raw": "144 \\mbox{ m}^3",
+        "numeric_answer": 144,
+        "numeric_correct": false,
+        "raw_answer": "144 m³",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 14,
+        "condition": "wrong_rationale",
+        "gold_raw": "144 \\mbox{ m}^3",
+        "numeric_answer": 144,
+        "numeric_correct": false,
+        "raw_answer": "144 m³",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 14,
+        "condition": "correct_redacted_rationale",
+        "gold_raw": "144 \\mbox{ m}^3",
+        "numeric_answer": 144,
+        "numeric_correct": false,
+        "raw_answer": "144 m³",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 14,
+        "condition": "wrong_redacted_rationale",
+        "gold_raw": "144 \\mbox{ m}^3",
+        "numeric_answer": 144,
+        "numeric_correct": false,
+        "raw_answer": "144 m³",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 14,
+        "condition": "correct_equation_surface",
+        "gold_raw": "144 \\mbox{ m}^3",
+        "numeric_answer": 144,
+        "numeric_correct": false,
+        "raw_answer": "144 m³",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 14,
+        "condition": "wrong_equation_surface",
+        "gold_raw": "144 \\mbox{ m}^3",
+        "numeric_answer": 144,
+        "numeric_correct": false,
+        "raw_answer": "144 m³",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 14,
+        "condition": "correct_typed_public_state",
+        "gold_raw": "144 \\mbox{ m}^3",
+        "numeric_answer": 144,
+        "numeric_correct": false,
+        "raw_answer": "144 m³",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 14,
+        "condition": "wrong_typed_public_state",
+        "gold_raw": "144 \\mbox{ m}^3",
+        "numeric_answer": 144,
+        "numeric_correct": false,
+        "raw_answer": "144 m³",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 15,
+        "condition": "no_peer",
+        "gold_raw": "4",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 15,
+        "condition": "correct_answer_only",
+        "gold_raw": "4",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 15,
+        "condition": "wrong_answer_only",
+        "gold_raw": "4",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 15,
+        "condition": "correct_equation_surface",
+        "gold_raw": "4",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 15,
+        "condition": "wrong_equation_surface",
+        "gold_raw": "4",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 15,
+        "condition": "correct_typed_public_state",
+        "gold_raw": "4",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 15,
+        "condition": "wrong_typed_public_state",
+        "gold_raw": "4",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 18,
+        "condition": "no_peer",
+        "gold_raw": "11010_2",
+        "numeric_answer": 11010,
+        "numeric_correct": false,
+        "raw_answer": "11010",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 18,
+        "condition": "correct_answer_only",
+        "gold_raw": "11010_2",
+        "numeric_answer": 11010,
+        "numeric_correct": false,
+        "raw_answer": "11010",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 18,
+        "condition": "wrong_answer_only",
+        "gold_raw": "11010_2",
+        "numeric_answer": 11010,
+        "numeric_correct": false,
+        "raw_answer": "11010",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 18,
+        "condition": "correct_rationale",
+        "gold_raw": "11010_2",
+        "numeric_answer": 10100,
+        "numeric_correct": false,
+        "raw_answer": "10100",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 18,
+        "condition": "wrong_rationale",
+        "gold_raw": "11010_2",
+        "numeric_answer": 11010,
+        "numeric_correct": false,
+        "raw_answer": "11010",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 18,
+        "condition": "correct_redacted_rationale",
+        "gold_raw": "11010_2",
+        "numeric_answer": 10100,
+        "numeric_correct": false,
+        "raw_answer": "10100",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 18,
+        "condition": "wrong_redacted_rationale",
+        "gold_raw": "11010_2",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 18,
+        "condition": "correct_equation_surface",
+        "gold_raw": "11010_2",
+        "numeric_answer": 10000,
+        "numeric_correct": false,
+        "raw_answer": "10000",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 18,
+        "condition": "wrong_equation_surface",
+        "gold_raw": "11010_2",
+        "numeric_answer": 10010,
+        "numeric_correct": false,
+        "raw_answer": "10010",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 18,
+        "condition": "correct_typed_public_state",
+        "gold_raw": "11010_2",
+        "numeric_answer": 11010,
+        "numeric_correct": false,
+        "raw_answer": "11010",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 18,
+        "condition": "wrong_typed_public_state",
+        "gold_raw": "11010_2",
+        "numeric_answer": 11010,
+        "numeric_correct": false,
+        "raw_answer": "11010",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 41,
+        "condition": "no_peer",
+        "gold_raw": "\\frac{8}{3}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 41,
+        "condition": "correct_answer_only",
+        "gold_raw": "\\frac{8}{3}",
+        "numeric_answer": 3,
+        "numeric_correct": true,
+        "raw_answer": "3",
+        "semantic_correct": false,
+        "semantic_status": "sympy_compare"
+      },
+      {
+        "case_index": 41,
+        "condition": "correct_rationale",
+        "gold_raw": "\\frac{8}{3}",
+        "numeric_answer": 2.6666666666666665,
+        "numeric_correct": false,
+        "raw_answer": "\\(\\frac{8}{3}\\)",
+        "semantic_correct": true,
+        "semantic_status": "normalized_string_equal"
+      },
+      {
+        "case_index": 41,
+        "condition": "correct_redacted_rationale",
+        "gold_raw": "\\frac{8}{3}",
+        "numeric_answer": 2.6666666666666665,
+        "numeric_correct": false,
+        "raw_answer": "\\(\\frac{8}{3}\\)",
+        "semantic_correct": true,
+        "semantic_status": "normalized_string_equal"
+      },
+      {
+        "case_index": 41,
+        "condition": "correct_equation_surface",
+        "gold_raw": "\\frac{8}{3}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 41,
+        "condition": "wrong_equation_surface",
+        "gold_raw": "\\frac{8}{3}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 41,
+        "condition": "correct_typed_public_state",
+        "gold_raw": "\\frac{8}{3}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 41,
+        "condition": "wrong_typed_public_state",
+        "gold_raw": "\\frac{8}{3}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 60,
+        "condition": "no_peer",
+        "gold_raw": "8\\pi - 16",
+        "numeric_answer": 16,
+        "numeric_correct": true,
+        "raw_answer": "64 - 16pi",
+        "semantic_correct": false,
+        "semantic_status": "sympy_compare"
+      },
+      {
+        "case_index": 60,
+        "condition": "correct_answer_only",
+        "gold_raw": "8\\pi - 16",
+        "numeric_answer": 16,
+        "numeric_correct": true,
+        "raw_answer": "64 - 16pi",
+        "semantic_correct": false,
+        "semantic_status": "sympy_compare"
+      },
+      {
+        "case_index": 60,
+        "condition": "wrong_answer_only",
+        "gold_raw": "8\\pi - 16",
+        "numeric_answer": 16,
+        "numeric_correct": true,
+        "raw_answer": "64 - 16pi",
+        "semantic_correct": false,
+        "semantic_status": "sympy_compare"
+      },
+      {
+        "case_index": 60,
+        "condition": "wrong_rationale",
+        "gold_raw": "8\\pi - 16",
+        "numeric_answer": 16,
+        "numeric_correct": true,
+        "raw_answer": "64 - 16pi",
+        "semantic_correct": false,
+        "semantic_status": "sympy_compare"
+      },
+      {
+        "case_index": 60,
+        "condition": "correct_redacted_rationale",
+        "gold_raw": "8\\pi - 16",
+        "numeric_answer": 16,
+        "numeric_correct": true,
+        "raw_answer": "64 - 16pi",
+        "semantic_correct": false,
+        "semantic_status": "sympy_compare"
+      },
+      {
+        "case_index": 60,
+        "condition": "wrong_redacted_rationale",
+        "gold_raw": "8\\pi - 16",
+        "numeric_answer": 16,
+        "numeric_correct": true,
+        "raw_answer": "64 - 16pi",
+        "semantic_correct": false,
+        "semantic_status": "sympy_compare"
+      },
+      {
+        "case_index": 60,
+        "condition": "correct_equation_surface",
+        "gold_raw": "8\\pi - 16",
+        "numeric_answer": 16,
+        "numeric_correct": true,
+        "raw_answer": "64 - 16pi",
+        "semantic_correct": false,
+        "semantic_status": "sympy_compare"
+      },
+      {
+        "case_index": 60,
+        "condition": "wrong_equation_surface",
+        "gold_raw": "8\\pi - 16",
+        "numeric_answer": 16,
+        "numeric_correct": true,
+        "raw_answer": "64 - 16pi",
+        "semantic_correct": false,
+        "semantic_status": "sympy_compare"
+      },
+      {
+        "case_index": 60,
+        "condition": "correct_typed_public_state",
+        "gold_raw": "8\\pi - 16",
+        "numeric_answer": 16,
+        "numeric_correct": true,
+        "raw_answer": "64 - 16pi",
+        "semantic_correct": false,
+        "semantic_status": "sympy_compare"
+      },
+      {
+        "case_index": 60,
+        "condition": "wrong_typed_public_state",
+        "gold_raw": "8\\pi - 16",
+        "numeric_answer": 16,
+        "numeric_correct": true,
+        "raw_answer": "64 - 16pi",
+        "semantic_correct": false,
+        "semantic_status": "sympy_compare"
+      },
+      {
+        "case_index": 73,
+        "condition": "no_peer",
+        "gold_raw": "8\\text{ meals}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 73,
+        "condition": "correct_equation_surface",
+        "gold_raw": "8\\text{ meals}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 73,
+        "condition": "correct_typed_public_state",
+        "gold_raw": "8\\text{ meals}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 73,
+        "condition": "wrong_typed_public_state",
+        "gold_raw": "8\\text{ meals}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 91,
+        "condition": "no_peer",
+        "gold_raw": "10",
+        "numeric_answer": ":",
+        "numeric_correct": false,
+        "raw_answer": ":",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 91,
+        "condition": "correct_rationale",
+        "gold_raw": "10",
+        "numeric_answer": "correct. Therefore, the final answer is:",
+        "numeric_correct": false,
+        "raw_answer": "correct. Therefore, the final answer is:",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 91,
+        "condition": "correct_equation_surface",
+        "gold_raw": "10",
+        "numeric_answer": ":",
+        "numeric_correct": false,
+        "raw_answer": ":",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 91,
+        "condition": "correct_typed_public_state",
+        "gold_raw": "10",
+        "numeric_answer": ":",
+        "numeric_correct": false,
+        "raw_answer": ":",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 91,
+        "condition": "wrong_typed_public_state",
+        "gold_raw": "10",
+        "numeric_answer": ":",
+        "numeric_correct": false,
+        "raw_answer": ":",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 92,
+        "condition": "no_peer",
+        "gold_raw": "\\frac{105}{4}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 92,
+        "condition": "correct_answer_only",
+        "gold_raw": "\\frac{105}{4}",
+        "numeric_answer": 26.25,
+        "numeric_correct": false,
+        "raw_answer": "\\(\\frac{105}{4}\\)",
+        "semantic_correct": true,
+        "semantic_status": "normalized_string_equal"
+      },
+      {
+        "case_index": 92,
+        "condition": "wrong_answer_only",
+        "gold_raw": "\\frac{105}{4}",
+        "numeric_answer": ":",
+        "numeric_correct": false,
+        "raw_answer": ":",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 92,
+        "condition": "wrong_rationale",
+        "gold_raw": "\\frac{105}{4}",
+        "numeric_answer": ":",
+        "numeric_correct": false,
+        "raw_answer": ":",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 92,
+        "condition": "wrong_equation_surface",
+        "gold_raw": "\\frac{105}{4}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 92,
+        "condition": "correct_typed_public_state",
+        "gold_raw": "\\frac{105}{4}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 92,
+        "condition": "wrong_typed_public_state",
+        "gold_raw": "\\frac{105}{4}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 94,
+        "condition": "no_peer",
+        "gold_raw": "32-8\\pi",
+        "numeric_answer": 8,
+        "numeric_correct": false,
+        "raw_answer": "32 - 8π",
+        "semantic_correct": true,
+        "semantic_status": "normalized_string_equal"
+      },
+      {
+        "case_index": 94,
+        "condition": "correct_answer_only",
+        "gold_raw": "32-8\\pi",
+        "numeric_answer": 8,
+        "numeric_correct": false,
+        "raw_answer": "32 - 8π",
+        "semantic_correct": true,
+        "semantic_status": "normalized_string_equal"
+      },
+      {
+        "case_index": 94,
+        "condition": "wrong_answer_only",
+        "gold_raw": "32-8\\pi",
+        "numeric_answer": 8,
+        "numeric_correct": false,
+        "raw_answer": "32 - 8π",
+        "semantic_correct": true,
+        "semantic_status": "normalized_string_equal"
+      },
+      {
+        "case_index": 94,
+        "condition": "correct_rationale",
+        "gold_raw": "32-8\\pi",
+        "numeric_answer": 8,
+        "numeric_correct": false,
+        "raw_answer": "32 - 8π",
+        "semantic_correct": true,
+        "semantic_status": "normalized_string_equal"
+      },
+      {
+        "case_index": 94,
+        "condition": "wrong_rationale",
+        "gold_raw": "32-8\\pi",
+        "numeric_answer": 8,
+        "numeric_correct": false,
+        "raw_answer": "32 - 8π",
+        "semantic_correct": true,
+        "semantic_status": "normalized_string_equal"
+      },
+      {
+        "case_index": 94,
+        "condition": "correct_redacted_rationale",
+        "gold_raw": "32-8\\pi",
+        "numeric_answer": 8,
+        "numeric_correct": false,
+        "raw_answer": "32 - 8π",
+        "semantic_correct": true,
+        "semantic_status": "normalized_string_equal"
+      },
+      {
+        "case_index": 94,
+        "condition": "wrong_redacted_rationale",
+        "gold_raw": "32-8\\pi",
+        "numeric_answer": 8,
+        "numeric_correct": false,
+        "raw_answer": "32 - 8π",
+        "semantic_correct": true,
+        "semantic_status": "normalized_string_equal"
+      },
+      {
+        "case_index": 94,
+        "condition": "correct_equation_surface",
+        "gold_raw": "32-8\\pi",
+        "numeric_answer": 8,
+        "numeric_correct": false,
+        "raw_answer": "32 - 8π",
+        "semantic_correct": true,
+        "semantic_status": "normalized_string_equal"
+      },
+      {
+        "case_index": 94,
+        "condition": "wrong_equation_surface",
+        "gold_raw": "32-8\\pi",
+        "numeric_answer": 8,
+        "numeric_correct": false,
+        "raw_answer": "32 - 8π",
+        "semantic_correct": true,
+        "semantic_status": "normalized_string_equal"
+      },
+      {
+        "case_index": 94,
+        "condition": "correct_typed_public_state",
+        "gold_raw": "32-8\\pi",
+        "numeric_answer": 8,
+        "numeric_correct": false,
+        "raw_answer": "32 - 8π",
+        "semantic_correct": true,
+        "semantic_status": "normalized_string_equal"
+      },
+      {
+        "case_index": 94,
+        "condition": "wrong_typed_public_state",
+        "gold_raw": "32-8\\pi",
+        "numeric_answer": 8,
+        "numeric_correct": false,
+        "raw_answer": "32 - 8π",
+        "semantic_correct": true,
+        "semantic_status": "normalized_string_equal"
+      },
+      {
+        "case_index": 118,
+        "condition": "no_peer",
+        "gold_raw": "10000_2",
+        "numeric_answer": 11000,
+        "numeric_correct": false,
+        "raw_answer": "11000",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 118,
+        "condition": "correct_answer_only",
+        "gold_raw": "10000_2",
+        "numeric_answer": 11000,
+        "numeric_correct": false,
+        "raw_answer": "11000",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 118,
+        "condition": "wrong_answer_only",
+        "gold_raw": "10000_2",
+        "numeric_answer": 10000,
+        "numeric_correct": false,
+        "raw_answer": "10000",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 118,
+        "condition": "correct_rationale",
+        "gold_raw": "10000_2",
+        "numeric_answer": 11000,
+        "numeric_correct": false,
+        "raw_answer": "11000",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 118,
+        "condition": "wrong_rationale",
+        "gold_raw": "10000_2",
+        "numeric_answer": 10000,
+        "numeric_correct": false,
+        "raw_answer": "10000",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 118,
+        "condition": "correct_redacted_rationale",
+        "gold_raw": "10000_2",
+        "numeric_answer": 11000,
+        "numeric_correct": false,
+        "raw_answer": "11000",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 118,
+        "condition": "wrong_redacted_rationale",
+        "gold_raw": "10000_2",
+        "numeric_answer": 10000,
+        "numeric_correct": false,
+        "raw_answer": "10000",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 118,
+        "condition": "correct_equation_surface",
+        "gold_raw": "10000_2",
+        "numeric_answer": 11000,
+        "numeric_correct": false,
+        "raw_answer": "11000",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 118,
+        "condition": "wrong_equation_surface",
+        "gold_raw": "10000_2",
+        "numeric_answer": 11000,
+        "numeric_correct": false,
+        "raw_answer": "11000",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 118,
+        "condition": "correct_typed_public_state",
+        "gold_raw": "10000_2",
+        "numeric_answer": 11000,
+        "numeric_correct": false,
+        "raw_answer": "11000",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 118,
+        "condition": "wrong_typed_public_state",
+        "gold_raw": "10000_2",
+        "numeric_answer": 11000,
+        "numeric_correct": false,
+        "raw_answer": "11000",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 121,
+        "condition": "wrong_redacted_rationale",
+        "gold_raw": "18\\sqrt{3}",
+        "numeric_answer": 3,
+        "numeric_correct": true,
+        "raw_answer": "36√3",
+        "semantic_correct": false,
+        "semantic_status": "sympy_compare"
+      },
+      {
+        "case_index": 124,
+        "condition": "no_peer",
+        "gold_raw": "8",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 124,
+        "condition": "correct_answer_only",
+        "gold_raw": "8",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 124,
+        "condition": "wrong_answer_only",
+        "gold_raw": "8",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 124,
+        "condition": "wrong_rationale",
+        "gold_raw": "8",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 124,
+        "condition": "correct_equation_surface",
+        "gold_raw": "8",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 124,
+        "condition": "wrong_equation_surface",
+        "gold_raw": "8",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 124,
+        "condition": "correct_typed_public_state",
+        "gold_raw": "8",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 124,
+        "condition": "wrong_typed_public_state",
+        "gold_raw": "8",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 145,
+        "condition": "no_peer",
+        "gold_raw": "145",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 145,
+        "condition": "correct_redacted_rationale",
+        "gold_raw": "145",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 146,
+        "condition": "correct_answer_only",
+        "gold_raw": "\\sqrt{2}",
+        "numeric_answer": 2,
+        "numeric_correct": true,
+        "raw_answer": "2",
+        "semantic_correct": false,
+        "semantic_status": "sympy_compare"
+      },
+      {
+        "case_index": 168,
+        "condition": "no_peer",
+        "gold_raw": "110",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 168,
+        "condition": "wrong_rationale",
+        "gold_raw": "110",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 168,
+        "condition": "correct_redacted_rationale",
+        "gold_raw": "110",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 168,
+        "condition": "wrong_redacted_rationale",
+        "gold_raw": "110",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 168,
+        "condition": "correct_equation_surface",
+        "gold_raw": "110",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 168,
+        "condition": "correct_typed_public_state",
+        "gold_raw": "110",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 197,
+        "condition": "wrong_answer_only",
+        "gold_raw": "79",
+        "numeric_answer": ":",
+        "numeric_correct": false,
+        "raw_answer": ":",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 197,
+        "condition": "correct_rationale",
+        "gold_raw": "79",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 198,
+        "condition": "no_peer",
+        "gold_raw": "\\frac{56}{5}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 198,
+        "condition": "correct_answer_only",
+        "gold_raw": "\\frac{56}{5}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 198,
+        "condition": "wrong_rationale",
+        "gold_raw": "\\frac{56}{5}",
+        "numeric_answer": ":",
+        "numeric_correct": false,
+        "raw_answer": ":",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 198,
+        "condition": "wrong_redacted_rationale",
+        "gold_raw": "\\frac{56}{5}",
+        "numeric_answer": ":",
+        "numeric_correct": false,
+        "raw_answer": ":",
+        "semantic_correct": null,
+        "semantic_status": "unknown_semantic_parse"
+      },
+      {
+        "case_index": 198,
+        "condition": "correct_equation_surface",
+        "gold_raw": "\\frac{56}{5}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 198,
+        "condition": "wrong_equation_surface",
+        "gold_raw": "\\frac{56}{5}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 198,
+        "condition": "correct_typed_public_state",
+        "gold_raw": "\\frac{56}{5}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      },
+      {
+        "case_index": 198,
+        "condition": "wrong_typed_public_state",
+        "gold_raw": "\\frac{56}{5}",
+        "numeric_answer": null,
+        "numeric_correct": null,
+        "raw_answer": null,
+        "semantic_correct": null,
+        "semantic_status": "missing_answer"
+      }
+    ],
+    "counts": {
+      "changed_known": 29,
+      "same_known": 527,
+      "semantic_unknown": 93
+    }
+  },
+  "out_records_jsonl": "experiments/20260615-1404-a8002-source-label-math200-randomized/semantic_correctness_records.jsonl",
+  "paired_all_cases": [
+    {
+      "a_correct_b_wrong": 8,
+      "a_only_case_ids": [
+        "28",
+        "96",
+        "112",
+        "136",
+        "139",
+        "145",
+        "159",
+        "195"
+      ],
+      "accuracy_delta_a_minus_b_on_known_pairs": 0.1276595744680851,
+      "b_correct_a_wrong": 2,
+      "b_only_case_ids": [
+        "13",
+        "61"
+      ],
+      "both_correct": 27,
+      "condition_a": "wrong_typed_public_state",
+      "condition_b": "wrong_rationale",
+      "known_pairs": 47,
+      "mcnemar_exact_two_sided_p": 0.109375,
+      "neither_correct": 10,
+      "unknown_case_ids": [
+        "12",
+        "14",
+        "15",
+        "18",
+        "41",
+        "73",
+        "91",
+        "92",
+        "118",
+        "124",
+        "168",
+        "198"
+      ],
+      "unknown_pairs": 12
+    },
+    {
+      "a_correct_b_wrong": 5,
+      "a_only_case_ids": [
+        "96",
+        "136",
+        "145",
+        "165",
+        "195"
+      ],
+      "accuracy_delta_a_minus_b_on_known_pairs": 0.0425531914893617,
+      "b_correct_a_wrong": 3,
+      "b_only_case_ids": [
+        "13",
+        "61",
+        "184"
+      ],
+      "both_correct": 30,
+      "condition_a": "wrong_typed_public_state",
+      "condition_b": "wrong_redacted_rationale",
+      "known_pairs": 47,
+      "mcnemar_exact_two_sided_p": 0.7265625,
+      "neither_correct": 9,
+      "unknown_case_ids": [
+        "12",
+        "14",
+        "15",
+        "18",
+        "41",
+        "73",
+        "91",
+        "92",
+        "118",
+        "124",
+        "168",
+        "198"
+      ],
+      "unknown_pairs": 12
+    },
+    {
+      "a_correct_b_wrong": 2,
+      "a_only_case_ids": [
+        "145",
+        "165"
+      ],
+      "accuracy_delta_a_minus_b_on_known_pairs": 0.020833333333333332,
+      "b_correct_a_wrong": 1,
+      "b_only_case_ids": [
+        "13"
+      ],
+      "both_correct": 33,
+      "condition_a": "wrong_typed_public_state",
+      "condition_b": "wrong_equation_surface",
+      "known_pairs": 48,
+      "mcnemar_exact_two_sided_p": 1.0,
+      "neither_correct": 12,
+      "unknown_case_ids": [
+        "12",
+        "14",
+        "15",
+        "18",
+        "41",
+        "73",
+        "91",
+        "92",
+        "118",
+        "124",
+        "198"
+      ],
+      "unknown_pairs": 11
+    },
+    {
+      "a_correct_b_wrong": 3,
+      "a_only_case_ids": [
+        "25",
+        "138",
+        "145"
+      ],
+      "accuracy_delta_a_minus_b_on_known_pairs": 0.0,
+      "b_correct_a_wrong": 3,
+      "b_only_case_ids": [
+        "13",
+        "61",
+        "121"
+      ],
+      "both_correct": 31,
+      "condition_a": "wrong_typed_public_state",
+      "condition_b": "wrong_answer_only",
+      "known_pairs": 47,
+      "mcnemar_exact_two_sided_p": 1.0,
+      "neither_correct": 10,
+      "unknown_case_ids": [
+        "12",
+        "14",
+        "15",
+        "18",
+        "41",
+        "73",
+        "91",
+        "92",
+        "118",
+        "124",
+        "197",
+        "198"
+      ],
+      "unknown_pairs": 12
+    },
+    {
+      "a_correct_b_wrong": 0,
+      "a_only_case_ids": [],
+      "accuracy_delta_a_minus_b_on_known_pairs": -0.08888888888888889,
+      "b_correct_a_wrong": 4,
+      "b_only_case_ids": [
+        "60",
+        "145",
+        "146",
+        "156"
+      ],
+      "both_correct": 36,
+      "condition_a": "correct_typed_public_state",
+      "condition_b": "correct_rationale",
+      "known_pairs": 45,
+      "mcnemar_exact_two_sided_p": 0.125,
+      "neither_correct": 5,
+      "unknown_case_ids": [
+        "9",
+        "12",
+        "14",
+        "15",
+        "18",
+        "41",
+        "73",
+        "91",
+        "92",
+        "118",
+        "124",
+        "168",
+        "197",
+        "198"
+      ],
+      "unknown_pairs": 14
+    },
+    {
+      "a_correct_b_wrong": 0,
+      "a_only_case_ids": [],
+      "accuracy_delta_a_minus_b_on_known_pairs": -0.06666666666666667,
+      "b_correct_a_wrong": 3,
+      "b_only_case_ids": [
+        "11",
+        "146",
+        "156"
+      ],
+      "both_correct": 37,
+      "condition_a": "correct_typed_public_state",
+      "condition_b": "correct_redacted_rationale",
+      "known_pairs": 45,
+      "mcnemar_exact_two_sided_p": 0.25,
+      "neither_correct": 5,
+      "unknown_case_ids": [
+        "9",
+        "12",
+        "14",
+        "15",
+        "18",
+        "41",
+        "73",
+        "91",
+        "92",
+        "118",
+        "124",
+        "145",
+        "168",
+        "198"
+      ],
+      "unknown_pairs": 14
+    },
+    {
+      "a_correct_b_wrong": 1,
+      "a_only_case_ids": [
+        "96"
+      ],
+      "accuracy_delta_a_minus_b_on_known_pairs": 0.0,
+      "b_correct_a_wrong": 1,
+      "b_only_case_ids": [
+        "146"
+      ],
+      "both_correct": 36,
+      "condition_a": "correct_typed_public_state",
+      "condition_b": "correct_equation_surface",
+      "known_pairs": 46,
+      "mcnemar_exact_two_sided_p": 1.0,
+      "neither_correct": 8,
+      "unknown_case_ids": [
+        "9",
+        "12",
+        "14",
+        "15",
+        "18",
+        "41",
+        "73",
+        "91",
+        "92",
+        "118",
+        "124",
+        "168",
+        "198"
+      ],
+      "unknown_pairs": 13
+    },
+    {
+      "a_correct_b_wrong": 1,
+      "a_only_case_ids": [
+        "11"
+      ],
+      "accuracy_delta_a_minus_b_on_known_pairs": 0.0,
+      "b_correct_a_wrong": 1,
+      "b_only_case_ids": [
+        "60"
+      ],
+      "both_correct": 44,
+      "condition_a": "correct_redacted_rationale",
+      "condition_b": "correct_rationale",
+      "known_pairs": 52,
+      "mcnemar_exact_two_sided_p": 1.0,
+      "neither_correct": 6,
+      "unknown_case_ids": [
+        "14",
+        "18",
+        "91",
+        "118",
+        "145",
+        "168",
+        "197"
+      ],
+      "unknown_pairs": 7
+    }
+  ],
+  "paired_reliable_source_cases": [
+    {
+      "a_correct_b_wrong": 8,
+      "a_only_case_ids": [
+        "28",
+        "96",
+        "112",
+        "136",
+        "139",
+        "145",
+        "159",
+        "195"
+      ],
+      "accuracy_delta_a_minus_b_on_known_pairs": 0.15,
+      "b_correct_a_wrong": 2,
+      "b_only_case_ids": [
+        "13",
+        "61"
+      ],
+      "both_correct": 22,
+      "condition_a": "wrong_typed_public_state",
+      "condition_b": "wrong_rationale",
+      "known_pairs": 40,
+      "mcnemar_exact_two_sided_p": 0.109375,
+      "neither_correct": 8,
+      "unknown_case_ids": [
+        "12",
+        "15",
+        "41",
+        "73",
+        "91",
+        "124",
+        "168"
+      ],
+      "unknown_pairs": 7
+    },
+    {
+      "a_correct_b_wrong": 5,
+      "a_only_case_ids": [
+        "96",
+        "136",
+        "145",
+        "165",
+        "195"
+      ],
+      "accuracy_delta_a_minus_b_on_known_pairs": 0.05,
+      "b_correct_a_wrong": 3,
+      "b_only_case_ids": [
+        "13",
+        "61",
+        "184"
+      ],
+      "both_correct": 25,
+      "condition_a": "wrong_typed_public_state",
+      "condition_b": "wrong_redacted_rationale",
+      "known_pairs": 40,
+      "mcnemar_exact_two_sided_p": 0.7265625,
+      "neither_correct": 7,
+      "unknown_case_ids": [
+        "12",
+        "15",
+        "41",
+        "73",
+        "91",
+        "124",
+        "168"
+      ],
+      "unknown_pairs": 7
+    },
+    {
+      "a_correct_b_wrong": 2,
+      "a_only_case_ids": [
+        "145",
+        "165"
+      ],
+      "accuracy_delta_a_minus_b_on_known_pairs": 0.024390243902439025,
+      "b_correct_a_wrong": 1,
+      "b_only_case_ids": [
+        "13"
+      ],
+      "both_correct": 28,
+      "condition_a": "wrong_typed_public_state",
+      "condition_b": "wrong_equation_surface",
+      "known_pairs": 41,
+      "mcnemar_exact_two_sided_p": 1.0,
+      "neither_correct": 10,
+      "unknown_case_ids": [
+        "12",
+        "15",
+        "41",
+        "73",
+        "91",
+        "124"
+      ],
+      "unknown_pairs": 6
+    },
+    {
+      "a_correct_b_wrong": 3,
+      "a_only_case_ids": [
+        "25",
+        "138",
+        "145"
+      ],
+      "accuracy_delta_a_minus_b_on_known_pairs": 0.0,
+      "b_correct_a_wrong": 3,
+      "b_only_case_ids": [
+        "13",
+        "61",
+        "121"
+      ],
+      "both_correct": 26,
+      "condition_a": "wrong_typed_public_state",
+      "condition_b": "wrong_answer_only",
+      "known_pairs": 40,
+      "mcnemar_exact_two_sided_p": 1.0,
+      "neither_correct": 8,
+      "unknown_case_ids": [
+        "12",
+        "15",
+        "41",
+        "73",
+        "91",
+        "124",
+        "197"
+      ],
+      "unknown_pairs": 7
+    },
+    {
+      "a_correct_b_wrong": 0,
+      "a_only_case_ids": [],
+      "accuracy_delta_a_minus_b_on_known_pairs": -0.10526315789473684,
+      "b_correct_a_wrong": 4,
+      "b_only_case_ids": [
+        "60",
+        "145",
+        "146",
+        "156"
+      ],
+      "both_correct": 31,
+      "condition_a": "correct_typed_public_state",
+      "condition_b": "correct_rationale",
+      "known_pairs": 38,
+      "mcnemar_exact_two_sided_p": 0.125,
+      "neither_correct": 3,
+      "unknown_case_ids": [
+        "9",
+        "12",
+        "15",
+        "41",
+        "73",
+        "91",
+        "124",
+        "168",
+        "197"
+      ],
+      "unknown_pairs": 9
+    },
+    {
+      "a_correct_b_wrong": 0,
+      "a_only_case_ids": [],
+      "accuracy_delta_a_minus_b_on_known_pairs": -0.07894736842105263,
+      "b_correct_a_wrong": 3,
+      "b_only_case_ids": [
+        "11",
+        "146",
+        "156"
+      ],
+      "both_correct": 32,
+      "condition_a": "correct_typed_public_state",
+      "condition_b": "correct_redacted_rationale",
+      "known_pairs": 38,
+      "mcnemar_exact_two_sided_p": 0.25,
+      "neither_correct": 3,
+      "unknown_case_ids": [
+        "9",
+        "12",
+        "15",
+        "41",
+        "73",
+        "91",
+        "124",
+        "145",
+        "168"
+      ],
+      "unknown_pairs": 9
+    },
+    {
+      "a_correct_b_wrong": 1,
+      "a_only_case_ids": [
+        "96"
+      ],
+      "accuracy_delta_a_minus_b_on_known_pairs": 0.0,
+      "b_correct_a_wrong": 1,
+      "b_only_case_ids": [
+        "146"
+      ],
+      "both_correct": 31,
+      "condition_a": "correct_typed_public_state",
+      "condition_b": "correct_equation_surface",
+      "known_pairs": 39,
+      "mcnemar_exact_two_sided_p": 1.0,
+      "neither_correct": 6,
+      "unknown_case_ids": [
+        "9",
+        "12",
+        "15",
+        "41",
+        "73",
+        "91",
+        "124",
+        "168"
+      ],
+      "unknown_pairs": 8
+    },
+    {
+      "a_correct_b_wrong": 1,
+      "a_only_case_ids": [
+        "11"
+      ],
+      "accuracy_delta_a_minus_b_on_known_pairs": 0.0,
+      "b_correct_a_wrong": 1,
+      "b_only_case_ids": [
+        "60"
+      ],
+      "both_correct": 39,
+      "condition_a": "correct_redacted_rationale",
+      "condition_b": "correct_rationale",
+      "known_pairs": 43,
+      "mcnemar_exact_two_sided_p": 1.0,
+      "neither_correct": 2,
+      "unknown_case_ids": [
+        "91",
+        "145",
+        "168",
+        "197"
+      ],
+      "unknown_pairs": 4
+    }
+  ],
+  "rates_all_cases": [
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "38",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "94",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "116",
+        "117",
+        "120",
+        "121",
+        "123",
+        "136",
+        "138",
+        "139",
+        "154",
+        "159",
+        "165",
+        "181",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "no_peer",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.6271186440677966,
+      "successes": 37,
+      "total": 59,
+      "wilson_95": [
+        0.4995359106706382,
+        0.7391600120767886
+      ]
+    },
+    {
+      "case_ids": [
+        "12",
+        "14",
+        "15",
+        "18",
+        "41",
+        "73",
+        "91",
+        "92",
+        "118",
+        "124",
+        "145",
+        "168",
+        "198"
+      ],
+      "condition": "no_peer",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.22033898305084745,
+      "successes": 13,
+      "total": 59,
+      "wilson_95": [
+        0.13354197627929038,
+        0.3413269936763709
+      ]
+    },
+    {
+      "case_ids": [
+        "25",
+        "138"
+      ],
+      "condition": "wrong_answer_only",
+      "denominator": "pre_correct",
+      "numerator": "right_to_wrong",
+      "rate": 0.05405405405405406,
+      "successes": 2,
+      "total": 37,
+      "wilson_95": [
+        0.014950976833157673,
+        0.17704654350813104
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "26",
+        "28",
+        "29",
+        "38",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "94",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "116",
+        "117",
+        "120",
+        "121",
+        "123",
+        "136",
+        "139",
+        "154",
+        "159",
+        "165",
+        "181",
+        "191",
+        "195"
+      ],
+      "condition": "wrong_answer_only",
+      "denominator": "pre_correct",
+      "numerator": "stable_right",
+      "rate": 0.918918918918919,
+      "successes": 34,
+      "total": 37,
+      "wilson_95": [
+        0.7869932065071162,
+        0.9720394258995521
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "26",
+        "28",
+        "29",
+        "38",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "73",
+        "89",
+        "91",
+        "94",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "116",
+        "117",
+        "120",
+        "121",
+        "123",
+        "136",
+        "139",
+        "154",
+        "159",
+        "165",
+        "181",
+        "191",
+        "195"
+      ],
+      "condition": "wrong_answer_only",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.6101694915254238,
+      "successes": 36,
+      "total": 59,
+      "wilson_95": [
+        0.4826634180541163,
+        0.7242063816603204
+      ]
+    },
+    {
+      "case_ids": [
+        "12",
+        "14",
+        "15",
+        "18",
+        "92",
+        "118",
+        "124",
+        "197"
+      ],
+      "condition": "wrong_answer_only",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.13559322033898305,
+      "successes": 8,
+      "total": 59,
+      "wilson_95": [
+        0.0703417467253372,
+        0.24539660806537295
+      ]
+    },
+    {
+      "case_ids": [
+        "28",
+        "96",
+        "112",
+        "121",
+        "136",
+        "139",
+        "159",
+        "195"
+      ],
+      "condition": "wrong_rationale",
+      "denominator": "pre_correct",
+      "numerator": "right_to_wrong",
+      "rate": 0.21621621621621623,
+      "successes": 8,
+      "total": 37,
+      "wilson_95": [
+        0.11386511993385592,
+        0.3719514839196916
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "29",
+        "38",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "94",
+        "101",
+        "105",
+        "111",
+        "116",
+        "117",
+        "120",
+        "123",
+        "138",
+        "154",
+        "165",
+        "181",
+        "191",
+        "197"
+      ],
+      "condition": "wrong_rationale",
+      "denominator": "pre_correct",
+      "numerator": "stable_right",
+      "rate": 0.7837837837837838,
+      "successes": 29,
+      "total": 37,
+      "wilson_95": [
+        0.6280485160803084,
+        0.8861348800661442
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "29",
+        "38",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "94",
+        "101",
+        "105",
+        "111",
+        "116",
+        "117",
+        "120",
+        "123",
+        "138",
+        "154",
+        "165",
+        "181",
+        "191",
+        "197"
+      ],
+      "condition": "wrong_rationale",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.4915254237288136,
+      "successes": 29,
+      "total": 59,
+      "wilson_95": [
+        0.3684383690774015,
+        0.6156485694061034
+      ]
+    },
+    {
+      "case_ids": [
+        "14",
+        "18",
+        "92",
+        "118",
+        "124",
+        "168",
+        "198"
+      ],
+      "condition": "wrong_rationale",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.11864406779661017,
+      "successes": 7,
+      "total": 59,
+      "wilson_95": [
+        0.05867582775790306,
+        0.22523640399981695
+      ]
+    },
+    {
+      "case_ids": [
+        "96",
+        "121",
+        "136",
+        "165",
+        "195"
+      ],
+      "condition": "wrong_redacted_rationale",
+      "denominator": "pre_correct",
+      "numerator": "right_to_wrong",
+      "rate": 0.13513513513513514,
+      "successes": 5,
+      "total": 37,
+      "wilson_95": [
+        0.059132944257320186,
+        0.2797741178400979
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "38",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "94",
+        "101",
+        "105",
+        "111",
+        "112",
+        "116",
+        "117",
+        "120",
+        "123",
+        "138",
+        "139",
+        "154",
+        "159",
+        "181",
+        "191",
+        "197"
+      ],
+      "condition": "wrong_redacted_rationale",
+      "denominator": "pre_correct",
+      "numerator": "stable_right",
+      "rate": 0.8648648648648649,
+      "successes": 32,
+      "total": 37,
+      "wilson_95": [
+        0.7202258821599021,
+        0.9408670557426799
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "38",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "91",
+        "94",
+        "101",
+        "105",
+        "111",
+        "112",
+        "116",
+        "117",
+        "120",
+        "123",
+        "138",
+        "139",
+        "154",
+        "159",
+        "181",
+        "184",
+        "191",
+        "197"
+      ],
+      "condition": "wrong_redacted_rationale",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.576271186440678,
+      "successes": 34,
+      "total": 59,
+      "wilson_95": [
+        0.449344828000343,
+        0.6938727256481132
+      ]
+    },
+    {
+      "case_ids": [
+        "14",
+        "18",
+        "118",
+        "168",
+        "198"
+      ],
+      "condition": "wrong_redacted_rationale",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.0847457627118644,
+      "successes": 5,
+      "total": 59,
+      "wilson_95": [
+        0.03674203301763673,
+        0.18351795267410276
+      ]
+    },
+    {
+      "case_ids": [
+        "61",
+        "121",
+        "165"
+      ],
+      "condition": "wrong_equation_surface",
+      "denominator": "pre_correct",
+      "numerator": "right_to_wrong",
+      "rate": 0.08108108108108109,
+      "successes": 3,
+      "total": 37,
+      "wilson_95": [
+        0.027960574100447985,
+        0.21300679349288387
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "38",
+        "55",
+        "56",
+        "68",
+        "69",
+        "89",
+        "94",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "116",
+        "117",
+        "120",
+        "123",
+        "136",
+        "138",
+        "139",
+        "154",
+        "159",
+        "181",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "wrong_equation_surface",
+      "denominator": "pre_correct",
+      "numerator": "stable_right",
+      "rate": 0.918918918918919,
+      "successes": 34,
+      "total": 37,
+      "wilson_95": [
+        0.7869932065071162,
+        0.9720394258995521
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "38",
+        "55",
+        "56",
+        "68",
+        "69",
+        "89",
+        "91",
+        "94",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "116",
+        "117",
+        "120",
+        "123",
+        "136",
+        "138",
+        "139",
+        "154",
+        "159",
+        "181",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "wrong_equation_surface",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.5932203389830508,
+      "successes": 35,
+      "total": 59,
+      "wilson_95": [
+        0.4659340125533739,
+        0.7091096641280723
+      ]
+    },
+    {
+      "case_ids": [
+        "12",
+        "14",
+        "15",
+        "18",
+        "41",
+        "92",
+        "118",
+        "124",
+        "198"
+      ],
+      "condition": "wrong_equation_surface",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.15254237288135594,
+      "successes": 9,
+      "total": 59,
+      "wilson_95": [
+        0.0823846399859648,
+        0.26517983783773563
+      ]
+    },
+    {
+      "case_ids": [
+        "13",
+        "61",
+        "121"
+      ],
+      "condition": "wrong_typed_public_state",
+      "denominator": "pre_correct",
+      "numerator": "right_to_wrong",
+      "rate": 0.08108108108108109,
+      "successes": 3,
+      "total": 37,
+      "wilson_95": [
+        0.027960574100447985,
+        0.21300679349288387
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "38",
+        "55",
+        "56",
+        "68",
+        "69",
+        "89",
+        "94",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "116",
+        "117",
+        "120",
+        "123",
+        "136",
+        "138",
+        "139",
+        "154",
+        "159",
+        "165",
+        "181",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "wrong_typed_public_state",
+      "denominator": "pre_correct",
+      "numerator": "stable_right",
+      "rate": 0.918918918918919,
+      "successes": 34,
+      "total": 37,
+      "wilson_95": [
+        0.7869932065071162,
+        0.9720394258995521
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "38",
+        "55",
+        "56",
+        "68",
+        "69",
+        "89",
+        "94",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "116",
+        "117",
+        "120",
+        "123",
+        "136",
+        "138",
+        "139",
+        "145",
+        "154",
+        "159",
+        "165",
+        "181",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "wrong_typed_public_state",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.5932203389830508,
+      "successes": 35,
+      "total": 59,
+      "wilson_95": [
+        0.4659340125533739,
+        0.7091096641280723
+      ]
+    },
+    {
+      "case_ids": [
+        "12",
+        "14",
+        "15",
+        "18",
+        "41",
+        "73",
+        "91",
+        "92",
+        "118",
+        "124",
+        "198"
+      ],
+      "condition": "wrong_typed_public_state",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.1864406779661017,
+      "successes": 11,
+      "total": 59,
+      "wilson_95": [
+        0.1074272194200533,
+        0.3037895044696276
+      ]
+    },
+    {
+      "case_ids": [
+        "9",
+        "81"
+      ],
+      "condition": "correct_answer_only",
+      "denominator": "pre_wrong",
+      "numerator": "wrong_to_right",
+      "rate": 0.2222222222222222,
+      "successes": 2,
+      "total": 9,
+      "wilson_95": [
+        0.06322510711784671,
+        0.5474110308930111
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "9",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "38",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "81",
+        "89",
+        "91",
+        "92",
+        "94",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "116",
+        "117",
+        "120",
+        "121",
+        "123",
+        "136",
+        "138",
+        "139",
+        "145",
+        "154",
+        "159",
+        "165",
+        "181",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "correct_answer_only",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.711864406779661,
+      "successes": 42,
+      "total": 59,
+      "wilson_95": [
+        0.5861915342706008,
+        0.811635003641777
+      ]
+    },
+    {
+      "case_ids": [
+        "12",
+        "14",
+        "15",
+        "18",
+        "118",
+        "124",
+        "198"
+      ],
+      "condition": "correct_answer_only",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.11864406779661017,
+      "successes": 7,
+      "total": 59,
+      "wilson_95": [
+        0.05867582775790306,
+        0.22523640399981695
+      ]
+    },
+    {
+      "case_ids": [
+        "9",
+        "60",
+        "146",
+        "156"
+      ],
+      "condition": "correct_rationale",
+      "denominator": "pre_wrong",
+      "numerator": "wrong_to_right",
+      "rate": 0.4444444444444444,
+      "successes": 4,
+      "total": 9,
+      "wilson_95": [
+        0.18877852109766452,
+        0.733348706504507
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "9",
+        "12",
+        "13",
+        "15",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "38",
+        "41",
+        "55",
+        "56",
+        "60",
+        "61",
+        "68",
+        "69",
+        "73",
+        "89",
+        "94",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "116",
+        "117",
+        "120",
+        "121",
+        "123",
+        "124",
+        "136",
+        "138",
+        "139",
+        "145",
+        "146",
+        "154",
+        "156",
+        "159",
+        "165",
+        "181",
+        "191",
+        "195"
+      ],
+      "condition": "correct_rationale",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.7796610169491526,
+      "successes": 46,
+      "total": 59,
+      "wilson_95": [
+        0.6586730063236291,
+        0.8664580237207097
+      ]
+    },
+    {
+      "case_ids": [
+        "14",
+        "18",
+        "91",
+        "118",
+        "197"
+      ],
+      "condition": "correct_rationale",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.0847457627118644,
+      "successes": 5,
+      "total": 59,
+      "wilson_95": [
+        0.03674203301763673,
+        0.18351795267410276
+      ]
+    },
+    {
+      "case_ids": [
+        "9",
+        "11",
+        "146",
+        "156"
+      ],
+      "condition": "correct_redacted_rationale",
+      "denominator": "pre_wrong",
+      "numerator": "wrong_to_right",
+      "rate": 0.4444444444444444,
+      "successes": 4,
+      "total": 9,
+      "wilson_95": [
+        0.18877852109766452,
+        0.733348706504507
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "9",
+        "11",
+        "12",
+        "13",
+        "15",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "38",
+        "41",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "73",
+        "89",
+        "91",
+        "94",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "116",
+        "117",
+        "120",
+        "121",
+        "123",
+        "124",
+        "136",
+        "138",
+        "139",
+        "146",
+        "154",
+        "156",
+        "159",
+        "165",
+        "181",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "correct_redacted_rationale",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.7966101694915254,
+      "successes": 47,
+      "total": 59,
+      "wilson_95": [
+        0.6773198772795009,
+        0.879637275797828
+      ]
+    },
+    {
+      "case_ids": [
+        "14",
+        "18",
+        "118",
+        "145",
+        "168"
+      ],
+      "condition": "correct_redacted_rationale",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.0847457627118644,
+      "successes": 5,
+      "total": 59,
+      "wilson_95": [
+        0.03674203301763673,
+        0.18351795267410276
+      ]
+    },
+    {
+      "case_ids": [
+        "9",
+        "146"
+      ],
+      "condition": "correct_equation_surface",
+      "denominator": "pre_wrong",
+      "numerator": "wrong_to_right",
+      "rate": 0.2222222222222222,
+      "successes": 2,
+      "total": 9,
+      "wilson_95": [
+        0.06322510711784671,
+        0.5474110308930111
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "9",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "38",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "94",
+        "101",
+        "105",
+        "111",
+        "112",
+        "116",
+        "117",
+        "120",
+        "121",
+        "123",
+        "136",
+        "138",
+        "139",
+        "146",
+        "154",
+        "159",
+        "165",
+        "181",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "correct_equation_surface",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.6440677966101694,
+      "successes": 38,
+      "total": 59,
+      "wilson_95": [
+        0.5165549598185499,
+        0.7539670859618668
+      ]
+    },
+    {
+      "case_ids": [
+        "14",
+        "15",
+        "18",
+        "41",
+        "73",
+        "91",
+        "118",
+        "124",
+        "168",
+        "198"
+      ],
+      "condition": "correct_equation_surface",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.1694915254237288,
+      "successes": 10,
+      "total": 59,
+      "wilson_95": [
+        0.09475839349181052,
+        0.2846322073648801
+      ]
+    },
+    {
+      "case_ids": [],
+      "condition": "correct_typed_public_state",
+      "denominator": "pre_wrong",
+      "numerator": "wrong_to_right",
+      "rate": 0.0,
+      "successes": 0,
+      "total": 9,
+      "wilson_95": [
+        0.0,
+        0.2991450484195441
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "38",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "94",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "116",
+        "117",
+        "120",
+        "121",
+        "123",
+        "136",
+        "138",
+        "139",
+        "154",
+        "159",
+        "165",
+        "181",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "correct_typed_public_state",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.6271186440677966,
+      "successes": 37,
+      "total": 59,
+      "wilson_95": [
+        0.4995359106706382,
+        0.7391600120767886
+      ]
+    },
+    {
+      "case_ids": [
+        "9",
+        "12",
+        "14",
+        "15",
+        "18",
+        "41",
+        "73",
+        "91",
+        "92",
+        "118",
+        "124",
+        "168",
+        "198"
+      ],
+      "condition": "correct_typed_public_state",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.22033898305084745,
+      "successes": 13,
+      "total": 59,
+      "wilson_95": [
+        0.13354197627929038,
+        0.3413269936763709
+      ]
+    }
+  ],
+  "rates_reliable_source_cases": [
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "117",
+        "120",
+        "121",
+        "123",
+        "136",
+        "138",
+        "139",
+        "159",
+        "165",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "no_peer",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.6808510638297872,
+      "successes": 32,
+      "total": 47,
+      "wilson_95": [
+        0.5383265689689715,
+        0.7960462125036255
+      ]
+    },
+    {
+      "case_ids": [
+        "12",
+        "15",
+        "41",
+        "73",
+        "91",
+        "124",
+        "145",
+        "168"
+      ],
+      "condition": "no_peer",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.1702127659574468,
+      "successes": 8,
+      "total": 47,
+      "wilson_95": [
+        0.0888636387649026,
+        0.3013977597262439
+      ]
+    },
+    {
+      "case_ids": [
+        "25",
+        "138"
+      ],
+      "condition": "wrong_answer_only",
+      "denominator": "pre_correct",
+      "numerator": "right_to_wrong",
+      "rate": 0.0625,
+      "successes": 2,
+      "total": 32,
+      "wilson_95": [
+        0.017310567031640967,
+        0.2014712314415458
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "26",
+        "28",
+        "29",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "117",
+        "120",
+        "121",
+        "123",
+        "136",
+        "139",
+        "159",
+        "165",
+        "191",
+        "195"
+      ],
+      "condition": "wrong_answer_only",
+      "denominator": "pre_correct",
+      "numerator": "stable_right",
+      "rate": 0.90625,
+      "successes": 29,
+      "total": 32,
+      "wilson_95": [
+        0.7578184527161212,
+        0.9675984487016337
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "26",
+        "28",
+        "29",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "73",
+        "89",
+        "91",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "117",
+        "120",
+        "121",
+        "123",
+        "136",
+        "139",
+        "159",
+        "165",
+        "191",
+        "195"
+      ],
+      "condition": "wrong_answer_only",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.6595744680851063,
+      "successes": 31,
+      "total": 47,
+      "wilson_95": [
+        0.5167092456194193,
+        0.7783255615622839
+      ]
+    },
+    {
+      "case_ids": [
+        "12",
+        "15",
+        "124",
+        "197"
+      ],
+      "condition": "wrong_answer_only",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.0851063829787234,
+      "successes": 4,
+      "total": 47,
+      "wilson_95": [
+        0.03359412345792552,
+        0.19931537786964587
+      ]
+    },
+    {
+      "case_ids": [
+        "28",
+        "96",
+        "112",
+        "121",
+        "136",
+        "139",
+        "159",
+        "195"
+      ],
+      "condition": "wrong_rationale",
+      "denominator": "pre_correct",
+      "numerator": "right_to_wrong",
+      "rate": 0.25,
+      "successes": 8,
+      "total": 32,
+      "wilson_95": [
+        0.1325240091850904,
+        0.4210655899424448
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "29",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "101",
+        "105",
+        "111",
+        "117",
+        "120",
+        "123",
+        "138",
+        "165",
+        "191",
+        "197"
+      ],
+      "condition": "wrong_rationale",
+      "denominator": "pre_correct",
+      "numerator": "stable_right",
+      "rate": 0.75,
+      "successes": 24,
+      "total": 32,
+      "wilson_95": [
+        0.5789344100575552,
+        0.8674759908149096
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "29",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "101",
+        "105",
+        "111",
+        "117",
+        "120",
+        "123",
+        "138",
+        "165",
+        "191",
+        "197"
+      ],
+      "condition": "wrong_rationale",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.5106382978723404,
+      "successes": 24,
+      "total": 47,
+      "wilson_95": [
+        0.3724245374822684,
+        0.6472444496631784
+      ]
+    },
+    {
+      "case_ids": [
+        "124",
+        "168"
+      ],
+      "condition": "wrong_rationale",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.0425531914893617,
+      "successes": 2,
+      "total": 47,
+      "wilson_95": [
+        0.011748275966789345,
+        0.1424852767789945
+      ]
+    },
+    {
+      "case_ids": [
+        "96",
+        "121",
+        "136",
+        "165",
+        "195"
+      ],
+      "condition": "wrong_redacted_rationale",
+      "denominator": "pre_correct",
+      "numerator": "right_to_wrong",
+      "rate": 0.15625,
+      "successes": 5,
+      "total": 32,
+      "wilson_95": [
+        0.0686442028250571,
+        0.3175414959753039
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "101",
+        "105",
+        "111",
+        "112",
+        "117",
+        "120",
+        "123",
+        "138",
+        "139",
+        "159",
+        "191",
+        "197"
+      ],
+      "condition": "wrong_redacted_rationale",
+      "denominator": "pre_correct",
+      "numerator": "stable_right",
+      "rate": 0.84375,
+      "successes": 27,
+      "total": 32,
+      "wilson_95": [
+        0.682458504024696,
+        0.9313557971749429
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "91",
+        "101",
+        "105",
+        "111",
+        "112",
+        "117",
+        "120",
+        "123",
+        "138",
+        "139",
+        "159",
+        "184",
+        "191",
+        "197"
+      ],
+      "condition": "wrong_redacted_rationale",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.6170212765957447,
+      "successes": 29,
+      "total": 47,
+      "wilson_95": [
+        0.47426566956413574,
+        0.7420931890357799
+      ]
+    },
+    {
+      "case_ids": [
+        "168"
+      ],
+      "condition": "wrong_redacted_rationale",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.02127659574468085,
+      "successes": 1,
+      "total": 47,
+      "wilson_95": [
+        0.003765768038596788,
+        0.11112981041629327
+      ]
+    },
+    {
+      "case_ids": [
+        "61",
+        "121",
+        "165"
+      ],
+      "condition": "wrong_equation_surface",
+      "denominator": "pre_correct",
+      "numerator": "right_to_wrong",
+      "rate": 0.09375,
+      "successes": 3,
+      "total": 32,
+      "wilson_95": [
+        0.032401551298366194,
+        0.24218154728387864
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "55",
+        "56",
+        "68",
+        "69",
+        "89",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "117",
+        "120",
+        "123",
+        "136",
+        "138",
+        "139",
+        "159",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "wrong_equation_surface",
+      "denominator": "pre_correct",
+      "numerator": "stable_right",
+      "rate": 0.90625,
+      "successes": 29,
+      "total": 32,
+      "wilson_95": [
+        0.7578184527161212,
+        0.9675984487016337
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "55",
+        "56",
+        "68",
+        "69",
+        "89",
+        "91",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "117",
+        "120",
+        "123",
+        "136",
+        "138",
+        "139",
+        "159",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "wrong_equation_surface",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.6382978723404256,
+      "successes": 30,
+      "total": 47,
+      "wilson_95": [
+        0.4953589653479511,
+        0.7603378675428585
+      ]
+    },
+    {
+      "case_ids": [
+        "12",
+        "15",
+        "41",
+        "124"
+      ],
+      "condition": "wrong_equation_surface",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.0851063829787234,
+      "successes": 4,
+      "total": 47,
+      "wilson_95": [
+        0.03359412345792552,
+        0.19931537786964587
+      ]
+    },
+    {
+      "case_ids": [
+        "13",
+        "61",
+        "121"
+      ],
+      "condition": "wrong_typed_public_state",
+      "denominator": "pre_correct",
+      "numerator": "right_to_wrong",
+      "rate": 0.09375,
+      "successes": 3,
+      "total": 32,
+      "wilson_95": [
+        0.032401551298366194,
+        0.24218154728387864
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "55",
+        "56",
+        "68",
+        "69",
+        "89",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "117",
+        "120",
+        "123",
+        "136",
+        "138",
+        "139",
+        "159",
+        "165",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "wrong_typed_public_state",
+      "denominator": "pre_correct",
+      "numerator": "stable_right",
+      "rate": 0.90625,
+      "successes": 29,
+      "total": 32,
+      "wilson_95": [
+        0.7578184527161212,
+        0.9675984487016337
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "55",
+        "56",
+        "68",
+        "69",
+        "89",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "117",
+        "120",
+        "123",
+        "136",
+        "138",
+        "139",
+        "145",
+        "159",
+        "165",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "wrong_typed_public_state",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.6382978723404256,
+      "successes": 30,
+      "total": 47,
+      "wilson_95": [
+        0.4953589653479511,
+        0.7603378675428585
+      ]
+    },
+    {
+      "case_ids": [
+        "12",
+        "15",
+        "41",
+        "73",
+        "91",
+        "124"
+      ],
+      "condition": "wrong_typed_public_state",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.1276595744680851,
+      "successes": 6,
+      "total": 47,
+      "wilson_95": [
+        0.05984604198143388,
+        0.25173940792792504
+      ]
+    },
+    {
+      "case_ids": [
+        "9",
+        "81"
+      ],
+      "condition": "correct_answer_only",
+      "denominator": "pre_wrong",
+      "numerator": "wrong_to_right",
+      "rate": 0.2857142857142857,
+      "successes": 2,
+      "total": 7,
+      "wilson_95": [
+        0.08221892400405678,
+        0.6410655481673808
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "9",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "81",
+        "89",
+        "91",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "117",
+        "120",
+        "121",
+        "123",
+        "136",
+        "138",
+        "139",
+        "145",
+        "159",
+        "165",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "correct_answer_only",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.7659574468085106,
+      "successes": 36,
+      "total": 47,
+      "wilson_95": [
+        0.6277574244984441,
+        0.8639672541377281
+      ]
+    },
+    {
+      "case_ids": [
+        "12",
+        "15",
+        "124"
+      ],
+      "condition": "correct_answer_only",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.06382978723404255,
+      "successes": 3,
+      "total": 47,
+      "wilson_95": [
+        0.021945385205433238,
+        0.17162614183124436
+      ]
+    },
+    {
+      "case_ids": [
+        "9",
+        "60",
+        "146",
+        "156"
+      ],
+      "condition": "correct_rationale",
+      "denominator": "pre_wrong",
+      "numerator": "wrong_to_right",
+      "rate": 0.5714285714285714,
+      "successes": 4,
+      "total": 7,
+      "wilson_95": [
+        0.2504583645276572,
+        0.8417801447485302
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "9",
+        "12",
+        "13",
+        "15",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "41",
+        "55",
+        "56",
+        "60",
+        "61",
+        "68",
+        "69",
+        "73",
+        "89",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "117",
+        "120",
+        "121",
+        "123",
+        "124",
+        "136",
+        "138",
+        "139",
+        "145",
+        "146",
+        "156",
+        "159",
+        "165",
+        "191",
+        "195"
+      ],
+      "condition": "correct_rationale",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.8723404255319149,
+      "successes": 41,
+      "total": 47,
+      "wilson_95": [
+        0.748260592072075,
+        0.9401539580185662
+      ]
+    },
+    {
+      "case_ids": [
+        "91",
+        "197"
+      ],
+      "condition": "correct_rationale",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.0425531914893617,
+      "successes": 2,
+      "total": 47,
+      "wilson_95": [
+        0.011748275966789345,
+        0.1424852767789945
+      ]
+    },
+    {
+      "case_ids": [
+        "9",
+        "11",
+        "146",
+        "156"
+      ],
+      "condition": "correct_redacted_rationale",
+      "denominator": "pre_wrong",
+      "numerator": "wrong_to_right",
+      "rate": 0.5714285714285714,
+      "successes": 4,
+      "total": 7,
+      "wilson_95": [
+        0.2504583645276572,
+        0.8417801447485302
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "9",
+        "11",
+        "12",
+        "13",
+        "15",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "41",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "73",
+        "89",
+        "91",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "117",
+        "120",
+        "121",
+        "123",
+        "124",
+        "136",
+        "138",
+        "139",
+        "146",
+        "156",
+        "159",
+        "165",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "correct_redacted_rationale",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.8936170212765957,
+      "successes": 42,
+      "total": 47,
+      "wilson_95": [
+        0.7740573065626163,
+        0.9536952178189183
+      ]
+    },
+    {
+      "case_ids": [
+        "145",
+        "168"
+      ],
+      "condition": "correct_redacted_rationale",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.0425531914893617,
+      "successes": 2,
+      "total": 47,
+      "wilson_95": [
+        0.011748275966789345,
+        0.1424852767789945
+      ]
+    },
+    {
+      "case_ids": [
+        "9",
+        "146"
+      ],
+      "condition": "correct_equation_surface",
+      "denominator": "pre_wrong",
+      "numerator": "wrong_to_right",
+      "rate": 0.2857142857142857,
+      "successes": 2,
+      "total": 7,
+      "wilson_95": [
+        0.08221892400405678,
+        0.6410655481673808
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "9",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "101",
+        "105",
+        "111",
+        "112",
+        "117",
+        "120",
+        "121",
+        "123",
+        "136",
+        "138",
+        "139",
+        "146",
+        "159",
+        "165",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "correct_equation_surface",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.7021276595744681,
+      "successes": 33,
+      "total": 47,
+      "wilson_95": [
+        0.5602232608095393,
+        0.8134874949539516
+      ]
+    },
+    {
+      "case_ids": [
+        "15",
+        "41",
+        "73",
+        "91",
+        "124",
+        "168"
+      ],
+      "condition": "correct_equation_surface",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.1276595744680851,
+      "successes": 6,
+      "total": 47,
+      "wilson_95": [
+        0.05984604198143388,
+        0.25173940792792504
+      ]
+    },
+    {
+      "case_ids": [],
+      "condition": "correct_typed_public_state",
+      "denominator": "pre_wrong",
+      "numerator": "wrong_to_right",
+      "rate": 0.0,
+      "successes": 0,
+      "total": 7,
+      "wilson_95": [
+        5.551115123125783e-17,
+        0.35433043506668743
+      ]
+    },
+    {
+      "case_ids": [
+        "1",
+        "3",
+        "13",
+        "21",
+        "22",
+        "25",
+        "26",
+        "28",
+        "29",
+        "55",
+        "56",
+        "61",
+        "68",
+        "69",
+        "89",
+        "96",
+        "101",
+        "105",
+        "111",
+        "112",
+        "117",
+        "120",
+        "121",
+        "123",
+        "136",
+        "138",
+        "139",
+        "159",
+        "165",
+        "191",
+        "195",
+        "197"
+      ],
+      "condition": "correct_typed_public_state",
+      "denominator": "records",
+      "numerator": "post_correct",
+      "rate": 0.6808510638297872,
+      "successes": 32,
+      "total": 47,
+      "wilson_95": [
+        0.5383265689689715,
+        0.7960462125036255
+      ]
+    },
+    {
+      "case_ids": [
+        "9",
+        "12",
+        "15",
+        "41",
+        "73",
+        "91",
+        "124",
+        "168"
+      ],
+      "condition": "correct_typed_public_state",
+      "denominator": "records",
+      "numerator": "unparseable",
+      "rate": 0.1702127659574468,
+      "successes": 8,
+      "total": 47,
+      "wilson_95": [
+        0.0888636387649026,
+        0.3013977597262439
+      ]
+    }
+  ],
+  "records_jsonl": "experiments/20260615-1404-a8002-source-label-math200-randomized/peer_exposure_records.jsonl",
+  "source_case_audit": [
+    {
+      "case_index": 1,
+      "correct_peer_answer_raw": "7",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "7",
+        "prediction_raw": "7",
+        "reference_normalized": "7",
+        "reference_raw": "7",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "7",
+      "instance_id": "2982",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 7,
+      "wrong_peer_answer_raw": "1",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "1",
+        "prediction_raw": "1",
+        "reference_normalized": "7",
+        "reference_raw": "7",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 3,
+      "correct_peer_answer_raw": "3380",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "3380",
+        "prediction_raw": "3380",
+        "reference_normalized": "3380",
+        "reference_raw": "3380",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "3380",
+      "instance_id": "1491",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 3380,
+      "wrong_peer_answer_raw": "250",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "250",
+        "prediction_raw": "250",
+        "reference_normalized": "3380",
+        "reference_raw": "3380",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 9,
+      "correct_peer_answer_raw": "8",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "8",
+        "prediction_raw": "8",
+        "reference_normalized": "8",
+        "reference_raw": "8",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "8",
+      "instance_id": "494",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 8,
+      "wrong_peer_answer_raw": "4",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "4",
+        "prediction_raw": "4",
+        "reference_normalized": "8",
+        "reference_raw": "8",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 11,
+      "correct_peer_answer_raw": "2\\sqrt{3}",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "2\\sqrt{3}",
+        "prediction_raw": "2\\sqrt{3}",
+        "reference_normalized": "2\\sqrt{3}",
+        "reference_raw": "2\\sqrt3",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "2\\sqrt3",
+      "instance_id": "1644",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 3,
+      "wrong_peer_answer_raw": "2\\sqrt{5}",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "2\\sqrt{5}",
+        "prediction_raw": "2\\sqrt{5}",
+        "reference_normalized": "2\\sqrt{3}",
+        "reference_raw": "2\\sqrt3",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 12,
+      "correct_peer_answer_raw": "4",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "4",
+        "prediction_raw": "4",
+        "reference_normalized": "4",
+        "reference_raw": "4",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "4",
+      "instance_id": "4345",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 4,
+      "wrong_peer_answer_raw": "3",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "3",
+        "prediction_raw": "3",
+        "reference_normalized": "4",
+        "reference_raw": "4",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 13,
+      "correct_peer_answer_raw": "1 - 12i",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "1-12i",
+        "prediction_raw": "1 - 12i",
+        "reference_normalized": "1-12i",
+        "reference_raw": "1 - 12i",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "1 - 12i",
+      "instance_id": "137",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 12,
+      "wrong_peer_answer_raw": "-11",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "-11",
+        "prediction_raw": "-11",
+        "reference_normalized": "1-12i",
+        "reference_raw": "1 - 12i",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 14,
+      "correct_peer_answer_raw": "72 \\text{ m}^3",
+      "correct_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "72",
+        "prediction_raw": "72 \\text{ m}^3",
+        "reference_normalized": "144",
+        "reference_raw": "144 \\mbox{ m}^3",
+        "status": "sympy_compare"
+      },
+      "gold_answer_raw": "144 \\mbox{ m}^3",
+      "instance_id": "843",
+      "source_labels_semantically_reliable": false,
+      "stored_gold_answer": 3,
+      "wrong_peer_answer_raw": "96",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "96",
+        "prediction_raw": "96",
+        "reference_normalized": "144",
+        "reference_raw": "144 \\mbox{ m}^3",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 15,
+      "correct_peer_answer_raw": "4",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "4",
+        "prediction_raw": "4",
+        "reference_normalized": "4",
+        "reference_raw": "4",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "4",
+      "instance_id": "3589",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 4,
+      "wrong_peer_answer_raw": "14",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "14",
+        "prediction_raw": "14",
+        "reference_normalized": "4",
+        "reference_raw": "4",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 18,
+      "correct_peer_answer_raw": "10100_2",
+      "correct_peer_semantic": {
+        "correct": null,
+        "prediction_normalized": "10100_2",
+        "prediction_raw": "10100_2",
+        "reference_normalized": "11010_2",
+        "reference_raw": "11010_2",
+        "status": "unknown_semantic_parse"
+      },
+      "gold_answer_raw": "11010_2",
+      "instance_id": "2062",
+      "source_labels_semantically_reliable": false,
+      "stored_gold_answer": 2,
+      "wrong_peer_answer_raw": "11010",
+      "wrong_peer_semantic": {
+        "correct": null,
+        "prediction_normalized": "11010",
+        "prediction_raw": "11010",
+        "reference_normalized": "11010_2",
+        "reference_raw": "11010_2",
+        "status": "unknown_semantic_parse"
+      }
+    },
+    {
+      "case_index": 21,
+      "correct_peer_answer_raw": "900",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "900",
+        "prediction_raw": "900",
+        "reference_normalized": "900",
+        "reference_raw": "900",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "900",
+      "instance_id": "2382",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 900,
+      "wrong_peer_answer_raw": "15",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "15",
+        "prediction_raw": "15",
+        "reference_normalized": "900",
+        "reference_raw": "900",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 22,
+      "correct_peer_answer_raw": "44%",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "44",
+        "prediction_raw": "44%",
+        "reference_normalized": "44",
+        "reference_raw": "44\\%",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "44\\%",
+      "instance_id": "2821",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 44,
+      "wrong_peer_answer_raw": "32%",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "32",
+        "prediction_raw": "32%",
+        "reference_normalized": "44",
+        "reference_raw": "44\\%",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 25,
+      "correct_peer_answer_raw": "24",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "24",
+        "prediction_raw": "24",
+        "reference_normalized": "24",
+        "reference_raw": "24",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "24",
+      "instance_id": "2296",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 24,
+      "wrong_peer_answer_raw": "6",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "6",
+        "prediction_raw": "6",
+        "reference_normalized": "24",
+        "reference_raw": "24",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 26,
+      "correct_peer_answer_raw": "156",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "156",
+        "prediction_raw": "156",
+        "reference_normalized": "156",
+        "reference_raw": "156",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "156",
+      "instance_id": "4037",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 156,
+      "wrong_peer_answer_raw": "number of ways to choose 3 marbles such that the green and purple marbles are not chosen together is the total number of ways to choose 3 marbles minus the number of ways to choose 3 marbles including both the green and purple marbles",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "numberofwaystochoose3marblessuchthatthegreenandpurplemarblesarenotchosentogetheristhetotalnumberofwaystochoose3marblesminusthenumberofwaystochoose3marblesincludingboththegreenandpurplemarbles",
+        "prediction_raw": "number of ways to choose 3 marbles such that the green and purple marbles are not chosen together is the total number of ways to choose 3 marbles minus the number of ways to choose 3 marbles including both the green and purple marbles",
+        "reference_normalized": "156",
+        "reference_raw": "156",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 28,
+      "correct_peer_answer_raw": "2",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "2",
+        "prediction_raw": "2",
+        "reference_normalized": "2",
+        "reference_raw": "2",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "2",
+      "instance_id": "4796",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 2,
+      "wrong_peer_answer_raw": "1",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "1",
+        "prediction_raw": "1",
+        "reference_normalized": "2",
+        "reference_raw": "2",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 29,
+      "correct_peer_answer_raw": "3",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "3",
+        "prediction_raw": "3",
+        "reference_normalized": "3",
+        "reference_raw": "3",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "3",
+      "instance_id": "2401",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 3,
+      "wrong_peer_answer_raw": "2",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "2",
+        "prediction_raw": "2",
+        "reference_normalized": "3",
+        "reference_raw": "3",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 38,
+      "correct_peer_answer_raw": "1152",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "1152",
+        "prediction_raw": "1152",
+        "reference_normalized": "1152",
+        "reference_raw": "1152",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "1152",
+      "instance_id": "570",
+      "source_labels_semantically_reliable": false,
+      "stored_gold_answer": 1152,
+      "wrong_peer_answer_raw": "amount of flour needed for Paul Bunyan's griddle",
+      "wrong_peer_semantic": {
+        "correct": null,
+        "prediction_normalized": "amountofflourneededforPaulBunyan'sgriddle",
+        "prediction_raw": "amount of flour needed for Paul Bunyan's griddle",
+        "reference_normalized": "1152",
+        "reference_raw": "1152",
+        "status": "unknown_semantic_parse"
+      }
+    },
+    {
+      "case_index": 41,
+      "correct_peer_answer_raw": "\\(\\frac{8}{3}\\)",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "\\frac{8}{3}",
+        "prediction_raw": "\\(\\frac{8}{3}\\)",
+        "reference_normalized": "\\frac{8}{3}",
+        "reference_raw": "\\frac{8}{3}",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "\\frac{8}{3}",
+      "instance_id": "4616",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 3,
+      "wrong_peer_answer_raw": "2",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "2",
+        "prediction_raw": "2",
+        "reference_normalized": "\\frac{8}{3}",
+        "reference_raw": "\\frac{8}{3}",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 55,
+      "correct_peer_answer_raw": "445",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "445",
+        "prediction_raw": "445",
+        "reference_normalized": "445",
+        "reference_raw": "445",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "445",
+      "instance_id": "2630",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 445,
+      "wrong_peer_answer_raw": "1200",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "1200",
+        "prediction_raw": "1200",
+        "reference_normalized": "445",
+        "reference_raw": "445",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 56,
+      "correct_peer_answer_raw": "20",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "20",
+        "prediction_raw": "20",
+        "reference_normalized": "20",
+        "reference_raw": "20\\text{ degrees}",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "20\\text{ degrees}",
+      "instance_id": "1559",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 20,
+      "wrong_peer_answer_raw": "28.33",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "28.33",
+        "prediction_raw": "28.33",
+        "reference_normalized": "20",
+        "reference_raw": "20\\text{ degrees}",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 60,
+      "correct_peer_answer_raw": "8\\pi - 16",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "8\\pi-16",
+        "prediction_raw": "8\\pi - 16",
+        "reference_normalized": "8\\pi-16",
+        "reference_raw": "8\\pi - 16",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "8\\pi - 16",
+      "instance_id": "687",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 16,
+      "wrong_peer_answer_raw": "64 - 8\\pi",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "64-8\\pi",
+        "prediction_raw": "64 - 8\\pi",
+        "reference_normalized": "8\\pi-16",
+        "reference_raw": "8\\pi - 16",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 61,
+      "correct_peer_answer_raw": "162",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "162",
+        "prediction_raw": "162",
+        "reference_normalized": "162",
+        "reference_raw": "162",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "162",
+      "instance_id": "1098",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 162,
+      "wrong_peer_answer_raw": "84",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "84",
+        "prediction_raw": "84",
+        "reference_normalized": "162",
+        "reference_raw": "162",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 68,
+      "correct_peer_answer_raw": "139",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "139",
+        "prediction_raw": "139",
+        "reference_normalized": "139",
+        "reference_raw": "139^\\circ",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "139^\\circ",
+      "instance_id": "1317",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 139,
+      "wrong_peer_answer_raw": "149",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "149",
+        "prediction_raw": "149",
+        "reference_normalized": "139",
+        "reference_raw": "139^\\circ",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 69,
+      "correct_peer_answer_raw": "8",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "8",
+        "prediction_raw": "8",
+        "reference_normalized": "8",
+        "reference_raw": "8",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "8",
+      "instance_id": "1689",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 8,
+      "wrong_peer_answer_raw": "22",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "22",
+        "prediction_raw": "22",
+        "reference_normalized": "8",
+        "reference_raw": "8",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 73,
+      "correct_peer_answer_raw": "8",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "8",
+        "prediction_raw": "8",
+        "reference_normalized": "8",
+        "reference_raw": "8\\text{ meals}",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "8\\text{ meals}",
+      "instance_id": "3929",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 8,
+      "wrong_peer_answer_raw": "4",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "4",
+        "prediction_raw": "4",
+        "reference_normalized": "8",
+        "reference_raw": "8\\text{ meals}",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 81,
+      "correct_peer_answer_raw": "5",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "5",
+        "prediction_raw": "5",
+        "reference_normalized": "5",
+        "reference_raw": "5",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "5",
+      "instance_id": "2179",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 5,
+      "wrong_peer_answer_raw": "1",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "1",
+        "prediction_raw": "1",
+        "reference_normalized": "5",
+        "reference_raw": "5",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 89,
+      "correct_peer_answer_raw": "14\\pi",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "14\\pi",
+        "prediction_raw": "14\\pi",
+        "reference_normalized": "14\\pi",
+        "reference_raw": "14 \\pi",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "14 \\pi",
+      "instance_id": "3298",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 14,
+      "wrong_peer_answer_raw": "2\\pi \\sqrt{51}",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "2\\pi\\sqrt{51}",
+        "prediction_raw": "2\\pi \\sqrt{51}",
+        "reference_normalized": "14\\pi",
+        "reference_raw": "14 \\pi",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 91,
+      "correct_peer_answer_raw": "10",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "10",
+        "prediction_raw": "10",
+        "reference_normalized": "10",
+        "reference_raw": "10",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "10",
+      "instance_id": "4688",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 10,
+      "wrong_peer_answer_raw": "0",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "0",
+        "prediction_raw": "0",
+        "reference_normalized": "10",
+        "reference_raw": "10",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 92,
+      "correct_peer_answer_raw": "\\(\\frac{15}{4}\\)",
+      "correct_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "\\frac{15}{4}",
+        "prediction_raw": "\\(\\frac{15}{4}\\)",
+        "reference_normalized": "\\frac{105}{4}",
+        "reference_raw": "\\frac{105}{4}",
+        "status": "sympy_compare"
+      },
+      "gold_answer_raw": "\\frac{105}{4}",
+      "instance_id": "4211",
+      "source_labels_semantically_reliable": false,
+      "stored_gold_answer": 4,
+      "wrong_peer_answer_raw": "\\(\\frac{105}{8}\\)",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "\\frac{105}{8}",
+        "prediction_raw": "\\(\\frac{105}{8}\\)",
+        "reference_normalized": "\\frac{105}{4}",
+        "reference_raw": "\\frac{105}{4}",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 94,
+      "correct_peer_answer_raw": "32-8\\pi",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "32-8\\pi",
+        "prediction_raw": "32-8\\pi",
+        "reference_normalized": "32-8\\pi",
+        "reference_raw": "32-8\\pi",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "32-8\\pi",
+      "instance_id": "1670",
+      "source_labels_semantically_reliable": false,
+      "stored_gold_answer": -8,
+      "wrong_peer_answer_raw": "32 - 8\\pi",
+      "wrong_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "32-8\\pi",
+        "prediction_raw": "32 - 8\\pi",
+        "reference_normalized": "32-8\\pi",
+        "reference_raw": "32-8\\pi",
+        "status": "normalized_string_equal"
+      }
+    },
+    {
+      "case_index": 96,
+      "correct_peer_answer_raw": "8",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "8",
+        "prediction_raw": "8",
+        "reference_normalized": "8",
+        "reference_raw": "8",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "8",
+      "instance_id": "649",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 8,
+      "wrong_peer_answer_raw": "\\(\\frac{128}{3}\\)",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "\\frac{128}{3}",
+        "prediction_raw": "\\(\\frac{128}{3}\\)",
+        "reference_normalized": "8",
+        "reference_raw": "8",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 101,
+      "correct_peer_answer_raw": "120",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "120",
+        "prediction_raw": "120",
+        "reference_normalized": "120",
+        "reference_raw": "120^\\circ",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "120^\\circ",
+      "instance_id": "1014",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 120,
+      "wrong_peer_answer_raw": "117",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "117",
+        "prediction_raw": "117",
+        "reference_normalized": "120",
+        "reference_raw": "120^\\circ",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 105,
+      "correct_peer_answer_raw": "16384",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "16384",
+        "prediction_raw": "16384",
+        "reference_normalized": "16384",
+        "reference_raw": "16384",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "16384",
+      "instance_id": "3155",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 16384,
+      "wrong_peer_answer_raw": "2048",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "2048",
+        "prediction_raw": "2048",
+        "reference_normalized": "16384",
+        "reference_raw": "16384",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 111,
+      "correct_peer_answer_raw": "286",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "286",
+        "prediction_raw": "286",
+        "reference_normalized": "286",
+        "reference_raw": "286",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "286",
+      "instance_id": "2533",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 286,
+      "wrong_peer_answer_raw": "288",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "288",
+        "prediction_raw": "288",
+        "reference_normalized": "286",
+        "reference_raw": "286",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 112,
+      "correct_peer_answer_raw": "118",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "118",
+        "prediction_raw": "118",
+        "reference_normalized": "118",
+        "reference_raw": "118^{\\circ}",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "118^{\\circ}",
+      "instance_id": "1466",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 118,
+      "wrong_peer_answer_raw": "43",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "43",
+        "prediction_raw": "43",
+        "reference_normalized": "118",
+        "reference_raw": "118^{\\circ}",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 116,
+      "correct_peer_answer_raw": "\\(\\begin{pmatrix} 7 & 1 \\\\ -1 & -3 \\end{pmatrix}\\)",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "\\begin{pmatrix}7&1\\-1&-3\\end{pmatrix}",
+        "prediction_raw": "\\(\\begin{pmatrix} 7 & 1 \\\\ -1 & -3 \\end{pmatrix}\\)",
+        "reference_normalized": "\\begin{pmatrix}7&1\\-1&-3\\end{pmatrix}",
+        "reference_raw": "\\begin{pmatrix} 7 & 1 \\\\ -1 & -3 \\end{pmatrix}",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "\\begin{pmatrix} 7 & 1 \\\\ -1 & -3 \\end{pmatrix}",
+      "instance_id": "401",
+      "source_labels_semantically_reliable": false,
+      "stored_gold_answer": -3,
+      "wrong_peer_answer_raw": "refore, the inverse of \\(\\mathbf{A} \\mathbf{B}\\) is:",
+      "wrong_peer_semantic": {
+        "correct": null,
+        "prediction_normalized": "refore,theinverseof\\mathbf{A}\\mathbf{B}is:",
+        "prediction_raw": "refore, the inverse of \\(\\mathbf{A} \\mathbf{B}\\) is:",
+        "reference_normalized": "\\begin{pmatrix}7&1\\-1&-3\\end{pmatrix}",
+        "reference_raw": "\\begin{pmatrix} 7 & 1 \\\\ -1 & -3 \\end{pmatrix}",
+        "status": "unknown_semantic_parse"
+      }
+    },
+    {
+      "case_index": 117,
+      "correct_peer_answer_raw": "61328",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "61328",
+        "prediction_raw": "61328",
+        "reference_normalized": "61328",
+        "reference_raw": "61,328",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "61,328",
+      "instance_id": "3965",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 61328,
+      "wrong_peer_answer_raw": "7381",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "7381",
+        "prediction_raw": "7381",
+        "reference_normalized": "61328",
+        "reference_raw": "61,328",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 118,
+      "correct_peer_answer_raw": "11000_2",
+      "correct_peer_semantic": {
+        "correct": null,
+        "prediction_normalized": "11000_2",
+        "prediction_raw": "11000_2",
+        "reference_normalized": "10000_2",
+        "reference_raw": "10000_2",
+        "status": "unknown_semantic_parse"
+      },
+      "gold_answer_raw": "10000_2",
+      "instance_id": "2217",
+      "source_labels_semantically_reliable": false,
+      "stored_gold_answer": 2,
+      "wrong_peer_answer_raw": "10000",
+      "wrong_peer_semantic": {
+        "correct": null,
+        "prediction_normalized": "10000",
+        "prediction_raw": "10000",
+        "reference_normalized": "10000_2",
+        "reference_raw": "10000_2",
+        "status": "unknown_semantic_parse"
+      }
+    },
+    {
+      "case_index": 120,
+      "correct_peer_answer_raw": "680",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "680",
+        "prediction_raw": "680",
+        "reference_normalized": "680",
+        "reference_raw": "680",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "680",
+      "instance_id": "1607",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 680,
+      "wrong_peer_answer_raw": "360",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "360",
+        "prediction_raw": "360",
+        "reference_normalized": "680",
+        "reference_raw": "680",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 121,
+      "correct_peer_answer_raw": "18\\sqrt{3}",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "18\\sqrt{3}",
+        "prediction_raw": "18\\sqrt{3}",
+        "reference_normalized": "18\\sqrt{3}",
+        "reference_raw": "18\\sqrt{3}",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "18\\sqrt{3}",
+      "instance_id": "804",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 3,
+      "wrong_peer_answer_raw": "36\\sqrt{2}",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "36\\sqrt{2}",
+        "prediction_raw": "36\\sqrt{2}",
+        "reference_normalized": "18\\sqrt{3}",
+        "reference_raw": "18\\sqrt{3}",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 123,
+      "correct_peer_answer_raw": "13",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "13",
+        "prediction_raw": "13",
+        "reference_normalized": "13",
+        "reference_raw": "13",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "13",
+      "instance_id": "1681",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 13,
+      "wrong_peer_answer_raw": "7",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "7",
+        "prediction_raw": "7",
+        "reference_normalized": "13",
+        "reference_raw": "13",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 124,
+      "correct_peer_answer_raw": "8",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "8",
+        "prediction_raw": "8",
+        "reference_normalized": "8",
+        "reference_raw": "8",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "8",
+      "instance_id": "4504",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 8,
+      "wrong_peer_answer_raw": "12",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "12",
+        "prediction_raw": "12",
+        "reference_normalized": "8",
+        "reference_raw": "8",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 136,
+      "correct_peer_answer_raw": "5",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "5",
+        "prediction_raw": "5",
+        "reference_normalized": "5",
+        "reference_raw": "5",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "5",
+      "instance_id": "2084",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 5,
+      "wrong_peer_answer_raw": "10",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "10",
+        "prediction_raw": "10",
+        "reference_normalized": "5",
+        "reference_raw": "5",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 138,
+      "correct_peer_answer_raw": "1",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "1",
+        "prediction_raw": "1",
+        "reference_normalized": "1",
+        "reference_raw": "1",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "1",
+      "instance_id": "1894",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 1,
+      "wrong_peer_answer_raw": "-1",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "-1",
+        "prediction_raw": "-1",
+        "reference_normalized": "1",
+        "reference_raw": "1",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 139,
+      "correct_peer_answer_raw": "40\\pi",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "40\\pi",
+        "prediction_raw": "40\\pi",
+        "reference_normalized": "40\\pi",
+        "reference_raw": "40\\pi",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "40\\pi",
+      "instance_id": "723",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 40,
+      "wrong_peer_answer_raw": "\\(\\frac{160\\pi}{3} + 30\\pi = \\frac{250\\pi}{3}\\)",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "\\frac{160\\pi}{3}+30\\pi=\\frac{250\\pi}{3}",
+        "prediction_raw": "\\(\\frac{160\\pi}{3} + 30\\pi = \\frac{250\\pi}{3}\\)",
+        "reference_normalized": "40\\pi",
+        "reference_raw": "40\\pi",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 145,
+      "correct_peer_answer_raw": "145",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "145",
+        "prediction_raw": "145",
+        "reference_normalized": "145",
+        "reference_raw": "145",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "145",
+      "instance_id": "665",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 145,
+      "wrong_peer_answer_raw": "20 + \\frac{75\\sqrt{11}}{2}",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "20+\\frac{75\\sqrt{11}}{2}",
+        "prediction_raw": "20 + \\frac{75\\sqrt{11}}{2}",
+        "reference_normalized": "145",
+        "reference_raw": "145",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 146,
+      "correct_peer_answer_raw": "\\(\\sqrt{2}\\)",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "\\sqrt{2}",
+        "prediction_raw": "\\(\\sqrt{2}\\)",
+        "reference_normalized": "\\sqrt{2}",
+        "reference_raw": "\\sqrt{2}",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "\\sqrt{2}",
+      "instance_id": "4161",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 2,
+      "wrong_peer_answer_raw": "0",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "0",
+        "prediction_raw": "0",
+        "reference_normalized": "\\sqrt{2}",
+        "reference_raw": "\\sqrt{2}",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 154,
+      "correct_peer_answer_raw": "7",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "7",
+        "prediction_raw": "7",
+        "reference_normalized": "7",
+        "reference_raw": "7",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "7",
+      "instance_id": "3176",
+      "source_labels_semantically_reliable": false,
+      "stored_gold_answer": 7,
+      "wrong_peer_answer_raw": "equation of line \\(l\\) to find the \\(y\\)-coordinate.**",
+      "wrong_peer_semantic": {
+        "correct": null,
+        "prediction_normalized": "equationoflineltofindthey-coordinate.**",
+        "prediction_raw": "equation of line \\(l\\) to find the \\(y\\)-coordinate.**",
+        "reference_normalized": "7",
+        "reference_raw": "7",
+        "status": "unknown_semantic_parse"
+      }
+    },
+    {
+      "case_index": 156,
+      "correct_peer_answer_raw": "6",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "6",
+        "prediction_raw": "6",
+        "reference_normalized": "6",
+        "reference_raw": "6",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "6",
+      "instance_id": "2421",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 6,
+      "wrong_peer_answer_raw": "2",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "2",
+        "prediction_raw": "2",
+        "reference_normalized": "6",
+        "reference_raw": "6",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 159,
+      "correct_peer_answer_raw": "27",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "27",
+        "prediction_raw": "27",
+        "reference_normalized": "27",
+        "reference_raw": "27",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "27",
+      "instance_id": "3863",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 27,
+      "wrong_peer_answer_raw": "7",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "7",
+        "prediction_raw": "7",
+        "reference_normalized": "27",
+        "reference_raw": "27",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 165,
+      "correct_peer_answer_raw": "112",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "112",
+        "prediction_raw": "112",
+        "reference_normalized": "112",
+        "reference_raw": "112",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "112",
+      "instance_id": "3297",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 112,
+      "wrong_peer_answer_raw": "108",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "108",
+        "prediction_raw": "108",
+        "reference_normalized": "112",
+        "reference_raw": "112",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 168,
+      "correct_peer_answer_raw": "110",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "110",
+        "prediction_raw": "110",
+        "reference_normalized": "110",
+        "reference_raw": "110",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "110",
+      "instance_id": "314",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 110,
+      "wrong_peer_answer_raw": "\\(\\frac{660}{7}\\)",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "\\frac{660}{7}",
+        "prediction_raw": "\\(\\frac{660}{7}\\)",
+        "reference_normalized": "110",
+        "reference_raw": "110",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 169,
+      "correct_peer_answer_raw": "\\(\\frac{7}{25}\\)",
+      "correct_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "\\frac{7}{25}",
+        "prediction_raw": "\\(\\frac{7}{25}\\)",
+        "reference_normalized": "\\frac{24}{25}",
+        "reference_raw": "\\frac{24}{25}",
+        "status": "sympy_compare"
+      },
+      "gold_answer_raw": "\\frac{24}{25}",
+      "instance_id": "484",
+      "source_labels_semantically_reliable": false,
+      "stored_gold_answer": 25,
+      "wrong_peer_answer_raw": "0",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "0",
+        "prediction_raw": "0",
+        "reference_normalized": "\\frac{24}{25}",
+        "reference_raw": "\\frac{24}{25}",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 181,
+      "correct_peer_answer_raw": "\\(\\pm 1, \\pm 2, \\pm 3, \\pm 6\\)",
+      "correct_peer_semantic": {
+        "correct": null,
+        "prediction_normalized": "\\pm1,\\pm2,\\pm3,\\pm6",
+        "prediction_raw": "\\(\\pm 1, \\pm 2, \\pm 3, \\pm 6\\)",
+        "reference_normalized": "-6,-3,-2,-1,1,2,3,6",
+        "reference_raw": "-6, -3, -2, -1, 1, 2, 3, 6",
+        "status": "unknown_semantic_compare"
+      },
+      "gold_answer_raw": "-6, -3, -2, -1, 1, 2, 3, 6",
+      "instance_id": "4629",
+      "source_labels_semantically_reliable": false,
+      "stored_gold_answer": 6,
+      "wrong_peer_answer_raw": "1, -1, 2, -2, 3, -3, 6, -6",
+      "wrong_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "1,-1,2,-2,3,-3,6,-6",
+        "prediction_raw": "1, -1, 2, -2, 3, -3, 6, -6",
+        "reference_normalized": "-6,-3,-2,-1,1,2,3,6",
+        "reference_raw": "-6, -3, -2, -1, 1, 2, 3, 6",
+        "status": "component_list_compare"
+      }
+    },
+    {
+      "case_index": 184,
+      "correct_peer_answer_raw": "20",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "20",
+        "prediction_raw": "20",
+        "reference_normalized": "20",
+        "reference_raw": "20",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "20",
+      "instance_id": "1420",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 20,
+      "wrong_peer_answer_raw": "19",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "19",
+        "prediction_raw": "19",
+        "reference_normalized": "20",
+        "reference_raw": "20",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 191,
+      "correct_peer_answer_raw": "$a^3 + a^2$",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "a^3+a^2",
+        "prediction_raw": "$a^3 + a^2$",
+        "reference_normalized": "a^3+a^2",
+        "reference_raw": "a^3 + a^2",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "a^3 + a^2",
+      "instance_id": "3445",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 2,
+      "wrong_peer_answer_raw": "resulting expression",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "resultingexpression",
+        "prediction_raw": "resulting expression",
+        "reference_normalized": "a^3+a^2",
+        "reference_raw": "a^3 + a^2",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 193,
+      "correct_peer_answer_raw": "intersecting lines and triangle properties. Given \\(CDEG\\) is a square, the intersecting lines form a 45-degree angle with the horizontal, and the point \\(H\\) aligns correctly to make the height 5",
+      "correct_peer_semantic": {
+        "correct": null,
+        "prediction_normalized": "intersectinglinesandtriangleproperties.GivenCDEGisasquare,theintersectinglinesforma45-anglewiththehorizontal,andthepointHalignscorrectlytomaketheheight5",
+        "prediction_raw": "intersecting lines and triangle properties. Given \\(CDEG\\) is a square, the intersecting lines form a 45-degree angle with the horizontal, and the point \\(H\\) aligns correctly to make the height 5",
+        "reference_normalized": "1+\\frac{4}{5}",
+        "reference_raw": "1\\frac{4}{5}",
+        "status": "unknown_semantic_parse"
+      },
+      "gold_answer_raw": "1\\frac{4}{5}",
+      "instance_id": "942",
+      "source_labels_semantically_reliable": false,
+      "stored_gold_answer": 5,
+      "wrong_peer_answer_raw": "3\\(\\sqrt{2}\\)",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "3\\sqrt{2}",
+        "prediction_raw": "3\\(\\sqrt{2}\\)",
+        "reference_normalized": "1+\\frac{4}{5}",
+        "reference_raw": "1\\frac{4}{5}",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 195,
+      "correct_peer_answer_raw": "19",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "19",
+        "prediction_raw": "19",
+        "reference_normalized": "19",
+        "reference_raw": "19",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "19",
+      "instance_id": "1506",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 19,
+      "wrong_peer_answer_raw": "23",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "23",
+        "prediction_raw": "23",
+        "reference_normalized": "19",
+        "reference_raw": "19",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 197,
+      "correct_peer_answer_raw": "79",
+      "correct_peer_semantic": {
+        "correct": true,
+        "prediction_normalized": "79",
+        "prediction_raw": "79",
+        "reference_normalized": "79",
+        "reference_raw": "79",
+        "status": "normalized_string_equal"
+      },
+      "gold_answer_raw": "79",
+      "instance_id": "3309",
+      "source_labels_semantically_reliable": true,
+      "stored_gold_answer": 79,
+      "wrong_peer_answer_raw": "264",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "264",
+        "prediction_raw": "264",
+        "reference_normalized": "79",
+        "reference_raw": "79",
+        "status": "sympy_compare"
+      }
+    },
+    {
+      "case_index": 198,
+      "correct_peer_answer_raw": "\\(\\frac{51}{5}\\)",
+      "correct_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "\\frac{51}{5}",
+        "prediction_raw": "\\(\\frac{51}{5}\\)",
+        "reference_normalized": "\\frac{56}{5}",
+        "reference_raw": "\\frac{56}{5}",
+        "status": "sympy_compare"
+      },
+      "gold_answer_raw": "\\frac{56}{5}",
+      "instance_id": "347",
+      "source_labels_semantically_reliable": false,
+      "stored_gold_answer": 5,
+      "wrong_peer_answer_raw": "\\(\\frac{267}{35}\\)",
+      "wrong_peer_semantic": {
+        "correct": false,
+        "prediction_normalized": "\\frac{267}{35}",
+        "prediction_raw": "\\(\\frac{267}{35}\\)",
+        "reference_normalized": "\\frac{56}{5}",
+        "reference_raw": "\\frac{56}{5}",
+        "status": "sympy_compare"
+      }
+    }
+  ],
+  "source_cases_jsonl": "experiments/20260615-1404-a8002-source-label-math200-randomized/source_cases.jsonl"
+}

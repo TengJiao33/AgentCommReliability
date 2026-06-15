@@ -7,6 +7,7 @@ __pycache__/
 
 # Experiment outputs
 logs/*
+experiments/*.log
 reports/generated/*
 experiments/**/outputs/
 experiments/**/runs/

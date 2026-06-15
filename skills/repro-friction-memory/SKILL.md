@@ -44,6 +44,25 @@ If the same class of blocker appears twice, update this skill before continuing.
 
 Prefer the command shape with the fewest quoting layers. If a command fails because of quoting, stop escaping deeper and switch to PowerShell single quotes, a PowerShell here-string piped to remote Python, or a project-local launcher script.
 
+For local inline Python in PowerShell, do not use bash heredocs such as
+`python - <<'PY'`. Use a PowerShell here-string piped to Python instead:
+
+```powershell
+@'
+print("local python ok")
+'@ | python -
+```
+
+If the inline code imports project helper packages under `scripts/`, set
+`PYTHONPATH` for that command:
+
+```powershell
+$env:PYTHONPATH='scripts'; @'
+from peer_probe.answers import extract_final_answer
+print(extract_final_answer('{final answer: 42}'))
+'@ | python -
+```
+
 Simple remote command:
 
 ```powershell
@@ -150,12 +169,27 @@ Observed example:
 Peer-exposure MATH contact parsed LaTeX fractions such as \frac{5}{3} as the last integer token (`3`), and a final-answer regex that stopped at the first nested brace parsed `{final answer: \(\frac{5}{3}\)}` as `5`.
 ```
 
+Observed example:
+
+```text
+MATH typed-public-state statistics changed under a semantic audit because boxed answers such as `1 - 12i`, `8\pi - 16`, `\sqrt{2}`, `61,328`, `144 \mbox{ m}^3`, and `1\frac{4}{5}` were not safely represented by the old last-number normalizer.
+```
+
+Observed example:
+
+```text
+MATH peer-exposure `answer_only` surfaces reused the older parsed numeric answer field, so symbolic peer answers such as `2\sqrt{3}`, `1 - 12i`, `14\pi`, and `18\sqrt{3}` were displayed as lossy slots such as `3`, `12`, `14`, and `3`.
+```
+
 Reusable response:
 
 - patch the regex narrowly;
 - add a parser smoke for nested-brace `\frac{a}{b}` and plain `a/b` answers before reading MATH accuracy or peer correctness labels;
 - keep the expected answer format unchanged;
 - record parser compatibility as evaluation plumbing, not a communication-method change.
+- for MATH runs with symbolic answers, re-extract raw final-answer strings and compare against original boxed answers with a semantic/equivalence audit before scaling or claiming a peer-surface effect;
+- keep semantic-unknown records explicit instead of silently falling back to numeric parsing.
+- for MATH peer-exposure controls, do not treat `answer_only` as a clean final-answer-authority surface unless it is built from the raw semantic answer string, not the old numeric parser field; audit displayed answer-only slots against raw peer answers before interpreting answer-only utility/harm.
 
 For numeric answer leakage or answer redaction audits, do not use a right
 boundary like `(?![\d.])`. It misses sentence-final answers such as `28800.`

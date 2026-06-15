@@ -1,9 +1,0 @@
-{
-  "git.detectSubmodules": false,
-  "git.ignoredRepositories": [
-    "baselines/MAD-MM",
-    "baselines/M2CL/upstream",
-    "baselines/PACT/upstream",
-    "baselines/RuleArena/upstream"
-  ]
-}

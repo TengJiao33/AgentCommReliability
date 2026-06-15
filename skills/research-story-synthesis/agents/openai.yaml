@@ -1,4 +1,4 @@
 interface:
   display_name: "Research Story Synthesis"
-  short_description: "Judge solid or novel research stories from evidence."
-  default_prompt: "Use this skill to distinguish known limitations from deep tensions, build an A/B/C motivation-method-experiment story, and keep claims tied to local artifacts."
+  short_description: "Judge stories and live diagnostic handles from evidence."
+  default_prompt: "Use this skill to distinguish solid stories, novelty, live diagnostic handles, and stale limitations; build an A/B/C evidence story without inventing claims."

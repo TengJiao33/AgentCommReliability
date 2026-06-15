@@ -1,6 +1,6 @@
 ---
 name: reproduction-first-research
-description: Project-level posture for open-ended reproduction of papers and open-source baselines without forcing premature research questions, usefulness claims, or idea funnels. Use when this project reads, runs, records, repairs, or reflects on a multi-agent communication baseline.
+description: Project-level posture for open-ended reproduction of papers and open-source baselines without forcing premature research questions, usefulness claims, or idea funnels. Use when this project reads, runs, records, repairs, publicly searches, incubates live research handles, coordinates with the ArXiv_Daily_Digest radar, or reflects on a multi-agent communication baseline.
 ---
 
 # Reproduction-First Research
@@ -14,30 +14,54 @@ Start from contact with runnable code, reproduced behavior, errors, logs, implem
 This skill is a posture, not a checklist. Do not run every section on every turn. Choose the mode that matches the project state:
 
 - contact mode: when a system has not yet been run or understood;
+- outside-check mode: when a local observation, suspected mechanism, or new paper candidate may already have public names, code, benchmarks, or nearby work;
 - pressure mode: when external papers can challenge or reorganize what the reproduction has shown;
+- incubation mode: when repeated observations point to a live handle that is not yet a paper story;
 - synthesis mode: when several reproduced systems expose a common tension worth naming.
 
 The skill should prevent premature ideas, not prevent ideas altogether.
 
 ## Why This Skill Exists
 
-Modern code contains a different kind of contact than the paper text:
-
-- prompt templates;
-- data preprocessing;
-- stopping conditions;
-- message filtering;
-- judge behavior;
-- fallback paths;
-- undocumented hyperparameters;
-- evaluation scripts;
-- failure handling.
-
-The point is not to mine these details for immediate novelty. The point is to stay close enough to the system that questions, irritations, failures, and possible ideas can emerge without being forced.
+Modern code exposes contact that papers often hide: prompt templates, data
+preprocessing, stopping conditions, message filters, judge behavior, fallback
+paths, hidden defaults, and evaluation scripts. Stay close enough that
+questions, irritations, failures, and possible ideas can emerge without being
+forced.
 
 External literature is part of this contact when it puts pressure on reproduced behavior. Use papers to ask whether our traces are missing a more fundamental variable, not as a substitute for running code.
 
+Do not build in isolation. When a local trace starts to look like a mechanism, first ask what the public record already calls it, what code or benchmark already exists, and whether the nearby arXiv radar has already seen a related paper.
+
 ## Practice
+
+### 0. Check Outside Before Naming
+
+Use public search as an anti-isolation step, not as a broad survey detour.
+
+When a candidate paper, mechanism, benchmark, or failure pattern starts to matter:
+
+- search public sources for exact paper titles, method names, benchmark names, arXiv IDs, repo names, and mechanism phrases;
+- look for code, issues, reproduction notes, follow-up papers, benchmark variants, negative results, and known limitations;
+- prefer source material that can change the next contact point: paper, code repo, benchmark, issue, artifact, or author page;
+- record only the useful hits in `papers/reading_queue.md`, a paper card, or the current experiment/report note;
+- do not write a survey document just because search found many papers.
+
+Use the sibling `ArXiv_Daily_Digest` project as the standing radar when it is available:
+
+```text
+D:\develop\ArXiv_Daily_Digest
+../ArXiv_Daily_Digest
+```
+
+Useful surfaces: `config/directions.yaml`,
+`data/<direction>/<ISO-week>/papers.jsonl`,
+`data/<direction>/<ISO-week>/weekly_digest.md`, and
+`data/<direction>/<ISO-week>/landscape.md`.
+
+If a paper belongs in the radar but is not being captured, add it to the digest project's `config/manual_papers.yaml` or propose a small query/seed update there. Do not run the digest pipeline casually; `python main.py` may call arXiv, Semantic Scholar, GitHub, Hugging Face, venue endpoints, and Doubao/Ark, and may consume quota.
+
+Pull promising radar hits back into this project through `papers/reading_queue.md`, `papers/cards/<paper-id>.md`, or a bounded report. Keep the handoff concrete: title, link, source direction/week, why it pressures current traces, and whether code is available.
 
 ### 1. Pick Up A Reproducible Object
 
@@ -131,9 +155,29 @@ Keep the first contact runs small because small runs are easier to understand an
 
 Once the command path, parser, and metric are working, actively ask whether a larger or more heterogeneous benchmark would reveal the behavior more clearly than another local variant. For ranking methods, judging robustness, estimating variance, or making any method-level claim, prefer scaling the benchmark pressure before adding another tiny ablation.
 
+Do not hide behind minimal versions. When several small probes point at the same tension, move decisively: run the larger slice, change the task family, add heterogeneity, or build the broader bridge that would actually test the idea. Minimal probes are for contact and debugging; they are not a virtue once they become a way to avoid the harder pressure.
+
 Small variants are probes, not automatically ideas. If a variant only changes a prompt surface, retained field, threshold, or message format, treat it as diagnostic unless it reveals a mechanism that connects to a broader literature question.
 
-### 6. Use Literature As Pressure
+### 6. Incubate Live Handles
+
+When several reports keep saying `diagnostic, not method claim`, do not merely
+run another small variant or send the idea back to generic contact mode.
+
+Create a compact live handle:
+
+- phenomenon: what keeps appearing;
+- mechanism candidate: why it may happen;
+- artifacts: the exact reports, traces, labels, or code paths;
+- boundary: what already weakens it;
+- outside pressure: what public work already explains or names;
+- next escalation: retire, scale, bridge to another task, prototype a protocol,
+  or hand off to story synthesis.
+
+If the same handle appears in three separate reports, choose one escalation.
+Do not let `diagnostic` become a permanent waiting room.
+
+### 7. Use Literature As Pressure
 
 After several runnable systems have been touched, deliberately step out of pure reproduction mode.
 
@@ -147,7 +191,9 @@ Use external papers to pressure-test our observations:
 
 This is not a broad survey license. Prefer papers that can reorganize an existing reproduction, explain a failure mode, or suggest a sharper next contact point.
 
-### 7. Interpret Late And Lightly
+When doing this pressure pass, include both fresh public search and the `ArXiv_Daily_Digest` radar before concluding that a tension is new, unnamed, or underserved.
+
+### 8. Interpret Late And Lightly
 
 After behavior is visible, the LLM can help ask:
 
@@ -160,7 +206,7 @@ After behavior is visible, the LLM can help ask:
 
 Treat explanations as provisional language around an encounter, not as something the project must defend.
 
-### 8. Let Ideas Emerge Without A Schedule
+### 9. Let Ideas Emerge Without A Schedule
 
 An idea may eventually deserve a sharper form when it has:
 
@@ -180,7 +226,9 @@ But do not force that sharpening. The following are especially worth resisting:
 - improvements without failure analysis.
 - the feeling that every run must lead to a named contribution.
 
-Also resist the opposite failure mode: staying forever at the level of patchable ablations after enough systems have already been touched. At that point, a useful idea may come from aligning traces, paper mechanisms, and task regimes rather than from another local variant.
+Also resist the opposite failure mode: staying forever at patchable ablations.
+When a handle keeps returning, make it inspectable as a protocol, benchmark
+packet, field taxonomy, or falsifiable pressure test.
 
 ## Project Operating Rules
 
@@ -271,23 +319,10 @@ reports/<date>-<method>-observations.md
 
 Not every passing curiosity needs all of them.
 
-## Report Template
+## Report Shape
 
-```markdown
-# <Method> Reproduction Notes
-
-## What We Tried
-
-## What Happened
-
-## Things Noticed
-
-## Failures / Friction
-
-## Loose Threads
-
-## Caveats
-```
+For short notes, prefer: what we tried, what happened, things noticed,
+failures/friction, loose threads, and caveats.
 
 ## Failure Modes
 

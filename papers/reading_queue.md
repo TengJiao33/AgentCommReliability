@@ -29,6 +29,41 @@ Latest scan: `reports/20260612-multi-agent-frontier-scan.md`.
 | P1 | agent-skills-harness | Tracking the Behavioral Trajectories of Adapting Agents | Measures behavioral drift from skill/memory/config edits; relevant to persistent agent reliability. |
 | P1 | agent-skills-harness | SkillHarm | Lifecycle-aware skill poisoning and self-mutation attacks; useful if we pivot to skills/harness safety. |
 
+## Peer Influence / Slot-Surface Pressure Hits
+
+Source: 2026-06-15 outside check after `reports/20260615-peer-slot-control-math12.md`.
+
+| Priority | Paper / Theme | Link | Why It Matters |
+| --- | --- | --- | --- |
+| P0 | When Identity Skews Debate: Anonymization for Bias-Reduced Multi-Agent Reasoning | https://arxiv.org/html/2510.07517v4 | Separates content influence from source-label influence through identity bias, conformity, and obstinacy; directly useful for adding anonymized/source-randomized controls. |
+| P0 | The Cost of Consensus | https://arxiv.org/html/2605.00914v1 | Names sycophantic conformity, contextual fragility, and consensus collapse; strong caution against overclaiming small peer-exposure gains. |
+| P0 | Talk Isn't Always Cheap | https://arxiv.org/html/2509.05396v1 | Reports correct-to-incorrect shifts after peer reasoning, adjacent to the slot-control right-to-wrong cases. |
+| P0 | Kairos / peer pressure benchmark | https://arxiv.org/html/2508.18321v1 | Uses utility, resistance, and robustness metrics under controlled peer reliability; good metric vocabulary for the next diagnostic packet. |
+| P1 | BenchForm / conformity benchmark | https://arxiv.org/html/2501.13381v1 | Provides conformity-oriented protocols and mitigation ideas; useful if the peer-exposure probe becomes a social-influence audit. |
+| P1 | Hidden Profile tasks for multi-agent LLMs | https://arxiv.org/html/2505.11556v1 | Theory-grounded distributed-information setting; useful counterpoint to answer-sharing math debate. |
+| P1 | Can LLM Agents Really Debate? | https://arxiv.org/html/2511.07784v1 | Process-level debate analysis; asks whether agents identify mistakes, adopt peer suggestions, or just follow majority pressure. |
+| P1 | Decentralized MAS with Shared Context | https://arxiv.org/abs/2606.10662 | Recent shared-verified-context design; pressures the slot-surface work toward public-state/verified-update surfaces. |
+| P1 | Decision-Aware Memory Cards | https://arxiv.org/abs/2606.08151 | Typed context units and negative-transfer risk are close to evidence-surface selection, even though the domain is tool-using agents rather than debate. |
+
+## Benchmark / Language Alignment
+
+Use this as vocabulary, not as a forced benchmark plan.
+
+| Benchmark Type | Common Benchmarks / Papers | Language To Reuse | Project Alignment |
+| --- | --- | --- | --- |
+| reasoning / debate | GSM8K, GSM-Hard, MATH, AIME24/25, MMLU-Pro, MMLU-Hard, GPQA, ARC-C, OpenBookQA, HumanEval; MAD-MM; Cost of Consensus | accuracy, token cost, right-to-wrong, wrong-to-right, oracle gap, cost-accuracy tradeoff | MAD-MM/DAR/MOC reproduction; MATH peer-exposure should be called a peer-influence diagnostic on math reasoning cases |
+| split-evidence / public-state | HotpotQA, 2WikiMultiHopQA, MuSiQue; PACT | split evidence, action-state handoff, public-state update, evidence grounding, result field | best language for structured handoff and public-state probes |
+| distributed information / collective reasoning | HiddenBench / Hidden Profile tasks | distributed information integration, latent information asymmetry, unshared critical information, premature convergence on shared evidence | best pressure if the story becomes "communication is necessary" |
+| peer pressure / social influence | KAIROS, Identity Bias / anonymization, BenchForm | utility, resistance, robustness, peer-answer adoption, conformity, obstinacy, source identity bias | current peer-exposure probe should use this metric language |
+| agentic workflow / shared context | SWE-bench Verified, LongBench-v2 Multi-Doc QA; DeLM; Decision-Aware Memory Cards | shared verified context, compact verified updates, decision-aware context cards, tokens per resolved task | useful if the project moves from debate probes toward real agent workflows |
+
+Current naming rule:
+
+- do not call MATH12/MATH200 a general multi-agent communication benchmark;
+- call it a peer-influence diagnostic on math reasoning cases;
+- reserve stronger communication-necessity language for split-evidence,
+  distributed-information, or shared-context settings.
+
 ## Reading Card Template
 
 Create one file per paper under `papers/cards/` when reading deeply. Use:

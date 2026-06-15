@@ -96,9 +96,9 @@ Both are acceptable. The project does not need to choose usefulness yet.
 | --- | --- |
 | Communication-regime synthesis | `reports/20260614-communication-regimes-synthesis.md` |
 | PACT final-answer-contract run | `reports/20260614-pact-final-answer-contract-gpu.md` |
-| PACT public-state arbitration probe | `reports/20260614-pact-public-state-arbitration-probe.md` |
+| PACT field-level bridge | `reports/20260615-pact-public-state-field-bridge.md` |
 | DAR retention split ablation | `reports/20260613-dar-retention-split-ablation.md` |
-| DAR typed-surface preview | `reports/20260614-dar-typed-surface-preview.md` |
+| Slot-level peer-message candidate | `reports/20260615-typed-public-state-candidate.md` |
 | MAD-MM benchmark atlas | `reports/20260613-madmm-benchmark-atlas.md` |
 | M2CL code contact | `reports/20260614-m2cl-code-contact.md` |
 | Harness smoke | `reports/20260614-communication-regime-harness-smoke.md` |
