@@ -3297,3 +3297,32 @@ Next:
   - `reports/20260615-pact-authority-injection-arena-qwen25-14b.md`.
 - Evidence register:
   - added `E-103`.
+
+## 2026-06-15 PACT Typed Boundary Split Packet
+
+- Added typed-boundary split setup scripts:
+  - `scripts/build_pact_typed_boundary_split_packet.py`;
+  - `scripts/evaluate_pact_typed_boundary_split.py`;
+  - `scripts/run_pact_typed_boundary_split_a8002.sh`.
+- Generated local setup packet:
+  - `experiments/20260615-local-pact-typed-boundary-split-packet/`;
+  - source cases: `40`;
+  - prompt rows: `440`;
+  - variants: `3` arena anchors plus `8` typed-boundary variants.
+- The packet separates:
+  - no candidate;
+  - evaluator-hidden candidate;
+  - model-visible untrusted candidate;
+  - visible candidate with extract-first staging;
+  - original suggestion versus wrong-contract suggestion.
+- Local validation:
+  - `python -m py_compile` passed for builder/evaluator;
+  - gold-smoke evaluation produced EM `1.000` and average F1 `1.000` over
+    `440/440` rows;
+  - hidden-leak check found `0/80` hidden rows with explicit
+    `Untrusted Candidate:` and `0/80` with `Candidate surface:`;
+  - all `160/160` visible-candidate rows contain `Untrusted Candidate:`.
+- Added report:
+  - `reports/20260615-pact-typed-boundary-split-packet.md`.
+- Evidence register:
+  - added `E-104`.

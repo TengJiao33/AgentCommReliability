@@ -83,3 +83,4 @@ What We Tried -> What Happened -> Things Noticed -> Failures / Friction -> Loose
 - `20260615-pact-authority-evidence-stress-qwen25-14b.md`
 - `20260615-pact-authority-evidence-case-audit.md`
 - `20260615-pact-authority-injection-arena-qwen25-14b.md`
+- `20260615-pact-typed-boundary-split-packet.md`
