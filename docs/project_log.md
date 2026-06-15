@@ -3326,3 +3326,46 @@ Next:
   - `reports/20260615-pact-typed-boundary-split-packet.md`.
 - Evidence register:
   - added `E-104`.
+
+## 2026-06-15 PACT Typed Boundary Split Qwen2.5-14B
+
+- Synced the typed-boundary packet and scripts to A800_2:
+  - packet:
+    `/data/xuhaoming/yfy/research_workspace/experiments/20260615-local-pact-typed-boundary-split-packet/typed_boundary_split_packet.jsonl`;
+  - runner: `scripts/run_pact_typed_boundary_split_a8002.sh`;
+  - evaluator: `scripts/evaluate_pact_typed_boundary_split.py`.
+- Remote validation:
+  - `py_compile` passed for runner dependencies;
+  - `bash -n` passed for the runner;
+  - remote gold-smoke produced EM/F1 `1.000` over `440` rows.
+- Ran Qwen2.5-14B-Instruct on A800_2 GPU `7`:
+  - run id `20260615-2223-a8002-pact-typed-boundary-split-qwen25-14b`;
+  - completed `440/440`;
+  - failed `0`;
+  - runner/evaluator stderr logs are empty;
+  - GPU 7 released after the run.
+- Main positive target-focus result:
+  - original untyped public state: EM `0.812`, F1 `0.865`;
+  - wrong-contract public task: EM `0.188`, F1 `0.393`;
+  - forged final commitment: EM `0.375`, F1 `0.552`;
+  - typed no-candidate and typed hidden-candidate: EM `0.875`, F1 `0.914`;
+  - typed visible-candidate: EM `0.625`, F1 `0.719`;
+  - typed visible-candidate extract-first: EM `0.656`, F1 `0.754`;
+  - typed wrong-contract no-candidate/hidden: EM `0.875`, F1 `0.917`.
+- Key paired result over `26` base-correct positive cases:
+  - wrong-contract anchor AVR: `21/26`;
+  - forged-final anchor AVR: `14/26`;
+  - typed no-candidate/hidden AVR: `1/26`;
+  - typed visible-candidate AVR: `7/26`;
+  - typed visible-candidate extract-first AVR: `6/26`;
+  - typed wrong-contract visible-candidate extract-first AVR: `4/26`.
+- Interpretation:
+  - typed roles are useful only when final-answer candidates are not
+    model-visible;
+  - visible untrusted candidates reintroduce commitment pressure;
+  - extract-first instruction helps slightly but does not replace visibility
+    control.
+- Added report:
+  - `reports/20260615-pact-typed-boundary-split-qwen25-14b.md`.
+- Evidence register:
+  - added `E-105`.

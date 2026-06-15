@@ -129,6 +129,12 @@ $b64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($script))
 ssh A800_2 "echo $b64 | base64 -d | bash"
 ```
 
+For remote bash cleanup from PowerShell, avoid piping a raw here-string directly
+to `ssh ... bash -s`; Windows BOM/CRLF can make bash see `﻿set` or `esac\r`.
+Use a PowerShell single-quoted `ssh A800_2 'bash -lc ''...'''` command for
+short exact-path cleanup, or base64-decode the script on the remote side for
+multi-line cleanup.
+
 ### Remote Data And Cache
 
 Before loading a model, run a data-only smoke when the dataset may require Hugging Face, ModelScope, or local cache access.

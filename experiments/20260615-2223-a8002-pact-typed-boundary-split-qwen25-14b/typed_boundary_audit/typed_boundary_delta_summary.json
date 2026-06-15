@@ -1,0 +1,1077 @@
+{
+  "by_comparison": {
+    "no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 30,
+      "outcomes": {
+        "both_right": 32,
+        "both_wrong": 8
+      },
+      "records": 40,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -0.20573260073260072,
+      "base_correct_records": 30,
+      "outcomes": {
+        "both_right": 22,
+        "both_wrong": 8,
+        "right_regression": 10
+      },
+      "records": 40,
+      "right_candidate_copy_count": 11,
+      "right_candidate_copy_rate": 0.275,
+      "right_regression_count_on_left_correct": 10,
+      "right_regression_rate_on_left_correct": 0.3125,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.028577057300461554,
+      "base_correct_records": 30,
+      "outcomes": {
+        "both_right": 22,
+        "both_wrong": 17,
+        "right_repair": 1
+      },
+      "records": 40,
+      "right_candidate_copy_count": 9,
+      "right_candidate_copy_rate": 0.225,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 1,
+      "right_repair_rate_on_left_wrong": 0.05555555555555555
+    },
+    "wrong_contract_no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 30,
+      "outcomes": {
+        "both_right": 32,
+        "both_wrong": 8
+      },
+      "records": 40,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "wrong_contract_no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -0.17488404452690168,
+      "base_correct_records": 30,
+      "outcomes": {
+        "both_right": 24,
+        "both_wrong": 8,
+        "right_regression": 8
+      },
+      "records": 40,
+      "right_candidate_copy_count": 11,
+      "right_candidate_copy_rate": 0.275,
+      "right_regression_count_on_left_correct": 8,
+      "right_regression_rate_on_left_correct": 0.25,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "wrong_contract_visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.02875781625781626,
+      "base_correct_records": 30,
+      "outcomes": {
+        "both_right": 24,
+        "both_wrong": 15,
+        "right_repair": 1
+      },
+      "records": 40,
+      "right_candidate_copy_count": 10,
+      "right_candidate_copy_rate": 0.25,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 1,
+      "right_repair_rate_on_left_wrong": 0.0625
+    }
+  },
+  "by_semantic_family_comparison": {
+    "answer_type_projection | no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 11,
+      "outcomes": {
+        "both_right": 12
+      },
+      "records": 12,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "answer_type_projection | no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -0.4166666666666667,
+      "base_correct_records": 11,
+      "outcomes": {
+        "both_right": 7,
+        "right_regression": 5
+      },
+      "records": 12,
+      "right_candidate_copy_count": 5,
+      "right_candidate_copy_rate": 0.4166666666666667,
+      "right_regression_count_on_left_correct": 5,
+      "right_regression_rate_on_left_correct": 0.4166666666666667,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "answer_type_projection | visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.08333333333333333,
+      "base_correct_records": 11,
+      "outcomes": {
+        "both_right": 7,
+        "both_wrong": 4,
+        "right_repair": 1
+      },
+      "records": 12,
+      "right_candidate_copy_count": 3,
+      "right_candidate_copy_rate": 0.25,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 1,
+      "right_repair_rate_on_left_wrong": 0.2
+    },
+    "answer_type_projection | wrong_contract_no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 11,
+      "outcomes": {
+        "both_right": 12
+      },
+      "records": 12,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "answer_type_projection | wrong_contract_no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -0.3333333333333333,
+      "base_correct_records": 11,
+      "outcomes": {
+        "both_right": 8,
+        "right_regression": 4
+      },
+      "records": 12,
+      "right_candidate_copy_count": 4,
+      "right_candidate_copy_rate": 0.3333333333333333,
+      "right_regression_count_on_left_correct": 4,
+      "right_regression_rate_on_left_correct": 0.3333333333333333,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "answer_type_projection | wrong_contract_visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.08333333333333333,
+      "base_correct_records": 11,
+      "outcomes": {
+        "both_right": 8,
+        "both_wrong": 3,
+        "right_repair": 1
+      },
+      "records": 12,
+      "right_candidate_copy_count": 3,
+      "right_candidate_copy_rate": 0.25,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 1,
+      "right_repair_rate_on_left_wrong": 0.25
+    },
+    "evidence_or_content_failure | no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 0,
+      "outcomes": {
+        "both_wrong": 3
+      },
+      "records": 3,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": null,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "evidence_or_content_failure | no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 0,
+      "outcomes": {
+        "both_wrong": 3
+      },
+      "records": 3,
+      "right_candidate_copy_count": 3,
+      "right_candidate_copy_rate": 1.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": null,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "evidence_or_content_failure | visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 0,
+      "outcomes": {
+        "both_wrong": 3
+      },
+      "records": 3,
+      "right_candidate_copy_count": 3,
+      "right_candidate_copy_rate": 1.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": null,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "evidence_or_content_failure | wrong_contract_no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 0,
+      "outcomes": {
+        "both_wrong": 3
+      },
+      "records": 3,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": null,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "evidence_or_content_failure | wrong_contract_no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 0,
+      "outcomes": {
+        "both_wrong": 3
+      },
+      "records": 3,
+      "right_candidate_copy_count": 3,
+      "right_candidate_copy_rate": 1.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": null,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "evidence_or_content_failure | wrong_contract_visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 0,
+      "outcomes": {
+        "both_wrong": 3
+      },
+      "records": 3,
+      "right_candidate_copy_count": 3,
+      "right_candidate_copy_rate": 1.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": null,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "evidence_sentence_or_distractor | no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 3
+      },
+      "records": 3,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "evidence_sentence_or_distractor | no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -0.16666666666666666,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 2,
+        "right_regression": 1
+      },
+      "records": 3,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 1,
+      "right_regression_rate_on_left_correct": 0.3333333333333333,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "evidence_sentence_or_distractor | visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 2,
+        "both_wrong": 1
+      },
+      "records": 3,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "evidence_sentence_or_distractor | wrong_contract_no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 3
+      },
+      "records": 3,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "evidence_sentence_or_distractor | wrong_contract_no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -0.16666666666666666,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 2,
+        "right_regression": 1
+      },
+      "records": 3,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 1,
+      "right_regression_rate_on_left_correct": 0.3333333333333333,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "evidence_sentence_or_distractor | wrong_contract_visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 2,
+        "both_wrong": 1
+      },
+      "records": 3,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "final_candidate_attractor | no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 2
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "final_candidate_attractor | no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -1.0,
+      "base_correct_records": 2,
+      "outcomes": {
+        "right_regression": 2
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 2,
+      "right_regression_rate_on_left_correct": 1.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "final_candidate_attractor | visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.021276595744680847,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_wrong": 2
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": null,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "final_candidate_attractor | wrong_contract_no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 2
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "final_candidate_attractor | wrong_contract_no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -0.9772727272727273,
+      "base_correct_records": 2,
+      "outcomes": {
+        "right_regression": 2
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 2,
+      "right_regression_rate_on_left_correct": 1.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "final_candidate_attractor | wrong_contract_visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.0010822510822510838,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_wrong": 2
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": null,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "no_answer_contract_failure | no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 2
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "no_answer_contract_failure | no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 2
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "no_answer_contract_failure | visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 2
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "no_answer_contract_failure | wrong_contract_no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 2
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "no_answer_contract_failure | wrong_contract_no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 2
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "no_answer_contract_failure | wrong_contract_visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 2
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": null
+    },
+    "public_target_misdirection | no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 1,
+      "outcomes": {
+        "both_right": 2,
+        "both_wrong": 1
+      },
+      "records": 3,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "public_target_misdirection | no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": 0.015873015873015872,
+      "base_correct_records": 1,
+      "outcomes": {
+        "both_right": 2,
+        "both_wrong": 1
+      },
+      "records": 3,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "public_target_misdirection | visible_vs_extract_first": {
+      "avg_right_minus_left_f1": -0.015873015873015872,
+      "base_correct_records": 1,
+      "outcomes": {
+        "both_right": 2,
+        "both_wrong": 1
+      },
+      "records": 3,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "public_target_misdirection | wrong_contract_no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 1,
+      "outcomes": {
+        "both_right": 2,
+        "both_wrong": 1
+      },
+      "records": 3,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "public_target_misdirection | wrong_contract_no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 1,
+      "outcomes": {
+        "both_right": 2,
+        "both_wrong": 1
+      },
+      "records": 3,
+      "right_candidate_copy_count": 1,
+      "right_candidate_copy_rate": 0.3333333333333333,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "public_target_misdirection | wrong_contract_visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 1,
+      "outcomes": {
+        "both_right": 2,
+        "both_wrong": 1
+      },
+      "records": 3,
+      "right_candidate_copy_count": 1,
+      "right_candidate_copy_rate": 0.3333333333333333,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "question_root_boundary_regression | no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 1,
+        "both_wrong": 1
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "question_root_boundary_regression | no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -0.038461538461538464,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 1,
+        "both_wrong": 1
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "question_root_boundary_regression | visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.07407407407407407,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 1,
+        "both_wrong": 1
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "question_root_boundary_regression | wrong_contract_no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 1,
+        "both_wrong": 1
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "question_root_boundary_regression | wrong_contract_no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -0.02040816326530612,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 1,
+        "both_wrong": 1
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "question_root_boundary_regression | wrong_contract_visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.07407407407407407,
+      "base_correct_records": 2,
+      "outcomes": {
+        "both_right": 1,
+        "both_wrong": 1
+      },
+      "records": 2,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "short_span_or_granularity | no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 10,
+      "outcomes": {
+        "both_right": 10,
+        "both_wrong": 2
+      },
+      "records": 12,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "short_span_or_granularity | no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -0.05833333333333333,
+      "base_correct_records": 10,
+      "outcomes": {
+        "both_right": 8,
+        "both_wrong": 2,
+        "right_regression": 2
+      },
+      "records": 12,
+      "right_candidate_copy_count": 3,
+      "right_candidate_copy_rate": 0.25,
+      "right_regression_count_on_left_correct": 2,
+      "right_regression_rate_on_left_correct": 0.2,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "short_span_or_granularity | visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 10,
+      "outcomes": {
+        "both_right": 8,
+        "both_wrong": 4
+      },
+      "records": 12,
+      "right_candidate_copy_count": 3,
+      "right_candidate_copy_rate": 0.25,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "short_span_or_granularity | wrong_contract_no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 10,
+      "outcomes": {
+        "both_right": 10,
+        "both_wrong": 2
+      },
+      "records": 12,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "short_span_or_granularity | wrong_contract_no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -0.041666666666666664,
+      "base_correct_records": 10,
+      "outcomes": {
+        "both_right": 9,
+        "both_wrong": 2,
+        "right_regression": 1
+      },
+      "records": 12,
+      "right_candidate_copy_count": 3,
+      "right_candidate_copy_rate": 0.25,
+      "right_regression_count_on_left_correct": 1,
+      "right_regression_rate_on_left_correct": 0.1,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "short_span_or_granularity | wrong_contract_visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 10,
+      "outcomes": {
+        "both_right": 9,
+        "both_wrong": 3
+      },
+      "records": 12,
+      "right_candidate_copy_count": 3,
+      "right_candidate_copy_rate": 0.25,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "strict_span_or_granularity_surface | no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 0,
+      "outcomes": {
+        "both_wrong": 1
+      },
+      "records": 1,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": null,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "strict_span_or_granularity_surface | no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 0,
+      "outcomes": {
+        "both_wrong": 1
+      },
+      "records": 1,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": null,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "strict_span_or_granularity_surface | visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 0,
+      "outcomes": {
+        "both_wrong": 1
+      },
+      "records": 1,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": null,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "strict_span_or_granularity_surface | wrong_contract_no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 0,
+      "outcomes": {
+        "both_wrong": 1
+      },
+      "records": 1,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": null,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "strict_span_or_granularity_surface | wrong_contract_no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 0,
+      "outcomes": {
+        "both_wrong": 1
+      },
+      "records": 1,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": null,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "strict_span_or_granularity_surface | wrong_contract_visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 0,
+      "outcomes": {
+        "both_wrong": 1
+      },
+      "records": 1,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": null,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    }
+  },
+  "by_source_type_comparison": {
+    "negative_control | no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 4,
+      "outcomes": {
+        "both_right": 4,
+        "both_wrong": 4
+      },
+      "records": 8,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "negative_control | no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -0.25,
+      "base_correct_records": 4,
+      "outcomes": {
+        "both_right": 2,
+        "both_wrong": 4,
+        "right_regression": 2
+      },
+      "records": 8,
+      "right_candidate_copy_count": 3,
+      "right_candidate_copy_rate": 0.375,
+      "right_regression_count_on_left_correct": 2,
+      "right_regression_rate_on_left_correct": 0.5,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "negative_control | visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.005319148936170212,
+      "base_correct_records": 4,
+      "outcomes": {
+        "both_right": 2,
+        "both_wrong": 6
+      },
+      "records": 8,
+      "right_candidate_copy_count": 3,
+      "right_candidate_copy_rate": 0.375,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "negative_control | wrong_contract_no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 4,
+      "outcomes": {
+        "both_right": 4,
+        "both_wrong": 4
+      },
+      "records": 8,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "negative_control | wrong_contract_no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -0.24431818181818182,
+      "base_correct_records": 4,
+      "outcomes": {
+        "both_right": 2,
+        "both_wrong": 4,
+        "right_regression": 2
+      },
+      "records": 8,
+      "right_candidate_copy_count": 3,
+      "right_candidate_copy_rate": 0.375,
+      "right_regression_count_on_left_correct": 2,
+      "right_regression_rate_on_left_correct": 0.5,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "negative_control | wrong_contract_visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.00027056277056277094,
+      "base_correct_records": 4,
+      "outcomes": {
+        "both_right": 2,
+        "both_wrong": 6
+      },
+      "records": 8,
+      "right_candidate_copy_count": 3,
+      "right_candidate_copy_rate": 0.375,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "positive_target_focus | no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 26,
+      "outcomes": {
+        "both_right": 28,
+        "both_wrong": 4
+      },
+      "records": 32,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "positive_target_focus | no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -0.19466575091575092,
+      "base_correct_records": 26,
+      "outcomes": {
+        "both_right": 20,
+        "both_wrong": 4,
+        "right_regression": 8
+      },
+      "records": 32,
+      "right_candidate_copy_count": 8,
+      "right_candidate_copy_rate": 0.25,
+      "right_regression_count_on_left_correct": 8,
+      "right_regression_rate_on_left_correct": 0.2857142857142857,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "positive_target_focus | visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.03439153439153439,
+      "base_correct_records": 26,
+      "outcomes": {
+        "both_right": 20,
+        "both_wrong": 11,
+        "right_repair": 1
+      },
+      "records": 32,
+      "right_candidate_copy_count": 6,
+      "right_candidate_copy_rate": 0.1875,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 1,
+      "right_repair_rate_on_left_wrong": 0.08333333333333333
+    },
+    "positive_target_focus | wrong_contract_no_candidate_vs_hidden": {
+      "avg_right_minus_left_f1": 0.0,
+      "base_correct_records": 26,
+      "outcomes": {
+        "both_right": 28,
+        "both_wrong": 4
+      },
+      "records": 32,
+      "right_candidate_copy_count": 0,
+      "right_candidate_copy_rate": 0.0,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "positive_target_focus | wrong_contract_no_candidate_vs_visible": {
+      "avg_right_minus_left_f1": -0.15752551020408162,
+      "base_correct_records": 26,
+      "outcomes": {
+        "both_right": 22,
+        "both_wrong": 4,
+        "right_regression": 6
+      },
+      "records": 32,
+      "right_candidate_copy_count": 8,
+      "right_candidate_copy_rate": 0.25,
+      "right_regression_count_on_left_correct": 6,
+      "right_regression_rate_on_left_correct": 0.21428571428571427,
+      "right_repair_count_on_left_wrong": 0,
+      "right_repair_rate_on_left_wrong": 0.0
+    },
+    "positive_target_focus | wrong_contract_visible_vs_extract_first": {
+      "avg_right_minus_left_f1": 0.03587962962962963,
+      "base_correct_records": 26,
+      "outcomes": {
+        "both_right": 22,
+        "both_wrong": 9,
+        "right_repair": 1
+      },
+      "records": 32,
+      "right_candidate_copy_count": 7,
+      "right_candidate_copy_rate": 0.21875,
+      "right_regression_count_on_left_correct": 0,
+      "right_regression_rate_on_left_correct": 0.0,
+      "right_repair_count_on_left_wrong": 1,
+      "right_repair_rate_on_left_wrong": 0.1
+    }
+  },
+  "evaluated": "experiments\\20260615-2223-a8002-pact-typed-boundary-split-qwen25-14b\\evaluation\\evaluated_rows.jsonl",
+  "note": "Pairwise cards compare no-candidate, hidden-candidate, visible-candidate, and extract-first typed-boundary arms within each case.",
+  "records": 240
+}
