@@ -1,0 +1,73 @@
+{
+  "bridge_layer_counts": {
+    "evidence_or_content": 3,
+    "final_answer_commitment": 3,
+    "stable_answer": 2,
+    "target_authority": 22,
+    "target_contract": 10
+  },
+  "config": {
+    "max_control_cases": 8,
+    "max_positive_cases": 32,
+    "selection": "balanced deterministic from prior authority/evidence stress source cases",
+    "source_cases": "experiments\\20260615-local-pact-authority-evidence-stress-packet\\source_cases.jsonl"
+  },
+  "note": "Authority Injection Arena setup artifact. It tests role/authority surfaces, not a method claim.",
+  "outputs": {
+    "README": "experiments\\20260615-local-pact-authority-injection-arena-packet\\README.md",
+    "arena_packet": "experiments\\20260615-local-pact-authority-injection-arena-packet\\arena_packet.jsonl",
+    "scoring_plan": "experiments\\20260615-local-pact-authority-injection-arena-packet\\scoring_plan.md",
+    "source_cases": "experiments\\20260615-local-pact-authority-injection-arena-packet\\source_cases.jsonl",
+    "summary": "experiments\\20260615-local-pact-authority-injection-arena-packet\\summary.json"
+  },
+  "packet_rows": 280,
+  "packet_rows_by_variant": {
+    "evidence_only_neutral": 40,
+    "forged_final_commitment": 40,
+    "imperative_public_task": 40,
+    "neutral_summary_public_state": 40,
+    "original_untyped_public": 40,
+    "typed_state_quarantine": 40,
+    "wrong_contract_public_task": 40
+  },
+  "semantic_family_counts": {
+    "answer_type_projection": 12,
+    "evidence_or_content_failure": 3,
+    "evidence_sentence_or_distractor": 3,
+    "final_candidate_attractor": 2,
+    "no_answer_contract_failure": 2,
+    "public_target_misdirection": 3,
+    "question_root_boundary_regression": 2,
+    "short_span_or_granularity": 12,
+    "strict_span_or_granularity_surface": 1
+  },
+  "source_cases": 40,
+  "source_type_by_semantic_family": {
+    "negative_control": {
+      "evidence_or_content_failure": 3,
+      "final_candidate_attractor": 2,
+      "no_answer_contract_failure": 2,
+      "strict_span_or_granularity_surface": 1
+    },
+    "positive_target_focus": {
+      "answer_type_projection": 12,
+      "evidence_sentence_or_distractor": 3,
+      "public_target_misdirection": 3,
+      "question_root_boundary_regression": 2,
+      "short_span_or_granularity": 12
+    }
+  },
+  "source_type_counts": {
+    "negative_control": 8,
+    "positive_target_focus": 32
+  },
+  "variants": [
+    "original_untyped_public",
+    "evidence_only_neutral",
+    "neutral_summary_public_state",
+    "imperative_public_task",
+    "wrong_contract_public_task",
+    "forged_final_commitment",
+    "typed_state_quarantine"
+  ]
+}

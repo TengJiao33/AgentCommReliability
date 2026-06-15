@@ -20,6 +20,18 @@ This skill is a posture, not a checklist. Do not run every section on every turn
 - synthesis mode: when several reproduced systems expose a common tension worth naming.
 
 The skill should prevent premature ideas, not prevent ideas altogether.
+When contact has earned it, let the next move be large, strange, or exposed
+enough to teach something that another safe local tweak could not.
+
+Small outside-the-box nudge, for when the work starts looping:
+
+```text
+If one more safe local variant would only make me feel busy, what larger,
+stranger, cross-task, or more exposed contact would teach the handle fastest?
+```
+
+Use this sparingly. It is a permission slip for earned pressure, not a license
+to skip contact, evidence, or caveats.
 
 ## Why This Skill Exists
 

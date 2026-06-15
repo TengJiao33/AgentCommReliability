@@ -1,0 +1,191 @@
+{
+  "by_label_source": {
+    "negative_control_seed": {
+      "accuracy": 0.7222222222222222,
+      "f1": 0.4117647058823529,
+      "fn": 25,
+      "fp": 15,
+      "precision": 0.4827586206896552,
+      "recall": 0.358974358974359,
+      "records": 144,
+      "tn": 90,
+      "tp": 14
+    },
+    "positive_target_layer_seed": {
+      "accuracy": 0.5666666666666667,
+      "f1": 0.375,
+      "fn": 106,
+      "fp": 24,
+      "precision": 0.6190476190476191,
+      "recall": 0.2689655172413793,
+      "records": 300,
+      "tn": 131,
+      "tp": 39
+    }
+  },
+  "by_slice": {
+    "offset100": {
+      "accuracy": 0.6,
+      "f1": 0.35135135135135137,
+      "fn": 74,
+      "fp": 22,
+      "precision": 0.5416666666666666,
+      "recall": 0.26,
+      "records": 240,
+      "tn": 118,
+      "tp": 26
+    },
+    "offset150": {
+      "accuracy": 0.6372549019607843,
+      "f1": 0.421875,
+      "fn": 57,
+      "fp": 17,
+      "precision": 0.6136363636363636,
+      "recall": 0.32142857142857145,
+      "records": 204,
+      "tn": 103,
+      "tp": 27
+    }
+  },
+  "by_task": {
+    "answer_contract_alarm": {
+      "accuracy": 0.4189189189189189,
+      "f1": 0.5376344086021505,
+      "fn": 41,
+      "fp": 2,
+      "precision": 0.9259259259259259,
+      "recall": 0.3787878787878788,
+      "records": 74,
+      "tn": 6,
+      "tp": 25
+    },
+    "answer_type_relation_alarm": {
+      "accuracy": 0.6216216216216216,
+      "f1": 0.125,
+      "fn": 22,
+      "fp": 6,
+      "precision": 0.25,
+      "recall": 0.08333333333333333,
+      "records": 74,
+      "tn": 44,
+      "tp": 2
+    },
+    "evidence_adequacy_alarm": {
+      "accuracy": 0.7432432432432432,
+      "f1": 0.4242424242424242,
+      "fn": 6,
+      "fp": 13,
+      "precision": 0.35,
+      "recall": 0.5384615384615384,
+      "records": 74,
+      "tn": 48,
+      "tp": 7
+    },
+    "final_candidate_alarm": {
+      "accuracy": 0.8243243243243243,
+      "f1": 0.0,
+      "fn": 5,
+      "fp": 8,
+      "precision": 0.0,
+      "recall": 0.0,
+      "records": 74,
+      "tn": 61,
+      "tp": 0
+    },
+    "short_span_granularity_alarm": {
+      "accuracy": 0.6081081081081081,
+      "f1": 0.06451612903225806,
+      "fn": 28,
+      "fp": 1,
+      "precision": 0.5,
+      "recall": 0.034482758620689655,
+      "records": 74,
+      "tn": 44,
+      "tp": 1
+    },
+    "target_authority_alarm": {
+      "accuracy": 0.4864864864864865,
+      "f1": 0.48648648648648646,
+      "fn": 29,
+      "fp": 9,
+      "precision": 0.6666666666666666,
+      "recall": 0.3829787234042553,
+      "records": 74,
+      "tn": 18,
+      "tp": 18
+    }
+  },
+  "exact_accuracy": 0.5900900900900901,
+  "gold_counts_by_task": {
+    "answer_contract_alarm": {
+      "no": 8,
+      "yes": 66
+    },
+    "answer_type_relation_alarm": {
+      "no": 50,
+      "yes": 24
+    },
+    "evidence_adequacy_alarm": {
+      "no": 61,
+      "yes": 13
+    },
+    "final_candidate_alarm": {
+      "no": 69,
+      "yes": 5
+    },
+    "short_span_granularity_alarm": {
+      "no": 45,
+      "yes": 29
+    },
+    "target_authority_alarm": {
+      "no": 27,
+      "soft": 2,
+      "yes": 45
+    }
+  },
+  "note": "Binary metrics count soft as positive for target_authority_alarm.",
+  "outputs": "experiments\\20260615-2002-a8002-pact-answer-contract-split-alarm-qwen25-14b\\outputs.jsonl",
+  "overall_binary_metrics": {
+    "accuracy": 0.6171171171171171,
+    "f1": 0.3840579710144928,
+    "fn": 131,
+    "fp": 39,
+    "precision": 0.5760869565217391,
+    "recall": 0.28804347826086957,
+    "records": 444,
+    "tn": 221,
+    "tp": 53
+  },
+  "packet": "experiments\\20260615-local-pact-answer-contract-split-alarm-packet\\split_alarm_packet.jsonl",
+  "parse_failures": 0,
+  "positive_accuracy": 0.6171171171171171,
+  "prediction_counts_by_task": {
+    "answer_contract_alarm": {
+      "no": 47,
+      "yes": 27
+    },
+    "answer_type_relation_alarm": {
+      "no": 66,
+      "yes": 8
+    },
+    "evidence_adequacy_alarm": {
+      "no": 54,
+      "yes": 20
+    },
+    "final_candidate_alarm": {
+      "no": 66,
+      "yes": 8
+    },
+    "short_span_granularity_alarm": {
+      "no": 72,
+      "yes": 2
+    },
+    "target_authority_alarm": {
+      "no": 47,
+      "soft": 12,
+      "yes": 15
+    }
+  },
+  "prediction_source": "outputs",
+  "records": 444
+}

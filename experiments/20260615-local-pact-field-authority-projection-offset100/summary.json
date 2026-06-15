@@ -1,0 +1,55 @@
+{
+  "condition_by_source_run": {
+    "baseline": {
+      "security_projection_question_root_no_final": 50,
+      "standalone_authority_quarantine_no_final": 50
+    },
+    "final_contract": {
+      "security_projection_question_root_no_final": 50,
+      "standalone_authority_quarantine_no_final": 50
+    }
+  },
+  "condition_counts": {
+    "security_projection_question_root_no_final": 100,
+    "standalone_authority_quarantine_no_final": 100
+  },
+  "detector_action_by_bridge_layer": {
+    "stable_right_or_not_focus": {
+      "hide": 35,
+      "project_question_root": 65
+    }
+  },
+  "detector_action_counts": {
+    "hide": 35,
+    "project_question_root": 65
+  },
+  "detector_reason_counts": {
+    "generic_low_overlap_target": 13,
+    "no_explicit_answer_authority_verb": 2,
+    "projected": 65,
+    "under_specified_target": 18,
+    "unsupported_target_terms": 24
+  },
+  "note": "Detector decisions use no gold answer and no paired target-slot diagnostic. Offline routing scores reuse previous pressure-run outputs.",
+  "offline_routing": {},
+  "old_target_slot_candidate_by_detector_action": {
+    "": {
+      "hide": 30,
+      "project_question_root": 58
+    },
+    "True": {
+      "hide": 5,
+      "project_question_root": 7
+    }
+  },
+  "paths": {
+    "detector_records": "experiments\\20260615-local-pact-field-authority-projection-offset100\\detector_records.jsonl",
+    "evaluated": null,
+    "packet": "experiments\\20260615-local-pact-public-state-field-packet-offset100\\field_packet.jsonl",
+    "projection_packet": "experiments\\20260615-local-pact-field-authority-projection-offset100\\projection_packet.jsonl",
+    "security_projection_packet": "experiments\\20260615-local-pact-field-authority-projection-offset100\\security_projection_packet.jsonl",
+    "standalone_quarantine_packet": "experiments\\20260615-local-pact-field-authority-projection-offset100\\standalone_quarantine_packet.jsonl"
+  },
+  "records": 200,
+  "source_units": 100
+}

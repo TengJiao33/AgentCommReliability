@@ -1,0 +1,1896 @@
+{
+  "base_condition": "question_plus_public_state_no_final",
+  "comparisons": {
+    "freeze_question_target": {
+      "base_right_to_variant_wrong": 3,
+      "base_wrong_to_variant_right": 9,
+      "both_right": 47,
+      "both_wrong": 41
+    },
+    "hide_public_target": {
+      "base_right_to_variant_wrong": 7,
+      "base_wrong_to_variant_right": 4,
+      "both_right": 43,
+      "both_wrong": 46
+    },
+    "hide_question_keep_public_target": {
+      "base_right_to_variant_wrong": 20,
+      "both_right": 30,
+      "both_wrong": 50
+    },
+    "show_final_answer_candidate": {
+      "base_right_to_variant_wrong": 10,
+      "base_wrong_to_variant_right": 3,
+      "both_right": 40,
+      "both_wrong": 47
+    }
+  },
+  "comparisons_by_bridge_layer": {
+    "freeze_question_target | stable_right_or_not_focus": {
+      "base_right_to_variant_wrong": 3,
+      "base_wrong_to_variant_right": 9,
+      "both_right": 47,
+      "both_wrong": 41
+    },
+    "hide_public_target | stable_right_or_not_focus": {
+      "base_right_to_variant_wrong": 7,
+      "base_wrong_to_variant_right": 4,
+      "both_right": 43,
+      "both_wrong": 46
+    },
+    "hide_question_keep_public_target | stable_right_or_not_focus": {
+      "base_right_to_variant_wrong": 20,
+      "both_right": 30,
+      "both_wrong": 50
+    },
+    "show_final_answer_candidate | stable_right_or_not_focus": {
+      "base_right_to_variant_wrong": 10,
+      "base_wrong_to_variant_right": 3,
+      "both_right": 40,
+      "both_wrong": 47
+    }
+  },
+  "comparisons_by_source_run": {
+    "freeze_question_target | baseline": {
+      "base_right_to_variant_wrong": 2,
+      "base_wrong_to_variant_right": 5,
+      "both_right": 23,
+      "both_wrong": 20
+    },
+    "freeze_question_target | final_contract": {
+      "base_right_to_variant_wrong": 1,
+      "base_wrong_to_variant_right": 4,
+      "both_right": 24,
+      "both_wrong": 21
+    },
+    "hide_public_target | baseline": {
+      "base_right_to_variant_wrong": 5,
+      "base_wrong_to_variant_right": 3,
+      "both_right": 20,
+      "both_wrong": 22
+    },
+    "hide_public_target | final_contract": {
+      "base_right_to_variant_wrong": 2,
+      "base_wrong_to_variant_right": 1,
+      "both_right": 23,
+      "both_wrong": 24
+    },
+    "hide_question_keep_public_target | baseline": {
+      "base_right_to_variant_wrong": 11,
+      "both_right": 14,
+      "both_wrong": 25
+    },
+    "hide_question_keep_public_target | final_contract": {
+      "base_right_to_variant_wrong": 9,
+      "both_right": 16,
+      "both_wrong": 25
+    },
+    "show_final_answer_candidate | baseline": {
+      "base_right_to_variant_wrong": 6,
+      "base_wrong_to_variant_right": 2,
+      "both_right": 19,
+      "both_wrong": 23
+    },
+    "show_final_answer_candidate | final_contract": {
+      "base_right_to_variant_wrong": 4,
+      "base_wrong_to_variant_right": 1,
+      "both_right": 21,
+      "both_wrong": 24
+    }
+  },
+  "comparisons_by_target_candidate": {
+    "freeze_question_target | target_candidate=False": {
+      "base_right_to_variant_wrong": 3,
+      "base_wrong_to_variant_right": 7,
+      "both_right": 47,
+      "both_wrong": 31
+    },
+    "freeze_question_target | target_candidate=True": {
+      "base_wrong_to_variant_right": 2,
+      "both_wrong": 10
+    },
+    "hide_public_target | target_candidate=False": {
+      "base_right_to_variant_wrong": 7,
+      "base_wrong_to_variant_right": 3,
+      "both_right": 43,
+      "both_wrong": 35
+    },
+    "hide_public_target | target_candidate=True": {
+      "base_wrong_to_variant_right": 1,
+      "both_wrong": 11
+    },
+    "hide_question_keep_public_target | target_candidate=False": {
+      "base_right_to_variant_wrong": 20,
+      "both_right": 30,
+      "both_wrong": 38
+    },
+    "hide_question_keep_public_target | target_candidate=True": {
+      "both_wrong": 12
+    },
+    "show_final_answer_candidate | target_candidate=False": {
+      "base_right_to_variant_wrong": 10,
+      "base_wrong_to_variant_right": 2,
+      "both_right": 40,
+      "both_wrong": 36
+    },
+    "show_final_answer_candidate | target_candidate=True": {
+      "base_wrong_to_variant_right": 1,
+      "both_wrong": 11
+    }
+  },
+  "notable_cards": {
+    "candidate_corrections": [
+      {
+        "base_correct": true,
+        "base_prediction": "Picric acid",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": true,
+        "candidate_regression": false,
+        "candidate_visible": true,
+        "comparison": "show_final_answer_candidate",
+        "comparison_note": "Final Answer Candidate is visible in addition to question, public target, and evidence.",
+        "condition": "question_plus_public_state_with_final",
+        "delta_outcome": "both_right",
+        "gold_answer": "picric acid",
+        "question": "Which component of shellite has the formula (ON)CHOH?",
+        "sample_index": 114,
+        "source_final_event": {
+          "action_required": "Provide fact",
+          "action_result": "Picric acid is a component of shellite that has the formula (ON)CHOH.",
+          "environment_state": "Picric acid is an organic compound with the formula (ON)CHOH.",
+          "final_answer": "Picric acid is the component of shellite with the formula (ON)CHOH."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide fact",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.0,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide relevant fact",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "Picric acid"
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "230",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": true,
+        "candidate_regression": false,
+        "candidate_visible": true,
+        "comparison": "show_final_answer_candidate",
+        "comparison_note": "Final Answer Candidate is visible in addition to question, public target, and evidence.",
+        "condition": "question_plus_public_state_with_final",
+        "delta_outcome": "both_right",
+        "gold_answer": "230",
+        "question": "The Argentine PGA Championship record holder has won how many tournaments worldwide?",
+        "sample_index": 115,
+        "source_final_event": {
+          "action_required": "Provide the number of worldwide tournaments won by Roberto De Vicenzo.",
+          "action_result": "Roberto De Vicenzo won more than 230 tournaments worldwide.",
+          "environment_state": "Roberto De Vicenzo won more than 230 tournaments worldwide in his career including eight on the PGA Tour and most famously the 1967 Open Championship.",
+          "final_answer": "Roberto De Vicenzo won more than 230 tournaments worldwide."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide the number of worldwide tournaments won by Roberto De Vicenzo.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": -0.2222,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide the number of worldwide tournament wins for Roberto De Vicenzo.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "230"
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "Daryl Hall and Gerry Marsden are both musicians.",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": true,
+        "candidate_regression": false,
+        "candidate_visible": true,
+        "comparison": "show_final_answer_candidate",
+        "comparison_note": "Final Answer Candidate is visible in addition to question, public target, and evidence.",
+        "condition": "question_plus_public_state_with_final",
+        "delta_outcome": "base_wrong_to_variant_right",
+        "gold_answer": "yes",
+        "question": "Are Daryl Hall and Gerry Marsden both musicians?",
+        "sample_index": 119,
+        "source_final_event": {
+          "action_required": "Provide answer to the question.",
+          "action_result": "Daryl Hall and Gerry Marsden are both musicians.",
+          "environment_state": "Gerard Marsden MBE (born 24 September 1942) is an English musician and television personality, best known for being leader of the British Merseybeat band Gerry and the Pacemakers.",
+          "final_answer": "Yes, Daryl Hall and Gerry Marsden are both musicians."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide answer to the question.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.3333,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide conclusion based on both musicians' professions.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "Yes"
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "Princess Jessica",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": true,
+        "candidate_regression": false,
+        "candidate_visible": true,
+        "comparison": "show_final_answer_candidate",
+        "comparison_note": "Final Answer Candidate is visible in addition to question, public target, and evidence.",
+        "condition": "question_plus_public_state_with_final",
+        "delta_outcome": "both_right",
+        "gold_answer": "princess jessica",
+        "question": "In which role did Caroline Carver played in a 1999 Hallmark Entertainment made-for-TV fantasy movie?",
+        "sample_index": 121,
+        "source_final_event": {
+          "action_required": "Provide the role Caroline Carver played in the 1999 Hallmark Entertainment made-for-TV fantasy movie.",
+          "action_result": "Caroline Carver played the role of Princess Jessica in the 1999 Hallmark Entertainment made-for-TV fantasy movie.",
+          "environment_state": "Caroline Carver played the role of Princess Jessica in the 1999 Hallmark Entertainment made-for-TV fantasy movie titled \"The Magical Legend of the Leprechauns\".",
+          "final_answer": "Caroline Carver played the role of Princess Jessica."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide the role Caroline Carver played in the 1999 Hallmark Entertainment made-for-TV fantasy movie.",
+          "candidate_reasons": [
+            "new_anchor_loss",
+            "large_overlap_drop",
+            "low_variant_overlap"
+          ],
+          "newly_lost_anchors": [
+            "Hallmark Entertainment",
+            "TV"
+          ],
+          "overlap_delta": -0.6364,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide the role Caroline Carver played in \"The Magical Legend of the Leprechauns\".",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "Princess Jessica"
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "late 12th Century",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": true,
+        "candidate_regression": false,
+        "candidate_visible": true,
+        "comparison": "show_final_answer_candidate",
+        "comparison_note": "Final Answer Candidate is visible in addition to question, public target, and evidence.",
+        "condition": "question_plus_public_state_with_final",
+        "delta_outcome": "both_right",
+        "gold_answer": "late 12th century",
+        "question": "When was the palace founded at which Columba de Dunbar died in 1435?",
+        "sample_index": 127,
+        "source_final_event": {
+          "action_required": "Provide founding date of Spynie Palace.",
+          "action_result": "Spynie Palace was founded in the late 12th Century.",
+          "environment_state": "The founding of the palace dates back to the late 12th Century.",
+          "final_answer": "The palace where Columba de Dunbar died in 1435 was founded in the late 12th Century."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide founding date of Spynie Palace.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.0,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide founding date of Spynie Palace.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "the late 12th Century"
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "Jillian Belk",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": true,
+        "candidate_regression": false,
+        "candidate_visible": true,
+        "comparison": "show_final_answer_candidate",
+        "comparison_note": "Final Answer Candidate is visible in addition to question, public target, and evidence.",
+        "condition": "question_plus_public_state_with_final",
+        "delta_outcome": "both_right",
+        "gold_answer": "jillian belk",
+        "question": "SuperMansion starred the actress who had a recurring role as whom on Workaholics?",
+        "sample_index": 135,
+        "source_final_event": {
+          "action_required": "Provide information about Jillian Bell's recurring role on Workaholics.",
+          "action_result": "Jillian Bell had a recurring role as Jillian Belk on Workaholics.",
+          "environment_state": "She is best known for her recurring roles as Jillian Belk on \"Workaholics\" and Dixie on the final season of \"Eastbound & Down\", as well as appearing in \"22 Jump Street\" and \"Fist Fight\" (2017).",
+          "final_answer": "SuperMansion starred the actress who had a recurring role as Jillian Belk on Workaholics."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide information about Jillian Bell's recurring role on Workaholics.",
+          "candidate_reasons": [
+            "new_anchor_loss"
+          ],
+          "newly_lost_anchors": [
+            "Workaholics"
+          ],
+          "overlap_delta": -0.1429,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide information about Jillian Bell's role in SuperMansion.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "Jillian Belk"
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "Roberta Vinci",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": true,
+        "candidate_regression": false,
+        "candidate_visible": true,
+        "comparison": "show_final_answer_candidate",
+        "comparison_note": "Final Answer Candidate is visible in addition to question, public target, and evidence.",
+        "condition": "question_plus_public_state_with_final",
+        "delta_outcome": "both_right",
+        "gold_answer": "roberta vinci",
+        "question": "Who had the best singles ranking, Roberta Vinci or Jorge Lozano?",
+        "sample_index": 141,
+        "source_final_event": {
+          "action_required": "Compare the singles rankings of Roberta Vinci and Jorge Lozano.",
+          "action_result": "Roberta Vinci had a better singles ranking than Jorge Lozano.",
+          "environment_state": "Roberta Vinci reached a career-high singles ranking of World No. 7.",
+          "final_answer": "Roberta Vinci had the best singles ranking."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Compare the singles rankings of Roberta Vinci and Jorge Lozano.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.0,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Compare the singles rankings of Roberta Vinci and Jorge Lozano.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "Roberta Vinci"
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "\"Teach the Controversy\"",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": true,
+        "candidate_regression": false,
+        "candidate_visible": true,
+        "comparison": "show_final_answer_candidate",
+        "comparison_note": "Final Answer Candidate is visible in addition to question, public target, and evidence.",
+        "condition": "question_plus_public_state_with_final",
+        "delta_outcome": "base_wrong_to_variant_right",
+        "gold_answer": "teach controversy campaign",
+        "question": "Both Truth in Science and Discovery embrace what campaign?",
+        "sample_index": 142,
+        "source_final_event": {
+          "action_required": "Identify the campaign embraced by both Truth in Science and Discovery.",
+          "action_result": "The \"Teach the Controversy\" campaign is embraced by both Truth in Science and Discovery.",
+          "environment_state": "The \"Teach the Controversy\" campaign aims to permit teaching of anti-evolution, intelligent-design beliefs in United States public high school science courses alongside accepted scientific theories, positing that a scientific controversy exists over these subjects.",
+          "final_answer": "The \"Teach the Controversy\" campaign is embraced by both Truth in Science and Discovery."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Identify the campaign embraced by both Truth in Science and Discovery.",
+          "candidate_reasons": [
+            "new_anchor_loss",
+            "large_overlap_drop",
+            "low_variant_overlap"
+          ],
+          "newly_lost_anchors": [
+            "Both Truth",
+            "Science",
+            "Discovery"
+          ],
+          "overlap_delta": -0.5,
+          "target_slot_drift_candidate": true,
+          "variant_final_action_required": "Provide the campaign name embraced by both organizations.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": true,
+        "variant_correct": true,
+        "variant_prediction": "The \"Teach the Controversy\" campaign"
+      }
+    ],
+    "candidate_regressions": [
+      {
+        "base_correct": true,
+        "base_prediction": "2003",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": true,
+        "candidate_visible": true,
+        "comparison": "show_final_answer_candidate",
+        "comparison_note": "Final Answer Candidate is visible in addition to question, public target, and evidence.",
+        "condition": "question_plus_public_state_with_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "2003",
+        "question": "What year was the brother of this first round draft pick by the Washington Redskins drafted?",
+        "sample_index": 102,
+        "source_final_event": {
+          "action_required": "Provide the draft year of Boss Bailey.",
+          "action_result": "Boss Bailey was drafted in 2003.",
+          "environment_state": "Rodney \"Boss\" Bailey (born October 14, 1979) is a former American football linebacker who played in the National Football League. He was originally drafted by the Detroit Lions in the second round of the 2003 NFL Draft.",
+          "final_answer": "2003"
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "candidate_reasons": [],
+          "target_slot_drift_candidate": false
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "2003\n\nThe question asks for the draft year of Boss Bailey, and the evidence provided indicates that he was drafted in 2003. However, the question specifically asks for the draft year of his brother, which is not provided in the evidence. Since the evidence does not contain information about Boss Bailey"
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "2003",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": true,
+        "candidate_visible": true,
+        "comparison": "show_final_answer_candidate",
+        "comparison_note": "Final Answer Candidate is visible in addition to question, public target, and evidence.",
+        "condition": "question_plus_public_state_with_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "2003",
+        "question": "What year was the brother of this first round draft pick by the Washington Redskins drafted?",
+        "sample_index": 102,
+        "source_final_event": {
+          "action_required": "Provide the draft year of Boss Bailey.",
+          "action_result": "2003",
+          "environment_state": "Rodney \"Boss\" Bailey (born October 14, 1979) is a former American football linebacker who played in the National Football League. He was originally drafted by the Detroit Lions in the second round of the 2003 NFL Draft.",
+          "final_answer": "2003"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "candidate_reasons": [],
+          "target_slot_drift_candidate": false
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "The question asks for the draft year of Boss Bailey's brother, not Boss Bailey himself. However, the provided evidence only contains information about Boss Bailey and does not mention his brother or the brother's draft year. Therefore, based on the given evidence, we cannot accurately provide the draft year of Boss Bailey's brother. The"
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "The given context does not provide the birth year of John Cecil Holm.",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": true,
+        "candidate_visible": true,
+        "comparison": "show_final_answer_candidate",
+        "comparison_note": "Final Answer Candidate is visible in addition to question, public target, and evidence.",
+        "condition": "question_plus_public_state_with_final",
+        "delta_outcome": "both_wrong",
+        "gold_answer": "1887",
+        "question": "hree Men on a Horse is a play by a playwright born in which year ?",
+        "sample_index": 106,
+        "source_final_event": {
+          "action_required": "Provide birth year of John Cecil Holm.",
+          "action_result": "George Abbott was born in 1887. John Cecil Holm's birth year is not provided in the given context.",
+          "environment_state": "[Three Men on a Horse is a play by George Abbott and John Cecil Holm.]",
+          "final_answer": "1887"
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "candidate_reasons": [],
+          "target_slot_drift_candidate": false
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "The given context does not provide the birth year for John Cecil Holm. Therefore, the final answer cannot be 1887, as that is George Abbott's birth year. Since the required information is not available, the final answer is that the birth year of John Cecil Holm is not provided in the given"
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "1978",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": true,
+        "candidate_visible": true,
+        "comparison": "show_final_answer_candidate",
+        "comparison_note": "Final Answer Candidate is visible in addition to question, public target, and evidence.",
+        "condition": "question_plus_public_state_with_final",
+        "delta_outcome": "both_wrong",
+        "gold_answer": "7 october 1978",
+        "question": "When was the  former Indian cricketer who made his ODI debuts during the 2000 ICC KnockOut Trophy born?",
+        "sample_index": 108,
+        "source_final_event": {
+          "action_required": "Provide the birth year of Zaheer Khan.",
+          "action_result": "Zaheer Khan was born on 7 October 1978.",
+          "environment_state": "Zaheer Khan (born 7 October 1978) is a former Indian cricketer who played all forms of the game for Indian national cricket team from 2000 till 2014.",
+          "final_answer": "7 October 1978"
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide the birth year of Zaheer Khan.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.0,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide the birth year of Yuvraj Singh.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "1978"
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "Skin Yard is from the U.S., and Ostava is not.",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": true,
+        "candidate_visible": true,
+        "comparison": "show_final_answer_candidate",
+        "comparison_note": "Final Answer Candidate is visible in addition to question, public target, and evidence.",
+        "condition": "question_plus_public_state_with_final",
+        "delta_outcome": "both_wrong",
+        "gold_answer": "no",
+        "question": "Were the bands Skin Yard and Ostava from the U.S.?",
+        "sample_index": 118,
+        "source_final_event": {
+          "action_required": "Provide conclusion about both bands' origins.",
+          "action_result": "Skin Yard is from the U.S., and Ostava is not.",
+          "environment_state": "Skin Yard is from the U.S.; Ostava is not from the U.S.",
+          "final_answer": "No"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide conclusion based on information from Agent A and Agent B.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.1667,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide conclusion about both bands' origins.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "No, Skin Yard is from the U.S., and Ostava is not."
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "LaLee's Kin: The Legacy of Cotton",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": true,
+        "candidate_visible": true,
+        "comparison": "show_final_answer_candidate",
+        "comparison_note": "Final Answer Candidate is visible in addition to question, public target, and evidence.",
+        "condition": "question_plus_public_state_with_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "lalees kin legacy of cotton",
+        "question": "Which film was Oscar nominated, LaLee's Kin: The Legacy of Cotton or Gimme Shelter, the 1970 Rolling Stones documentary?",
+        "sample_index": 130,
+        "source_final_event": {
+          "action_required": "Provide conclusion based on Oscar nomination information.",
+          "action_result": "LaLee's Kin: The Legacy of Cotton",
+          "environment_state": "LaLee's Kin: The Legacy of Cotton was nominated for Best Documentary Feature at the 74th Academy Awards.",
+          "final_answer": "LaLee's Kin: The Legacy of Cotton"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide the Oscar nomination status for Gimme Shelter.",
+          "candidate_reasons": [
+            "new_anchor_loss"
+          ],
+          "newly_lost_anchors": [
+            "Gimme Shelter"
+          ],
+          "overlap_delta": -0.1429,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide conclusion based on Oscar nomination information.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "Gimme Shelter\n\nExplanation: The evidence provided states that \"LaLee's Kin: The Legacy of Cotton was nominated for Best Documentary Feature at the 74th Academy Awards.\" However, the question asks about Oscar nominations for \"Gimme Shelter, the 1970 Rolling Stones documentary.\" Given the"
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "\"We'll Burn That Bridge\"",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": true,
+        "candidate_visible": true,
+        "comparison": "show_final_answer_candidate",
+        "comparison_note": "Final Answer Candidate is visible in addition to question, public target, and evidence.",
+        "condition": "question_plus_public_state_with_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "well burn that bridge",
+        "question": "Which song was behind the third single on the album  \"A Lot About Livin' (And a Little 'bout Love)\" for two weeks on the country charts?",
+        "sample_index": 149,
+        "source_final_event": {
+          "action_required": "Provide the song title that was behind \"Chattahoochee\" on the country charts for two weeks.",
+          "action_result": "We'll Burn That Bridge",
+          "environment_state": "\"We'll Burn That Bridge\" is a song written by Don Cook and Ronnie Dunn and recorded by American country music duo Brooks & Dunn.  Released in May 1993 as the second single from their CD, \"Hard Workin' Man\", it peaked at #2 on the country charts for two weeks, behind \"Chattahoochee\" by Alan Jackson.",
+          "final_answer": "We'll Burn That Bridge"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "candidate_reasons": [],
+          "target_slot_drift_candidate": false
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "\"Chattahoochee\""
+      }
+    ],
+    "freeze_question_target_rescues": [
+      {
+        "base_correct": false,
+        "base_prediction": "The given context does not provide the birth year of John Cecil Holm.",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "freeze_question_target",
+        "comparison_note": "Question/evidence are visible and the public target is replaced with a frozen question-derived target.",
+        "condition": "frozen_target_plus_evidence_no_final",
+        "delta_outcome": "base_wrong_to_variant_right",
+        "gold_answer": "1887",
+        "question": "hree Men on a Horse is a play by a playwright born in which year ?",
+        "sample_index": 106,
+        "source_final_event": {
+          "action_required": "Provide birth year of John Cecil Holm.",
+          "action_result": "George Abbott was born in 1887. John Cecil Holm's birth year is not provided in the given context.",
+          "environment_state": "[Three Men on a Horse is a play by George Abbott and John Cecil Holm.]",
+          "final_answer": "1887"
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "candidate_reasons": [],
+          "target_slot_drift_candidate": false
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "1887"
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "1978",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "freeze_question_target",
+        "comparison_note": "Question/evidence are visible and the public target is replaced with a frozen question-derived target.",
+        "condition": "frozen_target_plus_evidence_no_final",
+        "delta_outcome": "base_wrong_to_variant_right",
+        "gold_answer": "7 october 1978",
+        "question": "When was the  former Indian cricketer who made his ODI debuts during the 2000 ICC KnockOut Trophy born?",
+        "sample_index": 108,
+        "source_final_event": {
+          "action_required": "Provide the birth year of Zaheer Khan.",
+          "action_result": "Zaheer Khan was born on 7 October 1978.",
+          "environment_state": "Zaheer Khan (born 7 October 1978) is a former Indian cricketer who played all forms of the game for Indian national cricket team from 2000 till 2014.",
+          "final_answer": "7 October 1978"
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide the birth year of Zaheer Khan.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.0,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide the birth year of Yuvraj Singh.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "7 October 1978"
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "1936",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "freeze_question_target",
+        "comparison_note": "Question/evidence are visible and the public target is replaced with a frozen question-derived target.",
+        "condition": "frozen_target_plus_evidence_no_final",
+        "delta_outcome": "base_wrong_to_variant_right",
+        "gold_answer": "7 january 1936",
+        "question": "When was the British author who wrote the novel on which \"Here We Go Round the Mulberry Bush\" was based born?",
+        "sample_index": 112,
+        "source_final_event": {
+          "action_required": "Provide the birth year of Hunter Davies.",
+          "action_result": "Hunter Davies was born on 7 January 1936.",
+          "environment_state": "Edward Hunter Davies, OBE (born 7 January 1936) is a British author, journalist and broadcaster.",
+          "final_answer": "1936"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide the birth year of the author who wrote the novel on which \"Here We Go Round the Mulberry Bush\" was based.",
+          "candidate_reasons": [
+            "new_anchor_loss",
+            "large_overlap_drop",
+            "low_variant_overlap"
+          ],
+          "newly_lost_anchors": [
+            "Here We Go Round",
+            "Mulberry Bush"
+          ],
+          "overlap_delta": -0.8182,
+          "target_slot_drift_candidate": true,
+          "variant_final_action_required": "Provide the birth year of Hunter Davies.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": true,
+        "variant_correct": true,
+        "variant_prediction": "7 January 1936"
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "Skin Yard is from the U.S., and Ostava is not.",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "freeze_question_target",
+        "comparison_note": "Question/evidence are visible and the public target is replaced with a frozen question-derived target.",
+        "condition": "frozen_target_plus_evidence_no_final",
+        "delta_outcome": "base_wrong_to_variant_right",
+        "gold_answer": "no",
+        "question": "Were the bands Skin Yard and Ostava from the U.S.?",
+        "sample_index": 118,
+        "source_final_event": {
+          "action_required": "Provide conclusion about both bands' origins.",
+          "action_result": "Skin Yard is from the U.S., and Ostava is not.",
+          "environment_state": "Skin Yard is from the U.S.; Ostava is not from the U.S.",
+          "final_answer": "No"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide conclusion based on information from Agent A and Agent B.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.1667,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide conclusion about both bands' origins.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "No"
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "Daryl Hall and Gerry Marsden are both musicians.",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "freeze_question_target",
+        "comparison_note": "Question/evidence are visible and the public target is replaced with a frozen question-derived target.",
+        "condition": "frozen_target_plus_evidence_no_final",
+        "delta_outcome": "base_wrong_to_variant_right",
+        "gold_answer": "yes",
+        "question": "Are Daryl Hall and Gerry Marsden both musicians?",
+        "sample_index": 119,
+        "source_final_event": {
+          "action_required": "Provide answer to the question.",
+          "action_result": "Daryl Hall and Gerry Marsden are both musicians.",
+          "environment_state": "Gerard Marsden MBE (born 24 September 1942) is an English musician and television personality, best known for being leader of the British Merseybeat band Gerry and the Pacemakers.",
+          "final_answer": "Yes, Daryl Hall and Gerry Marsden are both musicians."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide answer to the question.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.3333,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide conclusion based on both musicians' professions.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "Yes"
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "Both Daryl Hall and Gerry Marsden are musicians.",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "freeze_question_target",
+        "comparison_note": "Question/evidence are visible and the public target is replaced with a frozen question-derived target.",
+        "condition": "frozen_target_plus_evidence_no_final",
+        "delta_outcome": "base_wrong_to_variant_right",
+        "gold_answer": "yes",
+        "question": "Are Daryl Hall and Gerry Marsden both musicians?",
+        "sample_index": 119,
+        "source_final_event": {
+          "action_required": "Provide conclusion based on both musicians' professions.",
+          "action_result": "Both Daryl Hall and Gerry Marsden are musicians.",
+          "environment_state": "Gerard Marsden MBE (born 24 September 1942) is an English musician and television personality, best known for being leader of the British Merseybeat band Gerry and the Pacemakers.",
+          "final_answer": "Yes"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide answer to the question.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.3333,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide conclusion based on both musicians' professions.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "Yes"
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "KKR & Co. L.P. (Kohlberg Kravis Roberts)",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "freeze_question_target",
+        "comparison_note": "Question/evidence are visible and the public target is replaced with a frozen question-derived target.",
+        "condition": "frozen_target_plus_evidence_no_final",
+        "delta_outcome": "base_wrong_to_variant_right",
+        "gold_answer": "kkr co",
+        "question": "Maxeda has been owned since 2004 by which American multinational equity firm?",
+        "sample_index": 123,
+        "source_final_event": {
+          "action_required": "Provide the name of the American multinational equity firm that owns Maxeda since 2004.",
+          "action_result": "Maxeda has been owned since 2004 by the American multinational equity firm Kohlberg Kravis Roberts.",
+          "environment_state": "KKR & Co.  L.P. (formerly known as Kohlberg Kravis Roberts & Co.) is an American multinational private equity firm, specializing in leveraged buyouts, headquartered in New York City.",
+          "final_answer": "Kohlberg Kravis Roberts"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide the final answer.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.7778,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide the name of the American multinational equity firm that owns Maxeda since 2004.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "KKR & Co."
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "Gimme Shelter was not nominated for any Oscars.",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "freeze_question_target",
+        "comparison_note": "Question/evidence are visible and the public target is replaced with a frozen question-derived target.",
+        "condition": "frozen_target_plus_evidence_no_final",
+        "delta_outcome": "base_wrong_to_variant_right",
+        "gold_answer": "lalees kin legacy of cotton",
+        "question": "Which film was Oscar nominated, LaLee's Kin: The Legacy of Cotton or Gimme Shelter, the 1970 Rolling Stones documentary?",
+        "sample_index": 130,
+        "source_final_event": {
+          "action_required": "Provide the Oscar nomination status for Gimme Shelter.",
+          "action_result": "LaLee's Kin: The Legacy of Cotton was nominated for Best Documentary Feature at the 74th Academy Awards, while Gimme Shelter was not nominated for any Oscars.",
+          "environment_state": "Gimme Shelter is a 1970 documentary film directed by Albert and David Maysles and Charlotte Zwerin chronicling the last weeks of The Rolling Stones' 1969 US tour which culminated in the disastrous Altamont Free Concert. The film was screened at the 1971 Cannes Film Festival, but was not entered into the main competition.",
+          "final_answer": "LaLee's Kin: The Legacy of Cotton was Oscar nominated, not Gimme Shelter."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide the Oscar nomination status for Gimme Shelter.",
+          "candidate_reasons": [
+            "new_anchor_loss"
+          ],
+          "newly_lost_anchors": [
+            "Gimme Shelter"
+          ],
+          "overlap_delta": -0.1429,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide conclusion based on Oscar nomination information.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "LaLee's Kin: The Legacy of Cotton"
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "\"Teach the Controversy\"",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "freeze_question_target",
+        "comparison_note": "Question/evidence are visible and the public target is replaced with a frozen question-derived target.",
+        "condition": "frozen_target_plus_evidence_no_final",
+        "delta_outcome": "base_wrong_to_variant_right",
+        "gold_answer": "teach controversy campaign",
+        "question": "Both Truth in Science and Discovery embrace what campaign?",
+        "sample_index": 142,
+        "source_final_event": {
+          "action_required": "Identify the campaign embraced by both Truth in Science and Discovery.",
+          "action_result": "The \"Teach the Controversy\" campaign is embraced by both Truth in Science and Discovery.",
+          "environment_state": "The \"Teach the Controversy\" campaign aims to permit teaching of anti-evolution, intelligent-design beliefs in United States public high school science courses alongside accepted scientific theories, positing that a scientific controversy exists over these subjects.",
+          "final_answer": "The \"Teach the Controversy\" campaign is embraced by both Truth in Science and Discovery."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Identify the campaign embraced by both Truth in Science and Discovery.",
+          "candidate_reasons": [
+            "new_anchor_loss",
+            "large_overlap_drop",
+            "low_variant_overlap"
+          ],
+          "newly_lost_anchors": [
+            "Both Truth",
+            "Science",
+            "Discovery"
+          ],
+          "overlap_delta": -0.5,
+          "target_slot_drift_candidate": true,
+          "variant_final_action_required": "Provide the campaign name embraced by both organizations.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": true,
+        "variant_correct": true,
+        "variant_prediction": "The \"Teach the Controversy\" campaign"
+      }
+    ],
+    "hide_public_target_rescues": [
+      {
+        "base_correct": false,
+        "base_prediction": "The given context does not provide the birth year of John Cecil Holm.",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_public_target",
+        "comparison_note": "Question and evidence are visible, but public Action Required is removed.",
+        "condition": "question_plus_evidence_no_target_no_final",
+        "delta_outcome": "base_wrong_to_variant_right",
+        "gold_answer": "1887",
+        "question": "hree Men on a Horse is a play by a playwright born in which year ?",
+        "sample_index": 106,
+        "source_final_event": {
+          "action_required": "Provide birth year of John Cecil Holm.",
+          "action_result": "George Abbott was born in 1887. John Cecil Holm's birth year is not provided in the given context.",
+          "environment_state": "[Three Men on a Horse is a play by George Abbott and John Cecil Holm.]",
+          "final_answer": "1887"
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "candidate_reasons": [],
+          "target_slot_drift_candidate": false
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "1887"
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "1978",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_public_target",
+        "comparison_note": "Question and evidence are visible, but public Action Required is removed.",
+        "condition": "question_plus_evidence_no_target_no_final",
+        "delta_outcome": "base_wrong_to_variant_right",
+        "gold_answer": "7 october 1978",
+        "question": "When was the  former Indian cricketer who made his ODI debuts during the 2000 ICC KnockOut Trophy born?",
+        "sample_index": 108,
+        "source_final_event": {
+          "action_required": "Provide the birth year of Zaheer Khan.",
+          "action_result": "Zaheer Khan was born on 7 October 1978.",
+          "environment_state": "Zaheer Khan (born 7 October 1978) is a former Indian cricketer who played all forms of the game for Indian national cricket team from 2000 till 2014.",
+          "final_answer": "7 October 1978"
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide the birth year of Zaheer Khan.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.0,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide the birth year of Yuvraj Singh.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "7 October 1978"
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "1936",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_public_target",
+        "comparison_note": "Question and evidence are visible, but public Action Required is removed.",
+        "condition": "question_plus_evidence_no_target_no_final",
+        "delta_outcome": "base_wrong_to_variant_right",
+        "gold_answer": "7 january 1936",
+        "question": "When was the British author who wrote the novel on which \"Here We Go Round the Mulberry Bush\" was based born?",
+        "sample_index": 112,
+        "source_final_event": {
+          "action_required": "Provide the birth year of Hunter Davies.",
+          "action_result": "Hunter Davies was born on 7 January 1936.",
+          "environment_state": "Edward Hunter Davies, OBE (born 7 January 1936) is a British author, journalist and broadcaster.",
+          "final_answer": "1936"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide the birth year of the author who wrote the novel on which \"Here We Go Round the Mulberry Bush\" was based.",
+          "candidate_reasons": [
+            "new_anchor_loss",
+            "large_overlap_drop",
+            "low_variant_overlap"
+          ],
+          "newly_lost_anchors": [
+            "Here We Go Round",
+            "Mulberry Bush"
+          ],
+          "overlap_delta": -0.8182,
+          "target_slot_drift_candidate": true,
+          "variant_final_action_required": "Provide the birth year of Hunter Davies.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": true,
+        "variant_correct": true,
+        "variant_prediction": "7 January 1936"
+      },
+      {
+        "base_correct": false,
+        "base_prediction": "Gimme Shelter was not nominated for any Oscars.",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_public_target",
+        "comparison_note": "Question and evidence are visible, but public Action Required is removed.",
+        "condition": "question_plus_evidence_no_target_no_final",
+        "delta_outcome": "base_wrong_to_variant_right",
+        "gold_answer": "lalees kin legacy of cotton",
+        "question": "Which film was Oscar nominated, LaLee's Kin: The Legacy of Cotton or Gimme Shelter, the 1970 Rolling Stones documentary?",
+        "sample_index": 130,
+        "source_final_event": {
+          "action_required": "Provide the Oscar nomination status for Gimme Shelter.",
+          "action_result": "LaLee's Kin: The Legacy of Cotton was nominated for Best Documentary Feature at the 74th Academy Awards, while Gimme Shelter was not nominated for any Oscars.",
+          "environment_state": "Gimme Shelter is a 1970 documentary film directed by Albert and David Maysles and Charlotte Zwerin chronicling the last weeks of The Rolling Stones' 1969 US tour which culminated in the disastrous Altamont Free Concert. The film was screened at the 1971 Cannes Film Festival, but was not entered into the main competition.",
+          "final_answer": "LaLee's Kin: The Legacy of Cotton was Oscar nominated, not Gimme Shelter."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide the Oscar nomination status for Gimme Shelter.",
+          "candidate_reasons": [
+            "new_anchor_loss"
+          ],
+          "newly_lost_anchors": [
+            "Gimme Shelter"
+          ],
+          "overlap_delta": -0.1429,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide conclusion based on Oscar nomination information.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": true,
+        "variant_prediction": "LaLee's Kin: The Legacy of Cotton"
+      }
+    ],
+    "public_target_only_regressions": [
+      {
+        "base_correct": true,
+        "base_prediction": "Larnelle Harris",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "larnelle harris",
+        "question": "David Huntsinger has worked with this gospel singer born in the month of July?",
+        "sample_index": 101,
+        "source_final_event": {
+          "action_required": "Determine if David Huntsinger has worked with a gospel singer born in July.",
+          "action_result": "Yes, David Huntsinger has worked with the gospel singer Larnelle Harris, who was born in July.",
+          "environment_state": "Larnelle Steward Harris (born July 6, 1947) is an American gospel singer and songwriter.",
+          "final_answer": "Yes"
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Determine if David Huntsinger has worked with a gospel singer born in July.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.0,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Determine if David Huntsinger has worked with a gospel singer born in July.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "Yes, Larnelle Harris, born in July."
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "Larnelle Harris",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "larnelle harris",
+        "question": "David Huntsinger has worked with this gospel singer born in the month of July?",
+        "sample_index": 101,
+        "source_final_event": {
+          "action_required": "Determine if David Huntsinger has worked with a gospel singer born in July.",
+          "action_result": "Yes, David Huntsinger has worked with the gospel singer Larnelle Harris, who was born in July.",
+          "environment_state": "Larnelle Steward Harris (born July 6, 1947) is an American gospel singer and songwriter.",
+          "final_answer": "Yes"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Determine if David Huntsinger has worked with a gospel singer born in July.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.0,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Determine if David Huntsinger has worked with a gospel singer born in July.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "Yes, Larnelle Harris, born in July."
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "Picric acid",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "picric acid",
+        "question": "Which component of shellite has the formula (ON)CHOH?",
+        "sample_index": 114,
+        "source_final_event": {
+          "action_required": "Provide fact",
+          "action_result": "Picric acid is a component of shellite that has the formula (ON)CHOH.",
+          "environment_state": "Picric acid is an organic compound with the formula (ON)CHOH.",
+          "final_answer": "Picric acid is the component of shellite with the formula (ON)CHOH."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide fact",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.0,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide relevant fact",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "(ON)CHOH"
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "230",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "230",
+        "question": "The Argentine PGA Championship record holder has won how many tournaments worldwide?",
+        "sample_index": 115,
+        "source_final_event": {
+          "action_required": "Provide the number of worldwide tournaments won by Roberto De Vicenzo.",
+          "action_result": "Roberto De Vicenzo won more than 230 tournaments worldwide.",
+          "environment_state": "Roberto De Vicenzo won more than 230 tournaments worldwide in his career including eight on the PGA Tour and most famously the 1967 Open Championship.",
+          "final_answer": "Roberto De Vicenzo won more than 230 tournaments worldwide."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide the number of worldwide tournaments won by Roberto De Vicenzo.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": -0.2222,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide the number of worldwide tournament wins for Roberto De Vicenzo.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "more than 230"
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "No.",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "no",
+        "question": "Were the bands Skin Yard and Ostava from the U.S.?",
+        "sample_index": 118,
+        "source_final_event": {
+          "action_required": "Provide conclusion based on information from Agent A and Agent B.",
+          "action_result": "Skin Yard was from the U.S., but Ostava was not.",
+          "environment_state": "Skin Yard was from the U.S., but Ostava was not.",
+          "final_answer": "Skin Yard was from the U.S., but Ostava was not."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide conclusion based on information from Agent A and Agent B.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.1667,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide conclusion about both bands' origins.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "Skin Yard was from the U.S., but Ostava was not."
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "The Spiderwick Chronicles",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "spiderwick chronicles",
+        "question": "What's the name of the fantasy film starring Sarah Bolger, featuring a New England family who discover magical creatures around their estate?",
+        "sample_index": 122,
+        "source_final_event": {
+          "action_required": "Confirm answer.",
+          "action_result": "The Spiderwick Chronicles is the fantasy film starring Sarah Bolger, featuring a New England family who discover magical creatures around their estate.",
+          "environment_state": "The Spiderwick Chronicles is a 2008 American fantasy adventure film based on the bestselling book series of the same name by Holly Black and Tony DiTerlizzi. It was directed by Mark Waters and stars Freddie Highmore, Sarah Bolger, Mary-Louise Parker, Martin Short, Nick Nolte, and Seth Rogen. Set in the Spiderwick Estate in New England, it follows the adventures of Jared Grace and his family as they discover a field guide to faeries, battle goblins, mole trolls and other magical creatures.",
+          "final_answer": "The Spiderwick Chronicles"
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "candidate_reasons": [],
+          "target_slot_drift_candidate": false
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "Sarah Bolger"
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "The Spiderwick Chronicles",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "spiderwick chronicles",
+        "question": "What's the name of the fantasy film starring Sarah Bolger, featuring a New England family who discover magical creatures around their estate?",
+        "sample_index": 122,
+        "source_final_event": {
+          "action_required": "Confirm relevance.",
+          "action_result": "The Spiderwick Chronicles",
+          "environment_state": "The Spiderwick Chronicles is a 2008 American fantasy adventure film based on the bestselling book series of the same name by Holly Black and Tony DiTerlizzi. It was directed by Mark Waters and stars Freddie Highmore, Sarah Bolger, Mary-Louise Parker, Martin Short, Nick Nolte, and Seth Rogen. Set in the Spiderwick Estate in New England, it follows the adventures of Jared Grace and his family as they discover a field guide to faeries, battle goblins, mole trolls and other magical creatures.",
+          "final_answer": "The Spiderwick Chronicles"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "candidate_reasons": [],
+          "target_slot_drift_candidate": false
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "The Spiderwick Chronicles is a 2008 American fantasy adventure film."
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "Owsley Stanley",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "owsley stanley",
+        "question": "Which American audio engineer and clandestine chemist, who was a key figure in the San Francisco Bay Area hippie movement during the 1960s recorded the album \"Old and in the Way?\"",
+        "sample_index": 126,
+        "source_final_event": {
+          "action_required": "Provide information about Owsley Stanley's identity and his role in recording \"Old and in the Way\".",
+          "action_result": "Owsley Stanley, an American audio engineer and clandestine chemist, recorded the album \"Old and in the Way\".",
+          "environment_state": "Owsley Stanley (born Augustus Owsley Stanley III, January 19, 1935 – March 12, 2011) was an American audio engineer and clandestine chemist. Under the professional name Bear, he was the soundman for the rock band the Grateful Dead, whom he met when Ken Kesey invited them to an Acid Test party. As their sound engineer, Stanley frequently recorded live tapes behind his mixing board. Owsley Stanley recorded the album \"Old and in the Way\".",
+          "final_answer": "Owsley Stanley recorded the album \"Old and in the Way\"."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide information about Owsley Stanley's identity and his role in recording \"Old and in the Way\".",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.0526,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide information about Owsley Stanley's role in recording the album \"Old and in the Way\".",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "Owsley Stanley recorded the album \"Old and in the Way\"."
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "LaLee's Kin: The Legacy of Cotton",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "lalees kin legacy of cotton",
+        "question": "Which film was Oscar nominated, LaLee's Kin: The Legacy of Cotton or Gimme Shelter, the 1970 Rolling Stones documentary?",
+        "sample_index": 130,
+        "source_final_event": {
+          "action_required": "Provide conclusion based on Oscar nomination information.",
+          "action_result": "LaLee's Kin: The Legacy of Cotton",
+          "environment_state": "LaLee's Kin: The Legacy of Cotton was nominated for Best Documentary Feature at the 74th Academy Awards.",
+          "final_answer": "LaLee's Kin: The Legacy of Cotton"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide the Oscar nomination status for Gimme Shelter.",
+          "candidate_reasons": [
+            "new_anchor_loss"
+          ],
+          "newly_lost_anchors": [
+            "Gimme Shelter"
+          ],
+          "overlap_delta": -0.1429,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide conclusion based on Oscar nomination information.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "LaLee's Kin: The Legacy of Cotton was nominated for Best Documentary Feature at the 74th Academy Awards."
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "Pirate's Cove",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "pirates cove",
+        "question": "Which board game was published most recently, Pirate's Cove or Catan?",
+        "sample_index": 131,
+        "source_final_event": {
+          "action_required": "Compare publication years of Pirate's Cove and Catan.",
+          "action_result": "Pirate's Cove was published more recently than Catan.",
+          "environment_state": "Pirate's Cove was originally published in 2002. Catan was first published in 1995.",
+          "final_answer": "Pirate's Cove"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide publication year of The Settlers of Catan.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.3333,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Compare publication years of Pirate's Cove and Catan.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "Catan was first published in 1995. Pirate's Cove was originally published in 2002."
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "Jillian Belk",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "jillian belk",
+        "question": "SuperMansion starred the actress who had a recurring role as whom on Workaholics?",
+        "sample_index": 135,
+        "source_final_event": {
+          "action_required": "Provide information about Jillian Bell's recurring role on Workaholics.",
+          "action_result": "Jillian Bell had a recurring role as Jillian Belk on Workaholics.",
+          "environment_state": "She is best known for her recurring roles as Jillian Belk on \"Workaholics\" and Dixie on the final season of \"Eastbound & Down\", as well as appearing in \"22 Jump Street\" and \"Fist Fight\" (2017).",
+          "final_answer": "SuperMansion starred the actress who had a recurring role as Jillian Belk on Workaholics."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide information about Jillian Bell's recurring role on Workaholics.",
+          "candidate_reasons": [
+            "new_anchor_loss"
+          ],
+          "newly_lost_anchors": [
+            "Workaholics"
+          ],
+          "overlap_delta": -0.1429,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide information about Jillian Bell's role in SuperMansion.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "Jillian Bell had a recurring role as Jillian Belk on Workaholics."
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "Jillian Belk",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "jillian belk",
+        "question": "SuperMansion starred the actress who had a recurring role as whom on Workaholics?",
+        "sample_index": 135,
+        "source_final_event": {
+          "action_required": "Provide information about Jillian Bell's role in SuperMansion.",
+          "action_result": "Jillian Bell had a recurring role as Jillian Belk on Workaholics.",
+          "environment_state": "Jillian Bell had a recurring role as Jillian Belk on \"Workaholics\".",
+          "final_answer": "Jillian Belk"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide information about Jillian Bell's recurring role on Workaholics.",
+          "candidate_reasons": [
+            "new_anchor_loss"
+          ],
+          "newly_lost_anchors": [
+            "Workaholics"
+          ],
+          "overlap_delta": -0.1429,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Provide information about Jillian Bell's role in SuperMansion.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "Jillian Bell had a recurring role as Jillian Belk on Workaholics. \n\nHowever, based on the instruction and the visible input, there is no mention of Jillian Bell's role in SuperMansion in the provided evidence. The final answer should reflect the information given, which is about her role in \""
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "Roberta Vinci",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "roberta vinci",
+        "question": "Who had the best singles ranking, Roberta Vinci or Jorge Lozano?",
+        "sample_index": 141,
+        "source_final_event": {
+          "action_required": "Compare the singles rankings of Roberta Vinci and Jorge Lozano.",
+          "action_result": "Roberta Vinci had a better singles ranking than Jorge Lozano.",
+          "environment_state": "Roberta Vinci reached a career-high singles ranking of World No. 7.",
+          "final_answer": "Roberta Vinci had the best singles ranking."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Compare the singles rankings of Roberta Vinci and Jorge Lozano.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.0,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Compare the singles rankings of Roberta Vinci and Jorge Lozano.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "World No. 7"
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "Roberta Vinci",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "roberta vinci",
+        "question": "Who had the best singles ranking, Roberta Vinci or Jorge Lozano?",
+        "sample_index": 141,
+        "source_final_event": {
+          "action_required": "Compare the singles rankings of Roberta Vinci and Jorge Lozano.",
+          "action_result": "Roberta Vinci had a better singles ranking than Jorge Lozano.",
+          "environment_state": "Roberta Vinci reached a career-high singles ranking of World No. 7.",
+          "final_answer": "Roberta Vinci"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Compare the singles rankings of Roberta Vinci and Jorge Lozano.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.0,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Compare the singles rankings of Roberta Vinci and Jorge Lozano.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "World No. 7"
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "\"Nebo Zovyot\"",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "nebo zovyot",
+        "question": "The movies Queen of Blood and Battle Beyond the Sun both contained scenes from what 1959 Soviet feature?",
+        "sample_index": 144,
+        "source_final_event": {
+          "action_required": "Provide information about the 1959 Soviet film \"Nebo Zovyot\".",
+          "action_result": "The movies Queen of Blood and Battle Beyond the Sun both contained scenes from the 1959 Soviet film \"Nebo Zovyot\".",
+          "environment_state": "Battle Beyond the Sun is the English-dubbed and re-edited U.S. version of \"Nebo Zovyot\", a 1959 Soviet science fiction film directed by Mikhail Karyukov and Aleksandr Kozyr.",
+          "final_answer": "Nebo Zovyot"
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "candidate_reasons": [],
+          "target_slot_drift_candidate": false
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "\"Nebo Zovyot\" is a 1959 Soviet science fiction film directed by Mikhail Karyukov and Aleksandr Kozyr."
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "Nebo Zovyot",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "nebo zovyot",
+        "question": "The movies Queen of Blood and Battle Beyond the Sun both contained scenes from what 1959 Soviet feature?",
+        "sample_index": 144,
+        "source_final_event": {
+          "action_required": "Provide the title of the 1959 Soviet feature \"Nebo Zovyot\" is based on or related to.",
+          "action_result": "The 1959 Soviet feature \"Nebo Zovyot\" contained scenes reused in \"Queen of Blood\".",
+          "environment_state": "Battle Beyond the Sun is the English-dubbed and re-edited U.S. version of \"Nebo Zovyot\", a 1959 Soviet science fiction film directed by Mikhail Karyukov and Aleksandr Kozyr.",
+          "final_answer": "Nebo Zovyot"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "candidate_reasons": [],
+          "target_slot_drift_candidate": false
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "Queen of Blood"
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "Erika Jayne",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "erika jayne",
+        "question": "Who was born first, Erika Jayne or Marco Da Silva",
+        "sample_index": 145,
+        "source_final_event": {
+          "action_required": "Compare birth dates of Marco Da Silva and Erika Jayne.",
+          "action_result": "Erika Jayne was born first.",
+          "environment_state": "Marco Da Silva was born on May 30th, 1977 and Erika Jayne was born on July 10th, 1971.",
+          "final_answer": "Erika Jayne was born first."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Compare birth dates of Marco Da Silva and Erika Jayne.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.0,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Compare birth dates of Marco Da Silva and Erika Jayne.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "Erika Jayne was born first."
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "Erika Jayne",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "erika jayne",
+        "question": "Who was born first, Erika Jayne or Marco Da Silva",
+        "sample_index": 145,
+        "source_final_event": {
+          "action_required": "Compare birth dates of Marco Da Silva and Erika Jayne.",
+          "action_result": "Erika Jayne was born on July 10th, 1971.",
+          "environment_state": "Marco Da Silva was born on May 30th, 1977.",
+          "final_answer": "Erika Jayne"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Compare birth dates of Marco Da Silva and Erika Jayne.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.0,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Compare birth dates of Marco Da Silva and Erika Jayne.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "July 10th, 1971"
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "The Beatles",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "beatles",
+        "question": "Who is Bruce Spizer an expert on, known as the most influential act of the rock era?",
+        "sample_index": 148,
+        "source_final_event": {
+          "action_required": "Provide conclusion based on expertise and influence.",
+          "action_result": "Bruce Spizer is an expert on the most influential act of the rock era, The Beatles.",
+          "environment_state": "The Beatles were widely regarded as the foremost and most influential act of the rock era.",
+          "final_answer": "Bruce Spizer is an expert on The Beatles."
+        },
+        "source_run": "baseline",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide conclusion based on expertise and influence.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.7778,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Confirm Bruce Spizer's expertise on The Beatles as the most influential act of the rock era.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "The Beatles were widely regarded as the foremost and most influential act of the rock era."
+      },
+      {
+        "base_correct": true,
+        "base_prediction": "The Beatles",
+        "bridge_family": "stable_right_or_not_focus",
+        "bridge_layer": "stable_right_or_not_focus",
+        "candidate_copy": false,
+        "candidate_correction": false,
+        "candidate_regression": false,
+        "candidate_visible": false,
+        "comparison": "hide_question_keep_public_target",
+        "comparison_note": "Original question is hidden; only public target and evidence remain.",
+        "condition": "public_target_plus_evidence_no_question_no_final",
+        "delta_outcome": "base_right_to_variant_wrong",
+        "gold_answer": "beatles",
+        "question": "Who is Bruce Spizer an expert on, known as the most influential act of the rock era?",
+        "sample_index": 148,
+        "source_final_event": {
+          "action_required": "Confirm Bruce Spizer's expertise on The Beatles as the most influential act of the rock era.",
+          "action_result": "Bruce Spizer is an expert on The Beatles, known as the most influential act of the rock era.",
+          "environment_state": "With members John Lennon, Paul McCartney, George Harrison and Ringo Starr, they became widely regarded as the foremost and most influential act of the rock era.",
+          "final_answer": "The Beatles"
+        },
+        "source_run": "final_contract",
+        "target_slot_diagnostic": {
+          "baseline_final_action_required": "Provide conclusion based on expertise and influence.",
+          "candidate_reasons": [],
+          "newly_lost_anchors": [],
+          "overlap_delta": 0.7778,
+          "target_slot_drift_candidate": false,
+          "variant_final_action_required": "Confirm Bruce Spizer's expertise on The Beatles as the most influential act of the rock era.",
+          "variant_introduced_risk_terms": []
+        },
+        "target_slot_drift_candidate": false,
+        "variant_correct": false,
+        "variant_prediction": "Bruce Spizer is an expert on The Beatles, known as the most influential act of the rock era."
+      }
+    ]
+  }
+}

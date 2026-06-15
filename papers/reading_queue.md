@@ -84,6 +84,19 @@ Current naming rule:
   shared verified context, typed context cards, or generic context quarantine;
   call the surviving object field-authority control inside public-state handoff.
 
+## Field-Authority / Answer-Contract Outside Check
+
+Source: 2026-06-15 outside check after
+`reports/20260615-field-authority-cross-slice-semantic-focus.md`.
+
+| Priority | Paper / Theme | Link | Why It Matters |
+| --- | --- | --- | --- |
+| P0 | Learning Question Classifiers | https://aclanthology.org/C02-1150.pdf | Classic answer-type classification; prevents overclaiming `answer_type_projection` as new. |
+| P0 | Extreme Classification for Answer Type Prediction in Question Answering | https://arxiv.org/abs/2304.12395 | Modern semantic answer-type prediction task; useful collision for any proposed answer-type verifier. |
+| P0 | HotpotQA | https://arxiv.org/abs/1809.09600 | Direct benchmark object; comparison and bridge questions explain why one public field can fail to preserve relation/answer type. |
+| P1 | MultiSpanQA | https://aclanthology.org/2022.naacl-main.90.pdf | Useful language for span semantics and answer-structure labels; not the same as our public-state field-authority problem. |
+| P1 | Question-Attended Span Extraction | https://arxiv.org/html/2404.17991v1 | Nearby mechanism for using the question to anchor spans; our niche is field validation inside public-state handoff. |
+
 
 ## Reading Card Template
 

@@ -1,0 +1,182 @@
+{
+  "bridge_family_row_counts": {
+    "stable_right_or_not_focus": 500
+  },
+  "bridge_layer_row_counts": {
+    "stable_right_or_not_focus": 500
+  },
+  "bridge_layer_sample_counts": {
+    "stable_right_or_not_focus": 50
+  },
+  "condition_axis_by_condition": {
+    "frozen_target_plus_evidence_no_final": "frozen_target_contract",
+    "public_target_plus_evidence_no_question_no_final": "public_target_sufficiency",
+    "question_plus_evidence_no_target_no_final": "target_field_ablation",
+    "question_plus_public_state_no_final": "evidence_to_answer_commitment",
+    "question_plus_public_state_with_final": "final_answer_commitment"
+  },
+  "condition_by_source_run": {
+    "baseline": {
+      "frozen_target_plus_evidence_no_final": 50,
+      "public_target_plus_evidence_no_question_no_final": 50,
+      "question_plus_evidence_no_target_no_final": 50,
+      "question_plus_public_state_no_final": 50,
+      "question_plus_public_state_with_final": 50
+    },
+    "final_contract": {
+      "frozen_target_plus_evidence_no_final": 50,
+      "public_target_plus_evidence_no_question_no_final": 50,
+      "question_plus_evidence_no_target_no_final": 50,
+      "question_plus_public_state_no_final": 50,
+      "question_plus_public_state_with_final": 50
+    }
+  },
+  "condition_counts": {
+    "frozen_target_plus_evidence_no_final": 100,
+    "public_target_plus_evidence_no_question_no_final": 100,
+    "question_plus_evidence_no_target_no_final": 100,
+    "question_plus_public_state_no_final": 100,
+    "question_plus_public_state_with_final": 100
+  },
+  "field_gold_presence_row_counts": {
+    "action_required": 65,
+    "action_result": 315,
+    "environment_state": 305,
+    "final_answer": 300
+  },
+  "intervention_axis_counts": {
+    "evidence_to_answer_commitment": 100,
+    "final_answer_commitment": 100,
+    "frozen_target_contract": 100,
+    "public_target_sufficiency": 100,
+    "target_field_ablation": 100
+  },
+  "note": "Model-ready packet only. No model was run and no new accuracy claim is implied.",
+  "records": 500,
+  "sample_indices": [
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120,
+    121,
+    122,
+    123,
+    124,
+    125,
+    126,
+    127,
+    128,
+    129,
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144,
+    145,
+    146,
+    147,
+    148,
+    149
+  ],
+  "sample_indices_by_bridge_layer": {
+    "stable_right_or_not_focus": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149
+    ]
+  },
+  "samples": 50,
+  "source_paths": {
+    "baseline_trace": "experiments\\20260614-1552-a8002-pact-qwen25-14b-hotpot50-offset100-target-contract\\comm_trace_offset100_baseline_v11.jsonl",
+    "bridge_cases": "experiments\\20260615-local-pact-public-state-field-bridge-offset100\\bridge_cases.jsonl",
+    "contract_trace": "experiments\\20260614-1552-a8002-pact-qwen25-14b-hotpot50-offset100-target-contract\\comm_trace_offset100_final_contract_v11.jsonl",
+    "target_slot_cases": "experiments\\20260614-1552-a8002-pact-qwen25-14b-hotpot50-offset100-target-contract\\target_slot_baseline_vs_final_cases.jsonl"
+  },
+  "source_run_counts": {
+    "baseline": 250,
+    "final_contract": 250
+  },
+  "target_slot_drift_candidate_rows": 60,
+  "target_slot_drift_candidate_samples": [
+    107,
+    112,
+    139,
+    140,
+    142,
+    147
+  ]
+}

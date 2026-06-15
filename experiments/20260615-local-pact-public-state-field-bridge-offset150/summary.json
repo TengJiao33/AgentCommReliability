@@ -1,0 +1,334 @@
+{
+  "bridge_family_by_layer": {
+    "evidence_or_content": {
+      "content_mismatch_after_public_state": 28
+    },
+    "final_answer_commitment": {
+      "final_candidate_attractor_regression": 3,
+      "final_candidate_rescue": 2,
+      "strict_span_or_granularity_failure": 17
+    },
+    "stable_answer": {
+      "stable_right_under_public_state": 27
+    },
+    "target_authority": {
+      "public_target_without_question_regression": 11
+    },
+    "target_contract": {
+      "frozen_question_target_regression": 1,
+      "frozen_question_target_rescue": 10
+    },
+    "target_field_ablation": {
+      "public_target_hurt_when_question_visible": 1
+    }
+  },
+  "bridge_family_counts": {
+    "content_mismatch_after_public_state": 28,
+    "final_candidate_attractor_regression": 3,
+    "final_candidate_rescue": 2,
+    "frozen_question_target_regression": 1,
+    "frozen_question_target_rescue": 10,
+    "public_target_hurt_when_question_visible": 1,
+    "public_target_without_question_regression": 11,
+    "stable_right_under_public_state": 27,
+    "strict_span_or_granularity_failure": 17
+  },
+  "bridge_layer_counts": {
+    "evidence_or_content": 28,
+    "final_answer_commitment": 22,
+    "stable_answer": 27,
+    "target_authority": 11,
+    "target_contract": 11,
+    "target_field_ablation": 1
+  },
+  "note": "Offline bridge labels over evaluated packet rows; this is an inspection surface, not a new model run.",
+  "records": 100,
+  "sample_units_by_family": {
+    "content_mismatch_after_public_state": [
+      "160:compact_final_contract",
+      "160:final_contract",
+      "164:compact_final_contract",
+      "165:compact_final_contract",
+      "165:final_contract",
+      "168:compact_final_contract",
+      "168:final_contract",
+      "172:compact_final_contract",
+      "172:final_contract",
+      "174:final_contract",
+      "178:compact_final_contract",
+      "178:final_contract",
+      "180:compact_final_contract",
+      "180:final_contract",
+      "183:compact_final_contract",
+      "183:final_contract",
+      "184:compact_final_contract",
+      "184:final_contract",
+      "187:compact_final_contract",
+      "187:final_contract",
+      "188:final_contract",
+      "189:compact_final_contract",
+      "191:compact_final_contract",
+      "191:final_contract",
+      "192:final_contract",
+      "196:compact_final_contract",
+      "196:final_contract",
+      "199:compact_final_contract"
+    ],
+    "final_candidate_attractor_regression": [
+      "153:compact_final_contract",
+      "154:compact_final_contract",
+      "157:compact_final_contract"
+    ],
+    "final_candidate_rescue": [
+      "166:compact_final_contract",
+      "185:compact_final_contract"
+    ],
+    "frozen_question_target_regression": [
+      "164:final_contract"
+    ],
+    "frozen_question_target_rescue": [
+      "152:compact_final_contract",
+      "152:final_contract",
+      "154:final_contract",
+      "156:compact_final_contract",
+      "161:final_contract",
+      "166:final_contract",
+      "173:compact_final_contract",
+      "175:compact_final_contract",
+      "175:final_contract",
+      "193:final_contract"
+    ],
+    "public_target_hurt_when_question_visible": [
+      "163:final_contract"
+    ],
+    "public_target_without_question_regression": [
+      "150:final_contract",
+      "153:final_contract",
+      "156:final_contract",
+      "161:compact_final_contract",
+      "167:final_contract",
+      "174:compact_final_contract",
+      "176:compact_final_contract",
+      "177:final_contract",
+      "181:final_contract",
+      "195:compact_final_contract",
+      "195:final_contract"
+    ],
+    "stable_right_under_public_state": [
+      "150:compact_final_contract",
+      "151:compact_final_contract",
+      "151:final_contract",
+      "155:compact_final_contract",
+      "155:final_contract",
+      "159:compact_final_contract",
+      "159:final_contract",
+      "162:compact_final_contract",
+      "162:final_contract",
+      "170:compact_final_contract",
+      "170:final_contract",
+      "171:compact_final_contract",
+      "171:final_contract",
+      "179:compact_final_contract",
+      "179:final_contract",
+      "181:compact_final_contract",
+      "182:compact_final_contract",
+      "182:final_contract",
+      "186:compact_final_contract",
+      "186:final_contract",
+      "188:compact_final_contract",
+      "189:final_contract",
+      "194:compact_final_contract",
+      "194:final_contract",
+      "197:compact_final_contract",
+      "197:final_contract",
+      "199:final_contract"
+    ],
+    "strict_span_or_granularity_failure": [
+      "157:final_contract",
+      "158:compact_final_contract",
+      "158:final_contract",
+      "163:compact_final_contract",
+      "167:compact_final_contract",
+      "169:compact_final_contract",
+      "169:final_contract",
+      "173:final_contract",
+      "176:final_contract",
+      "177:compact_final_contract",
+      "185:final_contract",
+      "190:compact_final_contract",
+      "190:final_contract",
+      "192:compact_final_contract",
+      "193:compact_final_contract",
+      "198:compact_final_contract",
+      "198:final_contract"
+    ]
+  },
+  "sample_units_by_layer": {
+    "evidence_or_content": [
+      "160:compact_final_contract",
+      "160:final_contract",
+      "164:compact_final_contract",
+      "165:compact_final_contract",
+      "165:final_contract",
+      "168:compact_final_contract",
+      "168:final_contract",
+      "172:compact_final_contract",
+      "172:final_contract",
+      "174:final_contract",
+      "178:compact_final_contract",
+      "178:final_contract",
+      "180:compact_final_contract",
+      "180:final_contract",
+      "183:compact_final_contract",
+      "183:final_contract",
+      "184:compact_final_contract",
+      "184:final_contract",
+      "187:compact_final_contract",
+      "187:final_contract",
+      "188:final_contract",
+      "189:compact_final_contract",
+      "191:compact_final_contract",
+      "191:final_contract",
+      "192:final_contract",
+      "196:compact_final_contract",
+      "196:final_contract",
+      "199:compact_final_contract"
+    ],
+    "final_answer_commitment": [
+      "153:compact_final_contract",
+      "154:compact_final_contract",
+      "157:compact_final_contract",
+      "157:final_contract",
+      "158:compact_final_contract",
+      "158:final_contract",
+      "163:compact_final_contract",
+      "166:compact_final_contract",
+      "167:compact_final_contract",
+      "169:compact_final_contract",
+      "169:final_contract",
+      "173:final_contract",
+      "176:final_contract",
+      "177:compact_final_contract",
+      "185:compact_final_contract",
+      "185:final_contract",
+      "190:compact_final_contract",
+      "190:final_contract",
+      "192:compact_final_contract",
+      "193:compact_final_contract",
+      "198:compact_final_contract",
+      "198:final_contract"
+    ],
+    "stable_answer": [
+      "150:compact_final_contract",
+      "151:compact_final_contract",
+      "151:final_contract",
+      "155:compact_final_contract",
+      "155:final_contract",
+      "159:compact_final_contract",
+      "159:final_contract",
+      "162:compact_final_contract",
+      "162:final_contract",
+      "170:compact_final_contract",
+      "170:final_contract",
+      "171:compact_final_contract",
+      "171:final_contract",
+      "179:compact_final_contract",
+      "179:final_contract",
+      "181:compact_final_contract",
+      "182:compact_final_contract",
+      "182:final_contract",
+      "186:compact_final_contract",
+      "186:final_contract",
+      "188:compact_final_contract",
+      "189:final_contract",
+      "194:compact_final_contract",
+      "194:final_contract",
+      "197:compact_final_contract",
+      "197:final_contract",
+      "199:final_contract"
+    ],
+    "target_authority": [
+      "150:final_contract",
+      "153:final_contract",
+      "156:final_contract",
+      "161:compact_final_contract",
+      "167:final_contract",
+      "174:compact_final_contract",
+      "176:compact_final_contract",
+      "177:final_contract",
+      "181:final_contract",
+      "195:compact_final_contract",
+      "195:final_contract"
+    ],
+    "target_contract": [
+      "152:compact_final_contract",
+      "152:final_contract",
+      "154:final_contract",
+      "156:compact_final_contract",
+      "161:final_contract",
+      "164:final_contract",
+      "166:final_contract",
+      "173:compact_final_contract",
+      "175:compact_final_contract",
+      "175:final_contract",
+      "193:final_contract"
+    ],
+    "target_field_ablation": [
+      "163:final_contract"
+    ]
+  },
+  "signal_counts": {
+    "freeze_question_target": {
+      "both_right": 38,
+      "both_wrong": 48,
+      "regression": 4,
+      "rescue": 10
+    },
+    "hide_public_target": {
+      "both_right": 40,
+      "both_wrong": 53,
+      "regression": 2,
+      "rescue": 5
+    },
+    "hide_question_keep_public_target": {
+      "both_right": 31,
+      "both_wrong": 58,
+      "regression": 11
+    },
+    "show_final_answer_candidate": {
+      "both_right": 37,
+      "both_wrong": 52,
+      "regression": 5,
+      "rescue": 6
+    }
+  },
+  "source_paths": {
+    "evaluated": "experiments\\20260615-1840-a8002-pact-public-state-field-offset150-qwen25-14b\\evaluation\\evaluated_rows.jsonl",
+    "packet": "experiments\\20260615-local-pact-public-state-field-packet-offset150\\field_packet.jsonl",
+    "span_rows": "experiments\\20260615-1840-a8002-pact-public-state-field-offset150-qwen25-14b\\span_granularity_audit\\span_granularity_rows.jsonl"
+  },
+  "target_slot_candidate_by_layer": {
+    "evidence_or_content": {
+      "": 20,
+      "True": 8
+    },
+    "final_answer_commitment": {
+      "": 14,
+      "True": 8
+    },
+    "stable_answer": {
+      "": 27
+    },
+    "target_authority": {
+      "": 10,
+      "True": 1
+    },
+    "target_contract": {
+      "": 11
+    },
+    "target_field_ablation": {
+      "True": 1
+    }
+  },
+  "unique_samples": 50
+}

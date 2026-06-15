@@ -1,0 +1,8 @@
+[answer-contract-verifier] run_id=20260615-1951-a8002-pact-answer-contract-verifier-v2-qwen25-14b
+[answer-contract-verifier] model=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct served=qwen2.5-14b-answer-contract-verifier gpu=7 port=8035
+[answer-contract-verifier] packet=/data/xuhaoming/yfy/research_workspace/experiments/20260615-local-pact-answer-contract-verifier-packet-v2/verifier_packet.jsonl
+[answer-contract-verifier] vLLM ready after 23 checks
+[answer-contract-verifier] running packet -> /data/xuhaoming/yfy/research_workspace/experiments/20260615-1951-a8002-pact-answer-contract-verifier-v2-qwen25-14b
+[answer-contract-verifier] evaluating -> /data/xuhaoming/yfy/research_workspace/experiments/20260615-1951-a8002-pact-answer-contract-verifier-v2-qwen25-14b/evaluation
+[answer-contract-verifier] completed 20260615-1951-a8002-pact-answer-contract-verifier-v2-qwen25-14b
+[answer-contract-verifier] outputs=/data/xuhaoming/yfy/research_workspace/experiments/20260615-1951-a8002-pact-answer-contract-verifier-v2-qwen25-14b

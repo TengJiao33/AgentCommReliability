@@ -261,6 +261,7 @@ def make_row(
     condition: Mapping[str, Any],
     bridge: Optional[Mapping[str, Any]],
     target: Optional[Mapping[str, Any]],
+    packet_prefix: str,
 ) -> Dict[str, Any]:
     event = final_event(trace)
     question = str(trace.get("question") or "")
@@ -279,7 +280,7 @@ def make_row(
         key for key, value in public_state.items()
         if value is not None
     ]
-    packet_id = f"pact-offset50-{sample_index}-{source_run}-{condition['condition']}"
+    packet_id = f"{packet_prefix}-{sample_index}-{source_run}-{condition['condition']}"
 
     return {
         "packet_id": packet_id,
@@ -350,6 +351,7 @@ def sample_indices_by(rows: Iterable[Mapping[str, Any]], key: str) -> Dict[str, 
 
 
 def render_readme(summary: Mapping[str, Any], args: argparse.Namespace) -> str:
+    source_labels = list(summary["source_run_counts"].keys())
     condition_rows = [
         [condition, count, summary["condition_axis_by_condition"][condition]]
         for condition, count in summary["condition_counts"].items()
@@ -361,13 +363,13 @@ def render_readme(summary: Mapping[str, Any], args: argparse.Namespace) -> str:
     lines = [
         "# PACT Public-State Field Packet",
         "",
-        "This packet turns the PACT HotpotQA offset50 traces into model-ready final-answer prompts.",
+        "This packet turns paired PACT HotpotQA traces into model-ready final-answer prompts.",
         "It is a setup artifact, not a model result.",
         "",
         "## Sources",
         "",
-        f"- Baseline trace: `{args.baseline_trace}`",
-        f"- Final-contract trace: `{args.contract_trace}`",
+        f"- Left source `{args.baseline_source_label}`: `{args.baseline_trace}`",
+        f"- Right source `{args.contract_source_label}`: `{args.contract_trace}`",
         f"- Bridge labels: `{args.bridge_cases}`",
         f"- Target diagnostics: `{args.target_slot_cases}`",
         "",
@@ -400,6 +402,7 @@ def render_readme(summary: Mapping[str, Any], args: argparse.Namespace) -> str:
         "",
         "Run a model over `field_packet.jsonl`, feeding each row's `prompt` and writing back the raw output keyed by `packet_id`.",
         "Evaluate against the `evaluation.gold_answer` metadata with HotpotQA exact match/F1, then slice by `condition`, `source_run`, `bridge_layer`, `bridge_family`, and `target_slot_diagnostic.target_slot_drift_candidate`.",
+        f"The source-run labels in this packet are: {', '.join(f'`{label}`' for label in source_labels)}.",
         "",
         "The intended comparisons are:",
         "",
@@ -416,7 +419,8 @@ def render_readme(summary: Mapping[str, Any], args: argparse.Namespace) -> str:
     return "\n".join(lines)
 
 
-def render_scoring_plan() -> str:
+def render_scoring_plan(source_labels: Iterable[str]) -> str:
+    labels = ", ".join(f"`{label}`" for label in source_labels)
     return "\n".join([
         "# Scoring Plan",
         "",
@@ -426,7 +430,7 @@ def render_scoring_plan() -> str:
         "",
         "Required slices:",
         "",
-        "- `source_run`: `baseline` vs `final_contract`.",
+        f"- `source_run`: {labels}.",
         "- `condition`: five field visibility conditions.",
         "- `bridge_layer` and `bridge_family` from the field bridge audit.",
         "- `target_slot_diagnostic.target_slot_drift_candidate`: target-drift candidate vs non-candidate.",
@@ -455,8 +459,8 @@ def build(args: argparse.Namespace) -> Dict[str, Any]:
     rows: List[Dict[str, Any]] = []
     for sample_index in sample_indices:
         for source_run, traces in [
-            ("baseline", baseline),
-            ("final_contract", contract),
+            (args.baseline_source_label, baseline),
+            (args.contract_source_label, contract),
         ]:
             for condition in CONDITIONS:
                 rows.append(
@@ -467,6 +471,7 @@ def build(args: argparse.Namespace) -> Dict[str, Any]:
                         condition=condition,
                         bridge=bridge.get(sample_index),
                         target=target.get(sample_index),
+                        packet_prefix=args.packet_prefix,
                     )
                 )
 
@@ -515,6 +520,8 @@ def build(args: argparse.Namespace) -> Dict[str, Any]:
         "source_paths": {
             "baseline_trace": str(args.baseline_trace),
             "contract_trace": str(args.contract_trace),
+            "baseline_source_label": args.baseline_source_label,
+            "contract_source_label": args.contract_source_label,
             "bridge_cases": str(args.bridge_cases),
             "target_slot_cases": str(args.target_slot_cases),
         },
@@ -528,7 +535,7 @@ def build(args: argparse.Namespace) -> Dict[str, Any]:
     write_jsonl(args.out_dir / "field_packet.jsonl", rows)
     write_json(args.out_dir / "summary.json", summary)
     write_text(args.out_dir / "README.md", render_readme(summary, args))
-    write_text(args.out_dir / "scoring_plan.md", render_scoring_plan())
+    write_text(args.out_dir / "scoring_plan.md", render_scoring_plan(summary["source_run_counts"].keys()))
     return summary
 
 
@@ -555,6 +562,9 @@ def build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_RUN_DIR / "target_slot_drift_cases.jsonl",
     )
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
+    parser.add_argument("--packet-prefix", default="pact-offset50")
+    parser.add_argument("--baseline-source-label", default="baseline")
+    parser.add_argument("--contract-source-label", default="final_contract")
     return parser
 
 

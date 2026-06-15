@@ -1,0 +1,260 @@
+{
+  "by_bridge_family": {
+    "stable_right_or_not_focus": {
+      "avg_f1": 0.6406190476190476,
+      "candidate_copy_count": 97,
+      "candidate_copy_rate": 0.97,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 100,
+      "exact_match": 0.47,
+      "exact_matches": 235,
+      "records": 500
+    }
+  },
+  "by_bridge_layer": {
+    "stable_right_or_not_focus": {
+      "avg_f1": 0.6406190476190476,
+      "candidate_copy_count": 97,
+      "candidate_copy_rate": 0.97,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 100,
+      "exact_match": 0.47,
+      "exact_matches": 235,
+      "records": 500
+    }
+  },
+  "by_condition": {
+    "frozen_target_plus_evidence_no_final": {
+      "avg_f1": 0.6406190476190475,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 0.47,
+      "exact_matches": 47,
+      "records": 100
+    },
+    "public_target_plus_evidence_no_question_no_final": {
+      "avg_f1": 0.6406190476190475,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 0.47,
+      "exact_matches": 47,
+      "records": 100
+    },
+    "question_plus_evidence_no_target_no_final": {
+      "avg_f1": 0.6406190476190475,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 0.47,
+      "exact_matches": 47,
+      "records": 100
+    },
+    "question_plus_public_state_no_final": {
+      "avg_f1": 0.6406190476190475,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 0.47,
+      "exact_matches": 47,
+      "records": 100
+    },
+    "question_plus_public_state_with_final": {
+      "avg_f1": 0.6406190476190475,
+      "candidate_copy_count": 97,
+      "candidate_copy_rate": 0.97,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 100,
+      "exact_match": 0.47,
+      "exact_matches": 47,
+      "records": 100
+    }
+  },
+  "by_source_run": {
+    "compact_final_contract": {
+      "avg_f1": 0.6035873015873016,
+      "candidate_copy_count": 47,
+      "candidate_copy_rate": 0.94,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 50,
+      "exact_match": 0.44,
+      "exact_matches": 110,
+      "records": 250
+    },
+    "final_contract": {
+      "avg_f1": 0.6776507936507936,
+      "candidate_copy_count": 50,
+      "candidate_copy_rate": 1.0,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 50,
+      "exact_match": 0.5,
+      "exact_matches": 125,
+      "records": 250
+    }
+  },
+  "by_source_run_condition": {
+    "compact_final_contract | frozen_target_plus_evidence_no_final": {
+      "avg_f1": 0.6035873015873016,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 0.44,
+      "exact_matches": 22,
+      "records": 50
+    },
+    "compact_final_contract | public_target_plus_evidence_no_question_no_final": {
+      "avg_f1": 0.6035873015873016,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 0.44,
+      "exact_matches": 22,
+      "records": 50
+    },
+    "compact_final_contract | question_plus_evidence_no_target_no_final": {
+      "avg_f1": 0.6035873015873016,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 0.44,
+      "exact_matches": 22,
+      "records": 50
+    },
+    "compact_final_contract | question_plus_public_state_no_final": {
+      "avg_f1": 0.6035873015873016,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 0.44,
+      "exact_matches": 22,
+      "records": 50
+    },
+    "compact_final_contract | question_plus_public_state_with_final": {
+      "avg_f1": 0.6035873015873016,
+      "candidate_copy_count": 47,
+      "candidate_copy_rate": 0.94,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 50,
+      "exact_match": 0.44,
+      "exact_matches": 22,
+      "records": 50
+    },
+    "final_contract | frozen_target_plus_evidence_no_final": {
+      "avg_f1": 0.6776507936507936,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 0.5,
+      "exact_matches": 25,
+      "records": 50
+    },
+    "final_contract | public_target_plus_evidence_no_question_no_final": {
+      "avg_f1": 0.6776507936507936,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 0.5,
+      "exact_matches": 25,
+      "records": 50
+    },
+    "final_contract | question_plus_evidence_no_target_no_final": {
+      "avg_f1": 0.6776507936507936,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 0.5,
+      "exact_matches": 25,
+      "records": 50
+    },
+    "final_contract | question_plus_public_state_no_final": {
+      "avg_f1": 0.6776507936507936,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 0.5,
+      "exact_matches": 25,
+      "records": 50
+    },
+    "final_contract | question_plus_public_state_with_final": {
+      "avg_f1": 0.6776507936507936,
+      "candidate_copy_count": 50,
+      "candidate_copy_rate": 1.0,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 50,
+      "exact_match": 0.5,
+      "exact_matches": 25,
+      "records": 50
+    }
+  },
+  "by_target_slot_drift_candidate": {
+    "False": {
+      "avg_f1": 0.6787262872628727,
+      "candidate_copy_count": 79,
+      "candidate_copy_rate": 0.9634146341463414,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 82,
+      "exact_match": 0.573170731707317,
+      "exact_matches": 235,
+      "records": 410
+    },
+    "True": {
+      "avg_f1": 0.4670194003527337,
+      "candidate_copy_count": 18,
+      "candidate_copy_rate": 1.0,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 18,
+      "exact_match": 0.0,
+      "exact_matches": 0,
+      "records": 90
+    }
+  },
+  "note": "If prediction_source is official_final_answer or final_answer_candidate, this is a smoke/baseline score rather than a model packet result.",
+  "outputs": null,
+  "overall": {
+    "avg_f1": 0.6406190476190476,
+    "candidate_copy_count": 97,
+    "candidate_copy_rate": 0.97,
+    "candidate_correction_count": 0,
+    "candidate_regression_count": 0,
+    "candidate_visible_records": 100,
+    "exact_match": 0.47,
+    "exact_matches": 235,
+    "records": 500
+  },
+  "packet": "experiments\\20260615-local-pact-public-state-field-packet-offset150\\field_packet.jsonl",
+  "prediction_source": "official_final_answer"
+}

@@ -1,0 +1,334 @@
+{
+  "bridge_family_by_layer": {
+    "evidence_or_content": {
+      "content_mismatch_after_public_state": 25
+    },
+    "final_answer_commitment": {
+      "final_candidate_attractor_regression": 2,
+      "strict_span_or_granularity_failure": 16
+    },
+    "stable_answer": {
+      "stable_right_under_public_state": 26
+    },
+    "target_authority": {
+      "public_target_without_question_regression": 20
+    },
+    "target_contract": {
+      "frozen_question_target_regression": 1,
+      "frozen_question_target_rescue": 7,
+      "target_drift_rescued_by_question_projection": 2
+    },
+    "target_field_ablation": {
+      "public_target_helped_when_question_visible": 1
+    }
+  },
+  "bridge_family_counts": {
+    "content_mismatch_after_public_state": 25,
+    "final_candidate_attractor_regression": 2,
+    "frozen_question_target_regression": 1,
+    "frozen_question_target_rescue": 7,
+    "public_target_helped_when_question_visible": 1,
+    "public_target_without_question_regression": 20,
+    "stable_right_under_public_state": 26,
+    "strict_span_or_granularity_failure": 16,
+    "target_drift_rescued_by_question_projection": 2
+  },
+  "bridge_layer_counts": {
+    "evidence_or_content": 25,
+    "final_answer_commitment": 18,
+    "stable_answer": 26,
+    "target_authority": 20,
+    "target_contract": 10,
+    "target_field_ablation": 1
+  },
+  "note": "Offline bridge labels over evaluated packet rows; this is an inspection surface, not a new model run.",
+  "records": 100,
+  "sample_units_by_family": {
+    "content_mismatch_after_public_state": [
+      "100:baseline",
+      "100:final_contract",
+      "107:baseline",
+      "107:final_contract",
+      "108:final_contract",
+      "111:final_contract",
+      "113:baseline",
+      "113:final_contract",
+      "116:final_contract",
+      "117:baseline",
+      "117:final_contract",
+      "120:baseline",
+      "120:final_contract",
+      "128:final_contract",
+      "129:baseline",
+      "129:final_contract",
+      "131:baseline",
+      "134:baseline",
+      "134:final_contract",
+      "137:baseline",
+      "137:final_contract",
+      "139:baseline",
+      "139:final_contract",
+      "143:baseline",
+      "143:final_contract"
+    ],
+    "final_candidate_attractor_regression": [
+      "102:baseline",
+      "102:final_contract"
+    ],
+    "frozen_question_target_regression": [
+      "149:final_contract"
+    ],
+    "frozen_question_target_rescue": [
+      "106:baseline",
+      "108:baseline",
+      "118:final_contract",
+      "119:baseline",
+      "119:final_contract",
+      "123:final_contract",
+      "130:baseline"
+    ],
+    "public_target_helped_when_question_visible": [
+      "149:baseline"
+    ],
+    "public_target_without_question_regression": [
+      "101:baseline",
+      "101:final_contract",
+      "114:baseline",
+      "115:baseline",
+      "118:baseline",
+      "122:baseline",
+      "122:final_contract",
+      "126:baseline",
+      "130:final_contract",
+      "131:final_contract",
+      "135:baseline",
+      "135:final_contract",
+      "141:baseline",
+      "141:final_contract",
+      "144:baseline",
+      "144:final_contract",
+      "145:baseline",
+      "145:final_contract",
+      "148:baseline",
+      "148:final_contract"
+    ],
+    "stable_right_under_public_state": [
+      "104:baseline",
+      "104:final_contract",
+      "105:baseline",
+      "105:final_contract",
+      "106:final_contract",
+      "109:baseline",
+      "109:final_contract",
+      "110:baseline",
+      "110:final_contract",
+      "111:baseline",
+      "114:final_contract",
+      "121:baseline",
+      "121:final_contract",
+      "124:baseline",
+      "124:final_contract",
+      "126:final_contract",
+      "127:baseline",
+      "127:final_contract",
+      "132:baseline",
+      "132:final_contract",
+      "133:baseline",
+      "133:final_contract",
+      "136:baseline",
+      "136:final_contract",
+      "146:baseline",
+      "146:final_contract"
+    ],
+    "strict_span_or_granularity_failure": [
+      "103:baseline",
+      "103:final_contract",
+      "112:baseline",
+      "115:final_contract",
+      "116:baseline",
+      "123:baseline",
+      "125:baseline",
+      "125:final_contract",
+      "128:baseline",
+      "138:baseline",
+      "138:final_contract",
+      "140:baseline",
+      "140:final_contract",
+      "142:final_contract",
+      "147:baseline",
+      "147:final_contract"
+    ],
+    "target_drift_rescued_by_question_projection": [
+      "112:final_contract",
+      "142:baseline"
+    ]
+  },
+  "sample_units_by_layer": {
+    "evidence_or_content": [
+      "100:baseline",
+      "100:final_contract",
+      "107:baseline",
+      "107:final_contract",
+      "108:final_contract",
+      "111:final_contract",
+      "113:baseline",
+      "113:final_contract",
+      "116:final_contract",
+      "117:baseline",
+      "117:final_contract",
+      "120:baseline",
+      "120:final_contract",
+      "128:final_contract",
+      "129:baseline",
+      "129:final_contract",
+      "131:baseline",
+      "134:baseline",
+      "134:final_contract",
+      "137:baseline",
+      "137:final_contract",
+      "139:baseline",
+      "139:final_contract",
+      "143:baseline",
+      "143:final_contract"
+    ],
+    "final_answer_commitment": [
+      "102:baseline",
+      "102:final_contract",
+      "103:baseline",
+      "103:final_contract",
+      "112:baseline",
+      "115:final_contract",
+      "116:baseline",
+      "123:baseline",
+      "125:baseline",
+      "125:final_contract",
+      "128:baseline",
+      "138:baseline",
+      "138:final_contract",
+      "140:baseline",
+      "140:final_contract",
+      "142:final_contract",
+      "147:baseline",
+      "147:final_contract"
+    ],
+    "stable_answer": [
+      "104:baseline",
+      "104:final_contract",
+      "105:baseline",
+      "105:final_contract",
+      "106:final_contract",
+      "109:baseline",
+      "109:final_contract",
+      "110:baseline",
+      "110:final_contract",
+      "111:baseline",
+      "114:final_contract",
+      "121:baseline",
+      "121:final_contract",
+      "124:baseline",
+      "124:final_contract",
+      "126:final_contract",
+      "127:baseline",
+      "127:final_contract",
+      "132:baseline",
+      "132:final_contract",
+      "133:baseline",
+      "133:final_contract",
+      "136:baseline",
+      "136:final_contract",
+      "146:baseline",
+      "146:final_contract"
+    ],
+    "target_authority": [
+      "101:baseline",
+      "101:final_contract",
+      "114:baseline",
+      "115:baseline",
+      "118:baseline",
+      "122:baseline",
+      "122:final_contract",
+      "126:baseline",
+      "130:final_contract",
+      "131:final_contract",
+      "135:baseline",
+      "135:final_contract",
+      "141:baseline",
+      "141:final_contract",
+      "144:baseline",
+      "144:final_contract",
+      "145:baseline",
+      "145:final_contract",
+      "148:baseline",
+      "148:final_contract"
+    ],
+    "target_contract": [
+      "106:baseline",
+      "108:baseline",
+      "112:final_contract",
+      "118:final_contract",
+      "119:baseline",
+      "119:final_contract",
+      "123:final_contract",
+      "130:baseline",
+      "142:baseline",
+      "149:final_contract"
+    ],
+    "target_field_ablation": [
+      "149:baseline"
+    ]
+  },
+  "signal_counts": {
+    "freeze_question_target": {
+      "both_right": 47,
+      "both_wrong": 41,
+      "regression": 3,
+      "rescue": 9
+    },
+    "hide_public_target": {
+      "both_right": 43,
+      "both_wrong": 46,
+      "regression": 7,
+      "rescue": 4
+    },
+    "hide_question_keep_public_target": {
+      "both_right": 30,
+      "both_wrong": 50,
+      "regression": 20
+    },
+    "show_final_answer_candidate": {
+      "both_right": 40,
+      "both_wrong": 47,
+      "regression": 10,
+      "rescue": 3
+    }
+  },
+  "source_paths": {
+    "evaluated": "experiments\\20260615-1810-a8002-pact-public-state-field-offset100-qwen25-14b\\evaluation\\evaluated_rows.jsonl",
+    "packet": "experiments\\20260615-local-pact-public-state-field-packet-offset100\\field_packet.jsonl",
+    "span_rows": "experiments\\20260615-1810-a8002-pact-public-state-field-offset100-qwen25-14b\\span_granularity_audit\\span_granularity_rows.jsonl"
+  },
+  "target_slot_candidate_by_layer": {
+    "evidence_or_content": {
+      "": 21,
+      "True": 4
+    },
+    "final_answer_commitment": {
+      "": 12,
+      "True": 6
+    },
+    "stable_answer": {
+      "": 26
+    },
+    "target_authority": {
+      "": 20
+    },
+    "target_contract": {
+      "": 8,
+      "True": 2
+    },
+    "target_field_ablation": {
+      "": 1
+    }
+  },
+  "unique_samples": 50
+}

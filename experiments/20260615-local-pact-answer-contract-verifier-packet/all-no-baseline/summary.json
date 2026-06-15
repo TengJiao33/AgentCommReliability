@@ -1,0 +1,414 @@
+{
+  "by_label_source": {
+    "negative_control_seed": {
+      "alarm_binary_metrics": {
+        "answer_contract_alarm": {
+          "accuracy": 0.3333333333333333,
+          "f1": 0.0,
+          "fn": 16,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 8,
+          "tp": 0
+        },
+        "answer_type_relation_alarm": {
+          "accuracy": 1.0,
+          "f1": 0.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 24,
+          "tp": 0
+        },
+        "evidence_adequacy_alarm": {
+          "accuracy": 0.6666666666666666,
+          "f1": 0.0,
+          "fn": 8,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 16,
+          "tp": 0
+        },
+        "final_candidate_alarm": {
+          "accuracy": 0.7916666666666666,
+          "f1": 0.0,
+          "fn": 5,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 19,
+          "tp": 0
+        },
+        "short_span_granularity_alarm": {
+          "accuracy": 0.6666666666666666,
+          "f1": 0.0,
+          "fn": 8,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 16,
+          "tp": 0
+        },
+        "target_authority_alarm": {
+          "accuracy": 0.9166666666666666,
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 22,
+          "tp": 0
+        }
+      },
+      "alarm_exact_accuracy": {
+        "answer_contract_alarm": 0.3333333333333333,
+        "answer_type_relation_alarm": 1.0,
+        "evidence_adequacy_alarm": 0.6666666666666666,
+        "final_candidate_alarm": 0.7916666666666666,
+        "short_span_granularity_alarm": 0.6666666666666666,
+        "target_authority_alarm": 0.9166666666666666
+      },
+      "exact_all_fields_accuracy": 0.3333333333333333,
+      "primary_surface_accuracy": 0.3333333333333333,
+      "records": 24
+    },
+    "positive_target_layer_seed": {
+      "alarm_binary_metrics": {
+        "answer_contract_alarm": {
+          "accuracy": 0.0,
+          "f1": 0.0,
+          "fn": 50,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 0,
+          "tp": 0
+        },
+        "answer_type_relation_alarm": {
+          "accuracy": 0.52,
+          "f1": 0.0,
+          "fn": 24,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 26,
+          "tp": 0
+        },
+        "evidence_adequacy_alarm": {
+          "accuracy": 0.9,
+          "f1": 0.0,
+          "fn": 5,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 45,
+          "tp": 0
+        },
+        "final_candidate_alarm": {
+          "accuracy": 1.0,
+          "f1": 0.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 50,
+          "tp": 0
+        },
+        "short_span_granularity_alarm": {
+          "accuracy": 0.58,
+          "f1": 0.0,
+          "fn": 21,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 29,
+          "tp": 0
+        },
+        "target_authority_alarm": {
+          "accuracy": 0.1,
+          "f1": 0.0,
+          "fn": 45,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 5,
+          "tp": 0
+        }
+      },
+      "alarm_exact_accuracy": {
+        "answer_contract_alarm": 0.0,
+        "answer_type_relation_alarm": 0.52,
+        "evidence_adequacy_alarm": 0.9,
+        "final_candidate_alarm": 1.0,
+        "short_span_granularity_alarm": 0.58,
+        "target_authority_alarm": 0.1
+      },
+      "exact_all_fields_accuracy": 0.0,
+      "primary_surface_accuracy": 0.0,
+      "records": 50
+    }
+  },
+  "by_slice": {
+    "offset100": {
+      "alarm_binary_metrics": {
+        "answer_contract_alarm": {
+          "accuracy": 0.1,
+          "f1": 0.0,
+          "fn": 36,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 4,
+          "tp": 0
+        },
+        "answer_type_relation_alarm": {
+          "accuracy": 0.65,
+          "f1": 0.0,
+          "fn": 14,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 26,
+          "tp": 0
+        },
+        "evidence_adequacy_alarm": {
+          "accuracy": 0.85,
+          "f1": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 34,
+          "tp": 0
+        },
+        "final_candidate_alarm": {
+          "accuracy": 0.95,
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 38,
+          "tp": 0
+        },
+        "short_span_granularity_alarm": {
+          "accuracy": 0.6,
+          "f1": 0.0,
+          "fn": 16,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 24,
+          "tp": 0
+        },
+        "target_authority_alarm": {
+          "accuracy": 0.35,
+          "f1": 0.0,
+          "fn": 26,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 14,
+          "tp": 0
+        }
+      },
+      "alarm_exact_accuracy": {
+        "answer_contract_alarm": 0.1,
+        "answer_type_relation_alarm": 0.65,
+        "evidence_adequacy_alarm": 0.85,
+        "final_candidate_alarm": 0.95,
+        "short_span_granularity_alarm": 0.6,
+        "target_authority_alarm": 0.35
+      },
+      "exact_all_fields_accuracy": 0.1,
+      "primary_surface_accuracy": 0.1,
+      "records": 40
+    },
+    "offset150": {
+      "alarm_binary_metrics": {
+        "answer_contract_alarm": {
+          "accuracy": 0.11764705882352941,
+          "f1": 0.0,
+          "fn": 30,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 4,
+          "tp": 0
+        },
+        "answer_type_relation_alarm": {
+          "accuracy": 0.7058823529411765,
+          "f1": 0.0,
+          "fn": 10,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 24,
+          "tp": 0
+        },
+        "evidence_adequacy_alarm": {
+          "accuracy": 0.7941176470588235,
+          "f1": 0.0,
+          "fn": 7,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 27,
+          "tp": 0
+        },
+        "final_candidate_alarm": {
+          "accuracy": 0.9117647058823529,
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 31,
+          "tp": 0
+        },
+        "short_span_granularity_alarm": {
+          "accuracy": 0.6176470588235294,
+          "f1": 0.0,
+          "fn": 13,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 21,
+          "tp": 0
+        },
+        "target_authority_alarm": {
+          "accuracy": 0.38235294117647056,
+          "f1": 0.0,
+          "fn": 21,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 13,
+          "tp": 0
+        }
+      },
+      "alarm_exact_accuracy": {
+        "answer_contract_alarm": 0.11764705882352941,
+        "answer_type_relation_alarm": 0.7058823529411765,
+        "evidence_adequacy_alarm": 0.7941176470588235,
+        "final_candidate_alarm": 0.9117647058823529,
+        "short_span_granularity_alarm": 0.6176470588235294,
+        "target_authority_alarm": 0.38235294117647056
+      },
+      "exact_all_fields_accuracy": 0.11764705882352941,
+      "primary_surface_accuracy": 0.11764705882352941,
+      "records": 34
+    }
+  },
+  "note": "Binary alarm metrics count both yes and soft as positive. Exact alarm accuracy keeps soft distinct.",
+  "outputs": null,
+  "overall": {
+    "alarm_binary_metrics": {
+      "answer_contract_alarm": {
+        "accuracy": 0.10810810810810811,
+        "f1": 0.0,
+        "fn": 66,
+        "fp": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "tn": 8,
+        "tp": 0
+      },
+      "answer_type_relation_alarm": {
+        "accuracy": 0.6756756756756757,
+        "f1": 0.0,
+        "fn": 24,
+        "fp": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "tn": 50,
+        "tp": 0
+      },
+      "evidence_adequacy_alarm": {
+        "accuracy": 0.8243243243243243,
+        "f1": 0.0,
+        "fn": 13,
+        "fp": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "tn": 61,
+        "tp": 0
+      },
+      "final_candidate_alarm": {
+        "accuracy": 0.9324324324324325,
+        "f1": 0.0,
+        "fn": 5,
+        "fp": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "tn": 69,
+        "tp": 0
+      },
+      "short_span_granularity_alarm": {
+        "accuracy": 0.6081081081081081,
+        "f1": 0.0,
+        "fn": 29,
+        "fp": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "tn": 45,
+        "tp": 0
+      },
+      "target_authority_alarm": {
+        "accuracy": 0.36486486486486486,
+        "f1": 0.0,
+        "fn": 47,
+        "fp": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "tn": 27,
+        "tp": 0
+      }
+    },
+    "alarm_exact_accuracy": {
+      "answer_contract_alarm": 0.10810810810810811,
+      "answer_type_relation_alarm": 0.6756756756756757,
+      "evidence_adequacy_alarm": 0.8243243243243243,
+      "final_candidate_alarm": 0.9324324324324325,
+      "short_span_granularity_alarm": 0.6081081081081081,
+      "target_authority_alarm": 0.36486486486486486
+    },
+    "exact_all_fields_accuracy": 0.10810810810810811,
+    "primary_surface_accuracy": 0.10810810810810811,
+    "records": 74
+  },
+  "packet": "experiments\\20260615-local-pact-answer-contract-verifier-packet\\verifier_packet.jsonl",
+  "prediction_source": "all_no",
+  "primary_confusion": {
+    "answer_type_or_relation_mismatch": {
+      "no_answer_contract_failure": 21
+    },
+    "evidence_or_content_failure": {
+      "no_answer_contract_failure": 8
+    },
+    "evidence_sentence_or_distractor_copy": {
+      "no_answer_contract_failure": 3
+    },
+    "final_candidate_attractor": {
+      "no_answer_contract_failure": 5
+    },
+    "no_answer_contract_failure": {
+      "no_answer_contract_failure": 8
+    },
+    "public_target_misdirection": {
+      "no_answer_contract_failure": 3
+    },
+    "question_root_ambiguity_regression": {
+      "no_answer_contract_failure": 2
+    },
+    "short_span_or_granularity_mismatch": {
+      "no_answer_contract_failure": 21
+    },
+    "strict_span_or_granularity_surface": {
+      "no_answer_contract_failure": 3
+    }
+  }
+}

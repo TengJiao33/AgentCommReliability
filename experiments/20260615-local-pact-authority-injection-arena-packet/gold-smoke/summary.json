@@ -1,0 +1,1928 @@
+{
+  "authority_violation_by_bridge_layer_variant": {
+    "evidence_or_content | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "evidence_or_content | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "evidence_or_content | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "evidence_or_content | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "evidence_or_content | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "final_answer_commitment | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "final_answer_commitment | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "final_answer_commitment | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "final_answer_commitment | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "final_answer_commitment | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "stable_answer | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "stable_answer | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "stable_answer | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "stable_answer | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "stable_answer | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "target_authority | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 22,
+      "records": 22
+    },
+    "target_authority | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 22,
+      "records": 22
+    },
+    "target_authority | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 22,
+      "records": 22
+    },
+    "target_authority | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 22,
+      "records": 22
+    },
+    "target_authority | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 22,
+      "records": 22
+    },
+    "target_contract | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 10,
+      "records": 10
+    },
+    "target_contract | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 10,
+      "records": 10
+    },
+    "target_contract | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 10,
+      "records": 10
+    },
+    "target_contract | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 10,
+      "records": 10
+    },
+    "target_contract | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 10,
+      "records": 10
+    }
+  },
+  "authority_violation_by_semantic_family_variant": {
+    "answer_type_projection | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 12,
+      "records": 12
+    },
+    "answer_type_projection | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 12,
+      "records": 12
+    },
+    "answer_type_projection | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 12,
+      "records": 12
+    },
+    "answer_type_projection | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 12,
+      "records": 12
+    },
+    "answer_type_projection | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 12,
+      "records": 12
+    },
+    "evidence_or_content_failure | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "evidence_or_content_failure | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "evidence_or_content_failure | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "evidence_or_content_failure | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "evidence_or_content_failure | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "evidence_sentence_or_distractor | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "evidence_sentence_or_distractor | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "evidence_sentence_or_distractor | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "evidence_sentence_or_distractor | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "evidence_sentence_or_distractor | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "final_candidate_attractor | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "final_candidate_attractor | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "final_candidate_attractor | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "final_candidate_attractor | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "final_candidate_attractor | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "no_answer_contract_failure | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "no_answer_contract_failure | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "no_answer_contract_failure | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "no_answer_contract_failure | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "no_answer_contract_failure | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "public_target_misdirection | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "public_target_misdirection | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "public_target_misdirection | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "public_target_misdirection | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "public_target_misdirection | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 3,
+      "records": 3
+    },
+    "question_root_boundary_regression | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "question_root_boundary_regression | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "question_root_boundary_regression | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "question_root_boundary_regression | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "question_root_boundary_regression | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 2,
+      "records": 2
+    },
+    "short_span_or_granularity | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 12,
+      "records": 12
+    },
+    "short_span_or_granularity | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 12,
+      "records": 12
+    },
+    "short_span_or_granularity | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 12,
+      "records": 12
+    },
+    "short_span_or_granularity | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 12,
+      "records": 12
+    },
+    "short_span_or_granularity | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 12,
+      "records": 12
+    },
+    "strict_span_or_granularity_surface | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 1,
+      "records": 1
+    },
+    "strict_span_or_granularity_surface | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 1,
+      "records": 1
+    },
+    "strict_span_or_granularity_surface | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 1,
+      "records": 1
+    },
+    "strict_span_or_granularity_surface | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 1,
+      "records": 1
+    },
+    "strict_span_or_granularity_surface | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 1,
+      "records": 1
+    }
+  },
+  "by_bridge_layer_variant": {
+    "evidence_or_content | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_or_content | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 3,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 3,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_or_content | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_or_content | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_or_content | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_or_content | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 3,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 3,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_or_content | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "final_answer_commitment | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "final_answer_commitment | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 3,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 3,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "final_answer_commitment | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "final_answer_commitment | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "final_answer_commitment | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "final_answer_commitment | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 3,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 3,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "final_answer_commitment | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "stable_answer | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "stable_answer | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 2,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 2,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "stable_answer | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "stable_answer | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "stable_answer | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "stable_answer | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 2,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 2,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "stable_answer | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "target_authority | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 22,
+      "records": 22
+    },
+    "target_authority | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 22,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 22,
+      "exact_match": 1.0,
+      "exact_matches": 22,
+      "records": 22
+    },
+    "target_authority | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 22,
+      "records": 22
+    },
+    "target_authority | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 22,
+      "records": 22
+    },
+    "target_authority | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 22,
+      "records": 22
+    },
+    "target_authority | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 22,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 22,
+      "exact_match": 1.0,
+      "exact_matches": 22,
+      "records": 22
+    },
+    "target_authority | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 22,
+      "records": 22
+    },
+    "target_contract | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 10,
+      "records": 10
+    },
+    "target_contract | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 10,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 10,
+      "exact_match": 1.0,
+      "exact_matches": 10,
+      "records": 10
+    },
+    "target_contract | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 10,
+      "records": 10
+    },
+    "target_contract | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 10,
+      "records": 10
+    },
+    "target_contract | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 10,
+      "records": 10
+    },
+    "target_contract | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 10,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 10,
+      "exact_match": 1.0,
+      "exact_matches": 10,
+      "records": 10
+    },
+    "target_contract | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 10,
+      "records": 10
+    }
+  },
+  "by_semantic_family_variant": {
+    "answer_type_projection | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 12,
+      "records": 12
+    },
+    "answer_type_projection | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 12,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 12,
+      "exact_match": 1.0,
+      "exact_matches": 12,
+      "records": 12
+    },
+    "answer_type_projection | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 12,
+      "records": 12
+    },
+    "answer_type_projection | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 12,
+      "records": 12
+    },
+    "answer_type_projection | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 12,
+      "records": 12
+    },
+    "answer_type_projection | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 12,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 12,
+      "exact_match": 1.0,
+      "exact_matches": 12,
+      "records": 12
+    },
+    "answer_type_projection | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 12,
+      "records": 12
+    },
+    "evidence_or_content_failure | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_or_content_failure | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 3,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 3,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_or_content_failure | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_or_content_failure | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_or_content_failure | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_or_content_failure | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 3,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 3,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_or_content_failure | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_sentence_or_distractor | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_sentence_or_distractor | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 3,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 3,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_sentence_or_distractor | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_sentence_or_distractor | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_sentence_or_distractor | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_sentence_or_distractor | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 3,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 3,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "evidence_sentence_or_distractor | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "final_candidate_attractor | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "final_candidate_attractor | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 2,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 2,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "final_candidate_attractor | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "final_candidate_attractor | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "final_candidate_attractor | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "final_candidate_attractor | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 2,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 2,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "final_candidate_attractor | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "no_answer_contract_failure | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "no_answer_contract_failure | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 2,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 2,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "no_answer_contract_failure | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "no_answer_contract_failure | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "no_answer_contract_failure | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "no_answer_contract_failure | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 2,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 2,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "no_answer_contract_failure | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "public_target_misdirection | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "public_target_misdirection | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 3,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 3,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "public_target_misdirection | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "public_target_misdirection | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "public_target_misdirection | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "public_target_misdirection | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 3,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 3,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "public_target_misdirection | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 3,
+      "records": 3
+    },
+    "question_root_boundary_regression | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "question_root_boundary_regression | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 2,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 2,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "question_root_boundary_regression | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "question_root_boundary_regression | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "question_root_boundary_regression | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "question_root_boundary_regression | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 2,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 2,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "question_root_boundary_regression | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 2,
+      "records": 2
+    },
+    "short_span_or_granularity | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 12,
+      "records": 12
+    },
+    "short_span_or_granularity | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 12,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 12,
+      "exact_match": 1.0,
+      "exact_matches": 12,
+      "records": 12
+    },
+    "short_span_or_granularity | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 12,
+      "records": 12
+    },
+    "short_span_or_granularity | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 12,
+      "records": 12
+    },
+    "short_span_or_granularity | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 12,
+      "records": 12
+    },
+    "short_span_or_granularity | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 12,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 12,
+      "exact_match": 1.0,
+      "exact_matches": 12,
+      "records": 12
+    },
+    "short_span_or_granularity | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 12,
+      "records": 12
+    },
+    "strict_span_or_granularity_surface | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 1,
+      "records": 1
+    },
+    "strict_span_or_granularity_surface | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 1,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 1,
+      "exact_match": 1.0,
+      "exact_matches": 1,
+      "records": 1
+    },
+    "strict_span_or_granularity_surface | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 1,
+      "records": 1
+    },
+    "strict_span_or_granularity_surface | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 1,
+      "records": 1
+    },
+    "strict_span_or_granularity_surface | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 1,
+      "records": 1
+    },
+    "strict_span_or_granularity_surface | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 1,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 1,
+      "exact_match": 1.0,
+      "exact_matches": 1,
+      "records": 1
+    },
+    "strict_span_or_granularity_surface | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 1,
+      "records": 1
+    }
+  },
+  "by_source_type": {
+    "negative_control": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 16,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 16,
+      "exact_match": 1.0,
+      "exact_matches": 56,
+      "records": 56
+    },
+    "positive_target_focus": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 64,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 64,
+      "exact_match": 1.0,
+      "exact_matches": 224,
+      "records": 224
+    }
+  },
+  "by_source_type_variant": {
+    "negative_control | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 8,
+      "records": 8
+    },
+    "negative_control | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 8,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 8,
+      "exact_match": 1.0,
+      "exact_matches": 8,
+      "records": 8
+    },
+    "negative_control | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 8,
+      "records": 8
+    },
+    "negative_control | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 8,
+      "records": 8
+    },
+    "negative_control | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 8,
+      "records": 8
+    },
+    "negative_control | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 8,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 8,
+      "exact_match": 1.0,
+      "exact_matches": 8,
+      "records": 8
+    },
+    "negative_control | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 8,
+      "records": 8
+    },
+    "positive_target_focus | evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 32,
+      "records": 32
+    },
+    "positive_target_focus | forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 32,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 32,
+      "exact_match": 1.0,
+      "exact_matches": 32,
+      "records": 32
+    },
+    "positive_target_focus | imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 32,
+      "records": 32
+    },
+    "positive_target_focus | neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 32,
+      "records": 32
+    },
+    "positive_target_focus | original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 32,
+      "records": 32
+    },
+    "positive_target_focus | typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 32,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 32,
+      "exact_match": 1.0,
+      "exact_matches": 32,
+      "records": 32
+    },
+    "positive_target_focus | wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 32,
+      "records": 32
+    }
+  },
+  "by_variant": {
+    "evidence_only_neutral": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 40,
+      "records": 40
+    },
+    "forged_final_commitment": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 40,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 40,
+      "exact_match": 1.0,
+      "exact_matches": 40,
+      "records": 40
+    },
+    "imperative_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 40,
+      "records": 40
+    },
+    "neutral_summary_public_state": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 40,
+      "records": 40
+    },
+    "original_untyped_public": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 40,
+      "records": 40
+    },
+    "typed_state_quarantine": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": 0.0,
+      "candidate_correction_count": 40,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 40,
+      "exact_match": 1.0,
+      "exact_matches": 40,
+      "records": 40
+    },
+    "wrong_contract_public_task": {
+      "avg_f1": 1.0,
+      "candidate_copy_count": 0,
+      "candidate_copy_rate": null,
+      "candidate_correction_count": 0,
+      "candidate_regression_count": 0,
+      "candidate_visible_records": 0,
+      "exact_match": 1.0,
+      "exact_matches": 40,
+      "records": 40
+    }
+  },
+  "note": "Authority Violation Rate compares pressure variants against original_untyped_public within each case. It is only interpretable on base-correct cases.",
+  "outputs": null,
+  "overall": {
+    "avg_f1": 1.0,
+    "candidate_copy_count": 0,
+    "candidate_copy_rate": 0.0,
+    "candidate_correction_count": 80,
+    "candidate_regression_count": 0,
+    "candidate_visible_records": 80,
+    "exact_match": 1.0,
+    "exact_matches": 280,
+    "records": 280
+  },
+  "packet": "experiments\\20260615-local-pact-authority-injection-arena-packet\\arena_packet.jsonl",
+  "paired_delta_by_source_type_variant": {
+    "negative_control | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "avg_f1_delta": 0.0,
+      "base_correct_records": 8,
+      "outcomes": {
+        "stable_right": 8
+      },
+      "records": 8,
+      "typed_quarantine_rescue_count": 0,
+      "typed_quarantine_rescue_rate": null
+    },
+    "negative_control | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "avg_f1_delta": 0.0,
+      "base_correct_records": 8,
+      "outcomes": {
+        "stable_right": 8
+      },
+      "records": 8,
+      "typed_quarantine_rescue_count": 0,
+      "typed_quarantine_rescue_rate": null
+    },
+    "negative_control | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "avg_f1_delta": 0.0,
+      "base_correct_records": 8,
+      "outcomes": {
+        "stable_right": 8
+      },
+      "records": 8,
+      "typed_quarantine_rescue_count": 0,
+      "typed_quarantine_rescue_rate": null
+    },
+    "negative_control | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "avg_f1_delta": 0.0,
+      "base_correct_records": 8,
+      "outcomes": {
+        "stable_right": 8
+      },
+      "records": 8,
+      "typed_quarantine_rescue_count": 0,
+      "typed_quarantine_rescue_rate": null
+    },
+    "negative_control | typed_state_quarantine": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "avg_f1_delta": 0.0,
+      "base_correct_records": 8,
+      "outcomes": {
+        "stable_right": 8
+      },
+      "records": 8,
+      "typed_quarantine_rescue_count": 0,
+      "typed_quarantine_rescue_rate": null
+    },
+    "negative_control | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "avg_f1_delta": 0.0,
+      "base_correct_records": 8,
+      "outcomes": {
+        "stable_right": 8
+      },
+      "records": 8,
+      "typed_quarantine_rescue_count": 0,
+      "typed_quarantine_rescue_rate": null
+    },
+    "positive_target_focus | evidence_only_neutral": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "avg_f1_delta": 0.0,
+      "base_correct_records": 32,
+      "outcomes": {
+        "stable_right": 32
+      },
+      "records": 32,
+      "typed_quarantine_rescue_count": 0,
+      "typed_quarantine_rescue_rate": null
+    },
+    "positive_target_focus | forged_final_commitment": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "avg_f1_delta": 0.0,
+      "base_correct_records": 32,
+      "outcomes": {
+        "stable_right": 32
+      },
+      "records": 32,
+      "typed_quarantine_rescue_count": 0,
+      "typed_quarantine_rescue_rate": null
+    },
+    "positive_target_focus | imperative_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "avg_f1_delta": 0.0,
+      "base_correct_records": 32,
+      "outcomes": {
+        "stable_right": 32
+      },
+      "records": 32,
+      "typed_quarantine_rescue_count": 0,
+      "typed_quarantine_rescue_rate": null
+    },
+    "positive_target_focus | neutral_summary_public_state": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "avg_f1_delta": 0.0,
+      "base_correct_records": 32,
+      "outcomes": {
+        "stable_right": 32
+      },
+      "records": 32,
+      "typed_quarantine_rescue_count": 0,
+      "typed_quarantine_rescue_rate": null
+    },
+    "positive_target_focus | typed_state_quarantine": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "avg_f1_delta": 0.0,
+      "base_correct_records": 32,
+      "outcomes": {
+        "stable_right": 32
+      },
+      "records": 32,
+      "typed_quarantine_rescue_count": 0,
+      "typed_quarantine_rescue_rate": null
+    },
+    "positive_target_focus | wrong_contract_public_task": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "avg_f1_delta": 0.0,
+      "base_correct_records": 32,
+      "outcomes": {
+        "stable_right": 32
+      },
+      "records": 32,
+      "typed_quarantine_rescue_count": 0,
+      "typed_quarantine_rescue_rate": null
+    }
+  },
+  "prediction_source": "gold"
+}

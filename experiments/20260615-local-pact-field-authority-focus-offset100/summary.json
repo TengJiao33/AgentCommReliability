@@ -1,0 +1,20 @@
+{
+  "cards": 28,
+  "family_counts": {
+    "frozen_question_target_regression": 1,
+    "frozen_question_target_rescue": 7,
+    "public_target_without_question_regression": 20
+  },
+  "note": "Extraction-only focus cards; semantic labels are manual report work.",
+  "source_paths": {
+    "bridge_cases": "experiments\\20260615-local-pact-public-state-field-bridge-offset100\\bridge_cases.jsonl"
+  },
+  "source_run_counts": {
+    "baseline": 15,
+    "final_contract": 13
+  },
+  "target_slot_candidate_counts": {
+    "False": 28
+  },
+  "unique_samples": 18
+}

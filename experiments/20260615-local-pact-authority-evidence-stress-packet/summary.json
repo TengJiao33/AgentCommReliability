@@ -1,0 +1,87 @@
+{
+  "bridge_layer_counts": {
+    "evidence_or_content": 3,
+    "final_answer_commitment": 3,
+    "stable_answer": 2,
+    "target_authority": 22,
+    "target_contract": 10
+  },
+  "config": {
+    "max_control_cases": 8,
+    "max_positive_cases": 32,
+    "selection": "balanced deterministic by semantic_family for positives and bridge_layer for controls"
+  },
+  "note": "Stress packet for separating evidence semantics from authority semantics. It is a setup artifact, not a model result.",
+  "outputs": {
+    "README": "experiments\\20260615-local-pact-authority-evidence-stress-packet\\README.md",
+    "scoring_plan": "experiments\\20260615-local-pact-authority-evidence-stress-packet\\scoring_plan.md",
+    "source_cases": "experiments\\20260615-local-pact-authority-evidence-stress-packet\\source_cases.jsonl",
+    "stress_packet": "experiments\\20260615-local-pact-authority-evidence-stress-packet\\stress_packet.jsonl",
+    "summary": "experiments\\20260615-local-pact-authority-evidence-stress-packet\\summary.json"
+  },
+  "packet_rows": 200,
+  "packet_rows_by_variant": {
+    "delegated_action_required_authority": 40,
+    "final_candidate_lure": 40,
+    "frozen_question_target": 40,
+    "trusted_root_injected_action_required": 40,
+    "trusted_root_original_public": 40
+  },
+  "semantic_family_counts": {
+    "answer_type_projection": 12,
+    "evidence_or_content_failure": 3,
+    "evidence_sentence_or_distractor": 3,
+    "final_candidate_attractor": 2,
+    "no_answer_contract_failure": 2,
+    "public_target_misdirection": 3,
+    "question_root_boundary_regression": 2,
+    "short_span_or_granularity": 12,
+    "strict_span_or_granularity_surface": 1
+  },
+  "source_cases": 40,
+  "source_paths": {
+    "control_seed": "experiments\\20260615-local-pact-answer-contract-negative-controls\\negative_control_seed.jsonl",
+    "field_packets": {
+      "offset100": "experiments\\20260615-local-pact-public-state-field-packet-offset100\\field_packet.jsonl",
+      "offset150": "experiments\\20260615-local-pact-public-state-field-packet-offset150\\field_packet.jsonl"
+    },
+    "focus_inputs": [
+      {
+        "cards": "experiments\\20260615-local-pact-field-authority-focus-offset100\\focus_cards.jsonl",
+        "labels": "experiments\\20260615-local-pact-field-authority-focus-offset100\\manual_semantic_labels.jsonl",
+        "slice": "offset100"
+      },
+      {
+        "cards": "experiments\\20260615-local-pact-field-authority-focus-offset150\\focus_cards.jsonl",
+        "labels": "experiments\\20260615-local-pact-field-authority-focus-offset150\\manual_semantic_labels.jsonl",
+        "slice": "offset150"
+      }
+    ]
+  },
+  "source_type_by_semantic_family": {
+    "negative_control": {
+      "evidence_or_content_failure": 3,
+      "final_candidate_attractor": 2,
+      "no_answer_contract_failure": 2,
+      "strict_span_or_granularity_surface": 1
+    },
+    "positive_target_focus": {
+      "answer_type_projection": 12,
+      "evidence_sentence_or_distractor": 3,
+      "public_target_misdirection": 3,
+      "question_root_boundary_regression": 2,
+      "short_span_or_granularity": 12
+    }
+  },
+  "source_type_counts": {
+    "negative_control": 8,
+    "positive_target_focus": 32
+  },
+  "variants": [
+    "trusted_root_original_public",
+    "trusted_root_injected_action_required",
+    "delegated_action_required_authority",
+    "frozen_question_target",
+    "final_candidate_lure"
+  ]
+}

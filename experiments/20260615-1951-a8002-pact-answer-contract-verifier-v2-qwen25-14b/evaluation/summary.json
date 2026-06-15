@@ -1,0 +1,434 @@
+{
+  "by_label_source": {
+    "negative_control_seed": {
+      "alarm_binary_metrics": {
+        "answer_contract_alarm": {
+          "accuracy": 0.7083333333333334,
+          "f1": 0.7407407407407406,
+          "fn": 6,
+          "fp": 1,
+          "precision": 0.9090909090909091,
+          "recall": 0.625,
+          "tn": 7,
+          "tp": 10
+        },
+        "answer_type_relation_alarm": {
+          "accuracy": 0.7083333333333334,
+          "f1": 0.0,
+          "fn": 0,
+          "fp": 7,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 17,
+          "tp": 0
+        },
+        "evidence_adequacy_alarm": {
+          "accuracy": 0.7916666666666666,
+          "f1": 0.5454545454545454,
+          "fn": 5,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 0.375,
+          "tn": 16,
+          "tp": 3
+        },
+        "final_candidate_alarm": {
+          "accuracy": 0.75,
+          "f1": 0.25,
+          "fn": 4,
+          "fp": 2,
+          "precision": 0.3333333333333333,
+          "recall": 0.2,
+          "tn": 17,
+          "tp": 1
+        },
+        "short_span_granularity_alarm": {
+          "accuracy": 0.625,
+          "f1": 0.0,
+          "fn": 8,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 15,
+          "tp": 0
+        },
+        "target_authority_alarm": {
+          "accuracy": 0.7083333333333334,
+          "f1": 0.3636363636363636,
+          "fn": 0,
+          "fp": 7,
+          "precision": 0.2222222222222222,
+          "recall": 1.0,
+          "tn": 15,
+          "tp": 2
+        }
+      },
+      "alarm_exact_accuracy": {
+        "answer_contract_alarm": 0.7083333333333334,
+        "answer_type_relation_alarm": 0.7083333333333334,
+        "evidence_adequacy_alarm": 0.7916666666666666,
+        "final_candidate_alarm": 0.75,
+        "short_span_granularity_alarm": 0.625,
+        "target_authority_alarm": 0.6666666666666666
+      },
+      "exact_all_fields_accuracy": 0.3333333333333333,
+      "primary_surface_accuracy": 0.4166666666666667,
+      "records": 24
+    },
+    "positive_target_layer_seed": {
+      "alarm_binary_metrics": {
+        "answer_contract_alarm": {
+          "accuracy": 0.54,
+          "f1": 0.7012987012987013,
+          "fn": 23,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 0.54,
+          "tn": 0,
+          "tp": 27
+        },
+        "answer_type_relation_alarm": {
+          "accuracy": 0.48,
+          "f1": 0.1875,
+          "fn": 21,
+          "fp": 5,
+          "precision": 0.375,
+          "recall": 0.125,
+          "tn": 21,
+          "tp": 3
+        },
+        "evidence_adequacy_alarm": {
+          "accuracy": 0.82,
+          "f1": 0.1818181818181818,
+          "fn": 4,
+          "fp": 5,
+          "precision": 0.16666666666666666,
+          "recall": 0.2,
+          "tn": 40,
+          "tp": 1
+        },
+        "final_candidate_alarm": {
+          "accuracy": 0.9,
+          "f1": 0.0,
+          "fn": 0,
+          "fp": 5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 45,
+          "tp": 0
+        },
+        "short_span_granularity_alarm": {
+          "accuracy": 0.62,
+          "f1": 0.17391304347826084,
+          "fn": 19,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 0.09523809523809523,
+          "tn": 29,
+          "tp": 2
+        },
+        "target_authority_alarm": {
+          "accuracy": 0.42,
+          "f1": 0.5538461538461539,
+          "fn": 27,
+          "fp": 2,
+          "precision": 0.9,
+          "recall": 0.4,
+          "tn": 3,
+          "tp": 18
+        }
+      },
+      "alarm_exact_accuracy": {
+        "answer_contract_alarm": 0.54,
+        "answer_type_relation_alarm": 0.48,
+        "evidence_adequacy_alarm": 0.82,
+        "final_candidate_alarm": 0.9,
+        "short_span_granularity_alarm": 0.62,
+        "target_authority_alarm": 0.26
+      },
+      "exact_all_fields_accuracy": 0.0,
+      "primary_surface_accuracy": 0.12,
+      "records": 50
+    }
+  },
+  "by_slice": {
+    "offset100": {
+      "alarm_binary_metrics": {
+        "answer_contract_alarm": {
+          "accuracy": 0.575,
+          "f1": 0.6909090909090909,
+          "fn": 17,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 0.5277777777777778,
+          "tn": 4,
+          "tp": 19
+        },
+        "answer_type_relation_alarm": {
+          "accuracy": 0.5,
+          "f1": 0.0,
+          "fn": 14,
+          "fp": 6,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 20,
+          "tp": 0
+        },
+        "evidence_adequacy_alarm": {
+          "accuracy": 0.8,
+          "f1": 0.2,
+          "fn": 5,
+          "fp": 3,
+          "precision": 0.25,
+          "recall": 0.16666666666666666,
+          "tn": 31,
+          "tp": 1
+        },
+        "final_candidate_alarm": {
+          "accuracy": 0.85,
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 4,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 34,
+          "tp": 0
+        },
+        "short_span_granularity_alarm": {
+          "accuracy": 0.625,
+          "f1": 0.21052631578947367,
+          "fn": 14,
+          "fp": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.125,
+          "tn": 23,
+          "tp": 2
+        },
+        "target_authority_alarm": {
+          "accuracy": 0.375,
+          "f1": 0.3589743589743589,
+          "fn": 19,
+          "fp": 6,
+          "precision": 0.5384615384615384,
+          "recall": 0.2692307692307692,
+          "tn": 8,
+          "tp": 7
+        }
+      },
+      "alarm_exact_accuracy": {
+        "answer_contract_alarm": 0.575,
+        "answer_type_relation_alarm": 0.5,
+        "evidence_adequacy_alarm": 0.8,
+        "final_candidate_alarm": 0.85,
+        "short_span_granularity_alarm": 0.625,
+        "target_authority_alarm": 0.275
+      },
+      "exact_all_fields_accuracy": 0.1,
+      "primary_surface_accuracy": 0.225,
+      "records": 40
+    },
+    "offset150": {
+      "alarm_binary_metrics": {
+        "answer_contract_alarm": {
+          "accuracy": 0.6176470588235294,
+          "f1": 0.7346938775510204,
+          "fn": 12,
+          "fp": 1,
+          "precision": 0.9473684210526315,
+          "recall": 0.6,
+          "tn": 3,
+          "tp": 18
+        },
+        "answer_type_relation_alarm": {
+          "accuracy": 0.6176470588235294,
+          "f1": 0.3157894736842105,
+          "fn": 7,
+          "fp": 6,
+          "precision": 0.3333333333333333,
+          "recall": 0.3,
+          "tn": 18,
+          "tp": 3
+        },
+        "evidence_adequacy_alarm": {
+          "accuracy": 0.8235294117647058,
+          "f1": 0.5,
+          "fn": 4,
+          "fp": 2,
+          "precision": 0.6,
+          "recall": 0.42857142857142855,
+          "tn": 25,
+          "tp": 3
+        },
+        "final_candidate_alarm": {
+          "accuracy": 0.8529411764705882,
+          "f1": 0.28571428571428575,
+          "fn": 2,
+          "fp": 3,
+          "precision": 0.25,
+          "recall": 0.3333333333333333,
+          "tn": 28,
+          "tp": 1
+        },
+        "short_span_granularity_alarm": {
+          "accuracy": 0.6176470588235294,
+          "f1": 0.0,
+          "fn": 13,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tn": 21,
+          "tp": 0
+        },
+        "target_authority_alarm": {
+          "accuracy": 0.6764705882352942,
+          "f1": 0.7027027027027026,
+          "fn": 8,
+          "fp": 3,
+          "precision": 0.8125,
+          "recall": 0.6190476190476191,
+          "tn": 10,
+          "tp": 13
+        }
+      },
+      "alarm_exact_accuracy": {
+        "answer_contract_alarm": 0.6176470588235294,
+        "answer_type_relation_alarm": 0.6176470588235294,
+        "evidence_adequacy_alarm": 0.8235294117647058,
+        "final_candidate_alarm": 0.8529411764705882,
+        "short_span_granularity_alarm": 0.6176470588235294,
+        "target_authority_alarm": 0.5294117647058824
+      },
+      "exact_all_fields_accuracy": 0.11764705882352941,
+      "primary_surface_accuracy": 0.20588235294117646,
+      "records": 34
+    }
+  },
+  "note": "Binary alarm metrics count both yes and soft as positive. Exact alarm accuracy keeps soft distinct.",
+  "outputs": "/data/xuhaoming/yfy/research_workspace/experiments/20260615-1951-a8002-pact-answer-contract-verifier-v2-qwen25-14b/outputs.jsonl",
+  "overall": {
+    "alarm_binary_metrics": {
+      "answer_contract_alarm": {
+        "accuracy": 0.5945945945945946,
+        "f1": 0.7115384615384615,
+        "fn": 29,
+        "fp": 1,
+        "precision": 0.9736842105263158,
+        "recall": 0.5606060606060606,
+        "tn": 7,
+        "tp": 37
+      },
+      "answer_type_relation_alarm": {
+        "accuracy": 0.5540540540540541,
+        "f1": 0.15384615384615385,
+        "fn": 21,
+        "fp": 12,
+        "precision": 0.2,
+        "recall": 0.125,
+        "tn": 38,
+        "tp": 3
+      },
+      "evidence_adequacy_alarm": {
+        "accuracy": 0.8108108108108109,
+        "f1": 0.3636363636363637,
+        "fn": 9,
+        "fp": 5,
+        "precision": 0.4444444444444444,
+        "recall": 0.3076923076923077,
+        "tn": 56,
+        "tp": 4
+      },
+      "final_candidate_alarm": {
+        "accuracy": 0.8513513513513513,
+        "f1": 0.15384615384615385,
+        "fn": 4,
+        "fp": 7,
+        "precision": 0.125,
+        "recall": 0.2,
+        "tn": 62,
+        "tp": 1
+      },
+      "short_span_granularity_alarm": {
+        "accuracy": 0.6216216216216216,
+        "f1": 0.125,
+        "fn": 27,
+        "fp": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.06896551724137931,
+        "tn": 44,
+        "tp": 2
+      },
+      "target_authority_alarm": {
+        "accuracy": 0.5135135135135135,
+        "f1": 0.5263157894736842,
+        "fn": 27,
+        "fp": 9,
+        "precision": 0.6896551724137931,
+        "recall": 0.425531914893617,
+        "tn": 18,
+        "tp": 20
+      }
+    },
+    "alarm_exact_accuracy": {
+      "answer_contract_alarm": 0.5945945945945946,
+      "answer_type_relation_alarm": 0.5540540540540541,
+      "evidence_adequacy_alarm": 0.8108108108108109,
+      "final_candidate_alarm": 0.8513513513513513,
+      "short_span_granularity_alarm": 0.6216216216216216,
+      "target_authority_alarm": 0.3918918918918919
+    },
+    "exact_all_fields_accuracy": 0.10810810810810811,
+    "primary_surface_accuracy": 0.21621621621621623,
+    "records": 74
+  },
+  "packet": "/data/xuhaoming/yfy/research_workspace/experiments/20260615-local-pact-answer-contract-verifier-packet-v2/verifier_packet.jsonl",
+  "prediction_source": "outputs",
+  "primary_confusion": {
+    "answer_type_or_relation_mismatch": {
+      "answer_type_or_relation_mismatch": 2,
+      "evidence_or_content_failure": 3,
+      "no_answer_contract_failure": 10,
+      "public_target_misdirection": 6
+    },
+    "evidence_or_content_failure": {
+      "answer_type_or_relation_mismatch": 1,
+      "evidence_or_content_failure": 2,
+      "no_answer_contract_failure": 3,
+      "public_target_misdirection": 1,
+      "short_span_or_granularity_mismatch": 1
+    },
+    "evidence_sentence_or_distractor_copy": {
+      "final_candidate_attractor": 1,
+      "no_answer_contract_failure": 2
+    },
+    "final_candidate_attractor": {
+      "final_candidate_attractor": 1,
+      "no_answer_contract_failure": 1,
+      "public_target_misdirection": 3
+    },
+    "no_answer_contract_failure": {
+      "no_answer_contract_failure": 7,
+      "public_target_misdirection": 1
+    },
+    "public_target_misdirection": {
+      "evidence_or_content_failure": 1,
+      "public_target_misdirection": 2
+    },
+    "question_root_ambiguity_regression": {
+      "evidence_or_content_failure": 1,
+      "public_target_misdirection": 1
+    },
+    "short_span_or_granularity_mismatch": {
+      "answer_type_or_relation_mismatch": 2,
+      "evidence_or_content_failure": 2,
+      "final_candidate_attractor": 2,
+      "no_answer_contract_failure": 9,
+      "public_target_misdirection": 4,
+      "short_span_or_granularity_mismatch": 2
+    },
+    "strict_span_or_granularity_surface": {
+      "answer_type_or_relation_mismatch": 1,
+      "no_answer_contract_failure": 1,
+      "public_target_misdirection": 1
+    }
+  }
+}

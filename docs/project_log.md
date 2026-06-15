@@ -2695,3 +2695,605 @@ Next:
   - add a standalone target-authority detector and final-span/granularity
     verifier;
   - test a neighboring HotpotQA slice before calling this a method candidate.
+
+## 2026-06-15 Field-Authority Standalone Projection Setup
+
+- Added a standalone field-authority projection packet builder:
+  - `scripts/build_pact_field_authority_projection_packet.py`.
+- Added a final-span/granularity audit:
+  - `scripts/audit_pact_final_span_granularity.py`.
+- Parameterized field packet IDs for neighboring slices:
+  - `scripts/build_pact_public_state_field_packet.py --packet-prefix`.
+- Generated offset50 standalone/projection artifacts:
+  - `experiments/20260615-local-pact-field-authority-projection/summary.json`;
+  - `experiments/20260615-local-pact-field-authority-projection/security_projection_packet.jsonl`;
+  - `experiments/20260615-local-pact-field-authority-projection/standalone_quarantine_packet.jsonl`.
+- Offset50 standalone detector:
+  - detector actions: hide `30`, project question root `70`;
+  - offline route over already-run outputs: standalone hide-risky/project EM
+    `0.560`, below always hiding the public target (`0.590`) and below the
+    frozen/security projection control (`0.580`).
+- Generated neighboring offset100 field packet:
+  - `experiments/20260615-local-pact-public-state-field-packet-offset100/field_packet.jsonl`;
+  - `50` samples, `500` prompt rows, sample indices `100` through `149`.
+- Generated offset100 field-authority packets:
+  - `experiments/20260615-local-pact-field-authority-projection-offset100/security_projection_packet.jsonl`;
+  - `experiments/20260615-local-pact-field-authority-projection-offset100/standalone_quarantine_packet.jsonl`;
+  - detector actions: hide `35`, project question root `65`.
+- Final-span audit over the existing offset50 quarantine run:
+  - `experiments/20260615-local-pact-final-span-granularity/summary.json`;
+  - `13/100` rows are strict-span or granularity misses, separate from `23`
+    content mismatches.
+- Added report:
+  - `reports/20260615-field-authority-standalone-projection.md`.
+- Evidence register:
+  - added `E-085`.
+- Interpretation:
+  - the current standalone lexical detector is not method-ready;
+  - the next behavioral pressure should run offset100 security projection and
+    standalone quarantine, then score with span/granularity labels.
+
+## 2026-06-15 Field-Authority Offset100 Pressure Runs
+
+- Ran offset100 field-authority projection packet on A800_2:
+  - run id `20260615-1805-a8002-pact-field-authority-projection-offset100-qwen25-14b`;
+  - packet rows: `200`;
+  - completed `200/200`, failed `0`;
+  - conditions: `security_projection_question_root_no_final` and
+    `standalone_authority_quarantine_no_final`.
+- Ran offset100 full field-control packet on A800_2:
+  - run id `20260615-1810-a8002-pact-public-state-field-offset100-qwen25-14b`;
+  - packet rows: `500`;
+  - completed `500/500`, failed `0`.
+- Main condition scores on offset100:
+  - frozen target + evidence: EM `0.560`, F1 `0.698`;
+  - security projection: EM `0.510`, F1 `0.661`;
+  - public state no final: EM `0.500`, F1 `0.648`;
+  - hide public target: EM `0.470`, F1 `0.610`;
+  - standalone authority quarantine: EM `0.440`, F1 `0.604`;
+  - public state with final candidate: EM `0.430`, F1 `0.575`;
+  - public target without question: EM `0.300`, F1 `0.481`.
+- Delta audits:
+  - against public-state/no-final, frozen target gives `9` rescues and `3`
+    regressions;
+  - public target without question gives `0` rescues and `20` regressions;
+  - final-answer candidate visibility gives `3` rescues and `10` regressions;
+  - standalone quarantine loses to security projection (`1` rescue, `8`
+    regressions) and frozen target (`0` rescues, `12` regressions).
+- Span/granularity audits:
+  - field controls: `101/500` strict-span or granularity misses;
+  - projection run: `42/200` strict-span or granularity misses.
+- Added run READMEs:
+  - `experiments/20260615-1805-a8002-pact-field-authority-projection-offset100-qwen25-14b/README.md`;
+  - `experiments/20260615-1810-a8002-pact-public-state-field-offset100-qwen25-14b/README.md`.
+- Added report:
+  - `reports/20260615-field-authority-offset100-pressure.md`.
+- Evidence register:
+  - added `E-086`.
+- Interpretation:
+  - retire standalone detector as a near-term method route;
+  - keep the narrower field-authority claim: public `Action Required` is not a
+    reliable task contract by itself, and question-root projection/frozen target
+    remains the strongest current control.
+
+## 2026-06-15 Offset100 Field-Bridge Audit
+
+- Added packet-derived field bridge auditor:
+  - `scripts/audit_pact_field_bridge_from_packet.py`.
+- Generated offset100 bridge artifacts:
+  - `experiments/20260615-local-pact-public-state-field-bridge-offset100/summary.json`;
+  - `experiments/20260615-local-pact-public-state-field-bridge-offset100/bridge_cases.jsonl`;
+  - `experiments/20260615-local-pact-public-state-field-bridge-offset100/bridge_packet.md`.
+- Bridge layer counts over `100` sample/source units:
+  - `stable_answer`: `26`;
+  - `evidence_or_content`: `25`;
+  - `target_authority`: `20`;
+  - `final_answer_commitment`: `18`;
+  - `target_contract`: `10`;
+  - `target_field_ablation`: `1`.
+- Added report:
+  - `reports/20260615-field-authority-offset100-bridge-audit.md`.
+- Evidence register:
+  - added `E-087`;
+  - updated `E-086` caveat to point to the rebuilt bridge labels.
+- Interpretation:
+  - field-authority is a live diagnostic handle, not a complete failure
+    explanation;
+  - the next projection test should be judged by movement in target-authority
+    and target-contract units, not only by aggregate EM.
+
+## 2026-06-15 Field-Authority Story Audit
+
+- Added bounded story synthesis:
+  - `reports/20260615-field-authority-story-audit.md`.
+- Classification:
+  - live diagnostic / bounded protocol candidate;
+  - not yet a solid paper story;
+  - not a novelty story around broad public state.
+- A/B/C/M/D:
+  - A: PACT-style action-state public communication;
+  - B: authority-bearing public fields, especially `Action Required`, can
+    overtake or distort the original question target;
+  - C: trusted-question-root projection/quarantine as a diagnostic protocol,
+    not a detector method yet;
+  - M: HotpotQA EM/F1 on saved-field re-answering packets;
+  - D: field bridge labels and paired deltas by target-authority,
+    target-contract, final-commitment, and evidence/content layers.
+- Evidence register:
+  - added `E-088`.
+- Interpretation:
+  - retain the handle as live and falsifiable;
+  - retire standalone lexical detector as a near-term method route;
+  - next pressure should measure bridge-layer movement, not only aggregate EM.
+
+## 2026-06-15 Field-Authority Offset150 Fresh Slice
+
+- Updated `scripts/build_pact_public_state_field_packet.py` so source-run
+  labels can be passed explicitly instead of hardcoding `baseline` and
+  `final_contract`.
+- Built offset150 field packet:
+  - `experiments/20260615-local-pact-public-state-field-packet-offset150/field_packet.jsonl`;
+  - source runs: `final_contract` and `compact_final_contract`;
+  - `50` samples, `500` prompt rows.
+- Official-source smoke:
+  - `final_contract`: EM `0.500`, F1 `0.678`;
+  - `compact_final_contract`: EM `0.440`, F1 `0.604`.
+- Ran Qwen2.5-14B field packet on A800_2 GPU `7`:
+  - run id `20260615-1840-a8002-pact-public-state-field-offset150-qwen25-14b`;
+  - completed `500/500`, failed `0`.
+- Main condition scores:
+  - frozen target + evidence: EM `0.480`, F1 `0.657`;
+  - hide public target: EM `0.450`, F1 `0.623`;
+  - public state with final candidate: EM `0.430`, F1 `0.599`;
+  - public state no final: EM `0.420`, F1 `0.593`;
+  - public target without question: EM `0.310`, F1 `0.495`.
+- Delta audits:
+  - frozen target gives `10` rescues and `4` regressions versus
+    public-state/no-final;
+  - public target without question gives `0` rescues and `11` regressions;
+  - final-answer candidate visibility gives `6` rescues and `5` regressions.
+- Span/granularity audit:
+  - `101/500` strict span or granularity misses;
+  - `184/500` content mismatches.
+- Bridge audit over `100` sample/source units:
+  - `evidence_or_content`: `28`;
+  - `stable_answer`: `27`;
+  - `final_answer_commitment`: `22`;
+  - `target_authority`: `11`;
+  - `target_contract`: `11`;
+  - `target_field_ablation`: `1`.
+- Added report:
+  - `reports/20260615-field-authority-offset150-fresh-slice.md`.
+- Evidence register:
+  - added `E-089`.
+- Interpretation:
+  - fresh-slice pressure keeps field-authority live and bounded;
+  - public target without original question remains unsafe as a standalone task
+    contract;
+  - evidence/content and span/granularity failures still prevent a complete
+    method story.
+
+## 2026-06-15 Field-Authority Offset150 Semantic Focus
+
+- Added focus-card extractor:
+  - `scripts/build_pact_field_authority_focus_cards.py`.
+- Generated offset150 target-focus cards:
+  - `experiments/20260615-local-pact-field-authority-focus-offset150/focus_cards.jsonl`;
+  - `experiments/20260615-local-pact-field-authority-focus-offset150/focus_cards.md`;
+  - `22` cards, `17` unique samples.
+- Added manual semantic labels:
+  - `experiments/20260615-local-pact-field-authority-focus-offset150/manual_semantic_labels.jsonl`.
+- Manual semantic family counts:
+  - `answer_type_projection`: `10`;
+  - `short_span_or_granularity`: `9`;
+  - `evidence_sentence_or_distractor`: `2`;
+  - `question_root_boundary_regression`: `1`.
+- Target-slot candidate alignment:
+  - `21/22` focus cards are not target-slot candidates under the old lexical
+    diagnostic.
+- Added report:
+  - `reports/20260615-field-authority-offset150-semantic-focus.md`.
+- Evidence register:
+  - added `E-090`.
+- Interpretation:
+  - offset150 target focus is mostly answer-contract failure, not lexical target
+    drift;
+  - a future verifier would need answer type, relation, and span-granularity
+    checks against the trusted question root.
+- Follow-up seed:
+  - generated offset100 focus cards with the same extractor at
+    `experiments/20260615-local-pact-field-authority-focus-offset100/`;
+  - offset100 focus cards: `28`;
+  - families: `20` public-target-without-question regressions, `7`
+    frozen-question-target rescues, and `1` frozen-question-target regression;
+  - old target-slot candidate signal: `0/28` focus cards.
+
+## 2026-06-15 Field-Authority Cross-Slice Semantic Focus
+
+- Added offset100 manual semantic labels:
+  - `experiments/20260615-local-pact-field-authority-focus-offset100/manual_semantic_labels.jsonl`.
+- Added cross-slice report:
+  - `reports/20260615-field-authority-cross-slice-semantic-focus.md`.
+- Combined focus-card counts:
+  - offset100: `28`;
+  - offset150: `22`;
+  - combined: `50`.
+- Combined manual semantic families:
+  - `answer_type_projection`: `21`;
+  - `short_span_or_granularity`: `21`;
+  - `public_target_misdirection`: `3`;
+  - `evidence_sentence_or_distractor`: `3`;
+  - `question_root_boundary_regression`: `2`.
+- Old target-slot candidate alignment:
+  - offset100: `0/28`;
+  - offset150: `1/22`;
+  - combined: `1/50`.
+- Evidence register:
+  - added `E-091`.
+- Interpretation:
+  - across two neighboring slices, the live handle is now better described as
+    answer-contract weakness than lexical target-slot drift;
+  - the next useful object is an answer-type/span-granularity protocol sketch,
+    after checking whether existing QA answer-type or short-answer extraction
+    work already covers the same surface.
+
+## 2026-06-15 Field-Authority Answer-Contract Outside Check
+
+- Ran a bounded outside check after the cross-slice semantic focus report.
+- Added report:
+  - `reports/20260615-field-authority-answer-contract-outside-check.md`.
+- Added reading-queue section:
+  - `Field-Authority / Answer-Contract Outside Check`.
+- Useful external pressure hits:
+  - `Learning Question Classifiers`;
+  - `Extreme Classification for Answer Type Prediction in Question Answering`;
+  - `HotpotQA`;
+  - `MultiSpanQA`;
+  - `Question-Attended Span Extraction`.
+- Evidence register:
+  - added `E-092`.
+- Interpretation:
+  - answer-type prediction and short-answer/span extraction are known QA
+    surfaces;
+  - the surviving niche is question-rooted answer-contract checking inside
+    multi-agent public-state handoff, not generic QA answer typing.
+
+## 2026-06-15 Field-Authority Answer-Contract Audit Seed
+
+- Added manual/oracle audit seed builder:
+  - `scripts/build_pact_answer_contract_audit_seed.py`.
+- Generated audit seed artifacts:
+  - `experiments/20260615-local-pact-answer-contract-audit-seed/audit_seed_records.jsonl`;
+  - `experiments/20260615-local-pact-answer-contract-audit-seed/audit_seed.md`;
+  - `experiments/20260615-local-pact-answer-contract-audit-seed/summary.json`.
+- Audit seed size:
+  - `50` records;
+  - offset100 `28`, offset150 `22`.
+- Contract risk counts:
+  - `answer_type_or_relation_mismatch`: `21`;
+  - `short_span_or_granularity_mismatch`: `21`;
+  - `public_target_misdirects_relation`: `3`;
+  - `evidence_sentence_or_distractor_copy`: `3`;
+  - `question_root_can_reopen_ambiguity`: `2`.
+- Behavioral summary:
+  - public-target-only unsafe in `48/50` focus cards;
+  - frozen question target sufficient in `43/50`;
+  - evidence-adequacy guard needed in `2/50` boundary records.
+- Added report:
+  - `reports/20260615-field-authority-answer-contract-audit-seed.md`.
+- Evidence register:
+  - added `E-093`.
+- Interpretation:
+  - this is a positive-control protocol sketch, not a runtime verifier;
+  - next specificity pressure should add matched negative controls from stable,
+    evidence/content, and final-answer-commitment bridge units.
+
+## 2026-06-15 Field-Authority Answer-Contract Negative Controls
+
+- Added matched negative-control packet builder:
+  - `scripts/build_pact_answer_contract_negative_controls.py`.
+- Generated negative-control artifacts:
+  - `experiments/20260615-local-pact-answer-contract-negative-controls/negative_control_cards.jsonl`;
+  - `experiments/20260615-local-pact-answer-contract-negative-controls/negative_control_seed.jsonl`;
+  - `experiments/20260615-local-pact-answer-contract-negative-controls/manual_seed_labels.jsonl`;
+  - `experiments/20260615-local-pact-answer-contract-negative-controls/manual_seed_label_summary.json`;
+  - `experiments/20260615-local-pact-answer-contract-negative-controls/negative_control_cards.md`;
+  - `experiments/20260615-local-pact-answer-contract-negative-controls/negative_control_seed.md`;
+  - `experiments/20260615-local-pact-answer-contract-negative-controls/summary.json`.
+- Packet size:
+  - `146` negative-control cards;
+  - `24` deterministic seed cards;
+  - offset100 `69`, offset150 `77`.
+- Control-layer counts:
+  - `stable_answer`: `53`;
+  - `evidence_or_content`: `53`;
+  - `final_answer_commitment`: `40`.
+- Expected primary surfaces:
+  - `no_answer_contract_failure`: `53`;
+  - `evidence_or_content_failure`: `53`;
+  - `strict_span_or_granularity_surface`: `33`;
+  - `final_candidate_attractor`: `5`;
+  - `final_candidate_helpful_commitment`: `2`.
+- Manual seed labels over `24` cards:
+  - primary failure surfaces: `8` no answer-contract failure, `8`
+    evidence/content failure, `5` final-candidate attractor, `3`
+    strict-span/granularity;
+  - answer-contract alarm: `16` yes, `8` no;
+  - target-authority alarm: `22` no, `2` soft;
+  - short-span alarm: `8` yes, `16` no;
+  - evidence-adequacy alarm: `8` yes, `16` no.
+- Added report:
+  - `reports/20260615-field-authority-answer-contract-negative-controls.md`.
+- Evidence register:
+  - added `E-094` and `E-095`.
+- Interpretation:
+  - this is a specificity packet, not a verifier result;
+  - all `146` cards have `target_authority_alarm_expected = false`, so a
+    future answer-contract audit can be falsified if it over-labels these
+    controls as target-authority failures;
+  - the manual seed labels already expose `2` soft target-authority boundary
+    cases, so the verifier should support secondary alarms instead of forcing a
+    single primary label.
+
+## 2026-06-15 Field-Authority Answer-Contract Verifier Packet
+
+- Added structured verifier packet builder:
+  - `scripts/build_pact_answer_contract_verifier_packet.py`.
+- Added verifier output evaluator:
+  - `scripts/evaluate_pact_answer_contract_verifier.py`.
+- Generated verifier packet artifacts:
+  - `experiments/20260615-local-pact-answer-contract-verifier-packet/verifier_packet.jsonl`;
+  - `experiments/20260615-local-pact-answer-contract-verifier-packet/gold_labels.jsonl`;
+  - `experiments/20260615-local-pact-answer-contract-verifier-packet/summary.json`;
+  - `experiments/20260615-local-pact-answer-contract-verifier-packet/scoring_plan.md`.
+- Packet size:
+  - `74` records;
+  - `50` positive target-layer records;
+  - `24` negative-control records;
+  - offset100 `40`, offset150 `34`.
+- Gold primary surfaces:
+  - `answer_type_or_relation_mismatch`: `21`;
+  - `short_span_or_granularity_mismatch`: `21`;
+  - `public_target_misdirection`: `3`;
+  - `evidence_sentence_or_distractor_copy`: `3`;
+  - `question_root_ambiguity_regression`: `2`;
+  - `evidence_or_content_failure`: `8`;
+  - `final_candidate_attractor`: `5`;
+  - `strict_span_or_granularity_surface`: `3`;
+  - `no_answer_contract_failure`: `8`.
+- Scoring smokes:
+  - `gold` prediction source: `1.000` exact all-fields accuracy and `1.000`
+    primary-surface accuracy;
+  - `all_no` baseline: `0.108` exact all-fields accuracy and `0.108`
+    primary-surface accuracy.
+- Added report:
+  - `reports/20260615-field-authority-answer-contract-verifier-packet.md`.
+- Evidence register:
+  - added `E-096`.
+- Interpretation:
+  - this is a verifier benchmark packet, not a model result;
+  - the next executable pressure is to run a low-temperature model over
+    `verifier_packet.jsonl` and score by alarm family plus primary surface.
+
+## 2026-06-15 PACT Answer-Contract Verifier Qwen2.5-14B Run
+
+- Added A800_2 launcher:
+  - `scripts/run_pact_answer_contract_verifier_a8002.sh`.
+- Synced the verifier packet and evaluator to A800_2.
+- Ran Qwen2.5-14B-Instruct verifier over the `74`-record answer-contract packet:
+  - run id `20260615-1938-a8002-pact-answer-contract-verifier-qwen25-14b`;
+  - machine A800_2, GPU `7`, port `8035`;
+  - completed `74/74`, failed `0`;
+  - all outputs were valid JSON.
+- Scoring result:
+  - exact all-fields accuracy `0.081`;
+  - primary-surface accuracy `0.230`;
+  - `target_authority_alarm` binary F1 `0.688`;
+  - `answer_contract_alarm` recall `0.288`;
+  - `answer_type_relation_alarm` F1 `0.133`;
+  - `short_span_granularity_alarm` F1 `0.324`.
+- Added run note:
+  - `experiments/20260615-1938-a8002-pact-answer-contract-verifier-qwen25-14b/README.md`.
+- Added report:
+  - `reports/20260615-pact-answer-contract-verifier-qwen25-14b.md`.
+- Evidence register:
+  - added `E-097`.
+- Interpretation:
+  - the packet is a useful falsification surface;
+  - the current prompt is not a working runtime verifier;
+  - the next check should repair prompt/schema calibration on the same packet
+    before using the verifier to route public-state fields.
+
+## 2026-06-15 PACT Answer-Contract Verifier Prompt-V2 Run
+
+- Added strict prompt-v2 packet builder:
+  - `scripts/build_pact_answer_contract_verifier_prompt_v2_packet.py`.
+- Generated prompt-v2 packet:
+  - `experiments/20260615-local-pact-answer-contract-verifier-packet-v2/`;
+  - same `74` records and gold labels as the v1 verifier packet;
+  - only the prompt text and prompt-version metadata changed.
+- Gold and all-no evaluator smokes passed on the v2 packet:
+  - gold exact all-fields accuracy `1.000`;
+  - all-no exact all-fields accuracy `0.108`.
+- Ran Qwen2.5-14B-Instruct verifier over v2 packet:
+  - run id `20260615-1951-a8002-pact-answer-contract-verifier-v2-qwen25-14b`;
+  - machine A800_2, GPU `7`, port `8035`;
+  - completed `74/74`, failed `0`;
+  - all outputs were valid JSON.
+- Main comparison:
+  - exact all-fields accuracy moved from `0.081` to `0.108`;
+  - primary-surface accuracy moved from `0.230` to `0.216`;
+  - `answer_contract_alarm` F1 improved from `0.442` to `0.712`;
+  - `target_authority_alarm = soft` predictions dropped from `43` to `12`;
+  - `target_authority_alarm` F1 fell from `0.688` to `0.526`;
+  - `short_span_granularity_alarm` F1 fell from `0.324` to `0.125`.
+- Added run note:
+  - `experiments/20260615-1951-a8002-pact-answer-contract-verifier-v2-qwen25-14b/README.md`.
+- Added report:
+  - `reports/20260615-pact-answer-contract-verifier-v2-qwen25-14b.md`.
+- Evidence register:
+  - added `E-098`.
+- Interpretation:
+  - prompt-v2 repaired the global alarm and soft-overuse symptoms;
+  - it did not solve primary-surface diagnosis;
+  - the next verifier object should be split-stage rather than another longer
+    one-shot taxonomy prompt.
+
+## 2026-06-15 PACT Answer-Contract Split-Alarm Run
+
+- Added split-alarm packet builder and evaluator:
+  - `scripts/build_pact_answer_contract_split_alarm_packet.py`;
+  - `scripts/evaluate_pact_answer_contract_split_alarm.py`.
+- Added A800_2 launcher:
+  - `scripts/run_pact_answer_contract_split_alarm_a8002.sh`.
+- Generated split-alarm packet:
+  - `experiments/20260615-local-pact-answer-contract-split-alarm-packet/`;
+  - `74` base records expanded into `444` prompt rows across six alarm tasks.
+- Gold and all-no evaluator smokes passed:
+  - gold exact label accuracy `1.000`;
+  - all-no exact label accuracy `0.586`.
+- Ran Qwen2.5-14B-Instruct over split-alarm packet:
+  - run id `20260615-2002-a8002-pact-answer-contract-split-alarm-qwen25-14b`;
+  - machine A800_2, GPU `7`, port `8035`;
+  - completed `444/444`, failed `0`;
+  - after split-label fallback, parse failures `0`.
+- Main split-alarm metrics:
+  - exact label accuracy `0.590`;
+  - positive/negative accuracy `0.617`;
+  - overall binary F1 `0.384`;
+  - `answer_contract_alarm` F1 `0.538`;
+  - `target_authority_alarm` F1 `0.486`;
+  - `answer_type_relation_alarm` F1 `0.125`;
+  - `short_span_granularity_alarm` F1 `0.065`;
+  - `evidence_adequacy_alarm` F1 `0.424`;
+  - `final_candidate_alarm` F1 `0.000`.
+- Added run note:
+  - `experiments/20260615-2002-a8002-pact-answer-contract-split-alarm-qwen25-14b/README.md`.
+- Added report:
+  - `reports/20260615-pact-answer-contract-split-alarm-qwen25-14b.md`.
+- Evidence register:
+  - added `E-099`.
+- Interpretation:
+  - split prompting does not rescue the current Qwen2.5-14B verifier;
+  - evidence adequacy improves modestly, but short-span, final-candidate, and
+    answer-type/relation remain weak;
+  - the verifier route now needs few-shot contrast, label simplification, a
+    stronger verifier model, or demotion to manual-audit benchmark status.
+
+## 2026-06-15 External Pressure Taste Audit
+
+- Added bounded outside-pressure synthesis:
+  - `reports/20260615-external-pressure-taste-audit.md`.
+- External pressure sources:
+  - PACT action-state communication;
+  - AgentSecBench and CaMeL for data-flow versus authority separation;
+  - DeLM and Decision-Aware Memory Cards for shared verified context and
+    decision-critical memory;
+  - Benefits and Limitations of Communication, HiddenBench, Demystifying MAD,
+    Talk Isn't Always Cheap, and Cost of Consensus for task-regime and
+    authority-transfer pressure;
+  - answer-type/span QA work for collision pressure.
+- Interpretation:
+  - the highest-taste surviving handle is not a runtime answer-contract
+    verifier;
+  - it is the separation of evidence semantics from authority semantics inside
+    multi-agent public state;
+  - next pressure should deliberately perturb public-field authority while
+    holding evidence as constant as possible.
+
+## 2026-06-15 PACT Authority/Evidence Stress Run
+
+- Added authority/evidence stress packet builder and evaluator:
+  - `scripts/build_pact_authority_evidence_stress_packet.py`;
+  - `scripts/evaluate_pact_authority_evidence_stress_packet.py`;
+  - `scripts/run_pact_authority_evidence_stress_a8002.sh`.
+- Generated setup packet:
+  - `experiments/20260615-local-pact-authority-evidence-stress-packet/`;
+  - source cases: `40`;
+  - prompt rows: `200`;
+  - source mix: `32` positive target-focus cases and `8` negative-control seed
+    cases;
+  - variants: original trusted-root public state, injected `Action Required`,
+    delegated active public authority, frozen question target, and final
+    candidate lure.
+- Ran Qwen2.5-14B-Instruct on A800_2 GPU `7`:
+  - run id `20260615-2040-a8002-pact-authority-evidence-stress-qwen25-14b`;
+  - completed `200/200`;
+  - GPU 7 released after the run.
+- Main result over positive target-focus rows:
+  - trusted-root original public state: EM `0.812`, F1 `0.865`;
+  - trusted-root with injected `Action Required`: EM `0.594`, F1 `0.695`;
+  - delegated public authority active: EM `0.344`, F1 `0.525`;
+  - frozen question target: EM `0.844`, F1 `0.911`;
+  - final-candidate lure: EM `0.469`, F1 `0.633`.
+- Paired deltas over positive target-focus rows:
+  - injected `Action Required`: `7` regressions, avg F1 delta `-0.169`;
+  - delegated public authority: `15` regressions, avg F1 delta `-0.339`;
+  - frozen question target: `5` rescues, `4` regressions, avg F1 delta `+0.046`;
+  - final-candidate lure: `11` regressions, avg F1 delta `-0.231`.
+- Added report:
+  - `reports/20260615-pact-authority-evidence-stress-qwen25-14b.md`.
+- Evidence register:
+  - added `E-101`.
+- Interpretation:
+  - the stress packet moves behavior in the predicted direction and strengthens
+    the evidence/authority separation handle;
+  - this is still a selected saved-field pressure object, not a full PACT method
+    result.
+
+## 2026-06-15 PACT Authority/Evidence Case Audit
+
+- Added manual case-level audit:
+  - `reports/20260615-pact-authority-evidence-case-audit.md`.
+- Audited:
+  - `7` positive-case regressions from injected `Action Required`;
+  - `5` positive-case rescues from frozen question target;
+  - `4` positive-case regressions from frozen question target;
+  - `3` sampled controls.
+- Interpretation:
+  - the stress signal survives, but the clean claim narrows;
+  - only `2/7` injected regressions are strong public-field answer-contract
+    authority failures, with `2/7` mixed span/result-surface cases and `3/7`
+    better treated as answer-type, exact-span, or question-root confounds;
+  - frozen-target rescues are cleaner, with `4/5` looking like question-root or
+    target-relation repairs and `1/5` mainly a granularity repair.
+- Evidence register:
+  - added `E-102`.
+
+## 2026-06-15 PACT Authority Injection Arena
+
+- Added public-state authority injection arena scripts:
+  - `scripts/build_pact_authority_injection_arena_packet.py`;
+  - `scripts/evaluate_pact_authority_injection_arena.py`;
+  - `scripts/run_pact_authority_injection_arena_a8002.sh`.
+- Generated setup packet:
+  - `experiments/20260615-local-pact-authority-injection-arena-packet/`;
+  - source cases: `40`;
+  - prompt rows: `280`;
+  - variants: original untyped public state, evidence-only neutral, neutral
+    public summary, imperative public task, wrong-contract public task, forged
+    final commitment, and typed-state quarantine.
+- Ran Qwen2.5-14B-Instruct on A800_2 GPU `7`:
+  - run id `20260615-2130-a8002-pact-authority-injection-arena-qwen25-14b`;
+  - completed `280/280`;
+  - failed `0`;
+  - GPU 7 released after the run.
+- Main result over positive target-focus rows:
+  - original untyped public state: EM `0.812`, F1 `0.865`;
+  - wrong-contract public task: EM `0.188`, F1 `0.393`;
+  - forged final commitment: EM `0.375`, F1 `0.552`;
+  - typed-state quarantine: EM `0.625`, F1 `0.782`.
+- Paired Authority Violation Rate over `26` base-correct positive rows:
+  - wrong-contract public task: `21/26`, AVR `0.808`;
+  - forged final commitment: `14/26`, AVR `0.538`;
+  - imperative public task: `3/26`, AVR `0.115`;
+  - typed-state quarantine: `6/26`, AVR `0.231`.
+- Interpretation:
+  - public-state answer-contract authority is a strong perturbable surface;
+  - typed role labels rescue many wrong-contract and forged-candidate failures
+    but are not safe by themselves because the visible untrusted candidate can
+    become an attraction surface.
+- Added report:
+  - `reports/20260615-pact-authority-injection-arena-qwen25-14b.md`.
+- Evidence register:
+  - added `E-103`.
