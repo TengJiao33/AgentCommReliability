@@ -1,6 +1,6 @@
 [submodule "baselines/MAD-MM"]
 	path = baselines/MAD-MM
-	url = https://github.com/HongduanTian/MAD-MM.git
+	url = https://github.com/TengJiao33/MAD-MM.git
 
 [submodule "baselines/RuleArena/upstream"]
 	path = baselines/RuleArena/upstream
