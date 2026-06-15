@@ -2659,3 +2659,39 @@ Next:
   - final-answer candidate licensing should be paused;
   - the next verifier should remove dependence on paired target-slot diagnostics
     and add a final-span/granularity check before testing a neighboring slice.
+
+## 2026-06-15 Field-Contract Quarantine External Pressure
+
+- Ran an external collision/pressure scan around the current field-contract
+  quarantine result.
+- Added report:
+  - `reports/20260615-field-contract-quarantine-external-pressure.md`.
+- Updated reading queue with field-authority pressure hits:
+  - PACT / action-state public communication;
+  - AgentSecBench / data-flow versus authority;
+  - CaMeL / trusted-query-rooted control flow;
+  - ARGUS / provenance-aware decision auditing;
+  - Toward Secure LLM Agents / trust boundaries and delegated authority;
+  - DeLM / shared verified context;
+  - Decision-Aware Memory Cards / typed decision-critical context;
+  - context-quarantine terminology collision;
+  - State-Centric Decision Process / certified states.
+- Evidence register:
+  - added `E-084`.
+- Deletions from the live story:
+  - do not claim novelty as structured public state;
+  - do not claim novelty as shared verified context;
+  - do not claim novelty as typed context cards;
+  - do not claim generic context quarantine;
+  - pause final-answer-candidate licensing as a near-term route;
+  - stop treating "keep good public targets" as the default policy.
+- Surviving narrow claim:
+  - public-state handoffs contain authority-bearing fields, not only data;
+  - downstream agents should not treat upstream `Action Required` as a task
+    contract unless it is grounded back into the original question/user intent.
+- Next pressure:
+  - build a security-style projection baseline;
+  - remove dependence on paired target-slot diagnostics;
+  - add a standalone target-authority detector and final-span/granularity
+    verifier;
+  - test a neighboring HotpotQA slice before calling this a method candidate.

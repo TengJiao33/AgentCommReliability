@@ -57,12 +57,33 @@ Use this as vocabulary, not as a forced benchmark plan.
 | peer pressure / social influence | KAIROS, Identity Bias / anonymization, BenchForm | utility, resistance, robustness, peer-answer adoption, conformity, obstinacy, source identity bias | current peer-exposure probe should use this metric language |
 | agentic workflow / shared context | SWE-bench Verified, LongBench-v2 Multi-Doc QA; DeLM; Decision-Aware Memory Cards | shared verified context, compact verified updates, decision-aware context cards, tokens per resolved task | useful if the project moves from debate probes toward real agent workflows |
 
+## Field-Authority / Public-State Pressure Hits
+
+Source: 2026-06-15 external collision check after
+`reports/20260615-pact-field-contract-quarantine.md`.
+
+| Priority | Paper / Theme | Link | Why It Matters |
+| --- | --- | --- | --- |
+| P0 | PACT: action-state public communication | https://arxiv.org/html/2606.05304v1 | Direct collision. PACT already owns action-state public handoff and the Action/State/Result field surface; our claim must move inside that surface to field authority. |
+| P0 | AgentSecBench | https://arxiv.org/html/2605.26269v1 | Strongest language for the problem: common generative channel conflates data flow with authority; prompt annotation is not enforcement. |
+| P0 | CaMeL / Defeating Prompt Injections by Design | https://arxiv.org/abs/2503.18813 | Trusted query determines control/data flow; untrusted data cannot affect program flow. Useful analogue for original-question-rooted target projection. |
+| P0 | ARGUS | https://arxiv.org/html/2605.03378v1 | Provenance-aware decision auditing; tracks how untrusted context propagates into decisions and checks trustworthy evidence before execution. |
+| P0 | Toward Secure LLM Agents | https://arxiv.org/abs/2606.10749 | Broad trust-boundary survey: information flow, delegated authority, persistent state, provenance-aware state management, and multi-agent propagation. |
+| P0 | DeLM / shared verified context | https://arxiv.org/abs/2606.10662 | Shared verified context and compact verified updates already occupy the broad shared-context framing. |
+| P1 | Decision-Aware Memory Cards | https://arxiv.org/abs/2606.08151 | Typed decision-critical context and negative-transfer risk already occupy much of the typed-card framing. |
+| P1 | Context quarantine terminology | https://www.dbreunig.com/2025/06/26/how-to-fix-your-context.html | Terminology collision. Keep "quarantine" only if qualified as field-authority quarantine, not generic context quarantine. |
+| P1 | State-Centric Decision Process | https://arxiv.org/abs/2605.12755 | Certified predicate states and HotpotQA certified hop findings pressure any broad "certified state" framing. |
+
 Current naming rule:
 
 - do not call MATH12/MATH200 a general multi-agent communication benchmark;
 - call it a peer-influence diagnostic on math reasoning cases;
 - reserve stronger communication-necessity language for split-evidence,
   distributed-information, or shared-context settings.
+- do not call field-contract quarantine novel as structured public state,
+  shared verified context, typed context cards, or generic context quarantine;
+  call the surviving object field-authority control inside public-state handoff.
+
 
 ## Reading Card Template
 
