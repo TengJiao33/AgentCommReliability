@@ -1,0 +1,37 @@
+{
+  "existing_trace_transition_counts": {
+    "right_to_wrong": 9,
+    "stable_right": 123,
+    "stable_wrong": 56,
+    "wrong_to_right": 12
+  },
+  "has_correct_peer": 149,
+  "has_wrong_peer": 110,
+  "outputs": {
+    "README": "experiments\\20260616-local-typecast-arena-math200-decisive-source\\README.md",
+    "sender_packet": "experiments\\20260616-local-typecast-arena-math200-decisive-source\\typecast_math200_sender_stage_packet.jsonl",
+    "source_rows": "experiments\\20260616-local-typecast-arena-math200-decisive-source\\source_rows.jsonl",
+    "summary": "experiments\\20260616-local-typecast-arena-math200-decisive-source\\summary.json"
+  },
+  "peer_mix_counts": {
+    "0correct_3wrong": 51,
+    "1correct_2wrong": 23,
+    "2correct_1wrong": 36,
+    "3correct_0wrong": 90
+  },
+  "run_later": {
+    "decisive_channels": [
+      "sender_private_scratch_visible_inert",
+      "peer_message_direct",
+      "shared_workspace_admitted",
+      "verifier_admitted_result",
+      "admission_rejected_quarantine",
+      "typed_partial_derivation_requires_rederive"
+    ],
+    "stage1_packet": "experiments\\20260616-local-typecast-arena-math200-decisive-source\\typecast_math200_sender_stage_packet.jsonl",
+    "stage2_materializer": "scripts/materialize_typecast_math_live_receiver_packet.py"
+  },
+  "sender_packet_rows": 200,
+  "source_rows": 200,
+  "source_trace": "experiments\\20260615-1151-a8002-typed-public-state-math200-anon\\madmm-qwen25-7b-math200-naive-20260615_1142.comm_trace.jsonl"
+}

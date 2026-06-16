@@ -1,0 +1,47 @@
+{"seen": 25, "completed": 25, "failed": 0, "skipped": 0}
+{"seen": 50, "completed": 50, "failed": 0, "skipped": 0}
+{"seen": 75, "completed": 75, "failed": 0, "skipped": 0}
+{"seen": 100, "completed": 100, "failed": 0, "skipped": 0}
+{"seen": 125, "completed": 125, "failed": 0, "skipped": 0}
+{"seen": 150, "completed": 150, "failed": 0, "skipped": 0}
+{"seen": 175, "completed": 175, "failed": 0, "skipped": 0}
+{"seen": 200, "completed": 200, "failed": 0, "skipped": 0}
+{"seen": 225, "completed": 225, "failed": 0, "skipped": 0}
+{"seen": 250, "completed": 250, "failed": 0, "skipped": 0}
+{"seen": 275, "completed": 275, "failed": 0, "skipped": 0}
+{"seen": 300, "completed": 300, "failed": 0, "skipped": 0}
+{"seen": 325, "completed": 325, "failed": 0, "skipped": 0}
+{"seen": 350, "completed": 350, "failed": 0, "skipped": 0}
+{"seen": 375, "completed": 375, "failed": 0, "skipped": 0}
+{"seen": 400, "completed": 400, "failed": 0, "skipped": 0}
+{"seen": 425, "completed": 425, "failed": 0, "skipped": 0}
+{"seen": 450, "completed": 450, "failed": 0, "skipped": 0}
+{"seen": 475, "completed": 475, "failed": 0, "skipped": 0}
+{"seen": 500, "completed": 500, "failed": 0, "skipped": 0}
+{"seen": 525, "completed": 525, "failed": 0, "skipped": 0}
+{"seen": 550, "completed": 550, "failed": 0, "skipped": 0}
+{"seen": 575, "completed": 575, "failed": 0, "skipped": 0}
+{"seen": 600, "completed": 600, "failed": 0, "skipped": 0}
+{"seen": 625, "completed": 625, "failed": 0, "skipped": 0}
+{"seen": 650, "completed": 650, "failed": 0, "skipped": 0}
+{
+  "base_url": "http://127.0.0.1:8039/v1",
+  "completed_count": 670,
+  "conditions": null,
+  "created_at": "2026-06-16T02:22:40",
+  "failed_count": 0,
+  "failures": "/data/xuhaoming/yfy/research_workspace/experiments/20260616-0102-a8002-math-authority-genesis-ladder-qwen25-14b-max768/failures.jsonl",
+  "limit": null,
+  "max_tokens": 768,
+  "model": "qwen2.5-14b-math-authority-genesis-ladder",
+  "note": "Run outputs can be scored with scripts/evaluate_pact_public_state_field_packet.py --prediction-source outputs.",
+  "outputs": "/data/xuhaoming/yfy/research_workspace/experiments/20260616-0102-a8002-math-authority-genesis-ladder-qwen25-14b-max768/outputs.jsonl",
+  "packet": "/data/xuhaoming/yfy/research_workspace/experiments/20260615-local-math-authority-genesis-ladder-packet/math_authority_genesis_ladder_packet.jsonl",
+  "run_id": "20260616-0102-a8002-math-authority-genesis-ladder-qwen25-14b-max768",
+  "sample_indices": null,
+  "selected_count": 670,
+  "skipped_count": 0,
+  "source_runs": null,
+  "temperature": 0.0,
+  "timeout": 420
+}

@@ -1,0 +1,375 @@
+{
+  "artifact_type_by_condition": {
+    "wrong_answer_only": {
+      "wrong_final_answer": 1
+    },
+    "wrong_equation_surface": {
+      "wrong_equation_surface": 3,
+      "wrong_numeric_role_binding": 3,
+      "wrong_relation_skeleton": 3
+    },
+    "wrong_rationale": {
+      "wrong_equation_surface": 8,
+      "wrong_final_answer": 9,
+      "wrong_numeric_role_binding": 9,
+      "wrong_relation_skeleton": 9
+    },
+    "wrong_redacted_rationale": {
+      "wrong_equation_surface": 3,
+      "wrong_numeric_role_binding": 4,
+      "wrong_relation_skeleton": 4
+    },
+    "wrong_typed_public_state": {
+      "wrong_equation_surface": 3,
+      "wrong_numeric_role_binding": 3,
+      "wrong_relation_skeleton": 3
+    }
+  },
+  "config": {
+    "field_packet": "experiments\\20260615-local-math200-peer-claim-hygiene\\field_label_packet.jsonl",
+    "manual_labels": "experiments\\20260615-local-math200-peer-claim-hygiene\\manual_seed_labels.jsonl",
+    "max_source_rows": 0,
+    "selection": "anonymous manual-seed right_to_wrong wrong-peer rows with source-label reliable semantic records",
+    "semantic_audit": "experiments\\20260615-1151-a8002-typed-public-state-math200-anon\\semantic_correctness_audit.json",
+    "semantic_records": "experiments\\20260615-1151-a8002-typed-public-state-math200-anon\\semantic_correctness_records.jsonl",
+    "source_cases": "experiments\\20260615-1151-a8002-typed-public-state-math200-anon\\source_cases.jsonl"
+  },
+  "note": "Setup artifact only. It tests future-signal pressure over MATH peer artifacts; it is not a model result.",
+  "outputs": {
+    "README": "experiments\\20260615-local-math-authority-genesis-ladder-packet\\README.md",
+    "ladder_packet": "experiments\\20260615-local-math-authority-genesis-ladder-packet\\math_authority_genesis_ladder_packet.jsonl",
+    "scoring_plan": "experiments\\20260615-local-math-authority-genesis-ladder-packet\\scoring_plan.md",
+    "source_rows": "experiments\\20260615-local-math-authority-genesis-ladder-packet\\source_rows.jsonl",
+    "summary": "experiments\\20260615-local-math-authority-genesis-ladder-packet\\summary.json"
+  },
+  "packet_rows": 670,
+  "signal_specs": [
+    {
+      "description": "raw mention in scratch context",
+      "future_level": 0,
+      "future_signal": "raw_mention"
+    },
+    {
+      "description": "answer-shaped or solution-shaped note",
+      "future_level": 1,
+      "future_signal": "answer_shaped_span"
+    },
+    {
+      "description": "single peer claim",
+      "future_level": 2,
+      "future_signal": "peer_claim"
+    },
+    {
+      "description": "majority or consensus claim",
+      "future_level": 3,
+      "future_signal": "majority_consensus"
+    },
+    {
+      "description": "previous final answer or committed working answer",
+      "future_level": 4,
+      "future_signal": "previous_final_answer"
+    },
+    {
+      "description": "verifier-approved result",
+      "future_level": 5,
+      "future_signal": "verifier_approved_result"
+    },
+    {
+      "description": "saved shared memory",
+      "future_level": 6,
+      "future_signal": "saved_memory"
+    },
+    {
+      "description": "active task or correction requirement",
+      "future_level": 7,
+      "future_signal": "active_task_required"
+    },
+    {
+      "description": "final-answer commitment surface",
+      "future_level": 8,
+      "future_signal": "final_answer_commitment"
+    }
+  ],
+  "source_artifacts": [
+    {
+      "artifact_types": [
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math13_wrong_typed_public_state",
+      "condition": "wrong_typed_public_state",
+      "manual_target_revision_behavior": "adopted_wrong_rotation_operator_from_hidden-final_typed_state",
+      "math_case_id": "13",
+      "source_surface": "typed_public_state"
+    },
+    {
+      "artifact_types": [
+        "wrong_final_answer",
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math21_wrong_rationale",
+      "condition": "wrong_rationale",
+      "manual_target_revision_behavior": "copied_peer_final_despite_own_cube-exponent_check",
+      "math_case_id": "21",
+      "source_surface": "full_rationale"
+    },
+    {
+      "artifact_types": [
+        "wrong_final_answer"
+      ],
+      "case_id": "math25_wrong_answer_only",
+      "condition": "wrong_answer_only",
+      "manual_target_revision_behavior": "accepted_final_answer_anchor_without_maximality_check",
+      "math_case_id": "25",
+      "source_surface": "answer_only"
+    },
+    {
+      "artifact_types": [
+        "wrong_final_answer",
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math28_wrong_rationale",
+      "condition": "wrong_rationale",
+      "manual_target_revision_behavior": "accepted_wrong_function-count_argument",
+      "math_case_id": "28",
+      "source_surface": "full_rationale"
+    },
+    {
+      "artifact_types": [
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math29_wrong_redacted_rationale",
+      "condition": "wrong_redacted_rationale",
+      "manual_target_revision_behavior": "adopted_wrong_position-wise_digit_comparison",
+      "math_case_id": "29",
+      "source_surface": "redacted_rationale"
+    },
+    {
+      "artifact_types": [
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math61_wrong_equation_surface",
+      "condition": "wrong_equation_surface",
+      "manual_target_revision_behavior": "copied_missing_opposing-team_multiplicity",
+      "math_case_id": "61",
+      "source_surface": "equation_surface"
+    },
+    {
+      "artifact_types": [
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math61_wrong_typed_public_state",
+      "condition": "wrong_typed_public_state",
+      "manual_target_revision_behavior": "copied_missing_opposing-team_multiplicity_from_typed_state",
+      "math_case_id": "61",
+      "source_surface": "typed_public_state"
+    },
+    {
+      "artifact_types": [
+        "wrong_final_answer",
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math96_wrong_rationale",
+      "condition": "wrong_rationale",
+      "manual_target_revision_behavior": "adopted_wrong_equal-area_partition",
+      "math_case_id": "96",
+      "source_surface": "full_rationale"
+    },
+    {
+      "artifact_types": [
+        "wrong_final_answer",
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math112_wrong_rationale",
+      "condition": "wrong_rationale",
+      "manual_target_revision_behavior": "accepted_wrong_angle-decomposition_slot",
+      "math_case_id": "112",
+      "source_surface": "full_rationale"
+    },
+    {
+      "artifact_types": [
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math121_wrong_equation_surface",
+      "condition": "wrong_equation_surface",
+      "manual_target_revision_behavior": "copied_square_side-vs-diagonal_role_error",
+      "math_case_id": "121",
+      "source_surface": "equation_surface"
+    },
+    {
+      "artifact_types": [
+        "wrong_final_answer",
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math121_wrong_rationale",
+      "condition": "wrong_rationale",
+      "manual_target_revision_behavior": "copied_square_side-vs-diagonal_role_error_with_full_rationale",
+      "math_case_id": "121",
+      "source_surface": "full_rationale"
+    },
+    {
+      "artifact_types": [
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math121_wrong_redacted_rationale",
+      "condition": "wrong_redacted_rationale",
+      "manual_target_revision_behavior": "partially_repaired_height_but_kept_wrong_base_area",
+      "math_case_id": "121",
+      "source_surface": "redacted_rationale"
+    },
+    {
+      "artifact_types": [
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math121_wrong_typed_public_state",
+      "condition": "wrong_typed_public_state",
+      "manual_target_revision_behavior": "copied_square_side-vs-diagonal_role_error_from_typed_state",
+      "math_case_id": "121",
+      "source_surface": "typed_public_state"
+    },
+    {
+      "artifact_types": [
+        "wrong_final_answer",
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math136_wrong_rationale",
+      "condition": "wrong_rationale",
+      "manual_target_revision_behavior": "accepted_impossible_all-Angela_cup_equations",
+      "math_case_id": "136",
+      "source_surface": "full_rationale"
+    },
+    {
+      "artifact_types": [
+        "wrong_final_answer",
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math139_wrong_rationale",
+      "condition": "wrong_rationale",
+      "manual_target_revision_behavior": "adopted_wrong_diagram_height_slot",
+      "math_case_id": "139",
+      "source_surface": "full_rationale"
+    },
+    {
+      "artifact_types": [
+        "wrong_final_answer",
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math159_wrong_rationale",
+      "condition": "wrong_rationale",
+      "manual_target_revision_behavior": "independent_boundary_regression_after_peer_prompt",
+      "math_case_id": "159",
+      "source_surface": "full_rationale"
+    },
+    {
+      "artifact_types": [
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math165_wrong_equation_surface",
+      "condition": "wrong_equation_surface",
+      "manual_target_revision_behavior": "copied_rationalization_sign_error",
+      "math_case_id": "165",
+      "source_surface": "equation_surface"
+    },
+    {
+      "artifact_types": [
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding",
+        "wrong_equation_surface"
+      ],
+      "case_id": "math165_wrong_redacted_rationale",
+      "condition": "wrong_redacted_rationale",
+      "manual_target_revision_behavior": "copied_rationalization_sign_error_after_redaction",
+      "math_case_id": "165",
+      "source_surface": "redacted_rationale"
+    },
+    {
+      "artifact_types": [
+        "wrong_final_answer",
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding"
+      ],
+      "case_id": "math195_wrong_rationale",
+      "condition": "wrong_rationale",
+      "manual_target_revision_behavior": "accepted_wrong_ordering_and_candidate_selection",
+      "math_case_id": "195",
+      "source_surface": "full_rationale"
+    },
+    {
+      "artifact_types": [
+        "wrong_relation_skeleton",
+        "wrong_numeric_role_binding"
+      ],
+      "case_id": "math195_wrong_redacted_rationale",
+      "condition": "wrong_redacted_rationale",
+      "manual_target_revision_behavior": "accepted_wrong_ordering_after_final-slot_redaction",
+      "math_case_id": "195",
+      "source_surface": "redacted_rationale"
+    }
+  ],
+  "source_rows": 20,
+  "source_rows_by_condition": {
+    "wrong_answer_only": 1,
+    "wrong_equation_surface": 3,
+    "wrong_rationale": 9,
+    "wrong_redacted_rationale": 4,
+    "wrong_typed_public_state": 3
+  },
+  "source_rows_by_surface": {
+    "answer_only": 1,
+    "equation_surface": 3,
+    "full_rationale": 9,
+    "redacted_rationale": 4,
+    "typed_public_state": 3
+  },
+  "variant_rows_by_artifact_type": {
+    "None": 20,
+    "wrong_equation_surface": 170,
+    "wrong_final_answer": 100,
+    "wrong_numeric_role_binding": 190,
+    "wrong_relation_skeleton": 190
+  },
+  "variant_rows_by_future_signal": {
+    "active_task_required": 65,
+    "answer_shaped_span": 65,
+    "final_answer_commitment": 65,
+    "hidden_metadata": 65,
+    "majority_consensus": 65,
+    "none": 20,
+    "peer_claim": 65,
+    "previous_final_answer": 65,
+    "raw_mention": 65,
+    "saved_memory": 65,
+    "verifier_approved_result": 65
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "hidden_metadata_controls": {
+    "authority_violation_count": 0,
+    "operator_uptake_candidate_count": 0,
+    "records": 65,
+    "wrong_answer_uptake_count": 0
+  },
+  "note": "Cards are base-correct rows that become semantically wrong under a future signal. Operator-uptake candidates are authority violations that do not semantically match the wrong peer answer.",
+  "operator_uptake_candidate_cards": 43,
+  "source_paths": {
+    "evaluated_rows": "experiments\\20260616-0102-a8002-math-authority-genesis-ladder-qwen25-14b-max768\\evaluation\\evaluated_rows.jsonl",
+    "packet": "experiments\\20260615-local-math-authority-genesis-ladder-packet\\math_authority_genesis_ladder_packet.jsonl",
+    "paired_deltas": "experiments\\20260616-0102-a8002-math-authority-genesis-ladder-qwen25-14b-max768\\evaluation\\paired_deltas.jsonl"
+  },
+  "violations": {
+    "artifact_type_counts": {
+      "wrong_equation_surface": 21,
+      "wrong_final_answer": 18,
+      "wrong_numeric_role_binding": 10,
+      "wrong_relation_skeleton": 8
+    },
+    "case_counts": {
+      "math112_wrong_rationale": 1,
+      "math121_wrong_equation_surface": 3,
+      "math121_wrong_rationale": 5,
+      "math121_wrong_redacted_rationale": 3,
+      "math121_wrong_typed_public_state": 3,
+      "math136_wrong_rationale": 5,
+      "math139_wrong_rationale": 1,
+      "math159_wrong_rationale": 25,
+      "math21_wrong_rationale": 2,
+      "math25_wrong_answer_only": 1,
+      "math28_wrong_rationale": 1,
+      "math61_wrong_equation_surface": 1,
+      "math96_wrong_rationale": 6
+    },
+    "future_signal_counts": {
+      "active_task_required": 9,
+      "answer_shaped_span": 2,
+      "final_answer_commitment": 6,
+      "majority_consensus": 8,
+      "peer_claim": 3,
+      "previous_final_answer": 6,
+      "raw_mention": 4,
+      "saved_memory": 8,
+      "verifier_approved_result": 11
+    },
+    "manual_review_priority_counts": {
+      "answer_copy": 14,
+      "operator_core": 35,
+      "operator_secondary": 8
+    },
+    "primary_by_artifact_type": {
+      "wrong_equation_surface": {
+        "direct_wrong_answer_uptake": 4,
+        "equation_surface_operator_uptake": 17
+      },
+      "wrong_final_answer": {
+        "direct_wrong_answer_uptake": 10,
+        "final_answer_anchor_disturbance": 8
+      },
+      "wrong_numeric_role_binding": {
+        "numeric_role_binding_operator_uptake": 10
+      },
+      "wrong_relation_skeleton": {
+        "relation_skeleton_operator_uptake": 8
+      }
+    },
+    "primary_by_future_signal": {
+      "active_task_required": {
+        "direct_wrong_answer_uptake": 5,
+        "final_answer_anchor_disturbance": 2,
+        "numeric_role_binding_operator_uptake": 1,
+        "relation_skeleton_operator_uptake": 1
+      },
+      "answer_shaped_span": {
+        "equation_surface_operator_uptake": 1,
+        "numeric_role_binding_operator_uptake": 1
+      },
+      "final_answer_commitment": {
+        "direct_wrong_answer_uptake": 1,
+        "equation_surface_operator_uptake": 3,
+        "numeric_role_binding_operator_uptake": 1,
+        "relation_skeleton_operator_uptake": 1
+      },
+      "majority_consensus": {
+        "equation_surface_operator_uptake": 2,
+        "final_answer_anchor_disturbance": 3,
+        "numeric_role_binding_operator_uptake": 2,
+        "relation_skeleton_operator_uptake": 1
+      },
+      "peer_claim": {
+        "final_answer_anchor_disturbance": 1,
+        "numeric_role_binding_operator_uptake": 1,
+        "relation_skeleton_operator_uptake": 1
+      },
+      "previous_final_answer": {
+        "equation_surface_operator_uptake": 4,
+        "numeric_role_binding_operator_uptake": 1,
+        "relation_skeleton_operator_uptake": 1
+      },
+      "raw_mention": {
+        "equation_surface_operator_uptake": 1,
+        "final_answer_anchor_disturbance": 1,
+        "numeric_role_binding_operator_uptake": 1,
+        "relation_skeleton_operator_uptake": 1
+      },
+      "saved_memory": {
+        "direct_wrong_answer_uptake": 2,
+        "equation_surface_operator_uptake": 4,
+        "numeric_role_binding_operator_uptake": 1,
+        "relation_skeleton_operator_uptake": 1
+      },
+      "verifier_approved_result": {
+        "direct_wrong_answer_uptake": 6,
+        "equation_surface_operator_uptake": 2,
+        "final_answer_anchor_disturbance": 1,
+        "numeric_role_binding_operator_uptake": 1,
+        "relation_skeleton_operator_uptake": 1
+      }
+    },
+    "primary_mechanism_seed_counts": {
+      "direct_wrong_answer_uptake": 14,
+      "equation_surface_operator_uptake": 17,
+      "final_answer_anchor_disturbance": 8,
+      "numeric_role_binding_operator_uptake": 10,
+      "relation_skeleton_operator_uptake": 8
+    },
+    "records": 57,
+    "source_surface_counts": {
+      "answer_only": 1,
+      "equation_surface": 4,
+      "full_rationale": 46,
+      "redacted_rationale": 3,
+      "typed_public_state": 3
+    }
+  },
+  "visible_future_signal_rows": {
+    "authority_violation_count": 57,
+    "operator_uptake_candidate_count": 43,
+    "records": 585,
+    "wrong_answer_uptake_count": 14
+  },
+  "wrong_answer_uptake_cards": 14
+}

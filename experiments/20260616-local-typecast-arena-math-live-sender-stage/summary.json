@@ -1,0 +1,30 @@
+{
+  "config": {
+    "case_ids": null,
+    "math_case_ids": null,
+    "max_cases": 12,
+    "max_rows_per_math_case": 1
+  },
+  "outputs": {
+    "README": "experiments\\20260616-local-typecast-arena-math-live-sender-stage\\README.md",
+    "packet": "experiments\\20260616-local-typecast-arena-math-live-sender-stage\\typecast_math_sender_stage_packet.jsonl",
+    "summary": "experiments\\20260616-local-typecast-arena-math-live-sender-stage\\summary.json"
+  },
+  "packet_rows": 12,
+  "rows_by_condition": {
+    "wrong_answer_only": 1,
+    "wrong_equation_surface": 2,
+    "wrong_rationale": 7,
+    "wrong_redacted_rationale": 1,
+    "wrong_typed_public_state": 1
+  },
+  "rows_by_source_surface": {
+    "answer_only": 1,
+    "equation_surface": 2,
+    "full_rationale": 7,
+    "redacted_rationale": 1,
+    "typed_public_state": 1
+  },
+  "source_rows": 12,
+  "source_rows_path": "experiments\\20260615-local-math-authority-genesis-ladder-packet\\source_rows.jsonl"
+}

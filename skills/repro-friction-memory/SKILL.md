@@ -76,6 +76,17 @@ machine handbook:
 ssh -o BatchMode=yes -o ConnectTimeout=10 -p 10622 xuhaoming@124.128.251.61 'hostname'
 ```
 
+If direct SSH times out but the user's local Clash SOCKS5 proxy is available,
+route OpenSSH through the project stdio relay:
+
+```powershell
+ssh -o BatchMode=yes -o ConnectTimeout=20 -o ProxyCommand="python D:/develop/AgentCommReliability/scripts/ssh_socks5_proxy.py 127.0.0.1 7890 %h %p" A800_2 'hostname && date'
+```
+
+Before using it, confirm the proxy path can reach the SSH banner with a tiny
+SOCKS5 handshake or a short `ssh hostname` smoke. Do not store proxy profiles,
+tokens, or private network details in repo files.
+
 Remote command with pipes or grep patterns:
 
 ```powershell
@@ -159,6 +170,31 @@ Check whether upstream code respects `--out_dir` before launching a longer run.
 
 If it writes to repository-local `out/` or `result/`, patch only artifact placement and record that method behavior is unchanged.
 
+### Partial Packet Runs
+
+When a runner supports a generation `LIMIT`, verify whether evaluation also uses
+the same sliced packet. Some project runners pass `LIMIT` only to generation and
+then evaluate against the full `PACKET`, which makes a successful smoke exit
+with missing-output errors.
+
+Observed example:
+
+```text
+run_math_epistemic_type_erasure_a8002.sh generated 24/24 or 48/48 limited
+MATH sender-receiver rows, then the evaluator exited with "Missing outputs for
+222 rows" or "Missing outputs for 198 rows" because it scored against the full
+246-row packet.
+```
+
+Reusable response:
+
+- inspect the output JSONL count before treating the run as failed;
+- create a matching sliced packet for the completed prefix and score locally, or
+  patch the runner to emit and pass the sliced packet path to evaluation;
+- record the runner exit as evaluation plumbing when generation completed cleanly
+  and model outputs are present;
+- use the full unsliced packet for the final behavior run once the smoke passes.
+
 ### Parser Compatibility
 
 For LLM output parsers, inspect both the prompt suffix and real model output before blaming accuracy.
@@ -187,6 +223,12 @@ Observed example:
 MATH peer-exposure `answer_only` surfaces reused the older parsed numeric answer field, so symbolic peer answers such as `2\sqrt{3}`, `1 - 12i`, `14\pi`, and `18\sqrt{3}` were displayed as lossy slots such as `3`, `12`, `14`, and `3`.
 ```
 
+Observed example:
+
+```text
+A MATH Authority Genesis packet builder initially removed any peer-surface line containing `Final answer from this peer: ...`; compact one-line peer excerpts then lost the whole rationale instead of only the final-answer slot.
+```
+
 Reusable response:
 
 - patch the regex narrowly;
@@ -196,6 +238,14 @@ Reusable response:
 - for MATH runs with symbolic answers, re-extract raw final-answer strings and compare against original boxed answers with a semantic/equivalence audit before scaling or claiming a peer-surface effect;
 - keep semantic-unknown records explicit instead of silently falling back to numeric parsing.
 - for MATH peer-exposure controls, do not treat `answer_only` as a clean final-answer-authority surface unless it is built from the raw semantic answer string, not the old numeric parser field; audit displayed answer-only slots against raw peer answers before interpreting answer-only utility/harm.
+- when redacting final-answer slots from compact peer excerpts, remove only the final-answer phrase/span rather than dropping the whole line; smoke-check for empty or near-empty artifact text after redaction.
+- for MATH ladder runs that ask for reasoning plus a final answer, do not reuse
+  short QA caps such as `max_tokens=256` without checking completion-token cap
+  hits. Qwen2.5-14B on the MATH Authority Genesis Ladder hit `256` tokens on
+  `441/670` rows and produced `435` semantic unknowns by truncating near
+  `{final answer:`. Use a configurable runner cap, start around
+  `MAX_TOKENS=768`, and record both cap-hit count and semantic-unknown count
+  before interpreting authority-violation rates.
 
 For numeric answer leakage or answer redaction audits, do not use a right
 boundary like `(?![\d.])`. It misses sentence-final answers such as `28800.`

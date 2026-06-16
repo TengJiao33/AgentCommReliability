@@ -3369,3 +3369,459 @@ Next:
   - `reports/20260615-pact-typed-boundary-split-qwen25-14b.md`.
 - Evidence register:
   - added `E-105`.
+
+## 2026-06-15 MATH Authority Genesis Ladder Packet
+
+- Added MATH-side Authority Genesis setup scripts:
+  - `scripts/build_math_authority_genesis_ladder_packet.py`;
+  - `scripts/evaluate_math_authority_genesis_ladder.py`.
+- Generated local setup packet:
+  - `experiments/20260615-local-math-authority-genesis-ladder-packet/`;
+  - source rows: `20`;
+  - wrong-artifact instances: `65`;
+  - prompt rows: `670`;
+  - baseline previous-solution rows: `20`;
+  - evaluator-hidden artifact rows: `65`;
+  - model-visible artifact rows: `585`.
+- The packet starts from clean anonymous MATH200 manual seed rows where wrong
+  peer surfaces caused right-to-wrong transitions, then rebuilds wrong
+  artifacts as:
+  - wrong final answer;
+  - wrong relation skeleton;
+  - wrong numeric-role binding;
+  - wrong equation surface.
+- Future signals include hidden metadata, raw mention, answer-shaped span, peer
+  claim, majority/consensus, previous final answer, verifier-approved result,
+  saved memory, active task requirement, and final-answer commitment.
+- Local validation:
+  - `python -m py_compile` passed for builder/evaluator;
+  - packet has `670/670` unique `packet_id`s;
+  - hidden-leak check found `0/65` hidden rows with artifact markers;
+  - all `585/585` visible rows contain a `Communication Artifact:` section;
+  - gold-smoke semantic evaluation produced `670/670` known-correct rows and
+    `0` semantic unknowns.
+- Added report:
+  - `reports/20260615-math-authority-genesis-ladder-packet.md`.
+- Evidence register:
+  - added `E-109`.
+
+## 2026-06-16 MATH Authority Genesis Ladder Qwen2.5-14B
+
+- Added and used A800_2 runner:
+  - `scripts/run_math_authority_genesis_ladder_a8002.sh`.
+- Synced packet/evaluator/runner to A800_2 under:
+  - `/data/xuhaoming/yfy/research_workspace`.
+- Remote validation:
+  - `py_compile` passed for MATH builder/evaluator/math_eval;
+  - `bash -n` passed for the runner;
+  - remote gold-smoke semantic evaluation produced `670/670` known-correct rows
+    and `0` semantic unknowns.
+- First diagnostic run:
+  - run id `20260616-0001-a8002-math-authority-genesis-ladder-qwen25-14b`;
+  - completed `670/670` requests with `0` failures;
+  - used `max_tokens=256`;
+  - `441/670` outputs hit the token cap and evaluator produced `435` semantic
+    unknown rows;
+  - recorded as truncation diagnostic only.
+- Primary run:
+  - run id
+    `20260616-0102-a8002-math-authority-genesis-ladder-qwen25-14b-max768`;
+  - model path `/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct`;
+  - A800_2 GPU `7`, port `8039`;
+  - completed `670/670` requests with `0` failures;
+  - `max_tokens=768`, request timeout `420`, run timeout `21600`;
+  - `0/670` outputs hit the token cap; max completion tokens `643`, average
+    `335.8`;
+  - evaluator stderr is empty;
+  - GPU 7 released after the run.
+- Main result:
+  - baseline previous-solution rows: `20/20` correct;
+  - hidden metadata control: `0/65` authority violations;
+  - overall semantic accuracy: `613/670`, or `0.9149`;
+  - semantic unknowns: `0`;
+  - visible future-signal authority violations: `57/585`;
+  - total violations split into `14` wrong-answer uptake rows and `43`
+    operator-uptake candidates.
+- By future signal:
+  - raw mention: `4/65`, AVR `0.062`;
+  - answer-shaped span: `2/65`, AVR `0.031`;
+  - peer claim: `3/65`, AVR `0.046`;
+  - majority consensus: `8/65`, AVR `0.123`;
+  - previous final answer: `6/65`, AVR `0.092`;
+  - verifier-approved result: `11/65`, AVR `0.169`, with `6`
+    wrong-answer uptake rows;
+  - saved memory: `8/65`, AVR `0.123`, with `2` wrong-answer uptake rows;
+  - active task required: `9/65`, AVR `0.138`, with `5` wrong-answer uptake
+    rows;
+  - final-answer commitment: `6/65`, AVR `0.092`, with `1` wrong-answer
+    uptake row.
+- By artifact type:
+  - wrong equation surface: `21` violations, `4` answer uptake, `17` operator
+    candidates;
+  - wrong final answer: `18` violations, `10` answer uptake, `8` operator
+    candidates;
+  - wrong numeric-role binding: `10` violations, all operator candidates;
+  - wrong relation skeleton: `8` violations, all operator candidates.
+- Interpretation:
+  - Authority Genesis transfers beyond PACT public-state QA into MATH peer
+    influence;
+  - the effect is not just exact final-answer copy, because most violations are
+    operator candidates;
+  - the ladder is non-monotonic and case-concentrated, especially on
+    `math159_wrong_rationale`.
+- Added report:
+  - `reports/20260616-math-authority-genesis-ladder-qwen25-14b.md`.
+- Evidence register:
+  - added `E-110`.
+
+## 2026-06-16 MATH Authority Genesis Mechanism Audit
+
+- Added local mechanism-audit script:
+  - `scripts/build_math_authority_genesis_mechanism_audit.py`.
+- Built audit artifact:
+  - `experiments/20260616-local-math-authority-genesis-mechanism-audit/`;
+  - `summary.json`;
+  - `violation_cards.jsonl`;
+  - `mechanism_audit.md`.
+- Source run:
+  - `experiments/20260616-0102-a8002-math-authority-genesis-ladder-qwen25-14b-max768/`.
+- Extracted all MATH Authority Genesis right-to-wrong cards:
+  - violation cards: `57`;
+  - hidden metadata controls: `65`;
+  - hidden metadata authority violations: `0`.
+- Seed mechanism split:
+  - direct wrong-answer uptake: `14`;
+  - equation-surface operator uptake: `17`;
+  - numeric-role binding operator uptake: `10`;
+  - relation-skeleton operator uptake: `8`;
+  - final-answer anchor disturbance without exact copy: `8`.
+- Artifact split:
+  - wrong equation surface: `21` violations, `4` direct answer uptake, `17`
+    operator candidates;
+  - wrong final answer: `18` violations, `10` direct answer uptake, `8`
+    non-copy disturbances;
+  - wrong numeric-role binding: `10` violations, all operator candidates;
+  - wrong relation skeleton: `8` violations, all operator candidates.
+- Case concentration:
+  - `math159_wrong_rationale` contributes `25/57` violation cards;
+  - only `1/25` of those is direct uptake of the peer wrong answer `7`;
+  - `23/25` output `26` while gold/base is `27`, making it the strongest
+    current non-copy boundary/operator regression cluster.
+- Interpretation:
+  - the MATH run supports the cross-task Authority Genesis handle as
+    state-transition/operator confusion, not only candidate copying;
+  - the result is still selected and case-concentrated, so the next pressure
+    should deconcentrate or balance mechanism families before treating counts
+    as stable rates.
+- Added report:
+  - `reports/20260616-math-authority-genesis-mechanism-audit.md`.
+- Evidence register:
+  - added `E-111`.
+
+## 2026-06-16 Multi-Agent Specificity External PDF Pressure
+
+- Downloaded and extracted text from external PDFs under
+  `papers/external-pressure-20260616/`:
+  - Benefits and Limitations of Communication in Multi-Agent Reasoning;
+  - Demystifying Multi-Agent Debate;
+  - Talk Isn't Always Cheap;
+  - The Cost of Consensus;
+  - When Persuasion Overrides Truth in Multi-Agent LLM Debates;
+  - MultiAgent Collaboration Attack;
+  - HIDDENBENCH;
+  - PACT Action-state Communication;
+  - DeLM Shared Context;
+  - CaMeL Prompt Injection Defense.
+- Added synthesis report:
+  - `reports/20260616-multiagent-specificity-external-pdf-pressure.md`.
+- Interpretation:
+  - the user's objection is important: a static Authority Genesis ladder can
+    still look like a generic LLM context-authority problem;
+  - external multi-agent papers push the handle toward communication lifecycle
+    variables: peer exchange, communication density, majority/plurality,
+    confidence, shared-state admission, distributed-information surfacing, and
+    downstream reuse;
+  - the next pressure should be a multi-agent communication-lifecycle stress
+    test rather than another static prompt-label ladder alone.
+
+## 2026-06-16 Authority Genesis Idea Reframing
+
+- Revised the incubation memo:
+  - `reports/20260615-authority-genesis-idea.md`.
+- Reframing:
+  - `Authority Genesis` is no longer treated as the deepest mechanism;
+  - it is now one symptom family of `Epistemic Type Erasure in Multi-Agent
+    Communication`;
+  - the core problem is that one agent's intermediate computational artifact
+    crosses the receiver boundary as flat natural language, losing whether it
+    was evidence, inference, hypothesis, confidence, candidate, commitment,
+    memory, procedural result, or action suggestion.
+- Connected the revised idea back to existing evidence:
+  - PACT typed-boundary results become candidate/commitment invalid-cast
+    evidence;
+  - MATH Authority Genesis operator uptake becomes partial-derivation/operator
+    invalid-cast evidence;
+  - the old authority ladder remains a sub-probe rather than the whole idea.
+- Next pressure:
+  - extend existing MATH Authority Genesis artifacts into a type-erasure packet
+    that compares type-erased peer text with type-preserved channels while
+    preserving useful evidence transfer.
+
+## 2026-06-16 MATH Epistemic Type-Erasure Packet
+
+- Built the next pressure object from the existing MATH Authority Genesis
+  source artifacts:
+  - builder: `scripts/build_math_epistemic_type_erasure_packet.py`;
+  - A8002 runner: `scripts/run_math_epistemic_type_erasure_a8002.sh`;
+  - packet directory:
+    `experiments/20260616-local-math-epistemic-type-erasure-packet/`;
+  - report: `reports/20260616-math-epistemic-type-erasure-packet.md`.
+- Design:
+  - same Agent A artifact is rendered as type-erased peer/shared-context text
+    or as type-preserved communication with explicit epistemic type,
+    provenance, confidence, and commitment fields;
+  - controls include self-revision with no peer content and unrelated
+    peer-like context from another MATH problem.
+- Packet shape:
+  - `15` source rows;
+  - `24` selected artifacts;
+  - `222` prompt rows;
+  - per-MATH-case cap `2` to avoid repeating the prior `math121`/`math159`
+    concentration failure.
+- Selected artifact split:
+  - wrong equation surface: `10`;
+  - wrong final answer: `6`;
+  - wrong numeric-role binding: `4`;
+  - wrong relation skeleton: `4`.
+- Prior-ladder linkage:
+  - `13/24` selected artifacts had prior ladder violation cards;
+  - `8/24` had prior operator-uptake candidate cards.
+- Verification:
+  - Python compile passed for builder and reused evaluator;
+  - shell syntax check passed for the A8002 runner;
+  - gold-smoke evaluation: `222/222` semantic correct;
+  - packet IDs are unique and there are no duplicate variants within a case.
+- Interpretation:
+  - this is setup only, not a behavior result;
+  - the next model run can test whether the same cross-agent artifact is more
+    harmful when the communication boundary erases its epistemic type.
+
+## 2026-06-16 MATH Type-Erasure Run Attempt
+
+- Tried to launch the next model step from the local desktop session.
+- Local environment check:
+  - no local A8002-style `/data/xuhaoming/yfy/research_workspace`;
+  - no local vLLM Python at the expected path;
+  - no local Qwen2.5-14B model directory at the expected path;
+  - no visible local NVIDIA runtime from WSL;
+  - no OpenAI-compatible local endpoint on ports `8000` through `8050`.
+- Remote checks:
+  - `ssh A800_2` timed out against the configured host/port;
+  - direct `ssh -p 10622 xuhaoming@124.128.251.61` also timed out;
+  - configured `aliyun`, `falcon-rev`, and `falcon-rev-48175` SSH probes also
+    timed out.
+- Outcome:
+  - no model row was run in this attempt;
+  - packet/gold-smoke remain ready;
+  - the blocker is machine connectivity/runtime availability, not packet
+    construction.
+
+## 2026-06-16 MATH Type-Erasure Proxy Run
+
+- Re-tried A800_2 through the user's local Clash SOCKS5 proxy:
+  - Clash SOCKS5 at `127.0.0.1:7890` can reach the A800_2 SSH banner;
+  - added a tiny OpenSSH `ProxyCommand` relay:
+    `scripts/ssh_socks5_proxy.py`;
+  - `ssh A800_2` works through:
+    `python scripts/ssh_socks5_proxy.py 127.0.0.1 7890 %h %p`.
+- Synced the type-erasure packet, builder, runner, and report to the remote
+  workspace.
+- Added optional `LIMIT` support to:
+  - `scripts/run_math_epistemic_type_erasure_a8002.sh`.
+- Smoke runs:
+  - `20260616-1109-a8002-math-type-erasure-qwen25-14b-smoke12`:
+    `12/12` completed, `0` failures; this only covered baseline/self-control
+    due packet ordering;
+  - `20260616-1116-a8002-math-type-erasure-artifact-smoke38`:
+    `38/38` completed, `0` failures, artifact smoke evaluation `38/38`
+    semantic correct.
+- Full run:
+  - run id:
+    `20260616-1123-a8002-math-type-erasure-qwen25-14b-full222`;
+  - local mirror:
+    `experiments/20260616-1123-a8002-math-type-erasure-qwen25-14b-full222/`;
+  - report:
+    `reports/20260616-math-epistemic-type-erasure-qwen25-14b.md`;
+  - `222/222` rows completed;
+  - `0` runner failures;
+  - evaluator stderr empty;
+  - semantic correctness: `219/222`.
+- Main behavior result:
+  - controls: `0/39` authority violations;
+  - type-erased rows: `2/48` authority violations, both operator candidates
+    without exact wrong-answer uptake;
+  - type-preserved rows: `1/120` authority violation, exact wrong-answer
+    uptake;
+  - all three violations are `wrong_equation_surface` rows.
+- Interpretation:
+  - this supports the boundary/type-erasure handle weakly but specifically:
+    `type_erased_shared_workspace_entry` can still induce non-copy equation
+    operator shifts;
+  - type preservation reduces most pressure in this packet but does not fully
+    solve candidate visibility/local validation.
+
+## 2026-06-16 A-Conference Story Synthesis
+
+- Added story synthesis memo:
+  - `reports/20260616-a-conference-story-synthesis-epistemic-type-erasure.md`.
+- Verdict:
+  - the current handle is a live A-conference candidate, not a paper-ready
+    story;
+  - the viable claim is not generic peer-text influence, but invalid epistemic
+    casting at the multi-agent communication boundary.
+- Current A/B/C shape:
+  - A: multi-agent systems serialize peer messages, shared workspace entries,
+    memory, verifier notes, and partial derivations as flat text;
+  - B: this erases the object's epistemic type and lets receivers cast
+    hypotheses, candidates, or partial derivations as stronger public state;
+  - C: typed communication-boundary protocols or diagnostics that preserve
+    allowed casts while testing useful information transfer.
+- Required next pressure before scaling:
+  - build MATH Type-Erasure v2 with a candidate-visibility split:
+    typed no-candidate, evaluator-hidden candidate, visible candidate, typed
+    derivation with answer removed, typed derivation with answer visible,
+    erased peer message, erased shared workspace entry, and unrelated control;
+  - then move to a true sender-receiver lifecycle where Agent A emits the
+    artifact and Agent B receives it through different boundary protocols.
+
+## 2026-06-16 MATH Type-Erasure v2 Packet
+
+- Built the candidate-visibility split requested by the A-conference synthesis:
+  - builder: `scripts/build_math_epistemic_type_erasure_v2_packet.py`;
+  - packet directory:
+    `experiments/20260616-local-math-epistemic-type-erasure-v2-packet/`;
+  - setup report:
+    `reports/20260616-math-epistemic-type-erasure-v2-packet.md`.
+- Packet shape:
+  - `222` prompt rows;
+  - `15` source rows represented;
+  - `24` selected artifacts;
+  - condition rows: baseline `15`, control `39`, erased `48`, typed `120`.
+- Candidate-visibility arms:
+  - erased peer message: `24`;
+  - erased shared workspace entry: `24`;
+  - typed no-candidate evidence/inference: `24`;
+  - typed hidden-candidate metadata: `24`;
+  - typed visible-candidate noncommitment: `24`;
+  - typed derivation answer removed: `24`;
+  - typed derivation answer visible: `24`;
+  - unrelated peer-like control: `24`.
+- Local validation:
+  - `python -m py_compile` passed for the v2 builder and evaluator;
+  - packet has `222` rows and unique `packet_id` values;
+  - hidden/no-candidate communication blocks have `0/24` wrong-answer literal
+    exposure in each of:
+    `typed_no_candidate_evidence_inference`,
+    `typed_hidden_candidate_metadata`, and
+    `typed_derivation_answer_removed`;
+  - gold-smoke evaluation passed with `222/222` semantic correct.
+- Interpretation:
+  - this is setup evidence, not model behavior;
+  - it removes the v1 ambiguity between typed-boundary failure and visible
+    candidate-answer anchoring;
+  - the next pressure is a v2 A800_2 run using the existing type-erasure runner
+    with `PACKET` overridden to the v2 packet path.
+
+## 2026-06-16 MATH Type-Erasure v2 A800_2 Run
+
+- Ran the v2 candidate-visibility packet on A800_2:
+  - run id:
+    `20260616-1200-a8002-math-type-erasure-v2-qwen25-14b-full222`;
+  - local mirror:
+    `experiments/20260616-1200-a8002-math-type-erasure-v2-qwen25-14b-full222/`;
+  - report:
+    `reports/20260616-math-epistemic-type-erasure-v2-qwen25-14b.md`.
+- Execution:
+  - `222/222` rows completed;
+  - `0` runner failures;
+  - runner stderr empty;
+  - evaluator stderr empty;
+  - semantic correctness: `217/222`.
+- Main behavior result:
+  - controls: `0/39` authority violations;
+  - erased peer message: `0/24`;
+  - erased shared workspace entry: `2/24`, both non-copy operator candidates
+    on `math121`;
+  - typed no-candidate evidence/inference: `2/24`, including one hidden-source
+    wrong-answer collision and one operator/local re-solve error;
+  - typed hidden-candidate metadata: `1/24`, operator/local re-solve error;
+  - typed visible-candidate noncommitment: `0/24`;
+  - typed derivation answer removed: `0/24`;
+  - typed derivation answer visible: `0/24`.
+- Interpretation:
+  - the v1 erased shared-workspace signal reproduces: the same `math121`
+    equation/operator shift appears from `18√3` to `18√2`;
+  - candidate visibility alone is not the root cause, because visible-candidate
+    typed arms are clean while hidden/no-candidate typed arms still show
+    failures;
+  - the next story pressure is a sender-receiver micro-protocol plus an
+    invalid-cast taxonomy that distinguishes inherited operator state from
+    local re-solve and final-answer contract failures.
+
+## 2026-06-16 MATH Sender-Receiver Micro-Protocol
+
+- Added the invalid-cast audit and sender-receiver packet:
+  - audit builder:
+    `scripts/build_math_type_erasure_v2_invalid_cast_audit.py`;
+  - packet builder:
+    `scripts/build_math_sender_receiver_micro_protocol_packet.py`;
+  - analyzer:
+    `scripts/analyze_math_sender_receiver_micro_protocol.py`;
+  - packet directory:
+    `experiments/20260616-local-math-sender-receiver-micro-protocol-packet/`;
+  - full run mirror:
+    `experiments/20260616-1338-a8002-math-sender-receiver-full246-qwen25-14b/`;
+  - report:
+    `reports/20260616-math-sender-receiver-micro-protocol-qwen25-14b.md`.
+- Packet shape:
+  - `246` prompt rows from `13` source rows and `20` selected sender artifacts;
+  - artifact types: wrong equation surface `6`, wrong final answer `6`,
+    wrong numeric-role binding `4`, wrong relation skeleton `4`;
+  - channel rows: baseline `13`, control `53`, erased `40`, admitted `40`,
+    typed `80`, quarantine `20`;
+  - gold-smoke semantic evaluation passed with `246/246` correct rows.
+- A800_2 full run:
+  - run id:
+    `20260616-1338-a8002-math-sender-receiver-full246-qwen25-14b`;
+  - `246/246` rows completed;
+  - semantic correctness: `226/246`;
+  - evaluator reported `2` artifact-answer uptake rows.
+- Seed invalid-cast taxonomy over full run:
+  - `20` authority-violation cards;
+  - `4` admitted-state inherited-operator cards;
+  - `4` peer-message operator-influence cards;
+  - `2` direct visible-answer uptake cards;
+  - `4` local re-solve or empty-artifact errors;
+  - `6` operator candidates needing manual review.
+- Main mechanism read:
+  - the cleanest signal is case-concentrated on `math121`: wrong equation
+    surfaces repeatedly move the answer from `18√3` to `18√2` without copying
+    the peer's wrong final answer `36√2`;
+  - the shift appears under peer/admitted/memory and some typed channels, while
+    inert scratch, unrelated controls, typed visible-candidate noncommitment,
+    and typed inference noncommitment stay clean for this case;
+  - direct answer copy remains a separate mechanism on `math96`, where
+    peer/admitted rows move from `8` to `128/3`;
+  - `math159` still exposes local re-solve background, including a control
+    self-revision move from `27` to `26`, so those rows should not be read as
+    sender invalid-casts without manual review.
+- Interpretation:
+  - the handle has moved from static type labels to explicit communication
+    lifecycle transitions;
+  - typed boundaries are not a single solved condition: visible-candidate
+    noncommitment is clean here, but typed hidden-candidate and partial
+    derivation channels still preserve enough operator pressure to fail on
+    `math121`;
+  - the next pressure is manual audit of the six typed/operator-candidate cards
+    and a deconcentrated packet that reduces reliance on `math121`,
+    `math159`, and `math96`.
