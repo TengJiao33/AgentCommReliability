@@ -149,7 +149,7 @@ def build_prompt(row: dict[str, Any], prompt_style: str = "unit_first") -> str:
                 ensure_ascii=False,
             )
         )
-    if prompt_style == "option_state_first":
+    if prompt_style in {"option_state_first", "abstention_explicit", "visible_facts_first"}:
         lines.extend(
             [
                 "",
@@ -162,7 +162,53 @@ def build_prompt(row: dict[str, Any], prompt_style: str = "unit_first") -> str:
                 "6. The final answer must follow from option_state, not from tempting shared context.",
             ]
         )
-    schema = {
+    if prompt_style == "visible_facts_first":
+        lines.extend(
+            [
+                "",
+                "Visible-facts gate:",
+                "1. First create final_decider_visible_verified_facts.",
+                "2. Include a fact only if verification_status is verified and eligible_recipients contains final_decider.",
+                "3. Create excluded_facts for every omitted fact, with reason unverified, quarantined, or not_visible_to_final_decider.",
+                "4. Classify option_states_for_final_decider using only fact_ids listed in final_decider_visible_verified_facts.",
+                "5. If an option needs a missing, unverified, quarantined, or non-visible fact, mark it insufficient for final_decider.",
+                "6. Answer only when exactly one option is enabled for final_decider and every other option is blocked for final_decider.",
+                "7. Otherwise set final_decider_state.status to insufficient_admissible_evidence and final_decider_state.answer to null.",
+            ]
+        )
+    if prompt_style == "abstention_explicit":
+        lines.extend(
+            [
+                "",
+                "Final decider gate:",
+                "1. Before writing final_decider_state, create final_decider_gate.",
+                "2. Count enabled_for_final_decider only from option_states supported by verified facts visible to final_decider.",
+                "3. Count blocked_for_final_decider only from option_states supported by verified blocker facts visible to final_decider.",
+                "4. If any non-enabled option is insufficient rather than blocked, the final_decider lacks a complete exclusion certificate.",
+                "5. Answer only when exactly one option is enabled_for_final_decider and every other option is blocked_for_final_decider.",
+                "6. Otherwise set final_decider_state.status to insufficient_admissible_evidence and final_decider_state.answer to null.",
+                "7. Do not answer from the original task story, shared context, or a plausible best guess when this gate fails.",
+            ]
+        )
+    schema = {}
+    if prompt_style == "visible_facts_first":
+        schema.update(
+            {
+                "final_decider_visible_verified_facts": [
+                    {
+                        "fact_id": "fact_id",
+                        "reason": "verified and visible to final_decider",
+                    }
+                ],
+                "excluded_facts": [
+                    {
+                        "fact_id": "fact_id",
+                        "reason": "unverified|quarantined|not_visible_to_final_decider",
+                    }
+                ],
+            }
+        )
+    schema.update({
         "option_states": [
             {
                 "option": "one possible answer",
@@ -193,12 +239,19 @@ def build_prompt(row: dict[str, Any], prompt_style: str = "unit_first") -> str:
                 "rationale": "short reason",
             }
         ],
+        "final_decider_gate": {
+            "enabled_for_final_decider": ["answer option"],
+            "blocked_for_final_decider": ["answer option"],
+            "insufficient_for_final_decider": ["answer option"],
+            "gate_passes": "true|false",
+            "rationale": "short reason",
+        },
         "final_decider_state": {
             "status": "decidable_from_admitted_facts|insufficient_admissible_evidence",
             "answer": "answer option or null",
             "supporting_units": ["short labels"],
         },
-    }
+    })
     lines.extend(["", "Return exactly one JSON object with this shape:", json.dumps(schema, ensure_ascii=False, indent=2)])
     return "\n".join(lines)
 
@@ -311,7 +364,14 @@ def main() -> None:
     parser.add_argument("--retries", type=int, default=2)
     parser.add_argument(
         "--prompt-style",
-        choices=["unit_first", "option_state_first", "direct_answer_all_facts", "direct_answer_admissible_facts"],
+        choices=[
+            "unit_first",
+            "option_state_first",
+            "abstention_explicit",
+            "visible_facts_first",
+            "direct_answer_all_facts",
+            "direct_answer_admissible_facts",
+        ],
         default="unit_first",
     )
     parser.add_argument("--include-prompts", action="store_true")

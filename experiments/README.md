@@ -18,6 +18,8 @@ Archived runs are still evidence. A run becomes top-level again only if it is re
 
 - `20260618-local-state-admission-v2-preflight`
 - `20260618-local-state-admission-v2-smoke`
+- `20260618-1858-a8002-state-admission-v2-visible-facts-first-smoke9-qwen25-14b`
+- `20260618-1848-a8002-state-admission-v2-abstention-explicit-smoke9-qwen25-14b`
 - `20260618-1738-a8002-state-admission-v2-direct-admissible-smoke9-qwen25-14b`
 - `20260618-1732-a8002-state-admission-v2-direct-allfacts-smoke9-qwen25-14b`
 - `20260618-1724-a8002-state-admission-v2-option-state-smoke9-qwen25-14b`

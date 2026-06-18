@@ -30,6 +30,8 @@ Archived reports remain citable evidence. They are not part of the active readin
 ## Active Reports
 
 - `20260618-skill-guided-state-admission-v2-preflight.md`
+- `20260618-state-admission-v2-visible-facts-ablation.md`
+- `20260618-state-admission-v2-abstention-gate-ablation.md`
 - `20260618-state-admission-v2-option-state-and-direct-controls.md`
 - `20260618-state-admission-v2-smoke-gpu.md`
 - `20260618-reviewer-verdict-state-admission-series.md`

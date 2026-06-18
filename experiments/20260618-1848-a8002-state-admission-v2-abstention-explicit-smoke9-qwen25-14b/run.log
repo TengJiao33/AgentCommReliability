@@ -1,0 +1,40 @@
+[state-admission-v2] run_id=20260618-1848-a8002-state-admission-v2-abstention-explicit-smoke9-qwen25-14b
+[state-admission-v2] workspace=/data/xuhaoming/yfy/research_workspace
+[state-admission-v2] model=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct served=qwen2.5-14b-state-admission-v2-abstention-explicit gpu=7 port=8072
+[state-admission-v2] packet=/data/xuhaoming/yfy/research_workspace/experiments/20260618-local-state-admission-v2-smoke/packet.jsonl
+[state-admission-v2] max_model_len=16384 max_tokens=1200 run_timeout=1800
+[state-admission-v2] prompt_style=abstention_explicit
+[state-admission-v2] gpu before:
+0, NVIDIA A800-SXM4-80GB, 3175, 77977, 0
+1, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+[state-admission-v2] server_pid=1211527
+[state-admission-v2] vLLM ready after 21 checks
+[state-admission-v2] running prompts -> /data/xuhaoming/yfy/research_workspace/experiments/20260618-1848-a8002-state-admission-v2-abstention-explicit-smoke9-qwen25-14b/predictions.jsonl
+[state-admission-v2] runner_status=0
+[state-admission-v2] predictions=9
+[state-admission-v2] summary:
+rows: 9
+strict: 0.1111
+unit_recall: 0.5741
+rejection_recall: 0.5556
+scope_violations: 0.0000
+absent_unit_violations: 0.1111
+downstream_ok: 0.4444
+option_state_recall: 0.8148
+base: strict=0.0000, unit_recall=0.6667, rejection_recall=0.0000, scope_violations=0.0000, absent_unit_violations=0.0000, downstream_ok=1.0000, option_state_recall=0.8889
+perturbation: strict=0.1667, unit_recall=0.5278, rejection_recall=0.8333, scope_violations=0.0000, absent_unit_violations=0.1667, downstream_ok=0.1667, option_state_recall=0.7778
+[state-admission-v2] gpu after runner before cleanup:
+0, NVIDIA A800-SXM4-80GB, 3175, 77977, 0
+1, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 72049, 9103, 97
