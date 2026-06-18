@@ -22,12 +22,14 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from harness.typecast_arena import FAMILY, render_math_sender_prompt, sha1_text
+from peer_probe.math_eval import extract_boxed_answer
 
 
 DEFAULT_TRACE = Path(
     "experiments/20260615-1151-a8002-typed-public-state-math200-anon/"
     "madmm-qwen25-7b-math200-naive-20260615_1142.comm_trace.jsonl"
 )
+DEFAULT_MATH_JSONL = Path("baselines/MAD-MM/processed_data/math/math_test.jsonl")
 DEFAULT_OUT_DIR = Path("experiments/20260616-local-typecast-arena-math200-decisive-source")
 SENDER_PACKET_NAME = "typecast_math200_sender_stage_packet.jsonl"
 
@@ -40,6 +42,10 @@ def load_jsonl(path: Path) -> list[dict[str, Any]]:
             if line:
                 rows.append(json.loads(line))
     return rows
+
+
+def load_math_rows(path: Path) -> dict[str, dict[str, Any]]:
+    return {str(row.get("id")): row for row in load_jsonl(path)}
 
 
 def write_jsonl(path: Path, rows: Iterable[Mapping[str, Any]]) -> None:
@@ -75,7 +81,12 @@ def first_answer(agents: list[Mapping[str, Any]], *, correct: bool) -> Any:
     return None
 
 
-def trace_to_source_row(record: Mapping[str, Any]) -> dict[str, Any]:
+def raw_gold_for_record(record: Mapping[str, Any], math_rows: Mapping[str, Mapping[str, Any]]) -> Any:
+    math_row = math_rows.get(str(record.get("instance_id"))) or {}
+    return extract_boxed_answer(math_row.get("answer")) or record.get("gold_answer")
+
+
+def trace_to_source_row(record: Mapping[str, Any], math_rows: Mapping[str, Mapping[str, Any]]) -> dict[str, Any]:
     sample_index = int(record.get("sample_index") or 0)
     agents = round0_agents(record)
     correct_count = sum(1 for agent in agents if agent.get("correct") is True)
@@ -83,6 +94,7 @@ def trace_to_source_row(record: Mapping[str, Any]) -> dict[str, Any]:
     case_id = f"math200_case{sample_index:03d}"
     final = record.get("final") or {}
     transition = record.get("transition") or {}
+    gold_answer = raw_gold_for_record(record, math_rows)
     return {
         "case_id": case_id,
         "math_case_id": str(sample_index),
@@ -90,7 +102,8 @@ def trace_to_source_row(record: Mapping[str, Any]) -> dict[str, Any]:
         "mode": "live_sender_200case",
         "instance_id": str(record.get("instance_id") or sample_index),
         "question": record.get("question"),
-        "gold_answer": record.get("gold_answer"),
+        "gold_answer": gold_answer,
+        "stored_trace_gold_answer": record.get("gold_answer"),
         "baseline_answer": final.get("answer"),
         "baseline_output": (
             "No prior independent Agent B solution is supplied for this decisive "
@@ -108,6 +121,7 @@ def trace_to_source_row(record: Mapping[str, Any]) -> dict[str, Any]:
             "method_family": record.get("method_family"),
             "method": record.get("method"),
             "task_regime": record.get("task_regime"),
+            "stored_trace_gold_answer": record.get("gold_answer"),
             "round0_correct_count": correct_count,
             "round0_wrong_count": wrong_count,
             "round0_answers": [
@@ -127,6 +141,8 @@ def trace_to_source_row(record: Mapping[str, Any]) -> dict[str, Any]:
         },
         "typecast_source_meta": {
             "source_pool": "madmm_math200_comm_trace",
+            "gold_source": "original_math_boxed_answer",
+            "trace_correctness_labels": "stored_numeric_parser_labels",
             "round0_correct_count": correct_count,
             "round0_wrong_count": wrong_count,
             "has_correct_peer": correct_count > 0,
@@ -169,10 +185,17 @@ def sender_packet_row(source_row: Mapping[str, Any]) -> dict[str, Any]:
 
 def summarize(source_rows: list[Mapping[str, Any]], sender_packet: list[Mapping[str, Any]], args: argparse.Namespace) -> dict[str, Any]:
     metas = [row.get("typecast_source_meta") or {} for row in source_rows]
+    raw_gold_count = sum(1 for row in source_rows if row.get("gold_answer") is not None)
+    changed_gold_count = sum(
+        1 for row in source_rows if str(row.get("gold_answer")) != str(row.get("stored_trace_gold_answer"))
+    )
     return {
         "source_trace": str(args.trace),
+        "math_jsonl": str(args.math_jsonl),
         "source_rows": len(source_rows),
         "sender_packet_rows": len(sender_packet),
+        "raw_boxed_gold_rows": raw_gold_count,
+        "stored_trace_gold_changed_rows": changed_gold_count,
         "peer_mix_counts": dict(sorted(Counter(str(meta.get("peer_mix")) for meta in metas).items())),
         "has_correct_peer": sum(1 for meta in metas if meta.get("has_correct_peer")),
         "has_wrong_peer": sum(1 for meta in metas if meta.get("has_wrong_peer")),
@@ -211,6 +234,8 @@ def render_readme(summary: Mapping[str, Any]) -> str:
         "",
         f"- Source rows: `{summary['source_rows']}`",
         f"- Sender-stage prompt rows: `{summary['sender_packet_rows']}`",
+        f"- Raw boxed gold rows: `{summary['raw_boxed_gold_rows']}`",
+        f"- Rows where stored trace gold differs from raw boxed gold: `{summary['stored_trace_gold_changed_rows']}`",
         f"- Cases with at least one correct round-0 peer: `{summary['has_correct_peer']}`",
         f"- Cases with at least one wrong round-0 peer: `{summary['has_wrong_peer']}`",
         f"- Peer-mix counts: `{summary['peer_mix_counts']}`",
@@ -264,7 +289,8 @@ def render_readme(summary: Mapping[str, Any]) -> str:
 
 def build(args: argparse.Namespace) -> dict[str, Any]:
     trace_rows = load_jsonl(args.trace)
-    source_rows = [trace_to_source_row(row) for row in trace_rows]
+    math_rows = load_math_rows(args.math_jsonl)
+    source_rows = [trace_to_source_row(row, math_rows) for row in trace_rows]
     if args.max_cases:
         source_rows = source_rows[: args.max_cases]
     sender_packet = [sender_packet_row(row) for row in source_rows]
@@ -281,6 +307,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--trace", type=Path, default=DEFAULT_TRACE)
+    parser.add_argument("--math-jsonl", type=Path, default=DEFAULT_MATH_JSONL)
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
     parser.add_argument("--max-cases", type=int, default=0, help="0 means all cases")
     return parser

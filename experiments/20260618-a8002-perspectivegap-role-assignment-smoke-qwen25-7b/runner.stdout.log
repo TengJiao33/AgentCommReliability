@@ -1,0 +1,13 @@
+provider=openai-compatible
+model=qwen2.5-7b-perspectivegap
+evaluations=4
+tasks=role_assignment
+completed_requests=0
+[1/4] role_assignment pg_000__seed_1__task_role_assignment
+[1/4] wrote role_assignment pg_000__seed_1__task_role_assignment
+[2/4] role_assignment pg_004__seed_1__task_role_assignment
+[2/4] wrote role_assignment pg_004__seed_1__task_role_assignment
+[3/4] role_assignment pg_006__seed_1__task_role_assignment
+[3/4] wrote role_assignment pg_006__seed_1__task_role_assignment
+[4/4] role_assignment pg_070__seed_1__task_role_assignment
+[4/4] wrote role_assignment pg_070__seed_1__task_role_assignment

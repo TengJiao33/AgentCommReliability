@@ -1,0 +1,17 @@
+{
+  "rows": 9,
+  "metrics": {
+    "gold_answer_ok": 0.8888888888888888,
+    "admissible_downstream_ok": 0.3333333333333333
+  },
+  "by_condition": {
+    "base": {
+      "gold_answer_ok": 1.0,
+      "admissible_downstream_ok": 1.0
+    },
+    "perturbation": {
+      "gold_answer_ok": 0.8333333333333334,
+      "admissible_downstream_ok": 0.0
+    }
+  }
+}

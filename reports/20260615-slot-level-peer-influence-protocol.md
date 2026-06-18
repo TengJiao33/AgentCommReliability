@@ -109,8 +109,8 @@ equation and numeric slots also keeps reconstructable or corrupting influence.
 
 The first protocol validation packet has now run:
 
-- `reports/20260615-peer-source-label-math200-packet.md`
-- `experiments/20260615-1404-a8002-source-label-math200-packet/source_label_packet_audit.md`
+- `reports/_archive/20260616-pruned/20260615-peer-source-label-math200-packet.md`
+- `experiments/_archive/20260616-pruned/20260615-1404-a8002-source-label-math200-packet/source_label_packet_audit.md`
 
 It suggests that displayed source labels do not explain away the main
 field-level harm pattern: wrong typed public state stays `3/32` harm across

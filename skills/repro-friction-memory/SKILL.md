@@ -140,6 +140,27 @@ $b64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($script))
 ssh A800_2 "echo $b64 | base64 -d | bash"
 ```
 
+When a PowerShell-generated remote bash script will be saved and launched with
+`nohup`, normalize line endings before encoding, or avoid the temporary script
+entirely. CRLF can make bash look for paths such as
+`scripts/run_hiddenbench_probe_a8002.sh\r`, which surfaces as a misleading
+`No such file or directory` even when the file exists.
+
+Reliable background pattern:
+
+```powershell
+$script = @'
+set -euo pipefail
+cd /data/xuhaoming/yfy/research_workspace
+nohup env RUN_ID="example" GPU_ID="7" PORT="8047" \
+  bash scripts/run_hiddenbench_probe_a8002.sh > logs/example.outer.log 2>&1 < /dev/null &
+echo "PID=$!"
+'@
+$script = $script.Replace("`r`n", "`n")
+$b64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($script))
+ssh A800_2 "bash -lc 'echo $b64 | base64 -d | bash'"
+```
+
 For remote bash cleanup from PowerShell, avoid piping a raw here-string directly
 to `ssh ... bash -s`; Windows BOM/CRLF can make bash see `﻿set` or `esac\r`.
 Use a PowerShell single-quoted `ssh A800_2 'bash -lc ''...'''` command for

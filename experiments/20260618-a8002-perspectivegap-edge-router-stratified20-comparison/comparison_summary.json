@@ -1,0 +1,230 @@
+{
+  "edge_7b": {
+    "summary": {
+      "evaluations": 40,
+      "strict_pass_count": 0,
+      "metrics": {
+        "strict_pass": 0.0,
+        "required_coverage": 0.3314814814814815,
+        "boundary_precision": 0.613013698630137,
+        "distractor_leakage": 0.2,
+        "source_accuracy_on_tp": 1.0,
+        "visibility_accuracy_on_tp": 0.7597765363128491,
+        "budget_overrun": 4.05,
+        "budget_pass": 0.575,
+        "reject_recall": 0.55,
+        "needed_rejected": 1.9
+      },
+      "counts": {
+        "tp": 179,
+        "fp": 113,
+        "fn": 361,
+        "distractor_leak": 8
+      },
+      "aux_counts": {
+        "source_checked": 179,
+        "source_correct": 179,
+        "visibility_checked": 179,
+        "visibility_correct": 136
+      }
+    },
+    "status_counts": {
+      "ok": 40
+    },
+    "parse_error_rows": 0,
+    "needed_reject_rows": 28,
+    "over_budget_rows": 17,
+    "distractor_leak_rows": 7,
+    "by_role_count": {
+      "2": {
+        "evaluations": 8,
+        "coverage": 0.5,
+        "precision": 0.7567567567567568,
+        "leak_per_eval": 0.125,
+        "budget_pass": 0.625,
+        "visibility_accuracy_on_tp": 0.8928571428571429,
+        "needed_rejected": 1.75
+      },
+      "3": {
+        "evaluations": 8,
+        "coverage": 0.32894736842105265,
+        "precision": 0.5,
+        "leak_per_eval": 0.25,
+        "budget_pass": 0.375,
+        "visibility_accuracy_on_tp": 0.68,
+        "needed_rejected": 1.625
+      },
+      "4": {
+        "evaluations": 8,
+        "coverage": 0.3482142857142857,
+        "precision": 0.639344262295082,
+        "leak_per_eval": 0.0,
+        "budget_pass": 0.625,
+        "visibility_accuracy_on_tp": 0.8974358974358975,
+        "needed_rejected": 1.0
+      },
+      "5": {
+        "evaluations": 8,
+        "coverage": 0.29605263157894735,
+        "precision": 0.6164383561643836,
+        "leak_per_eval": 0.375,
+        "budget_pass": 0.625,
+        "visibility_accuracy_on_tp": 0.6888888888888889,
+        "needed_rejected": 1.875
+      },
+      "6": {
+        "evaluations": 8,
+        "coverage": 0.2916666666666667,
+        "precision": 0.5915492957746479,
+        "leak_per_eval": 0.25,
+        "budget_pass": 0.625,
+        "visibility_accuracy_on_tp": 0.6666666666666666,
+        "needed_rejected": 3.25
+      }
+    }
+  },
+  "edge_14b": {
+    "summary": {
+      "evaluations": 40,
+      "strict_pass_count": 0,
+      "metrics": {
+        "strict_pass": 0.0,
+        "required_coverage": 0.512962962962963,
+        "boundary_precision": 0.6690821256038647,
+        "distractor_leakage": 0.6,
+        "source_accuracy_on_tp": 1.0,
+        "visibility_accuracy_on_tp": 0.7509025270758123,
+        "budget_overrun": 7.65,
+        "budget_pass": 0.1,
+        "reject_recall": 0.525,
+        "needed_rejected": 1.35
+      },
+      "counts": {
+        "tp": 277,
+        "fp": 137,
+        "fn": 263,
+        "distractor_leak": 24
+      },
+      "aux_counts": {
+        "source_checked": 277,
+        "source_correct": 277,
+        "visibility_checked": 277,
+        "visibility_correct": 208
+      }
+    },
+    "status_counts": {
+      "ok": 40
+    },
+    "parse_error_rows": 0,
+    "needed_reject_rows": 31,
+    "over_budget_rows": 36,
+    "distractor_leak_rows": 22,
+    "by_role_count": {
+      "2": {
+        "evaluations": 8,
+        "coverage": 0.7678571428571429,
+        "precision": 0.7678571428571429,
+        "leak_per_eval": 0.75,
+        "budget_pass": 0.125,
+        "visibility_accuracy_on_tp": 0.7674418604651163,
+        "needed_rejected": 1.0
+      },
+      "3": {
+        "evaluations": 8,
+        "coverage": 0.5394736842105263,
+        "precision": 0.5189873417721519,
+        "leak_per_eval": 0.75,
+        "budget_pass": 0.0,
+        "visibility_accuracy_on_tp": 0.6829268292682927,
+        "needed_rejected": 0.625
+      },
+      "4": {
+        "evaluations": 8,
+        "coverage": 0.4642857142857143,
+        "precision": 0.7027027027027027,
+        "leak_per_eval": 0.0,
+        "budget_pass": 0.125,
+        "visibility_accuracy_on_tp": 0.8846153846153846,
+        "needed_rejected": 1.625
+      },
+      "5": {
+        "evaluations": 8,
+        "coverage": 0.506578947368421,
+        "precision": 0.7129629629629629,
+        "leak_per_eval": 0.75,
+        "budget_pass": 0.125,
+        "visibility_accuracy_on_tp": 0.6753246753246753,
+        "needed_rejected": 1.875
+      },
+      "6": {
+        "evaluations": 8,
+        "coverage": 0.4444444444444444,
+        "precision": 0.6597938144329897,
+        "leak_per_eval": 0.75,
+        "budget_pass": 0.125,
+        "visibility_accuracy_on_tp": 0.765625,
+        "needed_rejected": 1.625
+      }
+    }
+  },
+  "legacy_7b": {
+    "summary": {
+      "evaluations": 40,
+      "strict_pass_count": 0,
+      "metrics": {
+        "strict_pass": 0.0,
+        "required_coverage": 0.4425925925925926,
+        "boundary_precision": 0.7861842105263158,
+        "distractor_leakage": 0.05,
+        "source_accuracy_on_tp": 1.0,
+        "visibility_accuracy_on_tp": 1.0,
+        "budget_overrun": 1.275,
+        "budget_pass": 0.625,
+        "reject_recall": 0.0,
+        "needed_rejected": 0.0
+      },
+      "counts": {
+        "tp": 239,
+        "fp": 65,
+        "fn": 301,
+        "distractor_leak": 2
+      },
+      "aux_counts": {
+        "source_checked": 239,
+        "source_correct": 239,
+        "visibility_checked": 239,
+        "visibility_correct": 239
+      }
+    }
+  },
+  "legacy_14b": {
+    "summary": {
+      "evaluations": 40,
+      "strict_pass_count": 0,
+      "metrics": {
+        "strict_pass": 0.0,
+        "required_coverage": 0.6148148148148148,
+        "boundary_precision": 0.8077858880778589,
+        "distractor_leakage": 0.45,
+        "source_accuracy_on_tp": 1.0,
+        "visibility_accuracy_on_tp": 1.0,
+        "budget_overrun": 4.725,
+        "budget_pass": 0.4,
+        "reject_recall": 0.0,
+        "needed_rejected": 0.0
+      },
+      "counts": {
+        "tp": 332,
+        "fp": 79,
+        "fn": 208,
+        "distractor_leak": 18
+      },
+      "aux_counts": {
+        "source_checked": 332,
+        "source_correct": 332,
+        "visibility_checked": 332,
+        "visibility_correct": 332
+      }
+    }
+  }
+}

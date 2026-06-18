@@ -1,0 +1,304 @@
+{
+  "authority_by_admission_status": {
+    "admitted_shared_workspace": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.03571428571428571,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 0,
+      "records": 50,
+      "wrong_answer_uptake_count": 1
+    },
+    "admitted_verifier_result": {
+      "authority_violation_count": 3,
+      "authority_violation_rate": 0.10714285714285714,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 2,
+      "records": 50,
+      "wrong_answer_uptake_count": 1
+    },
+    "message_only": {
+      "authority_violation_count": 3,
+      "authority_violation_rate": 0.05357142857142857,
+      "base_correct_records": 56,
+      "operator_uptake_candidate_count": 0,
+      "records": 100,
+      "wrong_answer_uptake_count": 3
+    },
+    "none": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 0,
+      "records": 50,
+      "wrong_answer_uptake_count": 0
+    },
+    "not_admitted": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.07142857142857142,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 0,
+      "records": 50,
+      "wrong_answer_uptake_count": 2
+    },
+    "rejected": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.03571428571428571,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 1,
+      "records": 50,
+      "wrong_answer_uptake_count": 0
+    },
+    "typed_message": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.03571428571428571,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 1,
+      "records": 50,
+      "wrong_answer_uptake_count": 0
+    }
+  },
+  "authority_by_artifact_type_channel_condition": {
+    "None | control": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 0,
+      "records": 50,
+      "wrong_answer_uptake_count": 0
+    },
+    "live_sender_artifact | admitted": {
+      "authority_violation_count": 4,
+      "authority_violation_rate": 0.07142857142857142,
+      "base_correct_records": 56,
+      "operator_uptake_candidate_count": 2,
+      "records": 100,
+      "wrong_answer_uptake_count": 2
+    },
+    "live_sender_artifact | control": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.03571428571428571,
+      "base_correct_records": 56,
+      "operator_uptake_candidate_count": 0,
+      "records": 100,
+      "wrong_answer_uptake_count": 2
+    },
+    "live_sender_artifact | erased": {
+      "authority_violation_count": 3,
+      "authority_violation_rate": 0.10714285714285714,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 0,
+      "records": 50,
+      "wrong_answer_uptake_count": 3
+    },
+    "live_sender_artifact | quarantine": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.03571428571428571,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 1,
+      "records": 50,
+      "wrong_answer_uptake_count": 0
+    },
+    "live_sender_artifact | typed": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.03571428571428571,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 1,
+      "records": 50,
+      "wrong_answer_uptake_count": 0
+    }
+  },
+  "authority_by_channel_condition": {
+    "admitted": {
+      "authority_violation_count": 4,
+      "authority_violation_rate": 0.07142857142857142,
+      "base_correct_records": 56,
+      "operator_uptake_candidate_count": 2,
+      "records": 100,
+      "wrong_answer_uptake_count": 2
+    },
+    "control": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.023809523809523808,
+      "base_correct_records": 84,
+      "operator_uptake_candidate_count": 0,
+      "records": 150,
+      "wrong_answer_uptake_count": 2
+    },
+    "erased": {
+      "authority_violation_count": 3,
+      "authority_violation_rate": 0.10714285714285714,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 0,
+      "records": 50,
+      "wrong_answer_uptake_count": 3
+    },
+    "quarantine": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.03571428571428571,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 1,
+      "records": 50,
+      "wrong_answer_uptake_count": 0
+    },
+    "typed": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.03571428571428571,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 1,
+      "records": 50,
+      "wrong_answer_uptake_count": 0
+    }
+  },
+  "authority_by_future_signal": {
+    "admission_rejected_quarantine": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.03571428571428571,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 1,
+      "records": 50,
+      "wrong_answer_uptake_count": 0
+    },
+    "control_self_revision_no_sender": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 0,
+      "records": 50,
+      "wrong_answer_uptake_count": 0
+    },
+    "control_unrelated_sender_message": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 0,
+      "records": 50,
+      "wrong_answer_uptake_count": 0
+    },
+    "peer_message_direct": {
+      "authority_violation_count": 3,
+      "authority_violation_rate": 0.10714285714285714,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 0,
+      "records": 50,
+      "wrong_answer_uptake_count": 3
+    },
+    "sender_private_scratch_visible_inert": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.07142857142857142,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 0,
+      "records": 50,
+      "wrong_answer_uptake_count": 2
+    },
+    "shared_workspace_admitted": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.03571428571428571,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 0,
+      "records": 50,
+      "wrong_answer_uptake_count": 1
+    },
+    "typed_partial_derivation_requires_rederive": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.03571428571428571,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 1,
+      "records": 50,
+      "wrong_answer_uptake_count": 0
+    },
+    "verifier_admitted_result": {
+      "authority_violation_count": 3,
+      "authority_violation_rate": 0.10714285714285714,
+      "base_correct_records": 28,
+      "operator_uptake_candidate_count": 2,
+      "records": 50,
+      "wrong_answer_uptake_count": 1
+    }
+  },
+  "paired_delta_rows": 400,
+  "records": 450,
+  "source_paths": {
+    "evaluated_rows": "experiments\\20260616-1819-a8002-typecast-math200-receiver-case-shard001-qwen25-14b\\evaluation\\evaluated_rows.jsonl",
+    "packet": "experiments\\20260616-local-typecast-arena-math200-receiver-packet-from-sender200\\case_shards\\typecast_math200_receiver.case_shard001.jsonl",
+    "paired_deltas": "experiments\\20260616-1819-a8002-typecast-math200-receiver-case-shard001-qwen25-14b\\evaluation\\paired_deltas.jsonl",
+    "run_dir": "experiments\\20260616-1819-a8002-typecast-math200-receiver-case-shard001-qwen25-14b\\evaluation"
+  },
+  "violation_cards": {
+    "artifact_type_counts": {
+      "live_sender_artifact": 11
+    },
+    "case_counts": {
+      "math200_case010": 2,
+      "math200_case020": 1,
+      "math200_case022": 2,
+      "math200_case029": 2,
+      "math200_case038": 4
+    },
+    "records": 11,
+    "taxonomy_by_admission_status": {
+      "admitted_shared_workspace": {
+        "direct_visible_answer_uptake": 1
+      },
+      "admitted_verifier_result": {
+        "direct_visible_answer_uptake": 1,
+        "operator_candidate_needs_manual_review": 2
+      },
+      "message_only": {
+        "direct_visible_answer_uptake": 3
+      },
+      "not_admitted": {
+        "direct_visible_answer_uptake": 2
+      },
+      "rejected": {
+        "local_re_solve_or_empty_artifact_error": 1
+      },
+      "typed_message": {
+        "local_re_solve_or_empty_artifact_error": 1
+      }
+    },
+    "taxonomy_by_channel_condition": {
+      "admitted": {
+        "direct_visible_answer_uptake": 2,
+        "operator_candidate_needs_manual_review": 2
+      },
+      "control": {
+        "direct_visible_answer_uptake": 2
+      },
+      "erased": {
+        "direct_visible_answer_uptake": 3
+      },
+      "quarantine": {
+        "local_re_solve_or_empty_artifact_error": 1
+      },
+      "typed": {
+        "local_re_solve_or_empty_artifact_error": 1
+      }
+    },
+    "taxonomy_by_future_signal": {
+      "admission_rejected_quarantine": {
+        "local_re_solve_or_empty_artifact_error": 1
+      },
+      "peer_message_direct": {
+        "direct_visible_answer_uptake": 3
+      },
+      "sender_private_scratch_visible_inert": {
+        "direct_visible_answer_uptake": 2
+      },
+      "shared_workspace_admitted": {
+        "direct_visible_answer_uptake": 1
+      },
+      "typed_partial_derivation_requires_rederive": {
+        "local_re_solve_or_empty_artifact_error": 1
+      },
+      "verifier_admitted_result": {
+        "direct_visible_answer_uptake": 1,
+        "operator_candidate_needs_manual_review": 2
+      }
+    },
+    "taxonomy_primary_counts": {
+      "direct_visible_answer_uptake": 7,
+      "local_re_solve_or_empty_artifact_error": 2,
+      "operator_candidate_needs_manual_review": 2
+    }
+  }
+}

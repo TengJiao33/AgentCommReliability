@@ -1,0 +1,42 @@
+{
+  "num_cases": 200,
+  "packet": "experiments\\20260616-local-typecast-arena-math200-receiver-packet-from-sender200\\typecast_math_receiver_packet.jsonl",
+  "rows": 1800,
+  "rows_per_case_counts": {
+    "9": 200
+  },
+  "shards": [
+    {
+      "cases": 50,
+      "first_case": "math200_case000",
+      "index": 1,
+      "last_case": "math200_case049",
+      "path": "experiments\\20260616-local-typecast-arena-math200-receiver-packet-from-sender200\\case_shards\\typecast_math200_receiver.case_shard001.jsonl",
+      "rows": 450
+    },
+    {
+      "cases": 50,
+      "first_case": "math200_case050",
+      "index": 2,
+      "last_case": "math200_case099",
+      "path": "experiments\\20260616-local-typecast-arena-math200-receiver-packet-from-sender200\\case_shards\\typecast_math200_receiver.case_shard002.jsonl",
+      "rows": 450
+    },
+    {
+      "cases": 50,
+      "first_case": "math200_case100",
+      "index": 3,
+      "last_case": "math200_case149",
+      "path": "experiments\\20260616-local-typecast-arena-math200-receiver-packet-from-sender200\\case_shards\\typecast_math200_receiver.case_shard003.jsonl",
+      "rows": 450
+    },
+    {
+      "cases": 50,
+      "first_case": "math200_case150",
+      "index": 4,
+      "last_case": "math200_case199",
+      "path": "experiments\\20260616-local-typecast-arena-math200-receiver-packet-from-sender200\\case_shards\\typecast_math200_receiver.case_shard004.jsonl",
+      "rows": 450
+    }
+  ]
+}

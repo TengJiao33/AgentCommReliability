@@ -1,0 +1,275 @@
+{"seen_tasks": 3, "records": 27, "failures": 0}
+{"seen_tasks": 6, "records": 54, "failures": 0}
+{"seen_tasks": 9, "records": 81, "failures": 0}
+{"seen_tasks": 12, "records": 108, "failures": 0}
+{"seen_tasks": 15, "records": 135, "failures": 0}
+{"seen_tasks": 18, "records": 162, "failures": 0}
+{"seen_tasks": 21, "records": 189, "failures": 0}
+{"seen_tasks": 24, "records": 216, "failures": 0}
+{"seen_tasks": 27, "records": 243, "failures": 0}
+{"seen_tasks": 30, "records": 270, "failures": 0}
+{"seen_tasks": 33, "records": 297, "failures": 0}
+{"seen_tasks": 36, "records": 324, "failures": 0}
+{"seen_tasks": 39, "records": 351, "failures": 0}
+{"seen_tasks": 42, "records": 378, "failures": 0}
+{"seen_tasks": 45, "records": 405, "failures": 0}
+{"seen_tasks": 48, "records": 432, "failures": 0}
+{"seen_tasks": 51, "records": 459, "failures": 0}
+{"seen_tasks": 54, "records": 486, "failures": 0}
+{"seen_tasks": 57, "records": 513, "failures": 0}
+{"seen_tasks": 60, "records": 540, "failures": 0}
+{"seen_tasks": 63, "records": 567, "failures": 0}
+{
+  "benchmark": "HiddenBench",
+  "benchmark_path": "/data/xuhaoming/yfy/research_workspace/data/external/hiddenbench/benchmark.json",
+  "conditions": {
+    "exchange_then_decide": {
+      "accuracy": 0.36923076923076925,
+      "correct": 24,
+      "records": 65
+    },
+    "fact_only_constraint_decide": {
+      "accuracy": 0.8615384615384616,
+      "correct": 56,
+      "records": 65
+    },
+    "fact_only_exchange": {
+      "accuracy": 0.8769230769230769,
+      "correct": 57,
+      "records": 65
+    },
+    "fact_only_with_options_exchange": {
+      "accuracy": 0.8615384615384616,
+      "correct": 56,
+      "records": 65
+    },
+    "full_info": {
+      "accuracy": 0.9076923076923077,
+      "correct": 59,
+      "records": 65
+    },
+    "no_recommendation_exchange": {
+      "accuracy": 0.46153846153846156,
+      "correct": 30,
+      "records": 65
+    },
+    "no_shared_repeat_exchange": {
+      "accuracy": 0.5076923076923077,
+      "correct": 33,
+      "records": 65
+    },
+    "oracle_public_facts": {
+      "accuracy": 0.8615384615384616,
+      "correct": 56,
+      "records": 65
+    },
+    "shared_only": {
+      "accuracy": 0.015384615384615385,
+      "correct": 1,
+      "records": 65
+    }
+  },
+  "conditions_requested": [
+    "shared_only",
+    "full_info",
+    "oracle_public_facts",
+    "exchange_then_decide",
+    "no_recommendation_exchange",
+    "no_shared_repeat_exchange",
+    "fact_only_with_options_exchange",
+    "fact_only_exchange",
+    "fact_only_constraint_decide"
+  ],
+  "created_at": "2026-06-17T18:59:31",
+  "failures": 0,
+  "message_audit": {
+    "exchange_then_decide": {
+      "avg_private_fact_token_overlap": 0.656,
+      "low_private_overlap_proxy_count": 0,
+      "low_private_overlap_proxy_rate": 0.0,
+      "messages": 253,
+      "possible_answer_mention_count": 247,
+      "possible_answer_mention_rate": 0.9762845849802372,
+      "private_fact_exact_count": 6,
+      "private_fact_exact_rate": 0.023715415019762844,
+      "recommendation_leakage_count": 225,
+      "recommendation_leakage_rate": 0.8893280632411067,
+      "records": 65,
+      "shared_fact_overtalk_count": 134,
+      "shared_fact_overtalk_rate": 0.5296442687747036
+    },
+    "fact_only_constraint_decide": {
+      "avg_private_fact_token_overlap": 0.951,
+      "low_private_overlap_proxy_count": 2,
+      "low_private_overlap_proxy_rate": 0.007905138339920948,
+      "messages": 253,
+      "possible_answer_mention_count": 162,
+      "possible_answer_mention_rate": 0.6403162055335968,
+      "private_fact_exact_count": 198,
+      "private_fact_exact_rate": 0.782608695652174,
+      "recommendation_leakage_count": 0,
+      "recommendation_leakage_rate": 0.0,
+      "records": 65,
+      "shared_fact_overtalk_count": 4,
+      "shared_fact_overtalk_rate": 0.015810276679841896
+    },
+    "fact_only_exchange": {
+      "avg_private_fact_token_overlap": 0.951,
+      "low_private_overlap_proxy_count": 2,
+      "low_private_overlap_proxy_rate": 0.007905138339920948,
+      "messages": 253,
+      "possible_answer_mention_count": 162,
+      "possible_answer_mention_rate": 0.6403162055335968,
+      "private_fact_exact_count": 198,
+      "private_fact_exact_rate": 0.782608695652174,
+      "recommendation_leakage_count": 0,
+      "recommendation_leakage_rate": 0.0,
+      "records": 65,
+      "shared_fact_overtalk_count": 4,
+      "shared_fact_overtalk_rate": 0.015810276679841896
+    },
+    "fact_only_with_options_exchange": {
+      "avg_private_fact_token_overlap": 0.947,
+      "low_private_overlap_proxy_count": 1,
+      "low_private_overlap_proxy_rate": 0.003952569169960474,
+      "messages": 253,
+      "possible_answer_mention_count": 166,
+      "possible_answer_mention_rate": 0.6561264822134387,
+      "private_fact_exact_count": 199,
+      "private_fact_exact_rate": 0.7865612648221344,
+      "recommendation_leakage_count": 0,
+      "recommendation_leakage_rate": 0.0,
+      "records": 65,
+      "shared_fact_overtalk_count": 4,
+      "shared_fact_overtalk_rate": 0.015810276679841896
+    },
+    "no_recommendation_exchange": {
+      "avg_private_fact_token_overlap": 0.628,
+      "low_private_overlap_proxy_count": 12,
+      "low_private_overlap_proxy_rate": 0.04743083003952569,
+      "messages": 253,
+      "possible_answer_mention_count": 237,
+      "possible_answer_mention_rate": 0.9367588932806324,
+      "private_fact_exact_count": 2,
+      "private_fact_exact_rate": 0.007905138339920948,
+      "recommendation_leakage_count": 12,
+      "recommendation_leakage_rate": 0.04743083003952569,
+      "records": 65,
+      "shared_fact_overtalk_count": 176,
+      "shared_fact_overtalk_rate": 0.6956521739130435
+    },
+    "no_shared_repeat_exchange": {
+      "avg_private_fact_token_overlap": 0.715,
+      "low_private_overlap_proxy_count": 0,
+      "low_private_overlap_proxy_rate": 0.0,
+      "messages": 253,
+      "possible_answer_mention_count": 238,
+      "possible_answer_mention_rate": 0.9407114624505929,
+      "private_fact_exact_count": 6,
+      "private_fact_exact_rate": 0.023715415019762844,
+      "recommendation_leakage_count": 191,
+      "recommendation_leakage_rate": 0.7549407114624506,
+      "records": 65,
+      "shared_fact_overtalk_count": 28,
+      "shared_fact_overtalk_rate": 0.11067193675889328
+    }
+  },
+  "model": "qwen2.5-14b-hiddenbench",
+  "num_records": 585,
+  "num_tasks": 65,
+  "paired_contrasts": {
+    "fact_only_constraint_decide_vs_exchange_then_decide": {
+      "both_correct": 23,
+      "both_wrong": 8,
+      "left_correct_right_wrong": 33,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 1
+    },
+    "fact_only_constraint_decide_vs_fact_only_exchange": {
+      "both_correct": 56,
+      "both_wrong": 8,
+      "left_correct_right_wrong": 0,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 1
+    },
+    "fact_only_exchange_vs_exchange_then_decide": {
+      "both_correct": 23,
+      "both_wrong": 7,
+      "left_correct_right_wrong": 34,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 1
+    },
+    "fact_only_exchange_vs_fact_only_with_options_exchange": {
+      "both_correct": 55,
+      "both_wrong": 7,
+      "left_correct_right_wrong": 2,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 1
+    },
+    "fact_only_exchange_vs_no_recommendation_exchange": {
+      "both_correct": 28,
+      "both_wrong": 6,
+      "left_correct_right_wrong": 29,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 2
+    },
+    "fact_only_exchange_vs_no_shared_repeat_exchange": {
+      "both_correct": 32,
+      "both_wrong": 7,
+      "left_correct_right_wrong": 25,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 1
+    },
+    "full_info_vs_fact_only_constraint_decide": {
+      "both_correct": 56,
+      "both_wrong": 6,
+      "left_correct_right_wrong": 3,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 0
+    },
+    "full_info_vs_shared_only": {
+      "both_correct": 0,
+      "both_wrong": 5,
+      "left_correct_right_wrong": 59,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 1
+    },
+    "no_recommendation_exchange_vs_exchange_then_decide": {
+      "both_correct": 18,
+      "both_wrong": 29,
+      "left_correct_right_wrong": 12,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 6
+    },
+    "no_shared_repeat_exchange_vs_exchange_then_decide": {
+      "both_correct": 22,
+      "both_wrong": 30,
+      "left_correct_right_wrong": 11,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 2
+    },
+    "oracle_public_facts_vs_exchange_then_decide": {
+      "both_correct": 23,
+      "both_wrong": 8,
+      "left_correct_right_wrong": 33,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 1
+    },
+    "oracle_public_facts_vs_fact_only_exchange": {
+      "both_correct": 55,
+      "both_wrong": 7,
+      "left_correct_right_wrong": 1,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 2
+    },
+    "oracle_public_facts_vs_shared_only": {
+      "both_correct": 0,
+      "both_wrong": 8,
+      "left_correct_right_wrong": 56,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 1
+    }
+  },
+  "private_by_task": {},
+  "run_id": "20260617-1807-a8002-hiddenbench-v2-stage2-sender-ablation-full65-qwen25-14b"
+}

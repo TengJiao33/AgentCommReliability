@@ -5,10 +5,10 @@ It is a setup artifact, not a model result.
 
 ## Sources
 
-- Baseline trace: `experiments\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\comm_trace_pact_offset50_baseline_v11.jsonl`
-- Final-contract trace: `experiments\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\comm_trace_pact_offset50_final_contract_v11.jsonl`
+- Baseline trace: `experiments\_archive\20260616-pruned\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\comm_trace_pact_offset50_baseline_v11.jsonl`
+- Final-contract trace: `experiments\_archive\20260616-pruned\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\comm_trace_pact_offset50_final_contract_v11.jsonl`
 - Bridge labels: `experiments\20260615-local-pact-public-state-field-bridge\bridge_cases.jsonl`
-- Target diagnostics: `experiments\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\target_slot_drift_cases.jsonl`
+- Target diagnostics: `experiments\_archive\20260616-pruned\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\target_slot_drift_cases.jsonl`
 
 ## Size
 

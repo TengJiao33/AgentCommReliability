@@ -1,0 +1,284 @@
+{
+  "summaries": {
+    "legacy_7b_on_rotated": {
+      "evaluations": 40,
+      "strict_pass_count": 0,
+      "metrics": {
+        "strict_pass": 0.0,
+        "required_coverage": 0.07592592592592592,
+        "boundary_precision": 0.13486842105263158,
+        "distractor_leakage": 0.05,
+        "source_accuracy_on_tp": 1.0,
+        "visibility_accuracy_on_tp": 1.0,
+        "budget_overrun": 2.95,
+        "budget_pass": 0.3,
+        "reject_recall": 0.0,
+        "needed_rejected": 0.0
+      },
+      "counts": {
+        "tp": 41,
+        "fp": 263,
+        "fn": 499,
+        "distractor_leak": 2
+      },
+      "aux_counts": {
+        "source_checked": 41,
+        "source_correct": 41,
+        "visibility_checked": 41,
+        "visibility_correct": 41
+      }
+    },
+    "source_ledger_7b_raw": {
+      "evaluations": 40,
+      "strict_pass_count": 0,
+      "metrics": {
+        "strict_pass": 0.0,
+        "required_coverage": 0.5740740740740741,
+        "boundary_precision": 0.7451923076923077,
+        "distractor_leakage": 0.3,
+        "source_accuracy_on_tp": 1.0,
+        "visibility_accuracy_on_tp": 0.7,
+        "budget_overrun": 4.65,
+        "budget_pass": 0.35,
+        "reject_recall": 1.0,
+        "needed_rejected": 0.025
+      },
+      "counts": {
+        "tp": 310,
+        "fp": 106,
+        "fn": 230,
+        "distractor_leak": 12
+      },
+      "aux_counts": {
+        "source_checked": 310,
+        "source_correct": 310,
+        "visibility_checked": 310,
+        "visibility_correct": 217
+      }
+    },
+    "source_ledger_7b_budget_compiled": {
+      "evaluations": 40,
+      "strict_pass_count": 0,
+      "metrics": {
+        "strict_pass": 0.0,
+        "required_coverage": 0.5740740740740741,
+        "boundary_precision": 1.0,
+        "distractor_leakage": 0.0,
+        "source_accuracy_on_tp": 1.0,
+        "visibility_accuracy_on_tp": 0.8193548387096774,
+        "budget_overrun": 0.0,
+        "budget_pass": 1.0,
+        "reject_recall": 1.0,
+        "needed_rejected": 0.0
+      },
+      "counts": {
+        "tp": 310,
+        "fp": 0,
+        "fn": 230,
+        "distractor_leak": 0
+      },
+      "aux_counts": {
+        "source_checked": 310,
+        "source_correct": 310,
+        "visibility_checked": 310,
+        "visibility_correct": 254
+      }
+    },
+    "legacy_14b_on_rotated": {
+      "evaluations": 40,
+      "strict_pass_count": 0,
+      "metrics": {
+        "strict_pass": 0.0,
+        "required_coverage": 0.15,
+        "boundary_precision": 0.19708029197080293,
+        "distractor_leakage": 0.45,
+        "source_accuracy_on_tp": 1.0,
+        "visibility_accuracy_on_tp": 1.0,
+        "budget_overrun": 8.25,
+        "budget_pass": 0.075,
+        "reject_recall": 0.0,
+        "needed_rejected": 0.0
+      },
+      "counts": {
+        "tp": 81,
+        "fp": 330,
+        "fn": 459,
+        "distractor_leak": 18
+      },
+      "aux_counts": {
+        "source_checked": 81,
+        "source_correct": 81,
+        "visibility_checked": 81,
+        "visibility_correct": 81
+      }
+    },
+    "source_ledger_14b_raw": {
+      "evaluations": 40,
+      "strict_pass_count": 3,
+      "metrics": {
+        "strict_pass": 0.075,
+        "required_coverage": 0.8537037037037037,
+        "boundary_precision": 0.7787162162162162,
+        "distractor_leakage": 0.075,
+        "source_accuracy_on_tp": 1.0,
+        "visibility_accuracy_on_tp": 0.7613882863340564,
+        "budget_overrun": 13.15,
+        "budget_pass": 0.225,
+        "reject_recall": 1.0,
+        "needed_rejected": 0.0
+      },
+      "counts": {
+        "tp": 461,
+        "fp": 131,
+        "fn": 79,
+        "distractor_leak": 3
+      },
+      "aux_counts": {
+        "source_checked": 461,
+        "source_correct": 461,
+        "visibility_checked": 461,
+        "visibility_correct": 351
+      }
+    },
+    "source_ledger_14b_budget_compiled": {
+      "evaluations": 40,
+      "strict_pass_count": 12,
+      "metrics": {
+        "strict_pass": 0.3,
+        "required_coverage": 0.8537037037037037,
+        "boundary_precision": 1.0,
+        "distractor_leakage": 0.0,
+        "source_accuracy_on_tp": 1.0,
+        "visibility_accuracy_on_tp": 0.9522776572668112,
+        "budget_overrun": 0.0,
+        "budget_pass": 1.0,
+        "reject_recall": 1.0,
+        "needed_rejected": 0.0
+      },
+      "counts": {
+        "tp": 461,
+        "fp": 0,
+        "fn": 79,
+        "distractor_leak": 0
+      },
+      "aux_counts": {
+        "source_checked": 461,
+        "source_correct": 461,
+        "visibility_checked": 461,
+        "visibility_correct": 439
+      }
+    }
+  },
+  "budget_compiled": {
+    "source_ledger_7b_budget_compiled": {
+      "status_counts": {
+        "ok": 40
+      },
+      "strict_rows": 0,
+      "parse_error_rows": 0,
+      "skipped": {
+        "wrong_recipient": 106,
+        "over_budget": 0,
+        "invalid": 0,
+        "duplicate": 13
+      },
+      "by_role_count": {
+        "2": {
+          "evaluations": 8,
+          "strict": 0,
+          "coverage": 0.8035714285714286,
+          "precision": 1.0,
+          "budget_pass": 1.0,
+          "visibility_accuracy_on_tp": 0.8444444444444444
+        },
+        "3": {
+          "evaluations": 8,
+          "strict": 0,
+          "coverage": 0.6842105263157895,
+          "precision": 1.0,
+          "budget_pass": 1.0,
+          "visibility_accuracy_on_tp": 0.75
+        },
+        "4": {
+          "evaluations": 8,
+          "strict": 0,
+          "coverage": 0.6696428571428571,
+          "precision": 1.0,
+          "budget_pass": 1.0,
+          "visibility_accuracy_on_tp": 0.88
+        },
+        "5": {
+          "evaluations": 8,
+          "strict": 0,
+          "coverage": 0.3881578947368421,
+          "precision": 1.0,
+          "budget_pass": 1.0,
+          "visibility_accuracy_on_tp": 0.6949152542372882
+        },
+        "6": {
+          "evaluations": 8,
+          "strict": 0,
+          "coverage": 0.5486111111111112,
+          "precision": 1.0,
+          "budget_pass": 1.0,
+          "visibility_accuracy_on_tp": 0.8860759493670886
+        }
+      }
+    },
+    "source_ledger_14b_budget_compiled": {
+      "status_counts": {
+        "ok": 40
+      },
+      "strict_rows": 12,
+      "parse_error_rows": 0,
+      "skipped": {
+        "wrong_recipient": 131,
+        "over_budget": 0,
+        "invalid": 0,
+        "duplicate": 1
+      },
+      "by_role_count": {
+        "2": {
+          "evaluations": 8,
+          "strict": 7,
+          "coverage": 0.9821428571428571,
+          "precision": 1.0,
+          "budget_pass": 1.0,
+          "visibility_accuracy_on_tp": 0.9818181818181818
+        },
+        "3": {
+          "evaluations": 8,
+          "strict": 3,
+          "coverage": 0.9210526315789473,
+          "precision": 1.0,
+          "budget_pass": 1.0,
+          "visibility_accuracy_on_tp": 0.9285714285714286
+        },
+        "4": {
+          "evaluations": 8,
+          "strict": 0,
+          "coverage": 0.8214285714285714,
+          "precision": 1.0,
+          "budget_pass": 1.0,
+          "visibility_accuracy_on_tp": 0.967391304347826
+        },
+        "5": {
+          "evaluations": 8,
+          "strict": 1,
+          "coverage": 0.7763157894736842,
+          "precision": 1.0,
+          "budget_pass": 1.0,
+          "visibility_accuracy_on_tp": 0.923728813559322
+        },
+        "6": {
+          "evaluations": 8,
+          "strict": 1,
+          "coverage": 0.875,
+          "precision": 1.0,
+          "budget_pass": 1.0,
+          "visibility_accuracy_on_tp": 0.9682539682539683
+        }
+      }
+    }
+  }
+}

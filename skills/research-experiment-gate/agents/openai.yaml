@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Experiment Gate"
+  short_description: "Preflight and audit research experiments"
+  default_prompt: "Use $research-experiment-gate to preflight this experiment before any GPU run."

@@ -57,9 +57,9 @@ python src/main.py --model qwen2.5-7b --num_agents 3 --data arithmetics --data_s
   - `/data/xuhaoming/yfy/research_workspace/results/dar-smoke-qwen25-7b-arith2-parserpatch-20260612_183256/out`
   - `/data/xuhaoming/yfy/research_workspace/results/dar-smoke-filtercritical-qwen25-7b-arith2-20260612_183819/out`
 - local run records:
-  - `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-smoke/`
-  - `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-short-matrix/`
-  - `experiments/20260612-a8002-dar-qwen25-7b-gsm8k-short-matrix/`
+  - `experiments/_archive/20260616-pruned/20260612-a8002-dar-qwen25-7b-arithmetics-smoke/`
+  - `experiments/_archive/20260616-pruned/20260612-a8002-dar-qwen25-7b-arithmetics-short-matrix/`
+  - `experiments/_archive/20260616-pruned/20260612-a8002-dar-qwen25-7b-gsm8k-short-matrix/`
 
 Expected upstream paths:
 
@@ -67,8 +67,8 @@ Expected upstream paths:
 - `out/history/*.jsonl`
 - `result/debate_logs.jsonl`
 - `result/token_logs.jsonl`
-- instrumented full-history check: `experiments/20260613-1718-a8002-trace-instrumentation-check/`
-- instrumented GSM8K100 full-history check: `experiments/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/`
+- instrumented full-history check: `experiments/_archive/20260616-pruned/20260613-1718-a8002-trace-instrumentation-check/`
+- instrumented GSM8K100 full-history check: `experiments/_archive/20260616-pruned/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/`
 
 ## Result Snapshot
 
@@ -106,7 +106,7 @@ Expected upstream paths:
 | Upstream history and TSV paths ignored `--out_dir` and wrote to repository `out/`. | `src/main.py` path construction | write history and TSV under `args.out_dir` | artifact placement changed; method logic unchanged |
 | A800_2 could not reach `huggingface.co` for `openai/gsm8k`, and no dataset cache entry existed. | data-only GSM8K smoke before GPU launch | load project-local MAD-MM processed GSM8K JSONL when available, or use `DAR_GSM8K_JSONL` | data loading changed, method logic unchanged |
 | DAR history omitted retained/dropped filter IDs and non-debug mode saved only first 10 samples. | unified trace extraction caveat | `a8002-filter-retention-history.patch` adds per-round `retention_events` and `--save_full_history`; verified on GSM8K5 trace check | trace-only instrumentation |
-| DAR `filter_critical` can drop parseable dissenting answers or retain only unparseable answers. | `reports/20260613-guarded-retention-offline-simulation.md` | `a8002-guarded-answer-diversity.patch` adds an optional `--retention_guard answer_diversity` post-filter guard and `--retention_message_mode answer_only` | experimental method variant |
+| DAR `filter_critical` can drop parseable dissenting answers or retain only unparseable answers. | `reports/_archive/20260616-pruned/20260613-guarded-retention-offline-simulation.md` | `a8002-guarded-answer-diversity.patch` adds an optional `--retention_guard answer_diversity` post-filter guard and `--retention_message_mode answer_only` | experimental method variant |
 
 ## Caveats
 

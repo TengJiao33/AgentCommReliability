@@ -12,7 +12,7 @@
 
 Source: `D:\develop\ArXiv_Daily_Digest`.
 
-Latest scan: `reports/20260612-multi-agent-frontier-scan.md`.
+Latest scan: `reports/_archive/20260616-pruned/20260612-multi-agent-frontier-scan.md`.
 
 | Priority | Direction | Paper / Theme | Why It Matters |
 | --- | --- | --- | --- |
@@ -31,7 +31,7 @@ Latest scan: `reports/20260612-multi-agent-frontier-scan.md`.
 
 ## Peer Influence / Slot-Surface Pressure Hits
 
-Source: 2026-06-15 outside check after `reports/20260615-peer-slot-control-math12.md`.
+Source: 2026-06-15 outside check after `reports/_archive/20260616-pruned/20260615-peer-slot-control-math12.md`.
 
 | Priority | Paper / Theme | Link | Why It Matters |
 | --- | --- | --- | --- |
@@ -87,7 +87,7 @@ Current naming rule:
 ## Field-Authority / Answer-Contract Outside Check
 
 Source: 2026-06-15 outside check after
-`reports/20260615-field-authority-cross-slice-semantic-focus.md`.
+`reports/_archive/20260616-pruned/20260615-field-authority-cross-slice-semantic-focus.md`.
 
 | Priority | Paper / Theme | Link | Why It Matters |
 | --- | --- | --- | --- |

@@ -4,12 +4,14 @@ Multi-agent communication reliability, kept as an open-ended reproduction notebo
 
 ## Authority
 
-The project posture is defined by three top-level skills:
+The project posture is defined by five top-level skills:
 
 ```text
 skills/reproduction-first-research/SKILL.md
 skills/research-story-synthesis/SKILL.md
 skills/repro-friction-memory/SKILL.md
+skills/research-experiment-gate/SKILL.md
+skills/research-report-writing/SKILL.md
 ```
 
 The short version:
@@ -20,6 +22,8 @@ reproduce code -> sit with logs, failures, traces, and odd details
 record before explaining
 synthesize late, but judge story taste: solid root-cause insight or real novelty
 remember solved reproduction friction
+make claim-bearing runs earn the GPU before launch
+report in clear Chinese with claim-evidence discipline
 ```
 
 ## Top-Level Attitude
@@ -42,6 +46,9 @@ MAD-MM, DAR, MOC, RuleArena, and future baselines are objects on the table, not 
 - `skills/reproduction-first-research/SKILL.md`: top-level posture and reproduction practice.
 - `skills/research-story-synthesis/SKILL.md`: solid/novel story judgment, root-cause motivation, and motivation-method-experiment coupling after evidence exists.
 - `skills/repro-friction-memory/SKILL.md`: reusable memory for solved operational reproduction blockers.
+- `skills/research-experiment-gate/SKILL.md`: preflight, packet audit, result triage, and record gate for claim-bearing experiments.
+- `skills/research-report-writing/SKILL.md`: Chinese oral updates and reports with paragraph flow, reviewer-style self-audit, and claim-evidence discipline.
+- `docs/active_research_map.md`: current live spine, pruned branches, and cleanup boundary.
 - `docs/project_log.md`: chronological facts.
 - `docs/evidence_register.md`: durable observations and claims, only when something is worth carrying forward.
 - `docs/experiment_protocol.md`: run-note metadata and logging shape.

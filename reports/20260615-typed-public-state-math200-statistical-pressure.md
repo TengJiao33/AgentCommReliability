@@ -228,12 +228,12 @@ method.
 A follow-up packet varied only the displayed source label while keeping the same
 MATH200 source cases and peer content:
 
-- report: `reports/20260615-peer-source-label-math200-packet.md`
+- report: `reports/_archive/20260616-pruned/20260615-peer-source-label-math200-packet.md`
 - comparison:
-  `experiments/20260615-1404-a8002-source-label-math200-packet/source_label_packet_audit.md`
+  `experiments/_archive/20260616-pruned/20260615-1404-a8002-source-label-math200-packet/source_label_packet_audit.md`
 - new runs:
-  `experiments/20260615-1404-a8002-source-label-math200-named/` and
-  `experiments/20260615-1404-a8002-source-label-math200-randomized/`
+  `experiments/_archive/20260616-pruned/20260615-1404-a8002-source-label-math200-named/` and
+  `experiments/_archive/20260616-pruned/20260615-1404-a8002-source-label-math200-randomized/`
 
 On source-label-reliable cases:
 

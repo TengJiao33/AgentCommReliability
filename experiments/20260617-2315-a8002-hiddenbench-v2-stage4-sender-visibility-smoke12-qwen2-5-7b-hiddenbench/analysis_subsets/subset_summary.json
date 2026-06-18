@@ -1,0 +1,1038 @@
+{
+  "conditions": [
+    "blind_minimal_exchange",
+    "exchange_then_decide",
+    "fact_only_exchange",
+    "full_info",
+    "full_visibility_minimal_exchange",
+    "oracle_public_facts",
+    "private_plus_options_minimal_exchange",
+    "private_plus_shared_minimal_exchange",
+    "private_plus_task_minimal_exchange",
+    "shared_only"
+  ],
+  "primary_pairs": {
+    "all:blind_minimal_exchange_vs_exchange_then_decide": {
+      "both_correct": 3,
+      "both_wrong": 4,
+      "left_correct_right_wrong": 5,
+      "left_only_tasks": [
+        {
+          "gold_answer": "Roberts",
+          "left_answer": "Roberts",
+          "right_answer": "Stevens",
+          "task_id": 5,
+          "task_name": "baker_2010"
+        },
+        {
+          "gold_answer": "Candidate C",
+          "left_answer": "Candidate C",
+          "right_answer": "Candidate D",
+          "task_id": 6,
+          "task_name": "schulz_hardt_mojzisch_2012"
+        },
+        {
+          "gold_answer": "Warehouse C",
+          "left_answer": "Warehouse C",
+          "right_answer": "Warehouse B",
+          "task_id": 10,
+          "task_name": "emergency_supply_drop"
+        },
+        {
+          "gold_answer": "School Gym",
+          "left_answer": "School Gym",
+          "right_answer": "City Library",
+          "task_id": 11,
+          "task_name": "emergency_conference_relocation"
+        },
+        {
+          "gold_answer": "Green Valley",
+          "left_answer": "Green Valley",
+          "right_answer": "Red Lake",
+          "task_id": 12,
+          "task_name": "evacuate_park_dilemma"
+        }
+      ],
+      "paired_tasks": 12,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "all:blind_minimal_exchange_vs_full_visibility_minimal_exchange": {
+      "both_correct": 7,
+      "both_wrong": 4,
+      "left_correct_right_wrong": 1,
+      "left_only_tasks": [
+        {
+          "gold_answer": "Roberts",
+          "left_answer": "Roberts",
+          "right_answer": "Jones",
+          "task_id": 5,
+          "task_name": "baker_2010"
+        }
+      ],
+      "paired_tasks": 12,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "all:blind_minimal_exchange_vs_private_plus_options_minimal_exchange": {
+      "both_correct": 8,
+      "both_wrong": 4,
+      "left_correct_right_wrong": 0,
+      "left_only_tasks": [],
+      "paired_tasks": 12,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "all:blind_minimal_exchange_vs_private_plus_shared_minimal_exchange": {
+      "both_correct": 7,
+      "both_wrong": 4,
+      "left_correct_right_wrong": 1,
+      "left_only_tasks": [
+        {
+          "gold_answer": "Roberts",
+          "left_answer": "Roberts",
+          "right_answer": "Jones",
+          "task_id": 5,
+          "task_name": "baker_2010"
+        }
+      ],
+      "paired_tasks": 12,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "all:blind_minimal_exchange_vs_private_plus_task_minimal_exchange": {
+      "both_correct": 7,
+      "both_wrong": 4,
+      "left_correct_right_wrong": 1,
+      "left_only_tasks": [
+        {
+          "gold_answer": "Roberts",
+          "left_answer": "Roberts",
+          "right_answer": "Jones",
+          "task_id": 5,
+          "task_name": "baker_2010"
+        }
+      ],
+      "paired_tasks": 12,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "all:fact_only_exchange_vs_blind_minimal_exchange": {
+      "both_correct": 6,
+      "both_wrong": 3,
+      "left_correct_right_wrong": 1,
+      "left_only_tasks": [
+        {
+          "gold_answer": "West City",
+          "left_answer": "West City",
+          "right_answer": "North Hill",
+          "task_id": 1,
+          "task_name": "evacuation_west_city"
+        }
+      ],
+      "paired_tasks": 12,
+      "right_correct_left_wrong": 2,
+      "right_only_tasks": [
+        {
+          "gold_answer": "Roberts",
+          "left_answer": "Jones",
+          "right_answer": "Roberts",
+          "task_id": 5,
+          "task_name": "baker_2010"
+        },
+        {
+          "gold_answer": "Candidate C",
+          "left_answer": "Candidate B",
+          "right_answer": "Candidate C",
+          "task_id": 6,
+          "task_name": "schulz_hardt_mojzisch_2012"
+        }
+      ]
+    },
+    "all:fact_only_exchange_vs_exchange_then_decide": {
+      "both_correct": 3,
+      "both_wrong": 5,
+      "left_correct_right_wrong": 4,
+      "left_only_tasks": [
+        {
+          "gold_answer": "West City",
+          "left_answer": "West City",
+          "right_answer": "North Hill",
+          "task_id": 1,
+          "task_name": "evacuation_west_city"
+        },
+        {
+          "gold_answer": "Warehouse C",
+          "left_answer": "Warehouse C",
+          "right_answer": "Warehouse B",
+          "task_id": 10,
+          "task_name": "emergency_supply_drop"
+        },
+        {
+          "gold_answer": "School Gym",
+          "left_answer": "School Gym",
+          "right_answer": "City Library",
+          "task_id": 11,
+          "task_name": "emergency_conference_relocation"
+        },
+        {
+          "gold_answer": "Green Valley",
+          "left_answer": "Green Valley",
+          "right_answer": "Red Lake",
+          "task_id": 12,
+          "task_name": "evacuate_park_dilemma"
+        }
+      ],
+      "paired_tasks": 12,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "all:fact_only_exchange_vs_full_visibility_minimal_exchange": {
+      "both_correct": 6,
+      "both_wrong": 4,
+      "left_correct_right_wrong": 1,
+      "left_only_tasks": [
+        {
+          "gold_answer": "West City",
+          "left_answer": "West City",
+          "right_answer": "North Hill",
+          "task_id": 1,
+          "task_name": "evacuation_west_city"
+        }
+      ],
+      "paired_tasks": 12,
+      "right_correct_left_wrong": 1,
+      "right_only_tasks": [
+        {
+          "gold_answer": "Candidate C",
+          "left_answer": "Candidate B",
+          "right_answer": "Candidate C",
+          "task_id": 6,
+          "task_name": "schulz_hardt_mojzisch_2012"
+        }
+      ]
+    },
+    "all:full_visibility_minimal_exchange_vs_exchange_then_decide": {
+      "both_correct": 3,
+      "both_wrong": 5,
+      "left_correct_right_wrong": 4,
+      "left_only_tasks": [
+        {
+          "gold_answer": "Candidate C",
+          "left_answer": "Candidate C",
+          "right_answer": "Candidate D",
+          "task_id": 6,
+          "task_name": "schulz_hardt_mojzisch_2012"
+        },
+        {
+          "gold_answer": "Warehouse C",
+          "left_answer": "Warehouse C",
+          "right_answer": "Warehouse B",
+          "task_id": 10,
+          "task_name": "emergency_supply_drop"
+        },
+        {
+          "gold_answer": "School Gym",
+          "left_answer": "School Gym",
+          "right_answer": "City Library",
+          "task_id": 11,
+          "task_name": "emergency_conference_relocation"
+        },
+        {
+          "gold_answer": "Green Valley",
+          "left_answer": "Green Valley",
+          "right_answer": "Red Lake",
+          "task_id": 12,
+          "task_name": "evacuate_park_dilemma"
+        }
+      ],
+      "paired_tasks": 12,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "clean_info_unstable:blind_minimal_exchange_vs_exchange_then_decide": {
+      "both_correct": 0,
+      "both_wrong": 3,
+      "left_correct_right_wrong": 1,
+      "left_only_tasks": [
+        {
+          "gold_answer": "Roberts",
+          "left_answer": "Roberts",
+          "right_answer": "Stevens",
+          "task_id": 5,
+          "task_name": "baker_2010"
+        }
+      ],
+      "paired_tasks": 4,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "clean_info_unstable:blind_minimal_exchange_vs_full_visibility_minimal_exchange": {
+      "both_correct": 0,
+      "both_wrong": 3,
+      "left_correct_right_wrong": 1,
+      "left_only_tasks": [
+        {
+          "gold_answer": "Roberts",
+          "left_answer": "Roberts",
+          "right_answer": "Jones",
+          "task_id": 5,
+          "task_name": "baker_2010"
+        }
+      ],
+      "paired_tasks": 4,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "clean_info_unstable:blind_minimal_exchange_vs_private_plus_options_minimal_exchange": {
+      "both_correct": 1,
+      "both_wrong": 3,
+      "left_correct_right_wrong": 0,
+      "left_only_tasks": [],
+      "paired_tasks": 4,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "clean_info_unstable:blind_minimal_exchange_vs_private_plus_shared_minimal_exchange": {
+      "both_correct": 0,
+      "both_wrong": 3,
+      "left_correct_right_wrong": 1,
+      "left_only_tasks": [
+        {
+          "gold_answer": "Roberts",
+          "left_answer": "Roberts",
+          "right_answer": "Jones",
+          "task_id": 5,
+          "task_name": "baker_2010"
+        }
+      ],
+      "paired_tasks": 4,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "clean_info_unstable:blind_minimal_exchange_vs_private_plus_task_minimal_exchange": {
+      "both_correct": 0,
+      "both_wrong": 3,
+      "left_correct_right_wrong": 1,
+      "left_only_tasks": [
+        {
+          "gold_answer": "Roberts",
+          "left_answer": "Roberts",
+          "right_answer": "Jones",
+          "task_id": 5,
+          "task_name": "baker_2010"
+        }
+      ],
+      "paired_tasks": 4,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "clean_info_unstable:fact_only_exchange_vs_blind_minimal_exchange": {
+      "both_correct": 0,
+      "both_wrong": 3,
+      "left_correct_right_wrong": 0,
+      "left_only_tasks": [],
+      "paired_tasks": 4,
+      "right_correct_left_wrong": 1,
+      "right_only_tasks": [
+        {
+          "gold_answer": "Roberts",
+          "left_answer": "Jones",
+          "right_answer": "Roberts",
+          "task_id": 5,
+          "task_name": "baker_2010"
+        }
+      ]
+    },
+    "clean_info_unstable:fact_only_exchange_vs_exchange_then_decide": {
+      "both_correct": 0,
+      "both_wrong": 4,
+      "left_correct_right_wrong": 0,
+      "left_only_tasks": [],
+      "paired_tasks": 4,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "clean_info_unstable:fact_only_exchange_vs_full_visibility_minimal_exchange": {
+      "both_correct": 0,
+      "both_wrong": 4,
+      "left_correct_right_wrong": 0,
+      "left_only_tasks": [],
+      "paired_tasks": 4,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "clean_info_unstable:full_visibility_minimal_exchange_vs_exchange_then_decide": {
+      "both_correct": 0,
+      "both_wrong": 4,
+      "left_correct_right_wrong": 0,
+      "left_only_tasks": [],
+      "paired_tasks": 4,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "full_info_and_oracle_public_facts_correct:blind_minimal_exchange_vs_exchange_then_decide": {
+      "both_correct": 3,
+      "both_wrong": 1,
+      "left_correct_right_wrong": 4,
+      "left_only_tasks": [
+        {
+          "gold_answer": "Candidate C",
+          "left_answer": "Candidate C",
+          "right_answer": "Candidate D",
+          "task_id": 6,
+          "task_name": "schulz_hardt_mojzisch_2012"
+        },
+        {
+          "gold_answer": "Warehouse C",
+          "left_answer": "Warehouse C",
+          "right_answer": "Warehouse B",
+          "task_id": 10,
+          "task_name": "emergency_supply_drop"
+        },
+        {
+          "gold_answer": "School Gym",
+          "left_answer": "School Gym",
+          "right_answer": "City Library",
+          "task_id": 11,
+          "task_name": "emergency_conference_relocation"
+        },
+        {
+          "gold_answer": "Green Valley",
+          "left_answer": "Green Valley",
+          "right_answer": "Red Lake",
+          "task_id": 12,
+          "task_name": "evacuate_park_dilemma"
+        }
+      ],
+      "paired_tasks": 8,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "full_info_and_oracle_public_facts_correct:blind_minimal_exchange_vs_full_visibility_minimal_exchange": {
+      "both_correct": 7,
+      "both_wrong": 1,
+      "left_correct_right_wrong": 0,
+      "left_only_tasks": [],
+      "paired_tasks": 8,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "full_info_and_oracle_public_facts_correct:blind_minimal_exchange_vs_private_plus_options_minimal_exchange": {
+      "both_correct": 7,
+      "both_wrong": 1,
+      "left_correct_right_wrong": 0,
+      "left_only_tasks": [],
+      "paired_tasks": 8,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "full_info_and_oracle_public_facts_correct:blind_minimal_exchange_vs_private_plus_shared_minimal_exchange": {
+      "both_correct": 7,
+      "both_wrong": 1,
+      "left_correct_right_wrong": 0,
+      "left_only_tasks": [],
+      "paired_tasks": 8,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "full_info_and_oracle_public_facts_correct:blind_minimal_exchange_vs_private_plus_task_minimal_exchange": {
+      "both_correct": 7,
+      "both_wrong": 1,
+      "left_correct_right_wrong": 0,
+      "left_only_tasks": [],
+      "paired_tasks": 8,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "full_info_and_oracle_public_facts_correct:fact_only_exchange_vs_blind_minimal_exchange": {
+      "both_correct": 6,
+      "both_wrong": 0,
+      "left_correct_right_wrong": 1,
+      "left_only_tasks": [
+        {
+          "gold_answer": "West City",
+          "left_answer": "West City",
+          "right_answer": "North Hill",
+          "task_id": 1,
+          "task_name": "evacuation_west_city"
+        }
+      ],
+      "paired_tasks": 8,
+      "right_correct_left_wrong": 1,
+      "right_only_tasks": [
+        {
+          "gold_answer": "Candidate C",
+          "left_answer": "Candidate B",
+          "right_answer": "Candidate C",
+          "task_id": 6,
+          "task_name": "schulz_hardt_mojzisch_2012"
+        }
+      ]
+    },
+    "full_info_and_oracle_public_facts_correct:fact_only_exchange_vs_exchange_then_decide": {
+      "both_correct": 3,
+      "both_wrong": 1,
+      "left_correct_right_wrong": 4,
+      "left_only_tasks": [
+        {
+          "gold_answer": "West City",
+          "left_answer": "West City",
+          "right_answer": "North Hill",
+          "task_id": 1,
+          "task_name": "evacuation_west_city"
+        },
+        {
+          "gold_answer": "Warehouse C",
+          "left_answer": "Warehouse C",
+          "right_answer": "Warehouse B",
+          "task_id": 10,
+          "task_name": "emergency_supply_drop"
+        },
+        {
+          "gold_answer": "School Gym",
+          "left_answer": "School Gym",
+          "right_answer": "City Library",
+          "task_id": 11,
+          "task_name": "emergency_conference_relocation"
+        },
+        {
+          "gold_answer": "Green Valley",
+          "left_answer": "Green Valley",
+          "right_answer": "Red Lake",
+          "task_id": 12,
+          "task_name": "evacuate_park_dilemma"
+        }
+      ],
+      "paired_tasks": 8,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "full_info_and_oracle_public_facts_correct:fact_only_exchange_vs_full_visibility_minimal_exchange": {
+      "both_correct": 6,
+      "both_wrong": 0,
+      "left_correct_right_wrong": 1,
+      "left_only_tasks": [
+        {
+          "gold_answer": "West City",
+          "left_answer": "West City",
+          "right_answer": "North Hill",
+          "task_id": 1,
+          "task_name": "evacuation_west_city"
+        }
+      ],
+      "paired_tasks": 8,
+      "right_correct_left_wrong": 1,
+      "right_only_tasks": [
+        {
+          "gold_answer": "Candidate C",
+          "left_answer": "Candidate B",
+          "right_answer": "Candidate C",
+          "task_id": 6,
+          "task_name": "schulz_hardt_mojzisch_2012"
+        }
+      ]
+    },
+    "full_info_and_oracle_public_facts_correct:full_visibility_minimal_exchange_vs_exchange_then_decide": {
+      "both_correct": 3,
+      "both_wrong": 1,
+      "left_correct_right_wrong": 4,
+      "left_only_tasks": [
+        {
+          "gold_answer": "Candidate C",
+          "left_answer": "Candidate C",
+          "right_answer": "Candidate D",
+          "task_id": 6,
+          "task_name": "schulz_hardt_mojzisch_2012"
+        },
+        {
+          "gold_answer": "Warehouse C",
+          "left_answer": "Warehouse C",
+          "right_answer": "Warehouse B",
+          "task_id": 10,
+          "task_name": "emergency_supply_drop"
+        },
+        {
+          "gold_answer": "School Gym",
+          "left_answer": "School Gym",
+          "right_answer": "City Library",
+          "task_id": 11,
+          "task_name": "emergency_conference_relocation"
+        },
+        {
+          "gold_answer": "Green Valley",
+          "left_answer": "Green Valley",
+          "right_answer": "Red Lake",
+          "task_id": 12,
+          "task_name": "evacuate_park_dilemma"
+        }
+      ],
+      "paired_tasks": 8,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "full_info_correct:blind_minimal_exchange_vs_exchange_then_decide": {
+      "both_correct": 3,
+      "both_wrong": 2,
+      "left_correct_right_wrong": 4,
+      "left_only_tasks": [
+        {
+          "gold_answer": "Candidate C",
+          "left_answer": "Candidate C",
+          "right_answer": "Candidate D",
+          "task_id": 6,
+          "task_name": "schulz_hardt_mojzisch_2012"
+        },
+        {
+          "gold_answer": "Warehouse C",
+          "left_answer": "Warehouse C",
+          "right_answer": "Warehouse B",
+          "task_id": 10,
+          "task_name": "emergency_supply_drop"
+        },
+        {
+          "gold_answer": "School Gym",
+          "left_answer": "School Gym",
+          "right_answer": "City Library",
+          "task_id": 11,
+          "task_name": "emergency_conference_relocation"
+        },
+        {
+          "gold_answer": "Green Valley",
+          "left_answer": "Green Valley",
+          "right_answer": "Red Lake",
+          "task_id": 12,
+          "task_name": "evacuate_park_dilemma"
+        }
+      ],
+      "paired_tasks": 9,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "full_info_correct:blind_minimal_exchange_vs_full_visibility_minimal_exchange": {
+      "both_correct": 7,
+      "both_wrong": 2,
+      "left_correct_right_wrong": 0,
+      "left_only_tasks": [],
+      "paired_tasks": 9,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "full_info_correct:blind_minimal_exchange_vs_private_plus_options_minimal_exchange": {
+      "both_correct": 7,
+      "both_wrong": 2,
+      "left_correct_right_wrong": 0,
+      "left_only_tasks": [],
+      "paired_tasks": 9,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "full_info_correct:blind_minimal_exchange_vs_private_plus_shared_minimal_exchange": {
+      "both_correct": 7,
+      "both_wrong": 2,
+      "left_correct_right_wrong": 0,
+      "left_only_tasks": [],
+      "paired_tasks": 9,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "full_info_correct:blind_minimal_exchange_vs_private_plus_task_minimal_exchange": {
+      "both_correct": 7,
+      "both_wrong": 2,
+      "left_correct_right_wrong": 0,
+      "left_only_tasks": [],
+      "paired_tasks": 9,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "full_info_correct:fact_only_exchange_vs_blind_minimal_exchange": {
+      "both_correct": 6,
+      "both_wrong": 1,
+      "left_correct_right_wrong": 1,
+      "left_only_tasks": [
+        {
+          "gold_answer": "West City",
+          "left_answer": "West City",
+          "right_answer": "North Hill",
+          "task_id": 1,
+          "task_name": "evacuation_west_city"
+        }
+      ],
+      "paired_tasks": 9,
+      "right_correct_left_wrong": 1,
+      "right_only_tasks": [
+        {
+          "gold_answer": "Candidate C",
+          "left_answer": "Candidate B",
+          "right_answer": "Candidate C",
+          "task_id": 6,
+          "task_name": "schulz_hardt_mojzisch_2012"
+        }
+      ]
+    },
+    "full_info_correct:fact_only_exchange_vs_exchange_then_decide": {
+      "both_correct": 3,
+      "both_wrong": 2,
+      "left_correct_right_wrong": 4,
+      "left_only_tasks": [
+        {
+          "gold_answer": "West City",
+          "left_answer": "West City",
+          "right_answer": "North Hill",
+          "task_id": 1,
+          "task_name": "evacuation_west_city"
+        },
+        {
+          "gold_answer": "Warehouse C",
+          "left_answer": "Warehouse C",
+          "right_answer": "Warehouse B",
+          "task_id": 10,
+          "task_name": "emergency_supply_drop"
+        },
+        {
+          "gold_answer": "School Gym",
+          "left_answer": "School Gym",
+          "right_answer": "City Library",
+          "task_id": 11,
+          "task_name": "emergency_conference_relocation"
+        },
+        {
+          "gold_answer": "Green Valley",
+          "left_answer": "Green Valley",
+          "right_answer": "Red Lake",
+          "task_id": 12,
+          "task_name": "evacuate_park_dilemma"
+        }
+      ],
+      "paired_tasks": 9,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    },
+    "full_info_correct:fact_only_exchange_vs_full_visibility_minimal_exchange": {
+      "both_correct": 6,
+      "both_wrong": 1,
+      "left_correct_right_wrong": 1,
+      "left_only_tasks": [
+        {
+          "gold_answer": "West City",
+          "left_answer": "West City",
+          "right_answer": "North Hill",
+          "task_id": 1,
+          "task_name": "evacuation_west_city"
+        }
+      ],
+      "paired_tasks": 9,
+      "right_correct_left_wrong": 1,
+      "right_only_tasks": [
+        {
+          "gold_answer": "Candidate C",
+          "left_answer": "Candidate B",
+          "right_answer": "Candidate C",
+          "task_id": 6,
+          "task_name": "schulz_hardt_mojzisch_2012"
+        }
+      ]
+    },
+    "full_info_correct:full_visibility_minimal_exchange_vs_exchange_then_decide": {
+      "both_correct": 3,
+      "both_wrong": 2,
+      "left_correct_right_wrong": 4,
+      "left_only_tasks": [
+        {
+          "gold_answer": "Candidate C",
+          "left_answer": "Candidate C",
+          "right_answer": "Candidate D",
+          "task_id": 6,
+          "task_name": "schulz_hardt_mojzisch_2012"
+        },
+        {
+          "gold_answer": "Warehouse C",
+          "left_answer": "Warehouse C",
+          "right_answer": "Warehouse B",
+          "task_id": 10,
+          "task_name": "emergency_supply_drop"
+        },
+        {
+          "gold_answer": "School Gym",
+          "left_answer": "School Gym",
+          "right_answer": "City Library",
+          "task_id": 11,
+          "task_name": "emergency_conference_relocation"
+        },
+        {
+          "gold_answer": "Green Valley",
+          "left_answer": "Green Valley",
+          "right_answer": "Red Lake",
+          "task_id": 12,
+          "task_name": "evacuate_park_dilemma"
+        }
+      ],
+      "paired_tasks": 9,
+      "right_correct_left_wrong": 0,
+      "right_only_tasks": []
+    }
+  },
+  "records": "experiments/20260617-2315-a8002-hiddenbench-v2-stage4-sender-visibility-smoke12-qwen2-5-7b-hiddenbench/analysis_corrected/corrected_records.jsonl",
+  "subsets": {
+    "all": {
+      "conditions": {
+        "blind_minimal_exchange": {
+          "accuracy": 0.6666666666666666,
+          "correct": 8,
+          "records": 12,
+          "unparsed": 0
+        },
+        "exchange_then_decide": {
+          "accuracy": 0.25,
+          "correct": 3,
+          "records": 12,
+          "unparsed": 0
+        },
+        "fact_only_exchange": {
+          "accuracy": 0.5833333333333334,
+          "correct": 7,
+          "records": 12,
+          "unparsed": 0
+        },
+        "full_info": {
+          "accuracy": 0.75,
+          "correct": 9,
+          "records": 12,
+          "unparsed": 0
+        },
+        "full_visibility_minimal_exchange": {
+          "accuracy": 0.5833333333333334,
+          "correct": 7,
+          "records": 12,
+          "unparsed": 0
+        },
+        "oracle_public_facts": {
+          "accuracy": 0.6666666666666666,
+          "correct": 8,
+          "records": 12,
+          "unparsed": 0
+        },
+        "private_plus_options_minimal_exchange": {
+          "accuracy": 0.6666666666666666,
+          "correct": 8,
+          "records": 12,
+          "unparsed": 0
+        },
+        "private_plus_shared_minimal_exchange": {
+          "accuracy": 0.5833333333333334,
+          "correct": 7,
+          "records": 12,
+          "unparsed": 0
+        },
+        "private_plus_task_minimal_exchange": {
+          "accuracy": 0.5833333333333334,
+          "correct": 7,
+          "records": 12,
+          "unparsed": 0
+        },
+        "shared_only": {
+          "accuracy": 0.08333333333333333,
+          "correct": 1,
+          "records": 12,
+          "unparsed": 0
+        }
+      },
+      "tasks": 12
+    },
+    "clean_info_unstable": {
+      "conditions": {
+        "blind_minimal_exchange": {
+          "accuracy": 0.25,
+          "correct": 1,
+          "records": 4,
+          "unparsed": 0
+        },
+        "exchange_then_decide": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "records": 4,
+          "unparsed": 0
+        },
+        "fact_only_exchange": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "records": 4,
+          "unparsed": 0
+        },
+        "full_info": {
+          "accuracy": 0.25,
+          "correct": 1,
+          "records": 4,
+          "unparsed": 0
+        },
+        "full_visibility_minimal_exchange": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "records": 4,
+          "unparsed": 0
+        },
+        "oracle_public_facts": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "records": 4,
+          "unparsed": 0
+        },
+        "private_plus_options_minimal_exchange": {
+          "accuracy": 0.25,
+          "correct": 1,
+          "records": 4,
+          "unparsed": 0
+        },
+        "private_plus_shared_minimal_exchange": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "records": 4,
+          "unparsed": 0
+        },
+        "private_plus_task_minimal_exchange": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "records": 4,
+          "unparsed": 0
+        },
+        "shared_only": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "records": 4,
+          "unparsed": 0
+        }
+      },
+      "tasks": 4
+    },
+    "full_info_and_oracle_public_facts_correct": {
+      "conditions": {
+        "blind_minimal_exchange": {
+          "accuracy": 0.875,
+          "correct": 7,
+          "records": 8,
+          "unparsed": 0
+        },
+        "exchange_then_decide": {
+          "accuracy": 0.375,
+          "correct": 3,
+          "records": 8,
+          "unparsed": 0
+        },
+        "fact_only_exchange": {
+          "accuracy": 0.875,
+          "correct": 7,
+          "records": 8,
+          "unparsed": 0
+        },
+        "full_info": {
+          "accuracy": 1.0,
+          "correct": 8,
+          "records": 8,
+          "unparsed": 0
+        },
+        "full_visibility_minimal_exchange": {
+          "accuracy": 0.875,
+          "correct": 7,
+          "records": 8,
+          "unparsed": 0
+        },
+        "oracle_public_facts": {
+          "accuracy": 1.0,
+          "correct": 8,
+          "records": 8,
+          "unparsed": 0
+        },
+        "private_plus_options_minimal_exchange": {
+          "accuracy": 0.875,
+          "correct": 7,
+          "records": 8,
+          "unparsed": 0
+        },
+        "private_plus_shared_minimal_exchange": {
+          "accuracy": 0.875,
+          "correct": 7,
+          "records": 8,
+          "unparsed": 0
+        },
+        "private_plus_task_minimal_exchange": {
+          "accuracy": 0.875,
+          "correct": 7,
+          "records": 8,
+          "unparsed": 0
+        },
+        "shared_only": {
+          "accuracy": 0.125,
+          "correct": 1,
+          "records": 8,
+          "unparsed": 0
+        }
+      },
+      "tasks": 8
+    },
+    "full_info_correct": {
+      "conditions": {
+        "blind_minimal_exchange": {
+          "accuracy": 0.7777777777777778,
+          "correct": 7,
+          "records": 9,
+          "unparsed": 0
+        },
+        "exchange_then_decide": {
+          "accuracy": 0.3333333333333333,
+          "correct": 3,
+          "records": 9,
+          "unparsed": 0
+        },
+        "fact_only_exchange": {
+          "accuracy": 0.7777777777777778,
+          "correct": 7,
+          "records": 9,
+          "unparsed": 0
+        },
+        "full_info": {
+          "accuracy": 1.0,
+          "correct": 9,
+          "records": 9,
+          "unparsed": 0
+        },
+        "full_visibility_minimal_exchange": {
+          "accuracy": 0.7777777777777778,
+          "correct": 7,
+          "records": 9,
+          "unparsed": 0
+        },
+        "oracle_public_facts": {
+          "accuracy": 0.8888888888888888,
+          "correct": 8,
+          "records": 9,
+          "unparsed": 0
+        },
+        "private_plus_options_minimal_exchange": {
+          "accuracy": 0.7777777777777778,
+          "correct": 7,
+          "records": 9,
+          "unparsed": 0
+        },
+        "private_plus_shared_minimal_exchange": {
+          "accuracy": 0.7777777777777778,
+          "correct": 7,
+          "records": 9,
+          "unparsed": 0
+        },
+        "private_plus_task_minimal_exchange": {
+          "accuracy": 0.7777777777777778,
+          "correct": 7,
+          "records": 9,
+          "unparsed": 0
+        },
+        "shared_only": {
+          "accuracy": 0.1111111111111111,
+          "correct": 1,
+          "records": 9,
+          "unparsed": 0
+        }
+      },
+      "tasks": 9
+    }
+  }
+}

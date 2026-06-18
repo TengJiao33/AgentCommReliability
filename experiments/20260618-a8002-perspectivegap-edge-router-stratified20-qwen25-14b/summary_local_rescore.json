@@ -1,0 +1,28 @@
+﻿{
+  "evaluations": 40,
+  "strict_pass_count": 0,
+  "metrics": {
+    "strict_pass": 0.0,
+    "required_coverage": 0.512962962962963,
+    "boundary_precision": 0.6690821256038647,
+    "distractor_leakage": 0.6,
+    "source_accuracy_on_tp": 1.0,
+    "visibility_accuracy_on_tp": 0.7509025270758123,
+    "budget_overrun": 7.65,
+    "budget_pass": 0.1,
+    "reject_recall": 0.525,
+    "needed_rejected": 1.35
+  },
+  "counts": {
+    "tp": 277,
+    "fp": 137,
+    "fn": 263,
+    "distractor_leak": 24
+  },
+  "aux_counts": {
+    "source_checked": 277,
+    "source_correct": 277,
+    "visibility_checked": 277,
+    "visibility_correct": 208
+  }
+}

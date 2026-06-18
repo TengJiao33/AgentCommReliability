@@ -111,13 +111,13 @@ timeout 90m /data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/bin/pytho
 
 ## Outputs
 
-- remote run note root: `/data/xuhaoming/yfy/research_workspace/experiments/20260613-a8002-moc-qwen25-7b-gsm8k-topology5`
-- forced-merge run note root: `/data/xuhaoming/yfy/research_workspace/experiments/20260613-1425-a8002-moc-qwen25-7b-gsm8k-hop2-forcedmerge-smoke`
+- remote run note root: `/data/xuhaoming/yfy/research_workspace/experiments/_archive/20260616-pruned/20260613-a8002-moc-qwen25-7b-gsm8k-topology5`
+- forced-merge run note root: `/data/xuhaoming/yfy/research_workspace/experiments/_archive/20260616-pruned/20260613-1425-a8002-moc-qwen25-7b-gsm8k-hop2-forcedmerge-smoke`
 - remote MOC result dir: `/data/xuhaoming/yfy/research_workspace/baselines/MOC/result/gsm8k`
 - graph structures: `/data/xuhaoming/yfy/research_workspace/baselines/MOC/graph_structures/gsm8k`
-- local run record: `experiments/20260613-a8002-moc-qwen25-7b-gsm8k-topology5/`
-- local forced-merge record: `experiments/20260613-1425-a8002-moc-qwen25-7b-gsm8k-hop2-forcedmerge-smoke/`
-- local hop-depth trace check: `experiments/20260613-1740-a8002-moc-hopcheck-n5/`
+- local run record: `experiments/_archive/20260616-pruned/20260613-a8002-moc-qwen25-7b-gsm8k-topology5/`
+- local forced-merge record: `experiments/_archive/20260616-pruned/20260613-1425-a8002-moc-qwen25-7b-gsm8k-hop2-forcedmerge-smoke/`
+- local hop-depth trace check: `experiments/_archive/20260616-pruned/20260613-1740-a8002-moc-hopcheck-n5/`
 
 ## Result Snapshot
 
@@ -136,7 +136,7 @@ timeout 90m /data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/bin/pytho
 
 - Added `VLLMChat` because upstream routes `qwen` model names to Ollama and its `GPTChat` expects a custom gateway, not OpenAI-compatible vLLM.
 - Patched `Graph.merge_multiple_messages` to route structural merge calls through `LLMRegistry.get(self.llm_name)` / `VLLMChat` instead of hard-coded Ollama `gemma2:9b`.
-- Added trace-only instrumentation patch `baselines/MOC/patches/a8002-comm-trace-events.patch` to write ISM merge/result sidecar events when `MOC_COMM_TRACE_JSONL` is set. A n=1 forced-merge check produced 7 sidecar events and a unified trace under `experiments/20260613-1718-a8002-trace-instrumentation-check/`.
+- Added trace-only instrumentation patch `baselines/MOC/patches/a8002-comm-trace-events.patch` to write ISM merge/result sidecar events when `MOC_COMM_TRACE_JSONL` is set. A n=1 forced-merge check produced 7 sidecar events and a unified trace under `experiments/_archive/20260616-pruned/20260613-1718-a8002-trace-instrumentation-check/`.
 - Used deterministic hash embeddings because the expected local sentence-transformer model was absent.
 - Created `gsm8k_test_n1.csv` and `gsm8k_test_n5.csv` from the upstream `gsm8k_test_n300.csv` for bounded smoke runs.
 - Added a minimal `pyairports.airports` compatibility module inside the env because the installed `pyairports==0.0.1` wheel lacked the module required by `outlines`.

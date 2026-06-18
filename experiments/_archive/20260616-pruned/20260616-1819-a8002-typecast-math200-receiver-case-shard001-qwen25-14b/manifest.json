@@ -1,0 +1,21 @@
+{
+  "base_url": "http://127.0.0.1:8054/v1",
+  "completed_count": 450,
+  "conditions": null,
+  "created_at": "2026-06-16T19:17:43",
+  "failed_count": 0,
+  "failures": "/data/xuhaoming/yfy/research_workspace/experiments/20260616-1819-a8002-typecast-math200-receiver-case-shard001-qwen25-14b/failures.jsonl",
+  "limit": null,
+  "max_tokens": 768,
+  "model": "qwen2.5-14b-typecast-receiver-shard001",
+  "note": "Run outputs can be scored with scripts/evaluate_pact_public_state_field_packet.py --prediction-source outputs.",
+  "outputs": "/data/xuhaoming/yfy/research_workspace/experiments/20260616-1819-a8002-typecast-math200-receiver-case-shard001-qwen25-14b/outputs.jsonl",
+  "packet": "/data/xuhaoming/yfy/research_workspace/experiments/20260616-local-typecast-arena-math200-receiver-packet-from-sender200/case_shards/typecast_math200_receiver.case_shard001.jsonl",
+  "run_id": "20260616-1819-a8002-typecast-math200-receiver-case-shard001-qwen25-14b",
+  "sample_indices": null,
+  "selected_count": 450,
+  "skipped_count": 0,
+  "source_runs": null,
+  "temperature": 0.0,
+  "timeout": 420
+}

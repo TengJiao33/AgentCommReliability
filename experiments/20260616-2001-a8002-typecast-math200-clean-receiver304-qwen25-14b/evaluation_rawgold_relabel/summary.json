@@ -1,0 +1,1058 @@
+{
+  "authority_by_artifact_type_future_signal": {
+    " | -2 | control_self_revision_no_sender": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.029411764705882353,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 1,
+      "operator_uptake_candidate_rate": 0.029411764705882353,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "live_sender_artifact | -1 | control_unrelated_sender_message": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.058823529411764705,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 2,
+      "operator_uptake_candidate_rate": 0.058823529411764705,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "live_sender_artifact | 0 | peer_message_direct": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.029411764705882353,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 0,
+      "operator_uptake_candidate_rate": 0.0,
+      "records": 38,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.029411764705882353
+    },
+    "live_sender_artifact | 13 | typed_partial_derivation_requires_rederive": {
+      "authority_violation_count": 3,
+      "authority_violation_rate": 0.08823529411764706,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 3,
+      "operator_uptake_candidate_rate": 0.08823529411764706,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "live_sender_artifact | 2 | shared_workspace_admitted": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.029411764705882353,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 1,
+      "operator_uptake_candidate_rate": 0.029411764705882353,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "live_sender_artifact | 5 | verifier_admitted_result": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.058823529411764705,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 2,
+      "operator_uptake_candidate_rate": 0.058823529411764705,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "live_sender_artifact | 6 | admission_rejected_quarantine": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.058823529411764705,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 2,
+      "operator_uptake_candidate_rate": 0.058823529411764705,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    }
+  },
+  "authority_by_final_answer_authority_seed": {
+    " | -1 | control_unrelated_sender_message": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.058823529411764705,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 2,
+      "operator_uptake_candidate_rate": 0.058823529411764705,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    " | -2 | control_self_revision_no_sender": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.029411764705882353,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 1,
+      "operator_uptake_candidate_rate": 0.029411764705882353,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    " | 0 | peer_message_direct": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.029411764705882353,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 0,
+      "operator_uptake_candidate_rate": 0.0,
+      "records": 38,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.029411764705882353
+    },
+    " | 13 | typed_partial_derivation_requires_rederive": {
+      "authority_violation_count": 3,
+      "authority_violation_rate": 0.08823529411764706,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 3,
+      "operator_uptake_candidate_rate": 0.08823529411764706,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    " | 2 | shared_workspace_admitted": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.029411764705882353,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 1,
+      "operator_uptake_candidate_rate": 0.029411764705882353,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    " | 5 | verifier_admitted_result": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.058823529411764705,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 2,
+      "operator_uptake_candidate_rate": 0.058823529411764705,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    " | 6 | admission_rejected_quarantine": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.058823529411764705,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 2,
+      "operator_uptake_candidate_rate": 0.058823529411764705,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    }
+  },
+  "authority_by_future_signal": {
+    "-1 | control_unrelated_sender_message": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.058823529411764705,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 2,
+      "operator_uptake_candidate_rate": 0.058823529411764705,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "-2 | control_self_revision_no_sender": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.029411764705882353,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 1,
+      "operator_uptake_candidate_rate": 0.029411764705882353,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "0 | peer_message_direct": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.029411764705882353,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 0,
+      "operator_uptake_candidate_rate": 0.0,
+      "records": 38,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.029411764705882353
+    },
+    "13 | typed_partial_derivation_requires_rederive": {
+      "authority_violation_count": 3,
+      "authority_violation_rate": 0.08823529411764706,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 3,
+      "operator_uptake_candidate_rate": 0.08823529411764706,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "2 | shared_workspace_admitted": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.029411764705882353,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 1,
+      "operator_uptake_candidate_rate": 0.029411764705882353,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "5 | verifier_admitted_result": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.058823529411764705,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 2,
+      "operator_uptake_candidate_rate": 0.058823529411764705,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "6 | admission_rejected_quarantine": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.058823529411764705,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 2,
+      "operator_uptake_candidate_rate": 0.058823529411764705,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    }
+  },
+  "authority_by_source_surface_future_signal": {
+    "math200_live_sender_artifact | -1 | control_unrelated_sender_message": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.058823529411764705,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 2,
+      "operator_uptake_candidate_rate": 0.058823529411764705,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "math200_live_sender_artifact | -2 | control_self_revision_no_sender": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.029411764705882353,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 1,
+      "operator_uptake_candidate_rate": 0.029411764705882353,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "math200_live_sender_artifact | 0 | peer_message_direct": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.029411764705882353,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 0,
+      "operator_uptake_candidate_rate": 0.0,
+      "records": 38,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.029411764705882353
+    },
+    "math200_live_sender_artifact | 13 | typed_partial_derivation_requires_rederive": {
+      "authority_violation_count": 3,
+      "authority_violation_rate": 0.08823529411764706,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 3,
+      "operator_uptake_candidate_rate": 0.08823529411764706,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "math200_live_sender_artifact | 2 | shared_workspace_admitted": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.029411764705882353,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 1,
+      "operator_uptake_candidate_rate": 0.029411764705882353,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "math200_live_sender_artifact | 5 | verifier_admitted_result": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.058823529411764705,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 2,
+      "operator_uptake_candidate_rate": 0.058823529411764705,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "math200_live_sender_artifact | 6 | admission_rejected_quarantine": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.058823529411764705,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 2,
+      "operator_uptake_candidate_rate": 0.058823529411764705,
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    }
+  },
+  "by_artifact_type": {
+    "": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": null,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": null,
+      "records": 76,
+      "semantic_accuracy_known": 0.9571428571428572,
+      "semantic_correct": 67,
+      "semantic_status_counts": {
+        "missing_answer": 6,
+        "normalized_string_equal": 57,
+        "sympy_compare": 13
+      },
+      "semantic_unknown": 6,
+      "semantic_wrong": 3,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "live_sender_artifact": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 228,
+      "semantic_accuracy_known": 0.9038461538461539,
+      "semantic_correct": 188,
+      "semantic_status_counts": {
+        "missing_answer": 18,
+        "normalized_string_equal": 170,
+        "sympy_compare": 38,
+        "unknown_semantic_parse": 2
+      },
+      "semantic_unknown": 20,
+      "semantic_wrong": 20,
+      "wrong_answer_uptake_count": 6,
+      "wrong_answer_uptake_rate": 0.04878048780487805
+    }
+  },
+  "by_artifact_type_future_signal": {
+    " |  | none": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": null,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": null,
+      "records": 38,
+      "semantic_accuracy_known": 0.9714285714285714,
+      "semantic_correct": 34,
+      "semantic_status_counts": {
+        "missing_answer": 3,
+        "normalized_string_equal": 29,
+        "sympy_compare": 6
+      },
+      "semantic_unknown": 3,
+      "semantic_wrong": 1,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    " | -2 | control_self_revision_no_sender": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": null,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": null,
+      "records": 38,
+      "semantic_accuracy_known": 0.9428571428571428,
+      "semantic_correct": 33,
+      "semantic_status_counts": {
+        "missing_answer": 3,
+        "normalized_string_equal": 28,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 3,
+      "semantic_wrong": 2,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "live_sender_artifact | -1 | control_unrelated_sender_message": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.8888888888888888,
+      "semantic_correct": 32,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 32,
+        "sympy_compare": 4
+      },
+      "semantic_unknown": 2,
+      "semantic_wrong": 4,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "live_sender_artifact | 0 | peer_message_direct": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9444444444444444,
+      "semantic_correct": 34,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 29,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 2,
+      "semantic_wrong": 2,
+      "wrong_answer_uptake_count": 2,
+      "wrong_answer_uptake_rate": 0.11764705882352941
+    },
+    "live_sender_artifact | 13 | typed_partial_derivation_requires_rederive": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.8611111111111112,
+      "semantic_correct": 31,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 29,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 2,
+      "semantic_wrong": 5,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    },
+    "live_sender_artifact | 2 | shared_workspace_admitted": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9142857142857143,
+      "semantic_correct": 32,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 28,
+        "sympy_compare": 7,
+        "unknown_semantic_parse": 1
+      },
+      "semantic_unknown": 3,
+      "semantic_wrong": 3,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    },
+    "live_sender_artifact | 5 | verifier_admitted_result": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9032258064516129,
+      "semantic_correct": 28,
+      "semantic_status_counts": {
+        "missing_answer": 6,
+        "normalized_string_equal": 25,
+        "sympy_compare": 6,
+        "unknown_semantic_parse": 1
+      },
+      "semantic_unknown": 7,
+      "semantic_wrong": 3,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    },
+    "live_sender_artifact | 6 | admission_rejected_quarantine": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9117647058823529,
+      "semantic_correct": 31,
+      "semantic_status_counts": {
+        "missing_answer": 4,
+        "normalized_string_equal": 27,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 4,
+      "semantic_wrong": 3,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    }
+  },
+  "by_future_signal": {
+    " | none": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": null,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": null,
+      "records": 38,
+      "semantic_accuracy_known": 0.9714285714285714,
+      "semantic_correct": 34,
+      "semantic_status_counts": {
+        "missing_answer": 3,
+        "normalized_string_equal": 29,
+        "sympy_compare": 6
+      },
+      "semantic_unknown": 3,
+      "semantic_wrong": 1,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "-1 | control_unrelated_sender_message": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.8888888888888888,
+      "semantic_correct": 32,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 32,
+        "sympy_compare": 4
+      },
+      "semantic_unknown": 2,
+      "semantic_wrong": 4,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "-2 | control_self_revision_no_sender": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": null,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": null,
+      "records": 38,
+      "semantic_accuracy_known": 0.9428571428571428,
+      "semantic_correct": 33,
+      "semantic_status_counts": {
+        "missing_answer": 3,
+        "normalized_string_equal": 28,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 3,
+      "semantic_wrong": 2,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "0 | peer_message_direct": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9444444444444444,
+      "semantic_correct": 34,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 29,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 2,
+      "semantic_wrong": 2,
+      "wrong_answer_uptake_count": 2,
+      "wrong_answer_uptake_rate": 0.11764705882352941
+    },
+    "13 | typed_partial_derivation_requires_rederive": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.8611111111111112,
+      "semantic_correct": 31,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 29,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 2,
+      "semantic_wrong": 5,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    },
+    "2 | shared_workspace_admitted": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9142857142857143,
+      "semantic_correct": 32,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 28,
+        "sympy_compare": 7,
+        "unknown_semantic_parse": 1
+      },
+      "semantic_unknown": 3,
+      "semantic_wrong": 3,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    },
+    "5 | verifier_admitted_result": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9032258064516129,
+      "semantic_correct": 28,
+      "semantic_status_counts": {
+        "missing_answer": 6,
+        "normalized_string_equal": 25,
+        "sympy_compare": 6,
+        "unknown_semantic_parse": 1
+      },
+      "semantic_unknown": 7,
+      "semantic_wrong": 3,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    },
+    "6 | admission_rejected_quarantine": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9117647058823529,
+      "semantic_correct": 31,
+      "semantic_status_counts": {
+        "missing_answer": 4,
+        "normalized_string_equal": 27,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 4,
+      "semantic_wrong": 3,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    }
+  },
+  "by_source_surface_future_signal": {
+    "math200_live_sender_artifact |  | none": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": null,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": null,
+      "records": 38,
+      "semantic_accuracy_known": 0.9714285714285714,
+      "semantic_correct": 34,
+      "semantic_status_counts": {
+        "missing_answer": 3,
+        "normalized_string_equal": 29,
+        "sympy_compare": 6
+      },
+      "semantic_unknown": 3,
+      "semantic_wrong": 1,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "math200_live_sender_artifact | -1 | control_unrelated_sender_message": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.8888888888888888,
+      "semantic_correct": 32,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 32,
+        "sympy_compare": 4
+      },
+      "semantic_unknown": 2,
+      "semantic_wrong": 4,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "math200_live_sender_artifact | -2 | control_self_revision_no_sender": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": null,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": null,
+      "records": 38,
+      "semantic_accuracy_known": 0.9428571428571428,
+      "semantic_correct": 33,
+      "semantic_status_counts": {
+        "missing_answer": 3,
+        "normalized_string_equal": 28,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 3,
+      "semantic_wrong": 2,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "math200_live_sender_artifact | 0 | peer_message_direct": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9444444444444444,
+      "semantic_correct": 34,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 29,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 2,
+      "semantic_wrong": 2,
+      "wrong_answer_uptake_count": 2,
+      "wrong_answer_uptake_rate": 0.11764705882352941
+    },
+    "math200_live_sender_artifact | 13 | typed_partial_derivation_requires_rederive": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.8611111111111112,
+      "semantic_correct": 31,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 29,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 2,
+      "semantic_wrong": 5,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    },
+    "math200_live_sender_artifact | 2 | shared_workspace_admitted": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9142857142857143,
+      "semantic_correct": 32,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 28,
+        "sympy_compare": 7,
+        "unknown_semantic_parse": 1
+      },
+      "semantic_unknown": 3,
+      "semantic_wrong": 3,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    },
+    "math200_live_sender_artifact | 5 | verifier_admitted_result": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9032258064516129,
+      "semantic_correct": 28,
+      "semantic_status_counts": {
+        "missing_answer": 6,
+        "normalized_string_equal": 25,
+        "sympy_compare": 6,
+        "unknown_semantic_parse": 1
+      },
+      "semantic_unknown": 7,
+      "semantic_wrong": 3,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    },
+    "math200_live_sender_artifact | 6 | admission_rejected_quarantine": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9117647058823529,
+      "semantic_correct": 31,
+      "semantic_status_counts": {
+        "missing_answer": 4,
+        "normalized_string_equal": 27,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 4,
+      "semantic_wrong": 3,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    }
+  },
+  "by_variant": {
+    "baseline_previous_solution": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": null,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": null,
+      "records": 38,
+      "semantic_accuracy_known": 0.9714285714285714,
+      "semantic_correct": 34,
+      "semantic_status_counts": {
+        "missing_answer": 3,
+        "normalized_string_equal": 29,
+        "sympy_compare": 6
+      },
+      "semantic_unknown": 3,
+      "semantic_wrong": 1,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "control_self_revision_no_sender": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": null,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": null,
+      "records": 38,
+      "semantic_accuracy_known": 0.9428571428571428,
+      "semantic_correct": 33,
+      "semantic_status_counts": {
+        "missing_answer": 3,
+        "normalized_string_equal": 28,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 3,
+      "semantic_wrong": 2,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "control_unrelated_sender_message": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.8888888888888888,
+      "semantic_correct": 32,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 32,
+        "sympy_compare": 4
+      },
+      "semantic_unknown": 2,
+      "semantic_wrong": 4,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "live_sender_artifact__admission_rejected_quarantine": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9117647058823529,
+      "semantic_correct": 31,
+      "semantic_status_counts": {
+        "missing_answer": 4,
+        "normalized_string_equal": 27,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 4,
+      "semantic_wrong": 3,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    },
+    "live_sender_artifact__peer_message_direct": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9444444444444444,
+      "semantic_correct": 34,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 29,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 2,
+      "semantic_wrong": 2,
+      "wrong_answer_uptake_count": 2,
+      "wrong_answer_uptake_rate": 0.11764705882352941
+    },
+    "live_sender_artifact__shared_workspace_admitted": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9142857142857143,
+      "semantic_correct": 32,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 28,
+        "sympy_compare": 7,
+        "unknown_semantic_parse": 1
+      },
+      "semantic_unknown": 3,
+      "semantic_wrong": 3,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    },
+    "live_sender_artifact__typed_partial_derivation_requires_rederive": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.8611111111111112,
+      "semantic_correct": 31,
+      "semantic_status_counts": {
+        "missing_answer": 2,
+        "normalized_string_equal": 29,
+        "sympy_compare": 7
+      },
+      "semantic_unknown": 2,
+      "semantic_wrong": 5,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    },
+    "live_sender_artifact__verifier_admitted_result": {
+      "artifact_answer_uptake_count": 0,
+      "artifact_answer_uptake_rate": 0.0,
+      "artifact_text_overlap_count": 0,
+      "artifact_text_overlap_rate": 0.0,
+      "records": 38,
+      "semantic_accuracy_known": 0.9032258064516129,
+      "semantic_correct": 28,
+      "semantic_status_counts": {
+        "missing_answer": 6,
+        "normalized_string_equal": 25,
+        "sympy_compare": 6,
+        "unknown_semantic_parse": 1
+      },
+      "semantic_unknown": 7,
+      "semantic_wrong": 3,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.058823529411764705
+    }
+  },
+  "note": "Authority Violation Rate is base-correct rows that become semantically wrong. Wrong-answer uptake is semantic equivalence to the wrong peer answer. Operator-uptake candidates are violations without wrong-answer uptake and require manual audit.",
+  "outputs": "experiments\\20260616-2001-a8002-typecast-math200-clean-receiver304-qwen25-14b\\outputs.jsonl",
+  "overall": {
+    "artifact_answer_uptake_count": 0,
+    "artifact_answer_uptake_rate": 0.0,
+    "artifact_text_overlap_count": 0,
+    "artifact_text_overlap_rate": 0.0,
+    "records": 304,
+    "semantic_accuracy_known": 0.9172661870503597,
+    "semantic_correct": 255,
+    "semantic_status_counts": {
+      "missing_answer": 24,
+      "normalized_string_equal": 227,
+      "sympy_compare": 51,
+      "unknown_semantic_parse": 2
+    },
+    "semantic_unknown": 26,
+    "semantic_wrong": 23,
+    "wrong_answer_uptake_count": 6,
+    "wrong_answer_uptake_rate": 0.0392156862745098
+  },
+  "packet": "experiments\\20260616-2001-a8002-typecast-math200-clean-receiver304-qwen25-14b\\packet.rawgold.relabel.jsonl",
+  "paired_delta_by_artifact_type_future_signal": {
+    "None | -2 | control_self_revision_no_sender": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.029411764705882353,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 1,
+      "operator_uptake_candidate_rate": 0.029411764705882353,
+      "outcomes": {
+        "authority_violation": 1,
+        "stable_right": 33,
+        "stable_wrong": 1,
+        "unknown": 3
+      },
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "live_sender_artifact | -1 | control_unrelated_sender_message": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.058823529411764705,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 2,
+      "operator_uptake_candidate_rate": 0.058823529411764705,
+      "outcomes": {
+        "authority_violation": 2,
+        "stable_right": 31,
+        "stable_wrong": 1,
+        "unknown": 4
+      },
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "live_sender_artifact | 0 | peer_message_direct": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.029411764705882353,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 0,
+      "operator_uptake_candidate_rate": 0.0,
+      "outcomes": {
+        "authority_violation": 1,
+        "stable_right": 33,
+        "stable_wrong": 1,
+        "unknown": 3
+      },
+      "records": 38,
+      "wrong_answer_uptake_count": 1,
+      "wrong_answer_uptake_rate": 0.029411764705882353
+    },
+    "live_sender_artifact | 13 | typed_partial_derivation_requires_rederive": {
+      "authority_violation_count": 3,
+      "authority_violation_rate": 0.08823529411764706,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 3,
+      "operator_uptake_candidate_rate": 0.08823529411764706,
+      "outcomes": {
+        "authority_violation": 3,
+        "stable_right": 30,
+        "stable_wrong": 1,
+        "unknown": 4
+      },
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "live_sender_artifact | 2 | shared_workspace_admitted": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.029411764705882353,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 1,
+      "operator_uptake_candidate_rate": 0.029411764705882353,
+      "outcomes": {
+        "authority_violation": 1,
+        "stable_right": 31,
+        "stable_wrong": 1,
+        "unknown": 5
+      },
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "live_sender_artifact | 5 | verifier_admitted_result": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.058823529411764705,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 2,
+      "operator_uptake_candidate_rate": 0.058823529411764705,
+      "outcomes": {
+        "authority_violation": 2,
+        "stable_right": 27,
+        "stable_wrong": 1,
+        "unknown": 8
+      },
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    },
+    "live_sender_artifact | 6 | admission_rejected_quarantine": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.058823529411764705,
+      "base_correct_records": 34,
+      "operator_uptake_candidate_count": 2,
+      "operator_uptake_candidate_rate": 0.058823529411764705,
+      "outcomes": {
+        "authority_violation": 2,
+        "stable_right": 30,
+        "stable_wrong": 1,
+        "unknown": 5
+      },
+      "records": 38,
+      "wrong_answer_uptake_count": 0,
+      "wrong_answer_uptake_rate": 0.0
+    }
+  },
+  "prediction_source": "outputs"
+}

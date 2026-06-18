@@ -1,0 +1,40 @@
+[source-ledger] run_id=20260618-a8002-perspectivegap-source-ledger-rotated20-qwen25-7b
+[source-ledger] workspace=/data/xuhaoming/yfy/research_workspace
+[source-ledger] model=/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct served=qwen2.5-7b-perspectivegap-source-ledger gpu=7 port=8068
+[source-ledger] packet=/data/xuhaoming/yfy/research_workspace/experiments/20260618-local-perspectivegap-source-perturbation-v0/source_perturbation_rotated20.jsonl
+[source-ledger] max_tokens=1024 run_timeout=3600
+[source-ledger] gpu before:
+0, NVIDIA A800-SXM4-80GB, 3139, 78013, 0
+1, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+[source-ledger] server_pid=272776
+[source-ledger] vLLM ready after 15 checks
+[source-ledger] running prompts -> /data/xuhaoming/yfy/research_workspace/experiments/20260618-a8002-perspectivegap-source-ledger-rotated20-qwen25-7b/predictions.jsonl
+[source-ledger] runner_status=0
+[source-ledger] predictions=40
+[source-ledger] summary:
+evaluations: 40
+strict_pass: 0.0000 (0/40)
+required_coverage: 0.5741
+boundary_precision: 0.7452
+distractor_leakage: 0.3000
+budget_pass: 0.3500
+budget_overrun: 4.6500
+source_accuracy_on_tp: 1.0000
+visibility_accuracy_on_tp: 0.7000
+reject_recall: 1.0000
+needed_rejected: 0.0250
+[source-ledger] gpu after runner before cleanup:
+0, NVIDIA A800-SXM4-80GB, 3139, 78013, 0
+1, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 73733, 7419, 94

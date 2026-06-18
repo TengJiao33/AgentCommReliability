@@ -1,0 +1,40 @@
+[hard-routing-smoke] run_id=20260618-a8002-perspectivegap-hard-routing-smoke4-qwen25-7b
+[hard-routing-smoke] workspace=/data/xuhaoming/yfy/research_workspace
+[hard-routing-smoke] model=/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct served=qwen2.5-7b-perspectivegap-hard-smoke4 gpu=7 port=8065
+[hard-routing-smoke] packet=/data/xuhaoming/yfy/research_workspace/experiments/20260618-local-perspectivegap-hard-routing-v0/hard_packet_smoke4.jsonl
+[hard-routing-smoke] max_tokens=1536 run_timeout=1800
+[hard-routing-smoke] gpu before:
+0, NVIDIA A800-SXM4-80GB, 3139, 78013, 0
+1, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+[hard-routing-smoke] server_pid=185168
+[hard-routing-smoke] vLLM ready after 17 checks
+[hard-routing-smoke] running prompts -> /data/xuhaoming/yfy/research_workspace/experiments/20260618-a8002-perspectivegap-hard-routing-smoke4-qwen25-7b/predictions.jsonl
+[hard-routing-smoke] runner_status=0
+[hard-routing-smoke] predictions=4
+[hard-routing-smoke] summary:
+evaluations: 4
+strict_pass: 0.0000 (0/4)
+required_coverage: 0.4667
+boundary_precision: 0.8750
+distractor_leakage: 0.0000
+budget_pass: 1.0000
+budget_overrun: 0.0000
+source_accuracy_on_tp: 1.0000
+visibility_accuracy_on_tp: 0.1429
+reject_recall: 1.0000
+needed_rejected: 2.5000
+[hard-routing-smoke] gpu after runner before cleanup:
+0, NVIDIA A800-SXM4-80GB, 3139, 78013, 0
+1, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 72125, 9027, 94

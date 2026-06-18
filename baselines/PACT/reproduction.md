@@ -66,9 +66,9 @@ bash /data/xuhaoming/yfy/research_workspace/scripts/run_pact_hotpot_smoke_a8002.
 
 ## Outputs
 
-- 5-sample local record: `experiments/20260614-1055-a8002-pact-qwen25-7b-hotpot5/`
-- 50-sample local record: `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/`
-- report: `reports/20260614-pact-hotpot-smoke.md`
+- 5-sample local record: `experiments/_archive/20260616-pruned/20260614-1055-a8002-pact-qwen25-7b-hotpot5/`
+- 50-sample local record: `experiments/_archive/20260616-pruned/20260614-1100-a8002-pact-qwen25-14b-hotpot50/`
+- report: `reports/_archive/20260616-pruned/20260614-pact-hotpot-smoke.md`
 - trace: upstream JSONL includes per-turn agent prompts, input token IDs/tokens, raw outputs, and token counts
 
 ## What Happened
@@ -165,6 +165,6 @@ bash /data/xuhaoming/yfy/research_workspace/scripts/run_pact_hotpot_smoke_a8002.
 
 ## Loose Threads
 
-- Use `experiments/20260614-1536-a8002-pact-qwen25-14b-hotpot50-final-contract/` before scaling; answer-contract and public-state-selection confounds are still too large to interpret EM as pure reasoning failure.
-- Use `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/` as the neighboring-slice check before making any broad claim about the final-answer contract.
+- Use `experiments/_archive/20260616-pruned/20260614-1536-a8002-pact-qwen25-14b-hotpot50-final-contract/` before scaling; answer-contract and public-state-selection confounds are still too large to interpret EM as pure reasoning failure.
+- Use `experiments/_archive/20260616-pruned/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/` as the neighboring-slice check before making any broad claim about the final-answer contract.
 - If closer reproduction matters, locate Qwen3-14B or run a larger Qwen2.5-14B slice.

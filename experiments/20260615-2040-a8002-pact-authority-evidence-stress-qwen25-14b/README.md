@@ -11,7 +11,7 @@ Date: 2026-06-15
 - GPU: `7`
 - Port: `8035`
 - Runner: `scripts/run_pact_authority_evidence_stress_a8002.sh`
-- Packet: `experiments/20260615-local-pact-authority-evidence-stress-packet/stress_packet.jsonl`
+- Packet: `experiments/_archive/20260616-pruned/20260615-local-pact-authority-evidence-stress-packet/stress_packet.jsonl`
 - Prompt rows: `200`
 - Source cases: `40`
 - Temperature: `0`

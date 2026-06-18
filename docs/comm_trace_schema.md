@@ -91,7 +91,7 @@ python scripts/extract_comm_trace_schema.py moc \
   --task-regime saturated_arithmetic \
   --public-state-surface compressed_summary \
   --communication-policy topology_merge \
-  --out /data/xuhaoming/yfy/research_workspace/experiments/20260613-1425-a8002-moc-qwen25-7b-gsm8k-hop2-forcedmerge-smoke/comm_trace_moc.jsonl
+  --out /data/xuhaoming/yfy/research_workspace/experiments/_archive/20260616-pruned/20260613-1425-a8002-moc-qwen25-7b-gsm8k-hop2-forcedmerge-smoke/comm_trace_moc.jsonl
 ```
 
 Future MOC runs with `baselines/MOC/patches/a8002-comm-trace-events.patch` should set `MOC_COMM_TRACE_JSONL` during the run and pass it back into extraction:
@@ -121,19 +121,19 @@ PACT:
 ```bash
 python scripts/extract_comm_trace_schema.py pact \
   --run-id 20260614-1100-a8002-pact-qwen25-14b-hotpot50-v11 \
-  --result-jsonl experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/pact_qwen25_14b_hotpot50.jsonl \
+  --result-jsonl experiments/_archive/20260616-pruned/20260614-1100-a8002-pact-qwen25-14b-hotpot50/pact_qwen25_14b_hotpot50.jsonl \
   --method pact_action_state \
   --task-regime split_evidence_qa \
   --public-state-surface action_state \
   --communication-policy alternating_action_state \
-  --out experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl
+  --out experiments/_archive/20260616-pruned/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl
 ```
 
 ## Current Verified Outputs
 
 | Method family | Rows | Output |
 | --- | ---: | --- |
-| MOC | 5 | `/data/xuhaoming/yfy/research_workspace/experiments/20260613-1425-a8002-moc-qwen25-7b-gsm8k-hop2-forcedmerge-smoke/comm_trace_moc.jsonl` |
+| MOC | 5 | `/data/xuhaoming/yfy/research_workspace/experiments/_archive/20260616-pruned/20260613-1425-a8002-moc-qwen25-7b-gsm8k-hop2-forcedmerge-smoke/comm_trace_moc.jsonl` |
 | MOC instrumented | 1 | `/data/xuhaoming/yfy/research_workspace/results/unified-traces/moc-trace-instrumentation-n1.comm_trace.jsonl` |
 | MOC hop1 instrumented | 5 | `/data/xuhaoming/yfy/research_workspace/results/unified-traces/moc-hopcheck-hop1-n5.comm_trace.jsonl` |
 | MOC hop2 instrumented | 5 | `/data/xuhaoming/yfy/research_workspace/results/unified-traces/moc-hopcheck-hop2-n5.comm_trace.jsonl` |
@@ -149,17 +149,17 @@ python scripts/extract_comm_trace_schema.py pact \
 | DAR guarded answer-only | 100 | `/data/xuhaoming/yfy/research_workspace/results/unified-traces/dar-guarded-answer-diversity-gsm8k100-20260613_2038.comm_trace.jsonl` |
 | DAR answer-only no guard | 100 | `/data/xuhaoming/yfy/research_workspace/results/unified-traces/dar-answer-only-noguard-gsm8k100-20260613_2143.comm_trace.jsonl` |
 | DAR guard full | 100 | `/data/xuhaoming/yfy/research_workspace/results/unified-traces/dar-guard-full-gsm8k100-20260613_2143.comm_trace.jsonl` |
-| CommunicationRegimeHarness | 100 | `experiments/20260614-1214-local-comm-regime-symbolic-smoke/communication_regime_records.jsonl` |
-| MOCRoleCompressionProbe | 30 | `experiments/20260614-1832-local-moc-role-sensitive-split-evidence-probe/comm_trace_moc_role_probe_v11.jsonl` |
-| MOCMergePromptRoleAudit | 60 | `experiments/20260614-1913-a8002-moc-merge-prompt-role-audit/comm_trace_moc_merge_prompt_role_audit_v11.jsonl` |
-| DAR original v1.1 labels | 100 | `experiments/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/comm_trace_dar_v11.jsonl` |
-| DAR guarded answer-only v1.1 labels | 100 | `experiments/20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100/comm_trace_dar_guarded_v11.jsonl` |
-| DAR answer-only no-guard v1.1 labels | 100 | `experiments/20260613-2143-a8002-dar-retention-split-gsm8k100/comm_trace_answer_only_noguard_v11.jsonl` |
-| DAR guard-full v1.1 labels | 100 | `experiments/20260613-2143-a8002-dar-retention-split-gsm8k100/comm_trace_guard_full_v11.jsonl` |
-| MOC hop1 v1.1 labels | 5 | `experiments/20260613-1740-a8002-moc-hopcheck-n5/comm_trace_hop1_v11.jsonl` |
-| MOC hop2 v1.1 labels | 5 | `experiments/20260613-1740-a8002-moc-hopcheck-n5/comm_trace_hop2_v11.jsonl` |
-| MAD-MM MATH50 v1.1 labels | 200 | `experiments/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/comm_trace_madmm_math50_v11.jsonl` |
-| PACT HotpotQA50 v1.1 labels | 50 | `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl` |
+| CommunicationRegimeHarness | 100 | `experiments/_archive/20260616-pruned/20260614-1214-local-comm-regime-symbolic-smoke/communication_regime_records.jsonl` |
+| MOCRoleCompressionProbe | 30 | `experiments/_archive/20260616-pruned/20260614-1832-local-moc-role-sensitive-split-evidence-probe/comm_trace_moc_role_probe_v11.jsonl` |
+| MOCMergePromptRoleAudit | 60 | `experiments/_archive/20260616-pruned/20260614-1913-a8002-moc-merge-prompt-role-audit/comm_trace_moc_merge_prompt_role_audit_v11.jsonl` |
+| DAR original v1.1 labels | 100 | `experiments/_archive/20260616-pruned/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/comm_trace_dar_v11.jsonl` |
+| DAR guarded answer-only v1.1 labels | 100 | `experiments/_archive/20260616-pruned/20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100/comm_trace_dar_guarded_v11.jsonl` |
+| DAR answer-only no-guard v1.1 labels | 100 | `experiments/_archive/20260616-pruned/20260613-2143-a8002-dar-retention-split-gsm8k100/comm_trace_answer_only_noguard_v11.jsonl` |
+| DAR guard-full v1.1 labels | 100 | `experiments/_archive/20260616-pruned/20260613-2143-a8002-dar-retention-split-gsm8k100/comm_trace_guard_full_v11.jsonl` |
+| MOC hop1 v1.1 labels | 5 | `experiments/_archive/20260616-pruned/20260613-1740-a8002-moc-hopcheck-n5/comm_trace_hop1_v11.jsonl` |
+| MOC hop2 v1.1 labels | 5 | `experiments/_archive/20260616-pruned/20260613-1740-a8002-moc-hopcheck-n5/comm_trace_hop2_v11.jsonl` |
+| MAD-MM MATH50 v1.1 labels | 200 | `experiments/_archive/20260616-pruned/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/comm_trace_madmm_math50_v11.jsonl` |
+| PACT HotpotQA50 v1.1 labels | 50 | `experiments/_archive/20260616-pruned/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl` |
 
 The older DAR trace has only 10 rows because that run saved only the first 10 histories. The instrumented DAR check confirms full-history saving and per-round retention events.
 

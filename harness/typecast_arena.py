@@ -248,19 +248,24 @@ def remove_candidate_answer(text: Any, candidate_answer: Any) -> tuple[str, bool
 
     patterns = [
         r"\{final answer:\s*" + re.escape(answer) + r"\s*\}",
-        r"Final answer from this peer:\s*" + re.escape(answer),
+        r"(?im)^(\s*Final answer from this peer:\s*)" + re.escape(answer) + r"\s*$",
+        r"(?im)^(\s*Sender candidate answer:\s*)" + re.escape(answer) + r"\s*$",
+        r"(?im)^(\s*candidate_answer:\s*)" + re.escape(answer) + r"\s*$",
+        r"(?im)^(\s*final_answer:\s*)" + re.escape(answer) + r"\s*$",
         r"I think the final answer is\s*" + re.escape(answer) + r"\.?",
     ]
     cleaned = source
     removed = False
     for pattern in patterns:
-        cleaned_next, count = re.subn(pattern, "[candidate answer removed]", cleaned, flags=re.IGNORECASE)
+        cleaned_next, count = re.subn(
+            pattern,
+            lambda match: (match.group(1) if match.groups() else "") + "[candidate answer removed]",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
         if count:
             cleaned = cleaned_next
             removed = True
-    if not removed and literal_in_text(answer, source):
-        cleaned = source.replace(answer, "[candidate answer removed]")
-        removed = cleaned != source
     return cleaned.strip(), removed
 
 

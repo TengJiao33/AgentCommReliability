@@ -33,21 +33,21 @@ Next:
 - Main log: `/data/xuhaoming/yfy/research_workspace/logs/madmm_standard_main_20260612_143417.log`.
 - First observed result: `qwen2.5-14b/gsm8k/cot_seed41`.
 - Stopped `madmm_standard_main` shortly after launch because the estimated full run would occupy shared GPUs too long. GPUs 2-5 were released.
-- Run note: `experiments/20260612-1403-a8002-madmm-qwen25-standard-main/README.md`.
+- Run note: `experiments/_archive/20260616-pruned/20260612-1403-a8002-madmm-qwen25-standard-main/README.md`.
 - Prepared a bounded short subset launcher using one GPU only: `/data/xuhaoming/yfy/research_workspace/scripts/run_madmm_short_subset_a8002.sh`.
-- Short subset note: `experiments/20260612-a8002-madmm-qwen25-14b-gsm8k-short-subset/README.md`.
+- Short subset note: `experiments/_archive/20260616-pruned/20260612-a8002-madmm-qwen25-14b-gsm8k-short-subset/README.md`.
 - Completed short-subset CoT on `qwen2.5-14b/gsm8k`, seed `41`, 100 samples: accuracy `0.94`, total tokens `37990`.
 - Completed short-subset MAD naive communication on the same setup: accuracy `0.96`, total tokens `441846`.
 - Completed short-subset MAD-MM objective masking on the same setup: accuracy `0.95`, total tokens `304287`.
 - Completed short-subset MAD-MM subjective masking on the same setup: accuracy `0.96`, total tokens `600499`.
 - Current evidence is short-subset evidence only; next useful work is trace-level case analysis before launching more GPU jobs.
-- Added first insight report: `reports/20260612-madmm-short-subset-first-insights.md`.
+- Added first insight report: `reports/_archive/20260616-pruned/20260612-madmm-short-subset-first-insights.md`.
 - Downloaded MAD-MM arXiv PDF to `papers/mad-mm/2603.20215.pdf`.
 - Added paper card: `papers/cards/mad-mm.md`.
 - Expanded MAD-MM paper card with method, masking strategies, experimental setup, main findings, and how the paper maps to our short-subset results.
 - Pulled `D:\develop\ArXiv_Daily_Digest` with `git pull --ff-only`; fast-forwarded to commit `8f754e1`.
 - Scanned `multi-agent-consistency`, `agent-skills-harness`, and `agent-policy-optimization` for 2026-W23/W24 multi-agent candidates.
-- Added frontier scan report: `reports/20260612-multi-agent-frontier-scan.md`.
+- Added frontier scan report: `reports/_archive/20260616-pruned/20260612-multi-agent-frontier-scan.md`.
 - Updated reading queue with P0 follow-ups: MOC, SMADE-IE, Dynamic Coordination Strategy Selection, and Monitoring Agentic Systems Before They're Reliable.
 - Reorganized the documentation system around objective evidence:
   - added `docs/documentation_system.md`;
@@ -60,7 +60,7 @@ Next:
   - updated README, reports README, experiments README, experiment protocol, and reproduction recording standard to point to the new structure.
 - Copied MAD-MM short-subset raw result JSONs from A800_2 to local ignored `raw_results/` for trace inspection only.
 - Added `scripts/extract_madmm_trace_cases.py` and generated `trace_cases_summary.json`.
-- Added trace-level report: `reports/20260612-madmm-trace-message-retention.md`.
+- Added trace-level report: `reports/_archive/20260616-pruned/20260612-madmm-trace-message-retention.md`.
 - Trace inspection found that objective masking selected only wrong memory in cases `214` and `1227`; subjective masking also dropped the only correct first-round memory in `1227`.
 - Selected DAR / Diversity-Aware Retention as the next candidate to inspect because its code exposes an explicit disagreement-oriented retention rule.
 - Added DAR paper card and baseline notes.
@@ -70,13 +70,13 @@ Next:
   - Qwen2.5-1.5B non-Instruct smoke completed but produced invalid outputs.
   - Qwen2.5-7B-Instruct basic smoke completed on 2 arithmetics samples.
   - Qwen2.5-7B-Instruct `filter_critical` smoke completed on 2 arithmetics samples and wrote retained-ID token logs.
-- Added DAR smoke run record: `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-smoke/`.
+- Added DAR smoke run record: `experiments/_archive/20260616-pruned/20260612-a8002-dar-qwen25-7b-arithmetics-smoke/`.
 - Completed DAR 100-sample arithmetics short matrix on A800_2 with Qwen2.5-7B-Instruct:
   - Basic MAD: round accuracies `[0.99, 0.98]`.
   - Top-K uncertainty `0.5`: round accuracies `[0.97, 0.94]`.
   - DAR `filter_critical`: round accuracies `[0.99, 0.99]`.
-- Added DAR short matrix run record: `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-short-matrix/`.
-- Added short matrix report: `reports/20260612-dar-arithmetics-short-matrix.md`.
+- Added DAR short matrix run record: `experiments/_archive/20260616-pruned/20260612-a8002-dar-qwen25-7b-arithmetics-short-matrix/`.
+- Added short matrix report: `reports/_archive/20260616-pruned/20260612-dar-arithmetics-short-matrix.md`.
 - Started DAR GSM8K continuation preflight:
   - A800_2 reachable as `10-116-90-20`.
   - GPU 4 was observed mostly free.
@@ -96,8 +96,8 @@ Next:
   - DAR `filter_critical`: round accuracies `[0.95, 0.93]`.
   - `filter_critical` retained-ID distribution: 1 retained ID for 64 samples, 2 for 27 samples, 3 for 9 samples.
   - `filter_critical` filter-token total: `113,657`.
-- Added DAR GSM8K short matrix run record: `experiments/20260612-a8002-dar-qwen25-7b-gsm8k-short-matrix/`.
-- Added short matrix report: `reports/20260612-dar-gsm8k-short-matrix.md`.
+- Added DAR GSM8K short matrix run record: `experiments/_archive/20260616-pruned/20260612-a8002-dar-qwen25-7b-gsm8k-short-matrix/`.
+- Added short matrix report: `reports/_archive/20260616-pruned/20260612-dar-gsm8k-short-matrix.md`.
 
 ## 2026-06-13 MOC Smoke Reproduction
 
@@ -122,8 +122,8 @@ Next:
   - `papers/cards/moc.md`
   - `baselines/MOC/source.md`
   - `baselines/MOC/reproduction.md`
-  - `experiments/20260613-a8002-moc-qwen25-7b-gsm8k-topology5/`
-  - `reports/20260613-moc-gsm8k-topology-smoke.md`
+  - `experiments/_archive/20260616-pruned/20260613-a8002-moc-qwen25-7b-gsm8k-topology5/`
+  - `reports/_archive/20260616-pruned/20260613-moc-gsm8k-topology-smoke.md`
 - Caveat: this is setup/topology smoke evidence only. The run used `neighbor_hops=1`, hash embeddings, and did not trigger structural message consolidation.
 - Next useful check: adapt `merge_multiple_messages` away from hard-coded Ollama and run a forced-merge `neighbor_hops=2` smoke.
 
@@ -137,7 +137,7 @@ Next:
 - Started vLLM on GPU 1. The first 4096-context service reached the structural merge branch but failed at final decision because the merged prompt exceeded the context budget.
 - Restarted vLLM with `--max-model-len 8192`.
 - Completed MOC forced-merge smoke:
-  - run record: `experiments/20260613-1425-a8002-moc-qwen25-7b-gsm8k-hop2-forcedmerge-smoke/`
+  - run record: `experiments/_archive/20260616-pruned/20260613-1425-a8002-moc-qwen25-7b-gsm8k-hop2-forcedmerge-smoke/`
   - setting: GSM8K, `Chain`, 5 agents, `neighbor_hops=2`, `ism_r=0`, `ism_kppa=45`.
   - n=1 preflight: accuracy `1/1`, total tokens `5,894`, compressed tokens `13,846`.
   - n=5 run: accuracy `5/5`, total tokens `22,718`, compressed tokens `50,906`.
@@ -150,7 +150,7 @@ Next:
   - MOC forced merge: 5 JSONL rows.
   - MAD-MM short subset: 400 JSONL rows; baseline comparison against COT includes `wrong_to_right=6` and `right_to_wrong=1`.
   - DAR filter-critical GSM8K history: 10 JSONL rows; limited by the saved first-10 histories, with 1 observed `right_to_wrong`.
-- Added short report: `reports/20260613-moc-forced-merge-smoke.md`.
+- Added short report: `reports/_archive/20260616-pruned/20260613-moc-forced-merge-smoke.md`.
 
 ## 2026-06-13 RuleArena Benchmark Pressure Setup
 
@@ -222,7 +222,7 @@ Next:
   - DAR: `a8002-filter-retention-history.patch`; `src/dev.py` and `src/main.py` pass `py_compile`.
 - Started temporary MOC vLLM server on GPU 7, port `8027`, served as `qwen2.5-7b-trace`; stopped it after the MOC check and confirmed GPU 7 was released.
 - Completed MOC trace instrumentation n=1 forced-merge check:
-  - run record: `experiments/20260613-1718-a8002-trace-instrumentation-check/`
+  - run record: `experiments/_archive/20260616-pruned/20260613-1718-a8002-trace-instrumentation-check/`
   - accuracy `1/1`, total tokens `5,822`, compressed tokens `13,602`.
   - sidecar `moc_comm_events.jsonl` has 7 events: 3 `ism_merge`, 4 `ism_result`.
   - unified trace has 1 row with 7 `communication_events`.
@@ -238,7 +238,7 @@ Next:
 ## 2026-06-13 DAR Full-History And MOC Hop Trace Checks
 
 - Reran DAR GSM8K 100-sample `filter_critical` with `--save_full_history` on A800_2 GPU 7:
-  - run record: `experiments/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/`
+  - run record: `experiments/_archive/20260616-pruned/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/`
   - round 0 accuracy `0.95`; round 1 accuracy `0.93`.
   - unified trace has 100 rows and 100 retention events.
   - transition counts: 92 `stable_right`, 3 `right_to_wrong`, 1 `wrong_to_right`, 4 `stable_wrong`.
@@ -246,7 +246,7 @@ Next:
   - `filter_critical` dropped at least one correct first-round agent in 84 samples and all correct first-round agents in 13 samples.
   - filter-token total matched the earlier short matrix: `113,657`.
 - Ran MOC n=5 hop-depth trace check on A800_2 GPU 7 with temporary vLLM port `8028`; stopped vLLM and confirmed GPU 7 was released:
-  - run record: `experiments/20260613-1740-a8002-moc-hopcheck-n5/`
+  - run record: `experiments/_archive/20260616-pruned/20260613-1740-a8002-moc-hopcheck-n5/`
   - hop1: `5/5`, total tokens `20,977`, compressed tokens `0`, 20 `ism_result` events and no merge.
   - hop2 forced merge: `5/5`, total tokens `22,422`, compressed tokens `50,699`, 20 `ism_result` events and 15 `ism_merge` events.
   - unified traces:
@@ -299,7 +299,7 @@ Next:
   - retained all 3 memories in 35 samples; retained none in 2 samples.
   - dropped at least one correct round-0 agent in 1 sample and all correct round-0 agents in the same sample.
 - Added run record:
-  - `experiments/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/`
+  - `experiments/_archive/20260616-pruned/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/`
 - Working interpretation:
   - This MATH probe exposed a much wider communication-method spread than the earlier saturated GSM8K short subset, so benchmark pressure is a faster way to see gaps before spending time on larger matrices.
   - Subjective masking remained a poor tradeoff on this slice: it was the most expensive method and did not beat naive MAD, while objective masking was both cheaper and more accurate.
@@ -310,7 +310,7 @@ Next:
   - MAD-MM MATH50 cases `494`, `1237`, and `2965`.
   - DAR GSM8K100 full-history cases `5`, `20`, `22`, and contrast case `37`.
 - Added short report:
-  - `reports/20260613-madmm-dar-trace-case-followup.md`
+  - `reports/_archive/20260616-pruned/20260613-madmm-dar-trace-case-followup.md`
 - Case-level observations:
   - MAD-MM objective masking can help by retaining the only correct first-round answer, but it can also help by retaining an incomplete or wrong-looking reasoning scaffold that the next round completes.
   - DAR `filter_critical` right-to-wrong cases include direct bad-retention failures and continuation/parser failures after apparently useful retention.
@@ -321,7 +321,7 @@ Next:
 
 - Hand-labeled retained/dropped message roles for selected MAD-MM MATH50 and DAR GSM8K100 trace cases.
 - Added report:
-  - `reports/20260613-retained-message-role-audit.md`
+  - `reports/_archive/20260616-pruned/20260613-retained-message-role-audit.md`
 - Cases covered:
   - MAD-MM: objective cases `494`, `1237`, `2965`; subjective cases `570`, `843`, `1237`, `494`.
   - DAR: `5`, `20`, `22`, `37`.
@@ -343,12 +343,12 @@ Next:
   - simulates a post-filter guard over unified traces without rerunning any model.
   - rule: record empty retention as reset, avoid retaining only unparseable messages when parseable alternatives exist, and add representatives from missing parseable answer buckets.
 - Ran the script over:
-  - `experiments/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/comm_trace_madmm_math50.jsonl`
-  - `experiments/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/comm_trace_dar.jsonl`
+  - `experiments/_archive/20260616-pruned/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/comm_trace_madmm_math50.jsonl`
+  - `experiments/_archive/20260616-pruned/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/comm_trace_dar.jsonl`
 - Added local run record:
-  - `experiments/20260613-guarded-retention-offline-simulation/`
+  - `experiments/_archive/20260616-pruned/20260613-guarded-retention-offline-simulation/`
 - Added short report:
-  - `reports/20260613-guarded-retention-offline-simulation.md`
+  - `reports/_archive/20260616-pruned/20260613-guarded-retention-offline-simulation.md`
 - Main `max_retained=3` results:
   - DAR `filter_critical`: 17 of 100 retained sets changed; 13 cases recovered at least one correct first-round message that the original filter missed; 2 of 3 right-to-wrong cases were selection failures addressed by the guard.
   - MAD-MM objective: 25 of 50 retained sets changed; 1 case recovered a correct first-round message, but this mostly makes objective masking less sparse.
@@ -396,8 +396,8 @@ Next:
   - original right-to-wrong sample `5` became stable-right even though retained IDs did not change, suggesting the answer-only message surface helped with the prior continuation/parser failure.
   - original right-to-wrong sample `20` remained right-to-wrong even after adding correct `Agent1`, so answer diversity alone is not sufficient.
 - Added run record and report:
-  - `experiments/20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100/`
-  - `reports/20260613-dar-guarded-answer-diversity-run.md`
+  - `experiments/_archive/20260616-pruned/20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100/`
+  - `reports/_archive/20260616-pruned/20260613-dar-guarded-answer-diversity-run.md`
 
 ## 2026-06-13 MAD-MM Benchmark Sweep
 
@@ -420,8 +420,8 @@ Next:
   - `/data/xuhaoming/yfy/research_workspace/results/unified-traces/madmm-benchmark-sweep-20260613_205520-aime24-all.comm_trace.jsonl`
   - `/data/xuhaoming/yfy/research_workspace/results/unified-traces/madmm-benchmark-sweep-20260613_205520-aime25-all.comm_trace.jsonl`
 - Added local run record and report:
-  - `experiments/20260613-2055-a8002-madmm-benchmark-sweep/`
-  - `reports/20260613-madmm-benchmark-atlas.md`
+  - `experiments/_archive/20260616-pruned/20260613-2055-a8002-madmm-benchmark-sweep/`
+  - `reports/_archive/20260616-pruned/20260613-madmm-benchmark-atlas.md`
 - Updated `scripts/extract_comm_trace_schema.py` to compare textual labels case-insensitively, fixing MMLU-Pro trace correctness for lower-case model predictions against upper-case gold labels.
 
 ## 2026-06-13 DAR Retention Split Ablation
@@ -447,8 +447,8 @@ Next:
   - `guard_full` recovered samples `5`, `20`, and `22`.
   - sample `20` stayed wrong under answer-only but became correct when the guard added correct `Agent1` and full retained reasoning was visible.
 - Added local run record and report:
-  - `experiments/20260613-2143-a8002-dar-retention-split-gsm8k100/`
-  - `reports/20260613-dar-retention-split-ablation.md`
+  - `experiments/_archive/20260616-pruned/20260613-2143-a8002-dar-retention-split-gsm8k100/`
+  - `reports/_archive/20260616-pruned/20260613-dar-retention-split-ablation.md`
 
 ## 2026-06-14 DAR Sample 20 Retained Surface Check
 
@@ -464,7 +464,7 @@ Next:
 - The answer-only variants remained right-to-wrong, ending at `12`, even when the guard added Agent1.
 - `guard_full` became stable-right because full retained reasoning let Agent2 switch to `7`; Agent3 still emitted `{final answer: 700}` despite reasoning toward `$7.00`.
 - Added short note:
-  - `reports/20260614-dar-sample20-retained-surface-note.md`
+  - `reports/_archive/20260616-pruned/20260614-dar-sample20-retained-surface-note.md`
 - Working next check:
   - try an intermediate retained surface such as parsed answer plus short calculation/evidence before expanding GSM8K or running a harder matrix.
 
@@ -492,9 +492,9 @@ Next:
   - no `<think>` spans appeared, so this run did not exercise private-reasoning stripping;
   - 7 yes/no wrong-EM cases began with the correct yes/no answer, and 8 non-yes/no wrong-EM cases began with the normalized gold answer but added extra text.
 - Added local run records and report:
-  - `experiments/20260614-1055-a8002-pact-qwen25-7b-hotpot5/`
-  - `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/`
-  - `reports/20260614-pact-hotpot-smoke.md`
+  - `experiments/_archive/20260616-pruned/20260614-1055-a8002-pact-qwen25-7b-hotpot5/`
+  - `experiments/_archive/20260616-pruned/20260614-1100-a8002-pact-qwen25-14b-hotpot50/`
+  - `reports/_archive/20260616-pruned/20260614-pact-hotpot-smoke.md`
 - Completed follow-up checks:
   - the PACT trace extractor, final-answer surface audit, evidence-field audit, extraction-only audit, and stable-wrong follow-up now exist; inspect the five unrecovered-output cases and one polarity mismatch before treating EM as pure reasoning failure or scaling HotpotQA.
 
@@ -502,7 +502,7 @@ Next:
 
 - Updated the project-level reproduction skill so it explicitly distinguishes contact, literature-pressure, and synthesis modes.
 - Added synthesis report:
-  - `reports/20260614-communication-regimes-synthesis.md`
+  - `reports/_archive/20260616-pruned/20260614-communication-regimes-synthesis.md`
 - The report reframes the current project away from local message-retention variants as the default next move.
 - Current working frame:
   - decide when LLM agents should communicate;
@@ -542,7 +542,7 @@ Next:
   - `baselines/M2CL/README.md`
   - `baselines/M2CL/source.md`
   - `baselines/M2CL/reproduction.md`
-  - `reports/20260614-m2cl-code-contact.md`
+  - `reports/_archive/20260616-pruned/20260614-m2cl-code-contact.md`
 - Added evidence-register row `E-026`.
 - Working interpretation:
   - do not treat M2CL as the next GPU reproduction target yet;
@@ -558,7 +558,7 @@ Next:
 - Added reserved `context_events` field for generated or assigned recipient context states.
 - Updated `docs/comm_trace_schema.md` with the new fields and example labels.
 - At this point the new field was reserved for future context-state data; later v1.1 re-extractions populated derived `context_events` from MAD-MM masks, DAR retention events, and MOC ISM sidecars.
-- Verified `scripts/extract_comm_trace_schema.py` with `py_compile`, subcommand help checks, and a no-file-output DAR extraction smoke on `experiments/20260613-1718-a8002-trace-instrumentation-check/dar_history_gsm8k5_filtercritical.jsonl`.
+- Verified `scripts/extract_comm_trace_schema.py` with `py_compile`, subcommand help checks, and a no-file-output DAR extraction smoke on `experiments/_archive/20260616-pruned/20260613-1718-a8002-trace-instrumentation-check/dar_history_gsm8k5_filtercritical.jsonl`.
 - This is a small compatibility step toward the M2CL/context-alignment axis, not a new experiment result.
 
 ## 2026-06-14 Communication-Regime Harness Smoke
@@ -580,7 +580,7 @@ Next:
   - `route_or_silence`.
 - Ran smoke:
   - run id: `20260614-1214-local-comm-regime-symbolic-smoke`
-  - output: `experiments/20260614-1214-local-comm-regime-symbolic-smoke/`
+  - output: `experiments/_archive/20260616-pruned/20260614-1214-local-comm-regime-symbolic-smoke/`
   - records: 100 JSONL rows
   - schema: `acr.comm_trace.v1.1`
   - every record has 3 `context_events`.
@@ -589,7 +589,7 @@ Next:
   - `recall`, `state_tracking`, `k_hop`, and `conflict_evidence` are wrong under `independent_majority` and correct under `evidence_state` / `route_or_silence`;
   - `saturated_arithmetic` is already correct without communication, so communication changes no final answers and mostly adds token cost.
 - Added report:
-  - `reports/20260614-communication-regime-harness-smoke.md`
+  - `reports/_archive/20260616-pruned/20260614-communication-regime-harness-smoke.md`
 - Added evidence-register row `E-027`.
 
 ## 2026-06-14 Real Trace v1.1 Regime Labels
@@ -601,13 +601,13 @@ Next:
   - `mad_objective`: `masked_full_reasoning` / `objective_memory_mask`;
   - `mad_subjective`: `masked_full_reasoning` / `subjective_memory_mask`.
 - Outputs:
-  - `experiments/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/comm_trace_madmm_math50_v11.jsonl`
-  - `experiments/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/comm_trace_dar_v11.jsonl`
-  - `experiments/20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100/comm_trace_dar_guarded_v11.jsonl`
-  - `experiments/20260613-2143-a8002-dar-retention-split-gsm8k100/comm_trace_answer_only_noguard_v11.jsonl`
-  - `experiments/20260613-2143-a8002-dar-retention-split-gsm8k100/comm_trace_guard_full_v11.jsonl`
-  - `experiments/20260613-1740-a8002-moc-hopcheck-n5/comm_trace_hop1_v11.jsonl`
-  - `experiments/20260613-1740-a8002-moc-hopcheck-n5/comm_trace_hop2_v11.jsonl`
+  - `experiments/_archive/20260616-pruned/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/comm_trace_madmm_math50_v11.jsonl`
+  - `experiments/_archive/20260616-pruned/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/comm_trace_dar_v11.jsonl`
+  - `experiments/_archive/20260616-pruned/20260613-2038-a8002-dar-guarded-answer-diversity-gsm8k100/comm_trace_dar_guarded_v11.jsonl`
+  - `experiments/_archive/20260616-pruned/20260613-2143-a8002-dar-retention-split-gsm8k100/comm_trace_answer_only_noguard_v11.jsonl`
+  - `experiments/_archive/20260616-pruned/20260613-2143-a8002-dar-retention-split-gsm8k100/comm_trace_guard_full_v11.jsonl`
+  - `experiments/_archive/20260616-pruned/20260613-1740-a8002-moc-hopcheck-n5/comm_trace_hop1_v11.jsonl`
+  - `experiments/_archive/20260616-pruned/20260613-1740-a8002-moc-hopcheck-n5/comm_trace_hop2_v11.jsonl`
 - Labels applied:
   - MAD-MM MATH50: `math_reasoning` plus method-specific defaults for `cot`, `mad_naive`, `mad_objective`, and `mad_subjective`;
   - DAR original: `saturated_arithmetic`, `retained_full_reasoning`, `retained_subset`;
@@ -627,7 +627,7 @@ Next:
 - Caveat:
   - derived context events identify visible/suppressed source agents or represented merge sources, but they are not raw prompt-level recipient context.
 - Added report:
-  - `reports/20260614-real-trace-v11-regime-labels.md`
+  - `reports/_archive/20260616-pruned/20260614-real-trace-v11-regime-labels.md`
 - Added evidence-register row `E-028`.
 
 ## 2026-06-14 Derived Context Event Audit
@@ -636,7 +636,7 @@ Next:
   - `scripts/summarize_context_events.py`
 - Ran local audit without GPU:
   - run id: `20260614-1245-local-derived-context-event-audit`
-  - output: `experiments/20260614-1245-local-derived-context-event-audit/summary.json`
+  - output: `experiments/_archive/20260616-pruned/20260614-1245-local-derived-context-event-audit/summary.json`
   - input traces: 7
   - records: 610
   - rows with context events: 560
@@ -650,7 +650,7 @@ Next:
   - DAR guard variants: visible peer count distribution `1:53`, `2:35`, `3:12`;
   - MOC hop2: 15 of 20 target contexts contain a merge representing two source agents.
 - Added report:
-  - `reports/20260614-derived-context-event-audit.md`
+  - `reports/_archive/20260616-pruned/20260614-derived-context-event-audit.md`
 - Added evidence-register row `E-029`.
 
 ## 2026-06-14 DAR Context Failure Audit
@@ -659,7 +659,7 @@ Next:
   - `scripts/audit_dar_context_failures.py`
 - Ran CPU-only audit over four existing DAR schema v1.1 traces:
   - run id: `20260614-1248-local-dar-context-failure-audit`
-  - output: `experiments/20260614-1248-local-dar-context-failure-audit/`
+  - output: `experiments/_archive/20260616-pruned/20260614-1248-local-dar-context-failure-audit/`
   - records: 400
   - no model calls and no GPU use.
 - Inputs:
@@ -680,7 +680,7 @@ Next:
   - guarded answer-only fixes cases `5` and `22`, but still fails case `20`;
   - guard-full fixes cases `5`, `20`, and `22`.
 - Added report:
-  - `reports/20260614-dar-context-failure-audit.md`
+  - `reports/_archive/20260616-pruned/20260614-dar-context-failure-audit.md`
 - Added evidence-register row `E-030`.
 
 ## 2026-06-14 DAR Case 20 Surface Extract
@@ -689,7 +689,7 @@ Next:
   - `scripts/extract_dar_case_surface.py`
 - Ran CPU-only extraction for DAR GSM8K100 sample `20`:
   - run id: `20260614-1253-local-dar-case20-surface-extract`
-  - output: `experiments/20260614-1253-local-dar-case20-surface-extract/`
+  - output: `experiments/_archive/20260616-pruned/20260614-1253-local-dar-case20-surface-extract/`
   - no model calls and no GPU use.
 - Inputs:
   - original `filter_critical` history and v1.1 trace;
@@ -702,7 +702,7 @@ Next:
   - guarded answer-only adds Agent1's correct parsed answer but still ends wrong at `12.0`;
   - guard-full adds Agent1's full response and ends correct at `7.0`.
 - Updated:
-  - `reports/20260614-dar-sample20-retained-surface-note.md`
+  - `reports/_archive/20260616-pruned/20260614-dar-sample20-retained-surface-note.md`
 - Added evidence-register row `E-031`.
 
 ## 2026-06-14 DAR Typed Surface Preview
@@ -738,7 +738,7 @@ Next:
   - `scripts/align_public_state_surfaces.py`
 - Ran CPU-only alignment over:
   - DAR typed preview: `experiments/20260614-1258-local-dar-typed-surface-preview/typed_surface_preview.jsonl`
-  - PACT HotpotQA50 result: `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/pact_qwen25_14b_hotpot50.jsonl`
+  - PACT HotpotQA50 result: `experiments/_archive/20260616-pruned/20260614-1100-a8002-pact-qwen25-14b-hotpot50/pact_qwen25_14b_hotpot50.jsonl`
   - run id: `20260614-1304-local-public-state-surface-alignment`
   - output: `experiments/20260614-1304-local-public-state-surface-alignment/`
   - no model calls and no GPU use.
@@ -765,10 +765,10 @@ Next:
 
 - Extended `scripts/extract_comm_trace_schema.py` with a `pact` subcommand.
 - Re-extracted the existing PACT HotpotQA50 result into schema `acr.comm_trace.v1.1`:
-  - output: `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
+  - output: `experiments/_archive/20260616-pruned/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
   - no model calls and no GPU use.
 - Command:
-  - `python scripts/extract_comm_trace_schema.py pact --run-id 20260614-1100-a8002-pact-qwen25-14b-hotpot50-v11 --result-jsonl experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/pact_qwen25_14b_hotpot50.jsonl --method pact_action_state --task-regime split_evidence_qa --public-state-surface action_state --communication-policy alternating_action_state --out experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
+  - `python scripts/extract_comm_trace_schema.py pact --run-id 20260614-1100-a8002-pact-qwen25-14b-hotpot50-v11 --result-jsonl experiments/_archive/20260616-pruned/20260614-1100-a8002-pact-qwen25-14b-hotpot50/pact_qwen25_14b_hotpot50.jsonl --method pact_action_state --task-regime split_evidence_qa --public-state-surface action_state --communication-policy alternating_action_state --out experiments/_archive/20260616-pruned/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
 - Validation:
   - rows: 50
   - communication events: 200
@@ -789,7 +789,7 @@ Next:
 - Added local audit script:
   - `scripts/audit_pact_final_answer_surface.py`
 - Ran CPU-only audit over:
-  - `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
+  - `experiments/_archive/20260616-pruned/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
   - output: `experiments/20260614-1314-local-pact-final-answer-surface-audit/`
   - no model calls and no GPU use.
 - Official EM remains `17/50`.
@@ -808,7 +808,7 @@ Next:
 - Added local audit script:
   - `scripts/audit_pact_evidence_fields.py`
 - Ran CPU-only field-level audit over:
-  - `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
+  - `experiments/_archive/20260616-pruned/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
   - output: `experiments/20260614-1326-local-pact-evidence-field-audit/`
   - no model calls and no GPU use.
 - Official EM remains `17/50`.
@@ -831,7 +831,7 @@ Next:
 - Added local audit script:
   - `scripts/audit_pact_extraction_only.py`
 - Ran CPU-only extraction audit over the corrected trace:
-  - `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
+  - `experiments/_archive/20260616-pruned/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
   - output: `experiments/20260614-1345-local-pact-extraction-only-audit/`
   - no model calls and no GPU use.
 - Official EM remains `17/50`.
@@ -889,7 +889,7 @@ Next:
 - Added local audit script:
   - `scripts/audit_pact_question_aware_extraction.py`
 - Ran CPU-only question-aware extraction probe over:
-  - `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
+  - `experiments/_archive/20260616-pruned/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
   - output: `experiments/20260614-1432-local-pact-question-aware-extraction/`
   - no model calls and no GPU use.
 - Diagnostic exact-match counts:
@@ -956,7 +956,7 @@ Next:
 - Added local postprocessing probe:
   - `scripts/audit_pact_public_state_arbitration.py`
 - Ran CPU-only arbitration policies over:
-  - trace: `experiments/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
+  - trace: `experiments/_archive/20260616-pruned/20260614-1100-a8002-pact-qwen25-14b-hotpot50/comm_trace_pact_v11.jsonl`
   - manual labels: `experiments/20260614-1507-local-pact-field-selection-case-inspection/manual_labels.jsonl`
   - output: `experiments/20260614-1518-local-pact-public-state-arbitration-probe/`
   - no model calls and no GPU use.
@@ -982,7 +982,7 @@ Next:
   - `scripts/run_pact_hotpot_smoke_a8002.sh`
 - Ran a real GPU PACT HotpotQA50 variant on A800_2 GPU 7:
   - model: `/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct`
-  - output: `experiments/20260614-1536-a8002-pact-qwen25-14b-hotpot50-final-contract/`
+  - output: `experiments/_archive/20260616-pruned/20260614-1536-a8002-pact-qwen25-14b-hotpot50-final-contract/`
   - remote result dir: `/data/xuhaoming/yfy/research_workspace/results/pact-qwen25-14b-hotpot50-final-contract-20260614_1536`
   - status: `RC=0`.
 - Main metrics:
@@ -1002,13 +1002,13 @@ Next:
   - `question_aware_summary.json`
   - `public_state_arbitration_summary.json`
 - Added report:
-  - `reports/20260614-pact-final-answer-contract-gpu.md`
+  - `reports/_archive/20260616-pruned/20260614-pact-final-answer-contract-gpu.md`
 - Added evidence-register row `E-044`.
 
 ## 2026-06-14 Current Evidence Checkpoint
 
 - Added a state checkpoint:
-  - `reports/20260614-current-evidence-checkpoint.md`
+  - `reports/_archive/20260616-pruned/20260614-current-evidence-checkpoint.md`
 - Purpose:
   - preserve the current messy evidence shape before more runs;
   - avoid forcing the PACT final-answer-contract observation into an immediate novelty claim;
@@ -1044,7 +1044,7 @@ Next:
   - variant: `PACT_FINAL_ANSWER_CONTRACT=1`;
   - both runs completed with `RC=0`.
 - Run record:
-  - `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/`
+  - `experiments/_archive/20260616-pruned/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/`
 - Main metrics:
   - baseline EM/F1: `26/50`, `0.6469`;
   - final-contract EM/F1: `28/50`, `0.7427`;
@@ -1063,7 +1063,7 @@ Next:
   - the answer-surface effect remains visible through F1 and several exact-match rescues;
   - the contract also introduces one clear content regression, sample `58`.
 - Added report:
-  - `reports/20260614-pact-offset50-final-answer-contract.md`
+  - `reports/_archive/20260616-pruned/20260614-pact-offset50-final-answer-contract.md`
 - Added evidence-register row `E-045`.
 
 ## 2026-06-14 PACT Offset50 Case Atlas
@@ -1071,9 +1071,9 @@ Next:
 - Added a CPU-only case atlas builder:
   - `scripts/build_pact_case_atlas.py`
 - Ran it over the offset50 paired PACT outputs:
-  - output summary: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/case_atlas_summary.json`
-  - all cases: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/case_atlas_cases.jsonl`
-  - focus cases: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/case_atlas_focus_cases.jsonl`
+  - output summary: `experiments/_archive/20260616-pruned/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/case_atlas_summary.json`
+  - all cases: `experiments/_archive/20260616-pruned/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/case_atlas_cases.jsonl`
+  - focus cases: `experiments/_archive/20260616-pruned/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/case_atlas_focus_cases.jsonl`
 - Rough focus-case labels:
   - contract-rescued verbose surface: `5`;
   - contract-rescued content or field: `1`;
@@ -1084,14 +1084,14 @@ Next:
   - near-miss surface/span: `1`;
   - likely evidence or reasoning failure: `6`.
 - Added report:
-  - `reports/20260614-pact-offset50-case-atlas.md`
+  - `reports/_archive/20260616-pruned/20260614-pact-offset50-case-atlas.md`
 - Added evidence-register row `E-046`.
 
 ## 2026-06-14 PACT Offset50 Public-State Gold Case Inspection
 
 - Manually inspected the ten offset50 cases mechanically labeled `final_public_state_contains_gold`.
 - Added manual labels:
-  - `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/public_state_gold_manual_labels.jsonl`
+  - `experiments/_archive/20260616-pruned/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/public_state_gold_manual_labels.jsonl`
 - Manual families:
   - missing required token or qualifier: `3` cases (`50`, `55`, `83`);
   - wrong answer type or slot: `2` cases (`60`, `67`);
@@ -1099,7 +1099,7 @@ Next:
   - alias/name granularity: `1` case (`74`);
   - false-positive string signal: `1` case (`59`).
 - Added report:
-  - `reports/20260614-pact-offset50-public-state-gold-cases.md`
+  - `reports/_archive/20260616-pruned/20260614-pact-offset50-public-state-gold-cases.md`
 - Added evidence-register row `E-047`.
 
 ## 2026-06-14 PACT Offset50 Sample58 Drift Inspection
@@ -1107,14 +1107,14 @@ Next:
 - Added a reusable paired-run drift packet builder:
   - `scripts/build_pact_drift_packet.py`
 - Ran it on offset50 sample `58`, the clear content-drift right-to-wrong case:
-  - packet JSON: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/pact_sample58_drift_packet.json`
-  - packet Markdown: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/pact_sample58_drift_packet.md`
+  - packet JSON: `experiments/_archive/20260616-pruned/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/pact_sample58_drift_packet.json`
+  - packet Markdown: `experiments/_archive/20260616-pruned/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/pact_sample58_drift_packet.md`
 - Finding:
   - baseline keeps the target as the population of the city/town in which Kirton End is located and answers `35,124`;
   - the variant trajectory still sees `35,124` at turn `1`, but later retargets to the population of the civil parish of Kirton and answers `273` from the `Kirton, Nottinghamshire` distractor;
   - the first observed divergence is turn `1`, before the final-answer-contract prompt applies, so this is a stochastic trajectory and target-slot drift sentinel, not clean causal evidence that the final-turn contract directly caused the wrong number.
 - Added report:
-  - `reports/20260614-pact-offset50-sample58-drift.md`
+  - `reports/_archive/20260616-pruned/20260614-pact-offset50-sample58-drift.md`
 - Added evidence-register row `E-048`.
 
 ## 2026-06-14 PACT Offset50 Target-Slot Drift Diagnostic
@@ -1123,12 +1123,12 @@ Next:
   `Action Required` fields:
   - `scripts/audit_pact_target_slot_drift.py`
 - Ran it over the offset50 paired focus cases:
-  - focus summary: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/target_slot_drift_summary.json`
-  - focus cases: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/target_slot_drift_cases.jsonl`
-  - focus candidates: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/target_slot_drift_candidates.jsonl`
+  - focus summary: `experiments/_archive/20260616-pruned/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/target_slot_drift_summary.json`
+  - focus cases: `experiments/_archive/20260616-pruned/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/target_slot_drift_cases.jsonl`
+  - focus candidates: `experiments/_archive/20260616-pruned/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/target_slot_drift_candidates.jsonl`
 - Also ran it over all 50 paired cases:
-  - all-case summary: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/target_slot_drift_all_summary.json`
-  - all-case candidates: `experiments/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/target_slot_drift_all_candidates.jsonl`
+  - all-case summary: `experiments/_archive/20260616-pruned/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/target_slot_drift_all_summary.json`
+  - all-case candidates: `experiments/_archive/20260616-pruned/20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired/target_slot_drift_all_candidates.jsonl`
 - Result:
   - 8 candidates: samples `54`, `55`, `58`, `60`, `82`, `83`, `87`, `89`;
   - candidates include 2 right-to-wrong and 6 stable-wrong cases;
@@ -1138,7 +1138,7 @@ Next:
   - several candidates are target under-specification or target/final-answer mismatch rather than true semantic migration;
   - sample `54` is a useful soft/false-positive warning because the actual failure is mostly strict span surface.
 - Added report:
-  - `reports/20260614-pact-offset50-target-slot-drift.md`
+  - `reports/_archive/20260616-pruned/20260614-pact-offset50-target-slot-drift.md`
 - Added evidence-register row `E-049`.
 
 ## 2026-06-14 PACT Offset100 Target-Contract GPU Run
@@ -1172,9 +1172,9 @@ Next:
   - naive target-slot preservation improves the visible target-preservation diagnostic and slightly raises F1, but does not improve EM and substantially increases token cost.
   - this supports target preservation as a separable public-state control surface, not as a finished prompt method.
 - Run record:
-  - `experiments/20260614-1552-a8002-pact-qwen25-14b-hotpot50-offset100-target-contract/`
+  - `experiments/_archive/20260616-pruned/20260614-1552-a8002-pact-qwen25-14b-hotpot50-offset100-target-contract/`
 - Report:
-  - `reports/20260614-pact-offset100-target-contract-gpu.md`
+  - `reports/_archive/20260616-pruned/20260614-pact-offset100-target-contract-gpu.md`
 - Added evidence-register row `E-050`.
 
 ## 2026-06-14 PACT Offset150 Compact Target-State GPU Run
@@ -1189,7 +1189,7 @@ Next:
   - `scripts/audit_pact_target_slot_drift.py` prefers `Target Slot` when present;
   - `scripts/audit_pact_target_slot_field.py` audits field presence, generic targets, and per-sample target-slot stability.
 - Added idea memo:
-  - `reports/20260614-public-state-communication-idea-memo.md`
+  - `reports/_archive/20260616-pruned/20260614-public-state-communication-idea-memo.md`
 - Synced prompt and runner to A800_2 and verified remote `py_compile` plus `bash -n`.
 - Ran three PACT HotpotQA arms on A800_2 GPU `5`:
   - slice: zero-based samples `150-199`
@@ -1212,9 +1212,9 @@ Next:
   - the model mostly follows the field format, but different agents/turns instantiate different target slots;
   - the next target-preservation intervention should freeze or parse the target state from the original question rather than regenerate it at every turn.
 - Run record:
-  - `experiments/20260614-1642-a8002-pact-qwen25-14b-hotpot50-offset150-compact-target/`
+  - `experiments/_archive/20260616-pruned/20260614-1642-a8002-pact-qwen25-14b-hotpot50-offset150-compact-target/`
 - Report:
-  - `reports/20260614-pact-offset150-compact-target-state.md`
+  - `reports/_archive/20260616-pruned/20260614-pact-offset150-compact-target-state.md`
 - Added evidence-register row `E-051`.
 
 ## 2026-06-14 PACT Target-State Freeze Inspection
@@ -1222,8 +1222,8 @@ Next:
 - Added local diagnostic script:
   - `scripts/build_pact_target_state_freeze_inspection.py`
 - Ran a CPU-only inspection over the offset150 PACT final-contract versus compact-target+final traces:
-  - input run: `experiments/20260614-1642-a8002-pact-qwen25-14b-hotpot50-offset150-compact-target/`
-  - output: `experiments/20260614-1719-local-pact-target-state-freeze-inspection/`
+  - input run: `experiments/_archive/20260616-pruned/20260614-1642-a8002-pact-qwen25-14b-hotpot50-offset150-compact-target/`
+  - output: `experiments/_archive/20260616-pruned/20260614-1719-local-pact-target-state-freeze-inspection/`
   - no model calls and no GPU use.
 - Mechanical scan over 50 compact-target+final samples:
   - `23/50` records have unstable target slots;
@@ -1238,13 +1238,13 @@ Next:
   - freezing the first generated `Target Slot` is too crude;
   - the next local object should be a question-derived target-state projection/checker that allows bridge refinement while flagging anchor, predicate, or answer-type replacement.
 - Added report:
-  - `reports/20260614-pact-target-state-freeze-inspection.md`
+  - `reports/_archive/20260616-pruned/20260614-pact-target-state-freeze-inspection.md`
 - Added evidence-register row `E-052`.
 
 ## 2026-06-14 PACT Target-State Sketchbook
 
 - Added loose case sketchbook:
-  - `reports/20260614-pact-target-state-sketchbook.md`
+  - `reports/_archive/20260616-pruned/20260614-pact-target-state-sketchbook.md`
 - Purpose:
   - stay with the target-state ambiguity before writing a checker or prompt;
   - distinguish harmful target replacement from useful bridge refinement;
@@ -1263,7 +1263,7 @@ Next:
 ## 2026-06-14 PACT Question-Target Postcards
 
 - Added an even looser handwritten-style note:
-  - `reports/20260614-pact-question-target-postcards.md`
+  - `reports/_archive/20260616-pruned/20260614-pact-question-target-postcards.md`
 - Purpose:
   - turn the target-state sketchbook into short per-case cards;
   - record what the original question wants, what bridge it must cross, what public state did, and what must not be lost;
@@ -1282,7 +1282,7 @@ Next:
 ## 2026-06-14 Target Role Lens Across Baselines
 
 - Added cross-baseline interpretive note:
-  - `reports/20260614-target-role-lens-cross-baseline-notes.md`
+  - `reports/_archive/20260616-pruned/20260614-target-role-lens-cross-baseline-notes.md`
 - Purpose:
   - step half a pace away from PACT;
   - ask whether the target-role vocabulary has shadows in DAR, MAD-MM, and MOC;
@@ -1300,7 +1300,7 @@ Next:
 ## 2026-06-14 Cross-System Role Cards
 
 - Added tiny cross-system card note:
-  - `reports/20260614-cross-system-role-cards.md`
+  - `reports/_archive/20260616-pruned/20260614-cross-system-role-cards.md`
 - Purpose:
   - keep the target-role lens concrete across PACT, DAR, MAD-MM, and MOC;
   - avoid turning PACT's explicit `Target Slot` into a universal abstraction;
@@ -1321,11 +1321,11 @@ Next:
 ## 2026-06-14 MAD-MM 1237 Raw Role Card
 
 - Added raw-log follow-up:
-  - `reports/20260614-madmm-1237-raw-role-card.md`
+  - `reports/_archive/20260616-pruned/20260614-madmm-1237-raw-role-card.md`
 - Sources inspected:
-  - `experiments/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/mad_objective_3agents_2rounds_seed41_debate_log.json`
-  - `experiments/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/mad_3agents_2rounds_seed41_debate_log.json`
-  - `experiments/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/mad_subjective_3agents_2rounds_seed41_debate_log.json`
+  - `experiments/_archive/20260616-pruned/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/mad_objective_3agents_2rounds_seed41_debate_log.json`
+  - `experiments/_archive/20260616-pruned/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/mad_3agents_2rounds_seed41_debate_log.json`
+  - `experiments/_archive/20260616-pruned/20260613-1855-a8002-madmm-qwen25-7b-math50-probe/mad_subjective_3agents_2rounds_seed41_debate_log.json`
 - What changed:
   - objective masking retained only Agent3's wrong-answer but useful operation scaffold for case `1237`;
   - all objective round-2 agents completed `sqrt(1296)=36`, then `sqrt(64)=8`;
@@ -1335,7 +1335,7 @@ Next:
   - case `1237` should not be treated as clean proof that the retained scaffold caused the fix;
   - it is better read as separating operation scaffold, wrong answer-surface anchor, and fresh second-pass behavior.
 - Updated:
-  - `reports/20260614-cross-system-role-cards.md` now includes the raw-log caveat.
+  - `reports/_archive/20260616-pruned/20260614-cross-system-role-cards.md` now includes the raw-log caveat.
 - Evidence register:
   - no new row; this refines an interpretive card rather than adding a durable empirical claim.
 
@@ -1344,7 +1344,7 @@ Next:
 - Added a CPU-only synthetic MOC-style role-loss probe:
   - `scripts/run_moc_role_loss_probe.py`
 - Ran it locally:
-  - output: `experiments/20260614-1832-local-moc-role-sensitive-split-evidence-probe/`
+  - output: `experiments/_archive/20260616-pruned/20260614-1832-local-moc-role-sensitive-split-evidence-probe/`
   - trace: `comm_trace_moc_role_probe_v11.jsonl`
   - records: `30` records over `6` hand-built split-evidence cases and `5` public-state policies.
 - Purpose:
@@ -1358,7 +1358,7 @@ Next:
   - `hop2_answer_only_merge`: `1/6`;
   - the one surviving flat/answer-only case is useful bridge refinement, keeping the caveat that target motion is not automatically drift.
 - Added report:
-  - `reports/20260614-moc-role-sensitive-split-evidence-probe.md`
+  - `reports/_archive/20260616-pruned/20260614-moc-role-sensitive-split-evidence-probe.md`
 - Evidence register:
   - added row `E-053`.
 
@@ -1372,7 +1372,7 @@ Next:
   - served name: `qwen2.5-7b-merge-audit`
   - GPU: `1`
   - port: `8022`
-  - run record: `experiments/20260614-1913-a8002-moc-merge-prompt-role-audit/`
+  - run record: `experiments/_archive/20260616-pruned/20260614-1913-a8002-moc-merge-prompt-role-audit/`
 - Stopped the temporary vLLM service after the run and confirmed GPU `1` was
   released.
 - Scope:
@@ -1393,14 +1393,14 @@ Next:
     attribution while still losing key role slots;
   - this is still merge-prompt-only synthetic evidence, not a full MOC result.
 - Added report:
-  - `reports/20260614-moc-merge-prompt-role-audit.md`
+  - `reports/_archive/20260616-pruned/20260614-moc-merge-prompt-role-audit.md`
 - Evidence register:
   - added row `E-054`.
 
 ## 2026-06-14 ArXiv Digest Pressure Contact
 
 - Added pressure-contact note:
-  - `reports/20260614-arxivdigest-pressure-contact.md`
+  - `reports/_archive/20260616-pruned/20260614-arxivdigest-pressure-contact.md`
 - Source:
   - local `D:\develop\ArXiv_Daily_Digest`
   - directions touched: `multi-agent-consistency`, `agent-skills-harness`, and `factuality-rule-guided-apps`
@@ -1431,7 +1431,7 @@ Next:
   - reuse real DAR round-0 peer outputs from saved GSM8K disagreement cases;
   - separate no-peer answering, wrong/correct answer-only exposure, wrong majority, authority-labeled wrong exposure, and full rationale exposure.
 - Source object:
-  - DAR full-history GSM8K100 run from `experiments/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/`
+  - DAR full-history GSM8K100 run from `experiments/_archive/20260616-pruned/20260613-1730-a8002-dar-filtercritical-gsm8k100-fullhistory/`
   - selected mixed first-round cases: `20`, `78`, `4`, `8`, `37`, `65`
 - First run:
   - `experiments/20260614-1956-a8002-peer-exposure-mini-probe/`
@@ -1582,9 +1582,9 @@ Next:
   - stopped the temporary service after the runs and confirmed port `8025` was
     closed and GPU `1` returned to idle.
 - Formal runs:
-  - `experiments/20260614-2325-a8002-peer-redacted-evidence-dar-random14/`
-  - `experiments/20260614-2330-a8002-peer-redacted-evidence-math-random8/`
-  - `experiments/20260614-2335-local-peer-redacted-evidence-audit/`
+  - `experiments/_archive/20260616-pruned/20260614-2325-a8002-peer-redacted-evidence-dar-random14/`
+  - `experiments/_archive/20260616-pruned/20260614-2330-a8002-peer-redacted-evidence-math-random8/`
+  - `experiments/_archive/20260616-pruned/20260614-2335-local-peer-redacted-evidence-audit/`
 - DAR random14:
   - no-peer: `11/14`;
   - `correct_auto_evidence`: `12/14`;
@@ -1618,7 +1618,7 @@ Next:
     `65`, DAR `97`, and MATH `47`;
   - DAR `8` remained a recoverable-skeleton case even under wrong evidence.
 - Added report:
-  - `reports/20260614-peer-redacted-evidence-surface.md`
+  - `reports/_archive/20260616-pruned/20260614-peer-redacted-evidence-surface.md`
 - Evidence register:
   - added row `E-059`.
 
@@ -1628,12 +1628,12 @@ Next:
   - `scripts/build_peer_relation_slot_cards.py`
 - Built semantic inspection cards from the redacted-evidence audit:
   - input audit:
-    - `experiments/20260614-2335-local-peer-redacted-evidence-audit/cases.jsonl`
+    - `experiments/_archive/20260616-pruned/20260614-2335-local-peer-redacted-evidence-audit/cases.jsonl`
   - source runs:
-    - `experiments/20260614-2325-a8002-peer-redacted-evidence-dar-random14/`
-    - `experiments/20260614-2330-a8002-peer-redacted-evidence-math-random8/`
+    - `experiments/_archive/20260616-pruned/20260614-2325-a8002-peer-redacted-evidence-dar-random14/`
+    - `experiments/_archive/20260616-pruned/20260614-2330-a8002-peer-redacted-evidence-math-random8/`
   - output:
-    - `experiments/20260614-2345-local-peer-relation-slot-cards/`
+    - `experiments/_archive/20260616-pruned/20260614-2345-local-peer-relation-slot-cards/`
 - Focus-card counts:
   - cards: `10`;
   - contact labels:
@@ -1644,7 +1644,7 @@ Next:
     - `wrong_to_right`: `5`;
     - `right_to_wrong`: `5`.
 - Added manual semantic labels:
-  - `experiments/20260614-2345-local-peer-relation-slot-cards/manual_labels.jsonl`
+  - `experiments/_archive/20260616-pruned/20260614-2345-local-peer-relation-slot-cards/manual_labels.jsonl`
   - label counts:
     - `relation_skeleton`: `correct: 3`, `wrong: 4`, `mixed: 1`,
       `recoverable_wrong: 2`;
@@ -1665,7 +1665,7 @@ Next:
     coefficient, so the mechanical `source_answer_number_present` label is not
     semantic final-answer leakage.
 - Added report:
-  - `reports/20260614-peer-relation-slot-cards.md`
+  - `reports/_archive/20260616-pruned/20260614-peer-relation-slot-cards.md`
 - Evidence register:
   - added row `E-060`.
 
@@ -1680,7 +1680,7 @@ Next:
   - condition: `wrong_redacted_evidence`;
   - target behavior: `preserved_correct_answer`;
   - output:
-    - `experiments/20260614-2355-local-peer-wrong-redacted-preserved-correct-cards/`
+    - `experiments/_archive/20260616-pruned/20260614-2355-local-peer-wrong-redacted-preserved-correct-cards/`
 - Contrast-card counts:
   - cards: `12`;
   - contact labels:
@@ -1688,7 +1688,7 @@ Next:
     - `dense_formula_surface`: `3`;
     - `answer_leak_audit`: `3`.
 - Added manual contrast labels:
-  - `experiments/20260614-2355-local-peer-wrong-redacted-preserved-correct-cards/manual_contrast_labels.jsonl`
+  - `experiments/_archive/20260616-pruned/20260614-2355-local-peer-wrong-redacted-preserved-correct-cards/manual_contrast_labels.jsonl`
   - rough families:
     - wrong final removed, leaving correct or partial evidence: `6` cases;
     - wrong numeric or role slot rejected/repaired: `4` cases;
@@ -1705,7 +1705,7 @@ Next:
     converted diameter `288` can match the source parsed answer without being
     semantic final-answer leakage.
 - Added report:
-  - `reports/20260614-peer-wrong-redacted-preserved-correct-contrast.md`
+  - `reports/_archive/20260616-pruned/20260614-peer-wrong-redacted-preserved-correct-contrast.md`
 - Evidence register:
   - added row `E-061`.
 
@@ -1718,9 +1718,9 @@ Next:
   - emits merged records, an unlabeled queue, and summary counts.
 - Added non-rescue manual labels:
   - packet:
-    - `experiments/20260615-0012-local-peer-redacted-nonrescue-cards/`
+    - `experiments/_archive/20260616-pruned/20260615-0012-local-peer-redacted-nonrescue-cards/`
   - labels:
-    - `experiments/20260615-0012-local-peer-redacted-nonrescue-cards/manual_nonrescue_labels.jsonl`
+    - `experiments/_archive/20260616-pruned/20260615-0012-local-peer-redacted-nonrescue-cards/manual_nonrescue_labels.jsonl`
   - cards: `9`;
   - target behaviors:
     - `preserved_wrong_answer`: `5`;
@@ -1728,7 +1728,7 @@ Next:
     - `post_unparseable_or_unknown`: `2`.
 - Ran the merged redacted relation-slot audit:
   - output:
-    - `experiments/20260615-0006-local-peer-redacted-relation-slot-audit/`
+    - `experiments/_archive/20260616-pruned/20260615-0006-local-peer-redacted-relation-slot-audit/`
   - records: `44`;
   - manual-labeled records: `28`;
   - unlabeled records: `16`.
@@ -1739,7 +1739,7 @@ Next:
     - `answer_changing_unlabeled_records: 0`;
     - `unlabeled_all_preserved_correct_stable_right: true`;
   - the output directory also includes a compact labeling checklist:
-    - `experiments/20260615-0006-local-peer-redacted-relation-slot-audit/labeling_rubric.md`.
+    - `experiments/_archive/20260616-pruned/20260615-0006-local-peer-redacted-relation-slot-audit/labeling_rubric.md`.
 - Coverage:
   - all behavior-changing redacted records are now manually covered;
   - the remaining `16` unlabeled rows are all `preserved_correct_answer` /
@@ -1756,7 +1756,7 @@ Next:
     overwritten by the target's prior wrong slot, and dense MATH surfaces can
     stay parse-unknown.
 - Added report:
-  - `reports/20260615-peer-redacted-relation-slot-audit.md`
+  - `reports/_archive/20260616-pruned/20260615-peer-redacted-relation-slot-audit.md`
 - Evidence register:
   - added row `E-062`.
 
@@ -1775,17 +1775,17 @@ Next:
     idle.
 - First neighbor attempt:
   - DAR seed `61422`:
-    - `experiments/20260615-0008-a8002-peer-redacted-evidence-dar-neighbor14/`
+    - `experiments/_archive/20260616-pruned/20260615-0008-a8002-peer-redacted-evidence-dar-neighbor14/`
     - selected the same 14 cases as the earlier DAR run, so it is not a true
       neighboring slice;
   - MATH seed `61422`:
-    - `experiments/20260615-0012-a8002-peer-redacted-evidence-math-neighbor8/`
+    - `experiments/_archive/20260616-pruned/20260615-0012-a8002-peer-redacted-evidence-math-neighbor8/`
     - selected some new cases, but behavior-changing cards were still the old
       MATH cases `9` and `47`.
 - Dry-ran MATH seeds and selected disjoint seed `61502`, which excludes old
   behavior-changing MATH cases `9` and `47`.
 - Disjoint MATH run:
-  - `experiments/20260615-0028-a8002-peer-redacted-evidence-math-disjoint8/`
+  - `experiments/_archive/20260616-pruned/20260615-0028-a8002-peer-redacted-evidence-math-disjoint8/`
   - cases: `1`, `10`, `22`, `26`, `33`, `38`, `41`, `42`;
   - no-peer: `7/8`;
   - `correct_auto_evidence`: `6/8`, with 1 right-to-wrong;
@@ -1793,11 +1793,11 @@ Next:
   - `wrong_auto_evidence`: `6/8`, with 1 right-to-wrong;
   - `wrong_redacted_evidence`: `7/8`, no answer-changing transitions.
 - Local audit:
-  - `experiments/20260615-0034-local-peer-disjoint-math-redacted-audit/`
+  - `experiments/_archive/20260616-pruned/20260615-0034-local-peer-disjoint-math-redacted-audit/`
   - `auto_evidence`: `16` records, `2` right-to-wrong;
   - `answer_redacted_evidence`: `16` records, `0` right-to-wrong.
 - Added case-10 surface packet:
-  - `experiments/20260615-0040-local-peer-disjoint-math-case10-surface/`
+  - `experiments/_archive/20260616-pruned/20260615-0040-local-peer-disjoint-math-case10-surface/`
   - `manual_case10_labels.jsonl`
 - Main small observations:
   - this disjoint MATH slice bounds the earlier observation that wrong
@@ -1809,7 +1809,7 @@ Next:
   - `correct_auto_evidence` also caused a right-to-wrong by producing a
     substitution surface that the target mutated into a sign/denominator error.
 - Added report:
-  - `reports/20260615-peer-disjoint-math-redaction-pressure.md`
+  - `reports/_archive/20260616-pruned/20260615-peer-disjoint-math-redaction-pressure.md`
 - Evidence register:
   - added row `E-064`.
 
@@ -1841,9 +1841,9 @@ Next:
   - reused task-local vLLM service `qwen2.5-7b-peer-neighbor` on port `8026`;
   - GPU `2`;
   - copied outputs back locally:
-    - `experiments/20260615-0008-a8002-peer-redacted-evidence-dar-neighbor14/`
-    - `experiments/20260615-0012-a8002-peer-redacted-evidence-math-neighbor8/`
-    - `experiments/20260615-0020-a8002-peer-redacted-neighbor-math-random8/`
+    - `experiments/_archive/20260616-pruned/20260615-0008-a8002-peer-redacted-evidence-dar-neighbor14/`
+    - `experiments/_archive/20260616-pruned/20260615-0012-a8002-peer-redacted-evidence-math-neighbor8/`
+    - `experiments/_archive/20260616-pruned/20260615-0020-a8002-peer-redacted-neighbor-math-random8/`
   - after the jobs completed, port `8026` was closed and GPU `2` returned to
     idle.
 - DAR note:
@@ -1865,15 +1865,15 @@ Next:
 - Added local repeat comparison helper:
   - `scripts/compare_peer_redacted_repeats.py`
   - output:
-    - `experiments/20260615-0036-local-peer-redacted-repeat-variability/`
+    - `experiments/_archive/20260616-pruned/20260615-0036-local-peer-redacted-repeat-variability/`
 - Local audit sidecars:
   - full neighbor redacted audit:
-    - `experiments/20260615-0020-local-peer-neighbor-redacted-audit/`
-    - `experiments/20260615-0028-local-peer-redacted-neighbor-audit/`
+    - `experiments/_archive/20260616-pruned/20260615-0020-local-peer-neighbor-redacted-audit/`
+    - `experiments/_archive/20260616-pruned/20260615-0028-local-peer-redacted-neighbor-audit/`
   - full neighbor focus cards:
-    - `experiments/20260615-0022-local-peer-neighbor-relation-slot-cards/`
+    - `experiments/_archive/20260616-pruned/20260615-0022-local-peer-neighbor-relation-slot-cards/`
   - minimal MATH neighbor audit:
-    - `experiments/20260615-0024-local-peer-redacted-neighbor-math-audit/`
+    - `experiments/_archive/20260616-pruned/20260615-0024-local-peer-redacted-neighbor-math-audit/`
 - Repeat comparison:
   - repeated case/condition pairs: `46`;
   - variable post-answer/transition pairs: `2`;
@@ -1886,7 +1886,7 @@ Next:
     surface moved `28800 -> 14400` in two full-condition runs, but moved
     `14400 -> 28800` in the minimal seed `61521` run.
 - Added report:
-  - `reports/20260615-peer-redacted-neighbor-repeat.md`
+  - `reports/_archive/20260616-pruned/20260615-peer-redacted-neighbor-repeat.md`
 - Evidence register:
   - added row `E-063`.
 
@@ -1934,7 +1934,7 @@ Next:
 - Ran slot-control pressure over all available MATH50 mixed-correctness
   candidates from the saved MAD-MM trace:
   - output:
-    - `experiments/20260615-1010-a8002-peer-slot-control-math12/`
+    - `experiments/_archive/20260616-pruned/20260615-1010-a8002-peer-slot-control-math12/`
   - cases: `1`, `9`, `10`, `15`, `22`, `24`, `26`, `33`, `38`, `41`, `42`,
     `47`;
   - records: `132`;
@@ -1960,8 +1960,8 @@ Next:
   - `wrong_rationale`: `8/12`, no right-to-wrong;
   - `wrong_number_masked_rationale`: `8/12`, no right-to-wrong.
 - Added sidecars:
-  - `experiments/20260615-1010-a8002-peer-slot-control-math12/slot_control_audit.json`
-  - `experiments/20260615-1010-a8002-peer-slot-control-math12/slot_transition_cards.jsonl`
+  - `experiments/_archive/20260616-pruned/20260615-1010-a8002-peer-slot-control-math12/slot_control_audit.json`
+  - `experiments/_archive/20260616-pruned/20260615-1010-a8002-peer-slot-control-math12/slot_transition_cards.jsonl`
 - Main small observations:
   - MATH `47` remains the key harmful-slot sentinel:
     `wrong_answer_only` moved `28800 -> 14400`, while
@@ -1975,7 +1975,7 @@ Next:
   - MATH `9` was rescued by `correct_answer_only` and `correct_rationale`, but
     not by correct redacted, masked, or equation-only surfaces.
 - Added report:
-  - `reports/20260615-peer-slot-control-math12.md`
+  - `reports/_archive/20260616-pruned/20260615-peer-slot-control-math12.md`
 - Evidence register:
   - added row `E-065`.
 
@@ -1994,8 +1994,8 @@ Next:
 - Added reusable slot-control audit script:
   - `scripts/audit_peer_slot_control.py`
   - regenerated:
-    - `experiments/20260615-1010-a8002-peer-slot-control-math12/slot_control_audit.json`
-    - `experiments/20260615-1010-a8002-peer-slot-control-math12/slot_transition_cards.jsonl`
+    - `experiments/_archive/20260616-pruned/20260615-1010-a8002-peer-slot-control-math12/slot_control_audit.json`
+    - `experiments/_archive/20260616-pruned/20260615-1010-a8002-peer-slot-control-math12/slot_transition_cards.jsonl`
 - Documentation boundary tightened in:
   - `docs/README.md`
   - run facts and commands -> experiment README;
@@ -2023,7 +2023,7 @@ Next:
     groupthink, hidden-profile tasks, debate failure modes, shared context, and
     decision-aware context compression.
 - Added bounded report:
-  - `reports/20260615-peer-slot-control-outside-check.md`
+  - `reports/_archive/20260616-pruned/20260615-peer-slot-control-outside-check.md`
 - Updated reading queue with pressure hits:
   - identity-bias/anonymization;
   - cost-of-consensus / contextual-fragility;
@@ -2055,7 +2055,7 @@ Next:
 - Added local preview builder:
   - `scripts/build_typed_public_state_preview.py`
   - output:
-    - `experiments/20260615-local-typed-public-state-preview/`
+    - `experiments/_archive/20260616-pruned/20260615-local-typed-public-state-preview/`
 - Preview over the 12 MATH slot-control source cases:
   - records: `24`;
   - source identity hidden in all typed records;
@@ -2065,7 +2065,7 @@ Next:
   - this makes typed public state a diagnostic surface, not a leakage-free
     method.
 - Added synthesis memo:
-  - `reports/20260615-typed-public-state-candidate.md`
+  - `reports/_archive/20260616-pruned/20260615-typed-public-state-candidate.md`
 - Candidate spine:
   - standard peer messages collapse source identity, final-answer authority,
     target predicate, relation skeleton, and numeric/role slots into one
@@ -2099,13 +2099,13 @@ Next:
     `/data/xuhaoming/yfy/research_workspace/logs/typed-state-vllm-20260615_1118.log`;
 - Ran a 3-case smoke first:
   - output:
-    `experiments/20260615-1119-a8002-typed-public-state-mini3/`;
+    `experiments/_archive/20260616-pruned/20260615-1119-a8002-typed-public-state-mini3/`;
   - cases: `9`, `26`, `47`;
   - key signal: on case `47`, `wrong_equation_surface` moved
     `28800 -> 1152`, while `wrong_typed_public_state` kept `28800`.
 - Ran the full saved MATH12 typed-public-state packet:
   - output:
-    `experiments/20260615-1124-a8002-typed-public-state-math12-anon/`;
+    `experiments/_archive/20260616-pruned/20260615-1124-a8002-typed-public-state-math12-anon/`;
   - records: `132`;
   - peer source mode: `anonymous`;
   - no-peer baseline: `8/12`, with `3` unparseable.
@@ -2125,9 +2125,9 @@ Next:
     - `wrong_equation_surface`: `28800 -> 1152`;
     - `wrong_typed_public_state`: `28800 -> 28800`.
 - Added report:
-  - `reports/20260615-typed-public-state-math12-gpu.md`
+  - `reports/_archive/20260616-pruned/20260615-typed-public-state-math12-gpu.md`
 - Updated:
-  - `reports/20260615-typed-public-state-candidate.md`;
+  - `reports/_archive/20260616-pruned/20260615-typed-public-state-candidate.md`;
   - `docs/evidence_register.md` (`E-066`, `E-067`).
 - Stopped the temporary vLLM service after the run and confirmed GPU `2`
   returned to idle (`4 MiB` used / `81149 MiB` free).
@@ -2281,8 +2281,8 @@ Next:
   - DeLM/Memory Cards vocabulary fits shared verified context and agentic
     workflow settings.
 - Updated:
-  - `reports/20260615-typed-public-state-candidate.md`
-  - `reports/20260615-peer-slot-control-outside-check.md`
+  - `reports/_archive/20260616-pruned/20260615-typed-public-state-candidate.md`
+  - `reports/_archive/20260616-pruned/20260615-peer-slot-control-outside-check.md`
   - `papers/reading_queue.md`
   - `docs/evidence_register.md` (`E-066`, `E-071`)
 
@@ -2314,7 +2314,7 @@ Next:
 - Added bounded synthesis report:
   - `reports/20260615-slot-level-peer-influence-protocol.md`.
 - Updated:
-  - `reports/20260615-typed-public-state-candidate.md`;
+  - `reports/_archive/20260616-pruned/20260615-typed-public-state-candidate.md`;
   - `reports/20260615-typed-public-state-math200-statistical-pressure.md`;
   - `experiments/20260615-1151-a8002-typed-public-state-math200-anon/README.md`;
   - `docs/evidence_register.md` (`E-072`).
@@ -2340,14 +2340,14 @@ Next:
   - model: Qwen2.5-7B-Instruct served as `qwen2.5-7b-source-label`;
   - temporary service was stopped after the run and GPU `5` returned to idle.
 - New run outputs:
-  - `experiments/20260615-1404-a8002-source-label-math200-named/`
-  - `experiments/20260615-1404-a8002-source-label-math200-randomized/`
+  - `experiments/_archive/20260616-pruned/20260615-1404-a8002-source-label-math200-named/`
+  - `experiments/_archive/20260616-pruned/20260615-1404-a8002-source-label-math200-randomized/`
   - each has `649` peer-exposure records plus semantic and protocol audits.
 - Added packet comparison helper:
   - `scripts/audit_peer_source_label_packet.py`
   - output:
-    `experiments/20260615-1404-a8002-source-label-math200-packet/source_label_packet_audit.md`;
-    `experiments/20260615-1404-a8002-source-label-math200-packet/source_label_packet_audit.json`.
+    `experiments/_archive/20260616-pruned/20260615-1404-a8002-source-label-math200-packet/source_label_packet_audit.md`;
+    `experiments/_archive/20260616-pruned/20260615-1404-a8002-source-label-math200-packet/source_label_packet_audit.json`.
 - Main source-label-reliable readout:
   - wrong full rationale harm:
     anonymous `9/32`, named `9/32`, randomized `8/32`;
@@ -2363,7 +2363,7 @@ Next:
   - this is not an identity-bias benchmark because named labels are simple
     agent labels rather than authority titles or social identities.
 - Added report:
-  - `reports/20260615-peer-source-label-math200-packet.md`.
+  - `reports/_archive/20260616-pruned/20260615-peer-source-label-math200-packet.md`.
 - Evidence register:
   - added row `E-073`.
 
@@ -2437,7 +2437,7 @@ Next:
 - Added local preview builder:
   - `scripts/build_raw_answer_only_preview.py`.
 - Generated local preview packet without model calls:
-  - `experiments/20260615-local-raw-answer-only-preview/`;
+  - `experiments/_archive/20260616-pruned/20260615-local-raw-answer-only-preview/`;
   - over the saved MATH200 source cases, legacy answer-only rows are
     `84/118` equivalent to raw peer answers, `27/118` semantic mismatches, and
     `7/118` unknown-equivalence;
@@ -2445,7 +2445,7 @@ Next:
     `1 - 12i`, and `8\pi - 16` instead of old numeric-parser slots `3`,
     `12`, and `16`.
 - Added bounded report:
-  - `reports/20260615-raw-answer-only-surface-repair.md`.
+  - `reports/_archive/20260616-pruned/20260615-raw-answer-only-surface-repair.md`.
 - Validation:
   - `py_compile` passed for the updated runner, surface helpers, audit scripts,
     and preview builder.
@@ -2501,7 +2501,7 @@ Next:
   - obsolete card packet
     `experiments/20260615-0036-local-peer-disjoint-math-relation-slot-cards/`,
     which was superseded by
-    `experiments/20260615-0040-local-peer-disjoint-math-case10-surface/`.
+    `experiments/_archive/20260616-pruned/20260615-0040-local-peer-disjoint-math-case10-surface/`.
 - Added `.gitignore` coverage for future root-level `experiments/*.log` copies.
 
 ## 2026-06-15 PACT Public-State Field Bridge
@@ -2566,7 +2566,7 @@ Next:
     baseline EM `0.520`, F1 `0.647`;
     final-contract EM `0.560`, F1 `0.743`.
 - Added report:
-  - `reports/20260615-pact-public-state-field-packet.md`.
+  - `reports/_archive/20260616-pruned/20260615-pact-public-state-field-packet.md`.
 - Evidence register:
   - added `E-081`.
 
@@ -2665,7 +2665,7 @@ Next:
 - Ran an external collision/pressure scan around the current field-contract
   quarantine result.
 - Added report:
-  - `reports/20260615-field-contract-quarantine-external-pressure.md`.
+  - `reports/_archive/20260616-pruned/20260615-field-contract-quarantine-external-pressure.md`.
 - Updated reading queue with field-authority pressure hits:
   - PACT / action-state public communication;
   - AgentSecBench / data-flow versus authority;
@@ -2705,27 +2705,27 @@ Next:
 - Parameterized field packet IDs for neighboring slices:
   - `scripts/build_pact_public_state_field_packet.py --packet-prefix`.
 - Generated offset50 standalone/projection artifacts:
-  - `experiments/20260615-local-pact-field-authority-projection/summary.json`;
-  - `experiments/20260615-local-pact-field-authority-projection/security_projection_packet.jsonl`;
-  - `experiments/20260615-local-pact-field-authority-projection/standalone_quarantine_packet.jsonl`.
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-field-authority-projection/summary.json`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-field-authority-projection/security_projection_packet.jsonl`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-field-authority-projection/standalone_quarantine_packet.jsonl`.
 - Offset50 standalone detector:
   - detector actions: hide `30`, project question root `70`;
   - offline route over already-run outputs: standalone hide-risky/project EM
     `0.560`, below always hiding the public target (`0.590`) and below the
     frozen/security projection control (`0.580`).
 - Generated neighboring offset100 field packet:
-  - `experiments/20260615-local-pact-public-state-field-packet-offset100/field_packet.jsonl`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-public-state-field-packet-offset100/field_packet.jsonl`;
   - `50` samples, `500` prompt rows, sample indices `100` through `149`.
 - Generated offset100 field-authority packets:
-  - `experiments/20260615-local-pact-field-authority-projection-offset100/security_projection_packet.jsonl`;
-  - `experiments/20260615-local-pact-field-authority-projection-offset100/standalone_quarantine_packet.jsonl`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-field-authority-projection-offset100/security_projection_packet.jsonl`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-field-authority-projection-offset100/standalone_quarantine_packet.jsonl`;
   - detector actions: hide `35`, project question root `65`.
 - Final-span audit over the existing offset50 quarantine run:
-  - `experiments/20260615-local-pact-final-span-granularity/summary.json`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-final-span-granularity/summary.json`;
   - `13/100` rows are strict-span or granularity misses, separate from `23`
     content mismatches.
 - Added report:
-  - `reports/20260615-field-authority-standalone-projection.md`.
+  - `reports/_archive/20260616-pruned/20260615-field-authority-standalone-projection.md`.
 - Evidence register:
   - added `E-085`.
 - Interpretation:
@@ -2764,10 +2764,10 @@ Next:
   - field controls: `101/500` strict-span or granularity misses;
   - projection run: `42/200` strict-span or granularity misses.
 - Added run READMEs:
-  - `experiments/20260615-1805-a8002-pact-field-authority-projection-offset100-qwen25-14b/README.md`;
-  - `experiments/20260615-1810-a8002-pact-public-state-field-offset100-qwen25-14b/README.md`.
+  - `experiments/_archive/20260616-pruned/20260615-1805-a8002-pact-field-authority-projection-offset100-qwen25-14b/README.md`;
+  - `experiments/_archive/20260616-pruned/20260615-1810-a8002-pact-public-state-field-offset100-qwen25-14b/README.md`.
 - Added report:
-  - `reports/20260615-field-authority-offset100-pressure.md`.
+  - `reports/_archive/20260616-pruned/20260615-field-authority-offset100-pressure.md`.
 - Evidence register:
   - added `E-086`.
 - Interpretation:
@@ -2781,9 +2781,9 @@ Next:
 - Added packet-derived field bridge auditor:
   - `scripts/audit_pact_field_bridge_from_packet.py`.
 - Generated offset100 bridge artifacts:
-  - `experiments/20260615-local-pact-public-state-field-bridge-offset100/summary.json`;
-  - `experiments/20260615-local-pact-public-state-field-bridge-offset100/bridge_cases.jsonl`;
-  - `experiments/20260615-local-pact-public-state-field-bridge-offset100/bridge_packet.md`.
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-public-state-field-bridge-offset100/summary.json`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-public-state-field-bridge-offset100/bridge_cases.jsonl`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-public-state-field-bridge-offset100/bridge_packet.md`.
 - Bridge layer counts over `100` sample/source units:
   - `stable_answer`: `26`;
   - `evidence_or_content`: `25`;
@@ -2792,7 +2792,7 @@ Next:
   - `target_contract`: `10`;
   - `target_field_ablation`: `1`.
 - Added report:
-  - `reports/20260615-field-authority-offset100-bridge-audit.md`.
+  - `reports/_archive/20260616-pruned/20260615-field-authority-offset100-bridge-audit.md`.
 - Evidence register:
   - added `E-087`;
   - updated `E-086` caveat to point to the rebuilt bridge labels.
@@ -2805,7 +2805,7 @@ Next:
 ## 2026-06-15 Field-Authority Story Audit
 
 - Added bounded story synthesis:
-  - `reports/20260615-field-authority-story-audit.md`.
+  - `reports/_archive/20260616-pruned/20260615-field-authority-story-audit.md`.
 - Classification:
   - live diagnostic / bounded protocol candidate;
   - not yet a solid paper story;
@@ -2832,7 +2832,7 @@ Next:
   labels can be passed explicitly instead of hardcoding `baseline` and
   `final_contract`.
 - Built offset150 field packet:
-  - `experiments/20260615-local-pact-public-state-field-packet-offset150/field_packet.jsonl`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-public-state-field-packet-offset150/field_packet.jsonl`;
   - source runs: `final_contract` and `compact_final_contract`;
   - `50` samples, `500` prompt rows.
 - Official-source smoke:
@@ -2863,7 +2863,7 @@ Next:
   - `target_contract`: `11`;
   - `target_field_ablation`: `1`.
 - Added report:
-  - `reports/20260615-field-authority-offset150-fresh-slice.md`.
+  - `reports/_archive/20260616-pruned/20260615-field-authority-offset150-fresh-slice.md`.
 - Evidence register:
   - added `E-089`.
 - Interpretation:
@@ -2878,11 +2878,11 @@ Next:
 - Added focus-card extractor:
   - `scripts/build_pact_field_authority_focus_cards.py`.
 - Generated offset150 target-focus cards:
-  - `experiments/20260615-local-pact-field-authority-focus-offset150/focus_cards.jsonl`;
-  - `experiments/20260615-local-pact-field-authority-focus-offset150/focus_cards.md`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-field-authority-focus-offset150/focus_cards.jsonl`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-field-authority-focus-offset150/focus_cards.md`;
   - `22` cards, `17` unique samples.
 - Added manual semantic labels:
-  - `experiments/20260615-local-pact-field-authority-focus-offset150/manual_semantic_labels.jsonl`.
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-field-authority-focus-offset150/manual_semantic_labels.jsonl`.
 - Manual semantic family counts:
   - `answer_type_projection`: `10`;
   - `short_span_or_granularity`: `9`;
@@ -2892,7 +2892,7 @@ Next:
   - `21/22` focus cards are not target-slot candidates under the old lexical
     diagnostic.
 - Added report:
-  - `reports/20260615-field-authority-offset150-semantic-focus.md`.
+  - `reports/_archive/20260616-pruned/20260615-field-authority-offset150-semantic-focus.md`.
 - Evidence register:
   - added `E-090`.
 - Interpretation:
@@ -2902,7 +2902,7 @@ Next:
     checks against the trusted question root.
 - Follow-up seed:
   - generated offset100 focus cards with the same extractor at
-    `experiments/20260615-local-pact-field-authority-focus-offset100/`;
+    `experiments/_archive/20260616-pruned/20260615-local-pact-field-authority-focus-offset100/`;
   - offset100 focus cards: `28`;
   - families: `20` public-target-without-question regressions, `7`
     frozen-question-target rescues, and `1` frozen-question-target regression;
@@ -2911,9 +2911,9 @@ Next:
 ## 2026-06-15 Field-Authority Cross-Slice Semantic Focus
 
 - Added offset100 manual semantic labels:
-  - `experiments/20260615-local-pact-field-authority-focus-offset100/manual_semantic_labels.jsonl`.
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-field-authority-focus-offset100/manual_semantic_labels.jsonl`.
 - Added cross-slice report:
-  - `reports/20260615-field-authority-cross-slice-semantic-focus.md`.
+  - `reports/_archive/20260616-pruned/20260615-field-authority-cross-slice-semantic-focus.md`.
 - Combined focus-card counts:
   - offset100: `28`;
   - offset150: `22`;
@@ -2941,7 +2941,7 @@ Next:
 
 - Ran a bounded outside check after the cross-slice semantic focus report.
 - Added report:
-  - `reports/20260615-field-authority-answer-contract-outside-check.md`.
+  - `reports/_archive/20260616-pruned/20260615-field-authority-answer-contract-outside-check.md`.
 - Added reading-queue section:
   - `Field-Authority / Answer-Contract Outside Check`.
 - Useful external pressure hits:
@@ -2963,9 +2963,9 @@ Next:
 - Added manual/oracle audit seed builder:
   - `scripts/build_pact_answer_contract_audit_seed.py`.
 - Generated audit seed artifacts:
-  - `experiments/20260615-local-pact-answer-contract-audit-seed/audit_seed_records.jsonl`;
-  - `experiments/20260615-local-pact-answer-contract-audit-seed/audit_seed.md`;
-  - `experiments/20260615-local-pact-answer-contract-audit-seed/summary.json`.
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-audit-seed/audit_seed_records.jsonl`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-audit-seed/audit_seed.md`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-audit-seed/summary.json`.
 - Audit seed size:
   - `50` records;
   - offset100 `28`, offset150 `22`.
@@ -2980,7 +2980,7 @@ Next:
   - frozen question target sufficient in `43/50`;
   - evidence-adequacy guard needed in `2/50` boundary records.
 - Added report:
-  - `reports/20260615-field-authority-answer-contract-audit-seed.md`.
+  - `reports/_archive/20260616-pruned/20260615-field-authority-answer-contract-audit-seed.md`.
 - Evidence register:
   - added `E-093`.
 - Interpretation:
@@ -2993,13 +2993,13 @@ Next:
 - Added matched negative-control packet builder:
   - `scripts/build_pact_answer_contract_negative_controls.py`.
 - Generated negative-control artifacts:
-  - `experiments/20260615-local-pact-answer-contract-negative-controls/negative_control_cards.jsonl`;
-  - `experiments/20260615-local-pact-answer-contract-negative-controls/negative_control_seed.jsonl`;
-  - `experiments/20260615-local-pact-answer-contract-negative-controls/manual_seed_labels.jsonl`;
-  - `experiments/20260615-local-pact-answer-contract-negative-controls/manual_seed_label_summary.json`;
-  - `experiments/20260615-local-pact-answer-contract-negative-controls/negative_control_cards.md`;
-  - `experiments/20260615-local-pact-answer-contract-negative-controls/negative_control_seed.md`;
-  - `experiments/20260615-local-pact-answer-contract-negative-controls/summary.json`.
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-negative-controls/negative_control_cards.jsonl`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-negative-controls/negative_control_seed.jsonl`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-negative-controls/manual_seed_labels.jsonl`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-negative-controls/manual_seed_label_summary.json`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-negative-controls/negative_control_cards.md`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-negative-controls/negative_control_seed.md`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-negative-controls/summary.json`.
 - Packet size:
   - `146` negative-control cards;
   - `24` deterministic seed cards;
@@ -3023,7 +3023,7 @@ Next:
   - short-span alarm: `8` yes, `16` no;
   - evidence-adequacy alarm: `8` yes, `16` no.
 - Added report:
-  - `reports/20260615-field-authority-answer-contract-negative-controls.md`.
+  - `reports/_archive/20260616-pruned/20260615-field-authority-answer-contract-negative-controls.md`.
 - Evidence register:
   - added `E-094` and `E-095`.
 - Interpretation:
@@ -3042,10 +3042,10 @@ Next:
 - Added verifier output evaluator:
   - `scripts/evaluate_pact_answer_contract_verifier.py`.
 - Generated verifier packet artifacts:
-  - `experiments/20260615-local-pact-answer-contract-verifier-packet/verifier_packet.jsonl`;
-  - `experiments/20260615-local-pact-answer-contract-verifier-packet/gold_labels.jsonl`;
-  - `experiments/20260615-local-pact-answer-contract-verifier-packet/summary.json`;
-  - `experiments/20260615-local-pact-answer-contract-verifier-packet/scoring_plan.md`.
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-verifier-packet/verifier_packet.jsonl`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-verifier-packet/gold_labels.jsonl`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-verifier-packet/summary.json`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-verifier-packet/scoring_plan.md`.
 - Packet size:
   - `74` records;
   - `50` positive target-layer records;
@@ -3067,7 +3067,7 @@ Next:
   - `all_no` baseline: `0.108` exact all-fields accuracy and `0.108`
     primary-surface accuracy.
 - Added report:
-  - `reports/20260615-field-authority-answer-contract-verifier-packet.md`.
+  - `reports/_archive/20260616-pruned/20260615-field-authority-answer-contract-verifier-packet.md`.
 - Evidence register:
   - added `E-096`.
 - Interpretation:
@@ -3093,9 +3093,9 @@ Next:
   - `answer_type_relation_alarm` F1 `0.133`;
   - `short_span_granularity_alarm` F1 `0.324`.
 - Added run note:
-  - `experiments/20260615-1938-a8002-pact-answer-contract-verifier-qwen25-14b/README.md`.
+  - `experiments/_archive/20260616-pruned/20260615-1938-a8002-pact-answer-contract-verifier-qwen25-14b/README.md`.
 - Added report:
-  - `reports/20260615-pact-answer-contract-verifier-qwen25-14b.md`.
+  - `reports/_archive/20260616-pruned/20260615-pact-answer-contract-verifier-qwen25-14b.md`.
 - Evidence register:
   - added `E-097`.
 - Interpretation:
@@ -3109,7 +3109,7 @@ Next:
 - Added strict prompt-v2 packet builder:
   - `scripts/build_pact_answer_contract_verifier_prompt_v2_packet.py`.
 - Generated prompt-v2 packet:
-  - `experiments/20260615-local-pact-answer-contract-verifier-packet-v2/`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-verifier-packet-v2/`;
   - same `74` records and gold labels as the v1 verifier packet;
   - only the prompt text and prompt-version metadata changed.
 - Gold and all-no evaluator smokes passed on the v2 packet:
@@ -3128,9 +3128,9 @@ Next:
   - `target_authority_alarm` F1 fell from `0.688` to `0.526`;
   - `short_span_granularity_alarm` F1 fell from `0.324` to `0.125`.
 - Added run note:
-  - `experiments/20260615-1951-a8002-pact-answer-contract-verifier-v2-qwen25-14b/README.md`.
+  - `experiments/_archive/20260616-pruned/20260615-1951-a8002-pact-answer-contract-verifier-v2-qwen25-14b/README.md`.
 - Added report:
-  - `reports/20260615-pact-answer-contract-verifier-v2-qwen25-14b.md`.
+  - `reports/_archive/20260616-pruned/20260615-pact-answer-contract-verifier-v2-qwen25-14b.md`.
 - Evidence register:
   - added `E-098`.
 - Interpretation:
@@ -3147,7 +3147,7 @@ Next:
 - Added A800_2 launcher:
   - `scripts/run_pact_answer_contract_split_alarm_a8002.sh`.
 - Generated split-alarm packet:
-  - `experiments/20260615-local-pact-answer-contract-split-alarm-packet/`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-answer-contract-split-alarm-packet/`;
   - `74` base records expanded into `444` prompt rows across six alarm tasks.
 - Gold and all-no evaluator smokes passed:
   - gold exact label accuracy `1.000`;
@@ -3168,9 +3168,9 @@ Next:
   - `evidence_adequacy_alarm` F1 `0.424`;
   - `final_candidate_alarm` F1 `0.000`.
 - Added run note:
-  - `experiments/20260615-2002-a8002-pact-answer-contract-split-alarm-qwen25-14b/README.md`.
+  - `experiments/_archive/20260616-pruned/20260615-2002-a8002-pact-answer-contract-split-alarm-qwen25-14b/README.md`.
 - Added report:
-  - `reports/20260615-pact-answer-contract-split-alarm-qwen25-14b.md`.
+  - `reports/_archive/20260616-pruned/20260615-pact-answer-contract-split-alarm-qwen25-14b.md`.
 - Evidence register:
   - added `E-099`.
 - Interpretation:
@@ -3183,7 +3183,7 @@ Next:
 ## 2026-06-15 External Pressure Taste Audit
 
 - Added bounded outside-pressure synthesis:
-  - `reports/20260615-external-pressure-taste-audit.md`.
+  - `reports/_archive/20260616-pruned/20260615-external-pressure-taste-audit.md`.
 - External pressure sources:
   - PACT action-state communication;
   - AgentSecBench and CaMeL for data-flow versus authority separation;
@@ -3208,7 +3208,7 @@ Next:
   - `scripts/evaluate_pact_authority_evidence_stress_packet.py`;
   - `scripts/run_pact_authority_evidence_stress_a8002.sh`.
 - Generated setup packet:
-  - `experiments/20260615-local-pact-authority-evidence-stress-packet/`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-authority-evidence-stress-packet/`;
   - source cases: `40`;
   - prompt rows: `200`;
   - source mix: `32` positive target-focus cases and `8` negative-control seed
@@ -3267,7 +3267,7 @@ Next:
   - `scripts/evaluate_pact_authority_injection_arena.py`;
   - `scripts/run_pact_authority_injection_arena_a8002.sh`.
 - Generated setup packet:
-  - `experiments/20260615-local-pact-authority-injection-arena-packet/`;
+  - `experiments/_archive/20260616-pruned/20260615-local-pact-authority-injection-arena-packet/`;
   - source cases: `40`;
   - prompt rows: `280`;
   - variants: original untyped public state, evidence-only neutral, neutral
@@ -3294,7 +3294,7 @@ Next:
     but are not safe by themselves because the visible untrusted candidate can
     become an attraction surface.
 - Added report:
-  - `reports/20260615-pact-authority-injection-arena-qwen25-14b.md`.
+  - `reports/_archive/20260616-pruned/20260615-pact-authority-injection-arena-qwen25-14b.md`.
 - Evidence register:
   - added `E-103`.
 
@@ -3323,7 +3323,7 @@ Next:
     `Untrusted Candidate:` and `0/80` with `Candidate surface:`;
   - all `160/160` visible-candidate rows contain `Untrusted Candidate:`.
 - Added report:
-  - `reports/20260615-pact-typed-boundary-split-packet.md`.
+  - `reports/_archive/20260616-pruned/20260615-pact-typed-boundary-split-packet.md`.
 - Evidence register:
   - added `E-104`.
 
@@ -3401,7 +3401,7 @@ Next:
   - gold-smoke semantic evaluation produced `670/670` known-correct rows and
     `0` semantic unknowns.
 - Added report:
-  - `reports/20260615-math-authority-genesis-ladder-packet.md`.
+  - `reports/_archive/20260616-pruned/20260615-math-authority-genesis-ladder-packet.md`.
 - Evidence register:
   - added `E-109`.
 
@@ -3574,8 +3574,8 @@ Next:
   - builder: `scripts/build_math_epistemic_type_erasure_packet.py`;
   - A8002 runner: `scripts/run_math_epistemic_type_erasure_a8002.sh`;
   - packet directory:
-    `experiments/20260616-local-math-epistemic-type-erasure-packet/`;
-  - report: `reports/20260616-math-epistemic-type-erasure-packet.md`.
+    `experiments/_archive/20260616-pruned/20260616-local-math-epistemic-type-erasure-packet/`;
+  - report: `reports/_archive/20260616-pruned/20260616-math-epistemic-type-erasure-packet.md`.
 - Design:
   - same Agent A artifact is rendered as type-erased peer/shared-context text
     or as type-preserved communication with explicit epistemic type,
@@ -3649,9 +3649,9 @@ Next:
   - run id:
     `20260616-1123-a8002-math-type-erasure-qwen25-14b-full222`;
   - local mirror:
-    `experiments/20260616-1123-a8002-math-type-erasure-qwen25-14b-full222/`;
+    `experiments/_archive/20260616-pruned/20260616-1123-a8002-math-type-erasure-qwen25-14b-full222/`;
   - report:
-    `reports/20260616-math-epistemic-type-erasure-qwen25-14b.md`;
+    `reports/_archive/20260616-pruned/20260616-math-epistemic-type-erasure-qwen25-14b.md`;
   - `222/222` rows completed;
   - `0` runner failures;
   - evaluator stderr empty;
@@ -3701,7 +3701,7 @@ Next:
   - packet directory:
     `experiments/20260616-local-math-epistemic-type-erasure-v2-packet/`;
   - setup report:
-    `reports/20260616-math-epistemic-type-erasure-v2-packet.md`.
+    `reports/_archive/20260616-pruned/20260616-math-epistemic-type-erasure-v2-packet.md`.
 - Packet shape:
   - `222` prompt rows;
   - `15` source rows represented;
@@ -3825,3 +3825,478 @@ Next:
   - the next pressure is manual audit of the six typed/operator-candidate cards
     and a deconcentrated packet that reduces reliance on `math121`,
     `math159`, and `math96`.
+
+## 2026-06-17 TypeCastArena Boundary-Obedience Preflight
+
+- Built a cleaner TypeCastArena receiver preflight packet:
+  - packet directory:
+    `experiments/20260617-local-typecast-arena-math200-rawgold-candidatewrong-inert-receiver-packet/`;
+  - source: raw-gold MATH200 decisive rows plus live sender outputs from
+    `experiments/20260616-1751-a8002-typecast-math200-sender200-qwen25-7b/`;
+  - `35` live sender artifacts, all with sender candidates wrong under raw
+    gold;
+  - `315` receiver prompt rows.
+- Added an explicit content-visible inert control:
+  - `sender_private_scratch_visible_inert` exposes the same sender artifact
+    text but marks it as not delivered and not admitted;
+  - this creates a direct contrast against `peer_message_direct`,
+    `shared_workspace_admitted`, and `verifier_admitted_result`.
+- Local validation:
+  - gold-smoke evaluation passed with `315/315` semantic-correct rows and `0`
+    semantic unknowns;
+  - `admission_rejected_quarantine` rows withhold the artifact/candidate;
+  - `typed_partial_derivation_requires_rederive` removes the candidate answer
+    while keeping partial derivation text visible.
+- Added deterministic boundary-obedience triage:
+  - script: `scripts/analyze_typecast_boundary_obedience.py`;
+  - new packet gold-smoke produced `0` boundary concern cards;
+  - old raw-gold relabeled 304-row run produced `2` diagnostic cards, both on
+    `math200_case168` under quarantine or typed-rederive.
+- Added report:
+  - `reports/20260617-typecast-boundary-obedience-preflight.md`.
+- Evidence register:
+  - added `E-115`.
+- Interpretation:
+  - this is setup and diagnostic progress, not a new model-behavior claim;
+  - the next GPU run should score the new packet with both the MATH evaluator
+    and the boundary-obedience triage, then manually inspect concern cards
+    before promoting any communication-lifecycle claim.
+
+## 2026-06-17 TypeCastArena Inert Receiver315 A800_2 Run
+
+- Ran the new TypeCastArena inert-control receiver packet on A800_2:
+  - run id:
+    `20260617-0033-a8002-typecast-math200-inert-receiver315-qwen25-14b`;
+  - local mirror:
+    `experiments/20260617-0033-a8002-typecast-math200-inert-receiver315-qwen25-14b/`;
+  - packet:
+    `experiments/20260617-local-typecast-arena-math200-rawgold-candidatewrong-inert-receiver-packet/typecast_math_receiver_packet.jsonl`;
+  - model: Qwen2.5-14B-Instruct served as
+    `qwen2.5-14b-typecast-arena`;
+  - GPU: A800_2 GPU `7`, port `8043`, temperature `0`, max tokens `768`.
+- Execution:
+  - `315/315` rows completed;
+  - `0` failures;
+  - runner, evaluator, and boundary stderr files were empty;
+  - vLLM was cleaned up after the run and GPU 7 returned to idle.
+- Evaluation:
+  - local re-score: semantic correct `124/315`, semantic wrong `109/315`,
+    semantic unknown `82/315`;
+  - remote evaluator stdout before local re-score had `125/315` semantic
+    correct, a one-row parser/version difference that does not change the
+    interpretation;
+  - baseline previous-solution rows were only `16/35` correct, with `9/35`
+    missing-answer rows.
+- Paired authority readout over the `16` baseline-correct cases:
+  - self-revision: `1/16`;
+  - unrelated control: `2/16`;
+  - inert visible scratch: `2/16`;
+  - direct peer message: `2/16`;
+  - shared workspace admitted: `2/16`;
+  - verifier admitted: `3/16`;
+  - quarantine: `3/16`;
+  - typed rederive: `2/16`.
+- Boundary-obedience triage:
+  - concern cards: `22/315`;
+  - inert visible scratch: `9`;
+  - typed rederive: `7`;
+  - quarantine: `4`;
+  - unrelated visible control: `2`.
+- Case concentration:
+  - `17` paired authority-violation rows total;
+  - `math200_case112` contributes `5`;
+  - `math200_case127` contributes `5`.
+- Diagnosis:
+  - this is a control-gate/design failure, not a positive lifecycle result;
+  - current packet cannot separate content visibility from communication
+    admission because inert/quarantine/typed/control rows fail at comparable
+    rates to peer/admitted rows;
+  - next packet should first filter receiver baseline-correct cases and
+    strengthen final-answer formatting before using more GPU.
+- Added report:
+  - `reports/20260617-typecast-math200-inert-receiver315-qwen25-14b.md`.
+- Evidence register:
+  - added `E-116`.
+
+## 2026-06-17 TypeCastArena Repaired Control-Stable Packet
+
+- Built a repaired receiver packet after the `315`-row inert-control run failed
+  the control gate:
+  - packet:
+    `experiments/20260617-local-typecast-arena-math200-repaired-controlstable-receiver-packet/typecast_math_receiver_packet.jsonl`;
+  - builder:
+    `scripts/build_typecast_receiver_repair_packet.py`.
+- Selection:
+  - source run:
+    `experiments/20260617-0033-a8002-typecast-math200-inert-receiver315-qwen25-14b/evaluation/evaluated_rows.jsonl`;
+  - required-correct variants:
+    `baseline_previous_solution`, `control_self_revision_no_sender`,
+    `control_unrelated_sender_message`;
+  - selected cases: `13`;
+  - excluded cases: `22`.
+- Packet shape:
+  - receiver rows: `117`;
+  - unique packet ids: `117`;
+  - rows per future signal: `13`;
+  - strict final-answer contract appears in all prompts;
+  - rows by channel condition: baseline `13`, control `39`, erased `13`,
+    admitted `26`, quarantine `13`, typed `13`.
+- Local validation:
+  - script syntax check passed for the repair builder and boundary analyzer;
+  - gold-smoke evaluation passed with `117/117` semantic-correct rows and
+    `0` semantic unknowns;
+  - boundary-obedience gold-smoke produced `0/117` concern cards.
+- Interpretation:
+  - this is setup evidence and a narrower GPU-ready diagnostic slice, not model
+    behavior evidence;
+  - because the slice is selected post hoc from the failed Qwen2.5-14B run, it
+    cannot support population-rate claims.
+- Next GPU gate:
+  - run only this `117`-row packet on one GPU;
+  - require baseline, self-revision, and unrelated controls to remain clean;
+  - treat comparable inert/quarantine/typed and admitted/verifier failures as
+    another control-gate failure, not as lifecycle evidence.
+- Added report:
+  - `reports/20260617-typecast-repaired-controlstable-packet.md`.
+- Evidence register:
+  - added `E-117`.
+
+## 2026-06-17 TypeCastArena Repaired Control-Stable117 A800_2 Run
+
+- Ran the repaired TypeCastArena receiver packet on A800_2:
+  - run id:
+    `20260617-0148-a8002-typecast-repaired-controlstable117-qwen25-14b`;
+  - local mirror:
+    `experiments/20260617-0148-a8002-typecast-repaired-controlstable117-qwen25-14b/`;
+  - packet:
+    `experiments/20260617-local-typecast-arena-math200-repaired-controlstable-receiver-packet/typecast_math_receiver_packet.jsonl`;
+  - model: Qwen2.5-14B-Instruct served as
+    `qwen2.5-14b-typecast-arena`;
+  - GPU: A800_2 GPU `7`, port `8043`, temperature `0`, max tokens `768`.
+- Execution:
+  - `117/117` rows completed;
+  - `0` failures;
+  - runner, evaluator, and boundary stderr files were empty;
+  - vLLM was cleaned up after the run and GPU 7 returned to idle.
+- Evaluation:
+  - local re-score matched remote evaluator summary;
+  - semantic correct `91/117`, semantic wrong `19/117`, semantic unknown
+    `7/117`;
+  - missing-answer rows: `6`;
+  - wrong-answer uptake rows: `8`;
+  - baseline previous-solution rows were `11/13` correct, not the hoped-for
+    `13/13`.
+- Paired authority readout over the `11` baseline-correct cases:
+  - self-revision: `0/11`;
+  - unrelated control: `0/11`;
+  - inert visible scratch: `2/11`;
+  - direct peer message: `2/11`;
+  - shared workspace admitted: `2/11`;
+  - verifier admitted: `2/11`;
+  - quarantine: `0/11`;
+  - typed rederive: `1/11`.
+- Boundary-obedience triage:
+  - concern cards: `3/117`;
+  - inert visible scratch: `1`;
+  - typed rederive: `2`;
+  - quarantine and unrelated control: `0`.
+- Concrete failure cases:
+  - `math200_case010`: inert, direct peer, shared workspace, typed rederive,
+    and verifier all copy the wrong sender answer `-1`, while
+    baseline/self/unrelated/quarantine output gold `2`;
+  - `math200_case022`: inert, direct peer, and shared workspace shift from
+    `44%` to `44.05%`, while verifier copies `44.0625%`;
+  - `math200_case127`: typed rederive reconstructs `$2\sqrt{105}$ cm` from
+    removed-candidate/operator state while quarantine outputs gold
+    `2\sqrt{10}`.
+- Diagnosis:
+  - this is a sharper diagnostic control-gate failure, not a positive lifecycle
+    result;
+  - the repaired packet cleaned up self/unrelated/quarantine enough to make the
+    remaining failure interpretable;
+  - content-visible inert scratch and typed partial derivation are still not
+    clean controls, so no larger GPU run is justified before local redesign.
+- Added report:
+  - `reports/20260617-typecast-repaired-controlstable117-qwen25-14b.md`.
+- Evidence register:
+  - added `E-118`.
+
+## 2026-06-17 Benchmark-First Reckoning
+
+- Added a formal reset report:
+  - `reports/20260617-benchmark-first-reckoning.md`.
+- Judgment:
+  - the old authority / typecast line is retired as the main paper story;
+  - MATH authority genesis, type erasure, sender-receiver micro-protocol, and
+    operator lifecycle remain useful as mechanism microscopes;
+  - they cannot choose the benchmark or carry the main communication
+    reliability claim because they are selected re-answer packets, mostly
+    single-model, and do not establish communication necessity.
+- Specific retirements:
+  - do not scale TypeCastArena `315` or repaired `117` receiver packets;
+  - do not spend another large GPU run on MATH / TypeCast variants unless an
+    external benchmark motivates a concrete mechanism question;
+  - do not treat PACT saved-field / re-answer stress results as benchmark
+    results.
+- Preserved handles:
+  - operator-level invalid cast;
+  - equation-surface, numeric-role, relation-skeleton, and final-answer-artifact
+    uptake;
+  - boundary/control failures as prevention rules for future packets.
+- New benchmark-first gate:
+  - benchmark must have information asymmetry, role separation, partial
+    observability, or communication necessity;
+  - it must expose hard controls such as partial/no-comm, oracle-public-facts,
+    full-info, and protocol variants;
+  - Qwen2.5-14B is only the cheap diagnostic backbone unless cross-model checks
+    reproduce the direction.
+- New priority order:
+  - HiddenBench protocol v2 first;
+  - PACT-style HotpotQA / 2Wiki split-evidence second;
+  - SOTOPIA-TOM contact as a possible channel/private-fact pressure object;
+  - TeamBench remains P0 once Docker/rootless-container support exists.
+- Updated:
+  - `docs/active_research_map.md`;
+  - `reports/README.md`;
+  - `docs/evidence_register.md`.
+
+## 2026-06-17 HiddenBench V2 Design Audit
+
+- Added a preflight design audit:
+  - `reports/20260617-hiddenbench-v2-design-audit.md`.
+- Judgment:
+  - do not launch a full HiddenBench v2 protocol stack yet;
+  - first split the failure source into agent public-message pollution/omission
+    versus final-decider integration failure;
+  - defer interpreted typed fact cards, option polarity fields, and admission
+    checks until a smaller fact-only / constraint-decider diagnostic shows a
+    clean signal.
+- Revised Stage 1 conditions:
+  - `shared_only`;
+  - `full_info`;
+  - `oracle_public_facts`;
+  - `exchange_then_decide`;
+  - `fact_only_exchange`;
+  - `fact_only_constraint_decide`.
+- Gate:
+  - `fact_only_constraint_decide` must reuse the exact same fact-only public
+    messages as `fact_only_exchange`;
+  - run limit12 with prompt/message audit before any full65 run;
+  - report message coverage, recommendation leakage, shared-fact overtalk,
+    invented fact flags, paired contrasts, parse failures, and token cost.
+
+## 2026-06-17 HiddenBench V2 Stage 1 Smoke12
+
+- Implemented Stage 1 HiddenBench runner/analyzer changes:
+  - added `fact_only_exchange`;
+  - added `fact_only_constraint_decide`, reusing the same fact-only messages;
+  - added public-message audit fields for private-fact overlap,
+    recommendation leakage, shared-fact overtalk, answer mentions, and
+    paired contrasts.
+- Ran A800_2 smoke:
+  - run id:
+    `20260617-162153-a8002-hiddenbench-v2-stage1-smoke12-qwen25-14b`;
+  - model: `Qwen2.5-14B-Instruct`;
+  - limit: `12`;
+  - GPU: `7`;
+  - prompts saved.
+- Corrected summary:
+  - `shared_only`: `1/12`;
+  - `full_info`: `9/12`;
+  - `oracle_public_facts`: `8/12`;
+  - `exchange_then_decide`: `2/12`;
+  - `fact_only_exchange`: `9/12`;
+  - `fact_only_constraint_decide`: `9/12`.
+- Interpretation:
+  - the old exchange failure is primarily a sender public-message pollution
+    signal in this slice;
+  - `fact_only_exchange` rescues `7` tasks that old exchange missed;
+  - the constraint final prompt adds `0` cases over fact-only messages, so
+    final integration machinery is not the next thing to complicate.
+- Case inspection:
+  - tasks `10`, `11`, and `12` all show old exchange agents mixing private
+    facts with repeated shared advantages and tentative recommendations;
+  - fact-only messages preserve the blocking facts and let the final decider
+    select the gold option.
+- Added report:
+  - `reports/20260617-hiddenbench-v2-stage1-smoke12-qwen25-14b.md`.
+- Evidence register:
+  - added `E-120`.
+
+## 2026-06-17 HiddenBench V2 Stage 1 Full65
+
+- Ran Stage 1 full65 on A800_2:
+  - run id:
+    `20260617-163732-a8002-hiddenbench-v2-stage1-full65-qwen25-14b`;
+  - model: `Qwen2.5-14B-Instruct`;
+  - limit: `65`;
+  - GPU: `7`;
+  - records: `390`;
+  - failures: `0`;
+  - prompts saved.
+- Corrected raw summary:
+  - `shared_only`: `1/65`;
+  - `full_info`: `59/65`;
+  - `oracle_public_facts`: `56/65`;
+  - `exchange_then_decide`: `24/65`;
+  - `fact_only_exchange`: `57/65`;
+  - `fact_only_constraint_decide`: `56/65`.
+- Clean subset:
+  - on the `55` tasks where `full_info` and `oracle_public_facts` are both
+    correct, `fact_only_exchange` is `55/55` while old
+    `exchange_then_decide` is `23/55`;
+  - fact-only rescues `34` old-exchange wrong tasks overall;
+  - the only exchange-only task is `13`, which is also
+    `oracle_public_facts` wrong.
+- Message audit:
+  - old exchange recommendation leakage: `225/253`;
+  - fact-only recommendation leakage: `0/253`;
+  - old exchange shared-fact overtalk: `134/253`;
+  - fact-only shared-fact overtalk: `4/253`;
+  - average private-fact overlap rises from `0.656` to `0.951`.
+- Interpretation:
+  - the active HiddenBench idea should focus on sender public-state discipline
+    and premature recommendation pollution;
+  - heavier final integration prompting is not currently supported because
+    `fact_only_constraint_decide` is slightly worse than `fact_only_exchange`.
+- Added report:
+  - `reports/20260617-hiddenbench-v2-stage1-full65-qwen25-14b.md`.
+- Evidence register:
+  - added `E-121`.
+
+## 2026-06-17 HiddenBench V2 Stage 2 Sender Ablation Preflight
+
+- Prepared Stage 2 sender-ablation conditions:
+  - `no_recommendation_exchange`;
+  - `no_shared_repeat_exchange`;
+  - `fact_only_with_options_exchange`.
+- Added reusable clean-subset analysis:
+  - `scripts/analyze_hiddenbench_subsets.py`.
+- Added a local PowerShell launcher that base64-wraps the remote Bash script to
+  avoid Windows / SSH quoting failures:
+  - `scripts/run_hiddenbench_stage2_sender_ablation_a8002.ps1`.
+- Local checks:
+  - HiddenBench runner, analyzer, and subset analyzer pass `py_compile`;
+  - subset analyzer reproduces the Stage 1 full65 clean subset with
+    `55` clean tasks and `32` clean fact-only-over-old rescues.
+- Remote readiness:
+  - synced Stage 2 scripts to
+    `/data/xuhaoming/yfy/research_workspace/scripts/`;
+  - remote `py_compile` and `bash -n` pass;
+  - GPU7 is idle, port `8047` is free, ports `8012` and `8014` remain occupied
+    by existing services and were not touched;
+  - `/data` and `/mnt/quarkfs` both have enough free space.
+- Added preflight report:
+  - `reports/20260617-hiddenbench-v2-stage2-sender-ablation-preflight.md`.
+- Next gated action:
+  - run Stage 2 smoke12 only, then inspect raw, clean subset, and message-audit
+    contrasts before considering full65.
+
+## 2026-06-17 HiddenBench V2 Stage 2 Sender Ablation Smoke12
+
+- Launched Stage 2 smoke12 on A800_2:
+  - successful run id:
+    `20260617-1752-a8002-hiddenbench-v2-stage2-sender-ablation-smoke12-qwen25-14b`;
+  - model: `Qwen2.5-14B-Instruct`;
+  - limit: `12`;
+  - GPU: `7`;
+  - records: `108`;
+  - failures: `0`;
+  - unparsed: `0`;
+  - prompts saved.
+- Execution note:
+  - an earlier background wrapper with run id prefix `20260617-1745` failed
+    before model loading because a PowerShell-generated temporary shell script
+    hit a CRLF/path parsing issue;
+  - no model calls were made for that failed wrapper.
+- Corrected raw summary:
+  - `shared_only`: `1/12`;
+  - `exchange_then_decide`: `2/12`;
+  - `no_recommendation_exchange`: `5/12`;
+  - `no_shared_repeat_exchange`: `5/12`;
+  - `fact_only_with_options_exchange`: `8/12`;
+  - `oracle_public_facts`: `8/12`;
+  - `full_info`: `9/12`;
+  - `fact_only_exchange`: `9/12`;
+  - `fact_only_constraint_decide`: `9/12`.
+- Clean subset:
+  - on the `8` tasks where `full_info` and `oracle_public_facts` are both
+    correct, old exchange is `2/8`;
+  - `no_recommendation_exchange` and `no_shared_repeat_exchange` are both
+    `4/8`;
+  - `fact_only_with_options_exchange` is `7/8`;
+  - `fact_only_exchange` and `fact_only_constraint_decide` are both `8/8`.
+- Message audit:
+  - old exchange recommendation leakage: `41/45`;
+  - `no_recommendation_exchange` recommendation leakage: `0/45`, but shared
+    overtalk remains `28/45` and private exact count is only `2/45`;
+  - `no_shared_repeat_exchange` shared overtalk drops to `5/45`, but
+    recommendation leakage remains `31/45`;
+  - fact-only has recommendation leakage `0/45`, shared overtalk `4/45`, and
+    private exact count `28/45`.
+- Interpretation:
+  - broad recommendation banning helps but does not explain the full Stage 1
+    fact-only gain;
+  - the live mechanism is sender public-state discipline: suppressing premature
+    preference compression, suppressing shared-advantage replay, and improving
+    exact private-fact transfer together.
+- Added report:
+  - `reports/20260617-hiddenbench-v2-stage2-sender-ablation-smoke12-qwen25-14b.md`.
+- Evidence register:
+  - added `E-122`.
+
+## 2026-06-17 HiddenBench V2 Stage 2 Sender Ablation Full65
+
+- Ran Stage 2 full65 on A800_2:
+  - run id:
+    `20260617-1807-a8002-hiddenbench-v2-stage2-sender-ablation-full65-qwen25-14b`;
+  - model: `Qwen2.5-14B-Instruct`;
+  - limit: `65`;
+  - GPU: `7`;
+  - records: `585`;
+  - failures: `0`;
+  - unparsed: `0`;
+  - prompts not saved.
+- Corrected scoring:
+  - `0` rescoring changes.
+- Corrected raw summary:
+  - `shared_only`: `1/65`;
+  - `exchange_then_decide`: `24/65`;
+  - `no_recommendation_exchange`: `30/65`;
+  - `no_shared_repeat_exchange`: `33/65`;
+  - `oracle_public_facts`: `56/65`;
+  - `fact_only_constraint_decide`: `56/65`;
+  - `fact_only_with_options_exchange`: `56/65`;
+  - `fact_only_exchange`: `57/65`;
+  - `full_info`: `59/65`.
+- Clean subset:
+  - `55` tasks have both `full_info` and `oracle_public_facts` correct;
+  - old exchange is `23/55`;
+  - `no_recommendation_exchange` is `28/55`;
+  - `no_shared_repeat_exchange` is `31/55`;
+  - `fact_only_with_options_exchange` is `53/55`;
+  - `fact_only_exchange` and `fact_only_constraint_decide` are both `55/55`.
+- Paired clean-subset readout:
+  - fact-only over old exchange: `32` rescues, `0` regressions;
+  - fact-only over no-recommendation: `27` rescues, `0` regressions;
+  - fact-only over no-shared-repeat: `24` rescues, `0` regressions;
+  - fact-only over fact-only-with-options: `2` rescues, `0` regressions.
+- Message audit:
+  - old exchange recommendation leakage `225/253`, shared overtalk `134/253`,
+    private exact `6/253`;
+  - no-recommendation recommendation leakage `12/253`, shared overtalk
+    `176/253`, private exact `2/253`;
+  - no-shared-repeat recommendation leakage `191/253`, shared overtalk
+    `28/253`, private exact `6/253`;
+  - fact-only recommendation leakage `0/253`, shared overtalk `4/253`,
+    private exact `198/253`.
+- Interpretation:
+  - Stage 2 full65 strengthens the sender public-state discipline mechanism;
+  - simple recommendation bans or shared-repeat bans are partial and noisy;
+  - exact private-fact transfer plus delayed preference/selection remains the
+    live mechanism handle.
+- Added artifacts:
+  - `reports/20260617-hiddenbench-v2-stage2-sender-ablation-full65-qwen25-14b.md`;
+  - `experiments/20260617-1807-a8002-hiddenbench-v2-stage2-sender-ablation-full65-qwen25-14b/case_triage_summary.md`.
+- Evidence register:
+  - added `E-123`.

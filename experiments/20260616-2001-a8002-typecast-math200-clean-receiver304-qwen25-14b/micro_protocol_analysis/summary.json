@@ -1,0 +1,284 @@
+{
+  "authority_by_admission_status": {
+    "admitted_shared_workspace": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.125,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 1,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    },
+    "admitted_verifier_result": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.25,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 2,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    },
+    "message_only": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.0625,
+      "base_correct_records": 16,
+      "operator_uptake_candidate_count": 0,
+      "records": 76,
+      "wrong_answer_uptake_count": 1
+    },
+    "none": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.125,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 1,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    },
+    "rejected": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.25,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 2,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    },
+    "typed_message": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.125,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 1,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    }
+  },
+  "authority_by_artifact_type_channel_condition": {
+    "None | control": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.125,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 1,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    },
+    "live_sender_artifact | admitted": {
+      "authority_violation_count": 3,
+      "authority_violation_rate": 0.1875,
+      "base_correct_records": 16,
+      "operator_uptake_candidate_count": 3,
+      "records": 76,
+      "wrong_answer_uptake_count": 0
+    },
+    "live_sender_artifact | control": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 0,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    },
+    "live_sender_artifact | erased": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.125,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 0,
+      "records": 38,
+      "wrong_answer_uptake_count": 1
+    },
+    "live_sender_artifact | quarantine": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.25,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 2,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    },
+    "live_sender_artifact | typed": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.125,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 1,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    }
+  },
+  "authority_by_channel_condition": {
+    "admitted": {
+      "authority_violation_count": 3,
+      "authority_violation_rate": 0.1875,
+      "base_correct_records": 16,
+      "operator_uptake_candidate_count": 3,
+      "records": 76,
+      "wrong_answer_uptake_count": 0
+    },
+    "control": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.0625,
+      "base_correct_records": 16,
+      "operator_uptake_candidate_count": 1,
+      "records": 76,
+      "wrong_answer_uptake_count": 0
+    },
+    "erased": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.125,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 0,
+      "records": 38,
+      "wrong_answer_uptake_count": 1
+    },
+    "quarantine": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.25,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 2,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    },
+    "typed": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.125,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 1,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    }
+  },
+  "authority_by_future_signal": {
+    "admission_rejected_quarantine": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.25,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 2,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    },
+    "control_self_revision_no_sender": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.125,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 1,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    },
+    "control_unrelated_sender_message": {
+      "authority_violation_count": 0,
+      "authority_violation_rate": 0.0,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 0,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    },
+    "peer_message_direct": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.125,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 0,
+      "records": 38,
+      "wrong_answer_uptake_count": 1
+    },
+    "shared_workspace_admitted": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.125,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 1,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    },
+    "typed_partial_derivation_requires_rederive": {
+      "authority_violation_count": 1,
+      "authority_violation_rate": 0.125,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 1,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    },
+    "verifier_admitted_result": {
+      "authority_violation_count": 2,
+      "authority_violation_rate": 0.25,
+      "base_correct_records": 8,
+      "operator_uptake_candidate_count": 2,
+      "records": 38,
+      "wrong_answer_uptake_count": 0
+    }
+  },
+  "paired_delta_rows": 266,
+  "records": 304,
+  "source_paths": {
+    "evaluated_rows": "experiments\\20260616-2001-a8002-typecast-math200-clean-receiver304-qwen25-14b\\evaluation\\evaluated_rows.jsonl",
+    "packet": "experiments\\20260616-local-typecast-arena-math200-clean-decisive-receiver-packet\\typecast_math_receiver_packet.jsonl",
+    "paired_deltas": "experiments\\20260616-2001-a8002-typecast-math200-clean-receiver304-qwen25-14b\\evaluation\\paired_deltas.jsonl",
+    "run_dir": "experiments\\20260616-2001-a8002-typecast-math200-clean-receiver304-qwen25-14b\\evaluation"
+  },
+  "violation_cards": {
+    "artifact_type_counts": {
+      "None": 1,
+      "live_sender_artifact": 7
+    },
+    "case_counts": {
+      "math200_case010": 1,
+      "math200_case022": 2,
+      "math200_case112": 5
+    },
+    "records": 8,
+    "taxonomy_by_admission_status": {
+      "admitted_shared_workspace": {
+        "operator_candidate_needs_manual_review": 1
+      },
+      "admitted_verifier_result": {
+        "operator_candidate_needs_manual_review": 2
+      },
+      "message_only": {
+        "direct_visible_answer_uptake": 1
+      },
+      "none": {
+        "local_re_solve_or_empty_artifact_error": 1
+      },
+      "rejected": {
+        "local_re_solve_or_empty_artifact_error": 2
+      },
+      "typed_message": {
+        "local_re_solve_or_empty_artifact_error": 1
+      }
+    },
+    "taxonomy_by_channel_condition": {
+      "admitted": {
+        "operator_candidate_needs_manual_review": 3
+      },
+      "control": {
+        "local_re_solve_or_empty_artifact_error": 1
+      },
+      "erased": {
+        "direct_visible_answer_uptake": 1
+      },
+      "quarantine": {
+        "local_re_solve_or_empty_artifact_error": 2
+      },
+      "typed": {
+        "local_re_solve_or_empty_artifact_error": 1
+      }
+    },
+    "taxonomy_by_future_signal": {
+      "admission_rejected_quarantine": {
+        "local_re_solve_or_empty_artifact_error": 2
+      },
+      "control_self_revision_no_sender": {
+        "local_re_solve_or_empty_artifact_error": 1
+      },
+      "peer_message_direct": {
+        "direct_visible_answer_uptake": 1
+      },
+      "shared_workspace_admitted": {
+        "operator_candidate_needs_manual_review": 1
+      },
+      "typed_partial_derivation_requires_rederive": {
+        "local_re_solve_or_empty_artifact_error": 1
+      },
+      "verifier_admitted_result": {
+        "operator_candidate_needs_manual_review": 2
+      }
+    },
+    "taxonomy_primary_counts": {
+      "direct_visible_answer_uptake": 1,
+      "local_re_solve_or_empty_artifact_error": 4,
+      "operator_candidate_needs_manual_review": 3
+    }
+  }
+}

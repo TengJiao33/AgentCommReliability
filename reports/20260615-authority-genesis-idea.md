@@ -201,7 +201,7 @@ than evidence use. It can rewrite what the model behaves as if it is answering.
 
 ### PACT Authority Injection Arena
 
-`reports/20260615-pact-authority-injection-arena-qwen25-14b.md` makes the
+`reports/_archive/20260616-pruned/20260615-pact-authority-injection-arena-qwen25-14b.md` makes the
 pressure stronger. Over `26` base-correct positive rows:
 
 - `wrong_contract_public_task`: `21/26` authority violations, AVR `0.808`;

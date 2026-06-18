@@ -9,9 +9,9 @@ Main read: the object is not typed public state itself. The object is field-leve
 
 ## Sources
 
-- `experiments\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\case_atlas_focus_cases.jsonl`
-- `experiments\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\public_state_gold_manual_labels.jsonl`
-- `experiments\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\target_slot_drift_cases.jsonl`
+- `experiments\_archive\20260616-pruned\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\case_atlas_focus_cases.jsonl`
+- `experiments\_archive\20260616-pruned\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\public_state_gold_manual_labels.jsonl`
+- `experiments\_archive\20260616-pruned\20260614-1458-a8002-pact-qwen25-14b-hotpot50-offset50-paired\target_slot_drift_cases.jsonl`
 
 ## Counts
 

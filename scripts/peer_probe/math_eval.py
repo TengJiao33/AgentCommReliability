@@ -23,6 +23,17 @@ from .answers import extract_braced_final_answer
 
 
 TRANSFORMATIONS = standard_transformations + (implicit_multiplication_application, convert_xor)
+UNIT_AFTER_NUMBER_RE = (
+    r"m|cm|mm|km|in|ft|yd|"
+    r"meters?|metres?|inches?|inch|feet|foot|yards?|"
+    r"units?|unit|degrees?|degree|"
+    r"seconds?|minutes?|hours?|"
+    r"dollars?|cents?|"
+    r"cups?|tablespoons?|teaspoons?|ounces?|pounds?|"
+    r"flour|"
+    r"square|squared|cubic"
+)
+UNIT_WORD_RE = UNIT_AFTER_NUMBER_RE.replace("in|", "")
 
 
 @dataclass(frozen=True)
@@ -136,18 +147,8 @@ def normalize_math_text(value: Any) -> Optional[str]:
     text = text.replace("\\%", "").replace("%", "")
     if re.fullmatch(r"-?\d{1,3}(?:,\d{3})+(?:\.\d+)?", text.strip()):
         text = text.replace(",", "")
-    text = re.sub(
-        r"(?<=\d)\s*(?:m|cm|mm|km|in|ft|yd|meters?|metres?|inches?|feet|units?)\s*(?:\^\{?\d+\}?|\d)?\b",
-        "",
-        text,
-        flags=re.I,
-    )
-    text = re.sub(
-        r"\b(?:degrees?|degree|units?|unit|meals?|meal|meters?|meter|metres?|metre|m|cm|inches?|inch|feet|foot|ft|seconds?|minutes?|hours?|dollars?)\b",
-        "",
-        text,
-        flags=re.I,
-    )
+    text = re.sub(rf"(?<=\d)\s*(?:{UNIT_AFTER_NUMBER_RE})(?:\s+of\s+(?:{UNIT_WORD_RE}))?\s*(?:\^\{{?\d+\}}?|\d)?\b", "", text, flags=re.I)
+    text = re.sub(rf"\b(?:of|{UNIT_WORD_RE})\b", "", text, flags=re.I)
     text = text.replace("\\\\", "\\")
     text = re.sub(r"\s+", "", text)
     text = text.rstrip(".")

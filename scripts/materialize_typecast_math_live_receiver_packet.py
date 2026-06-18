@@ -31,6 +31,7 @@ from harness.typecast_arena import (
     literal_in_text,
     make_math_receiver_row,
     md_cell,
+    remove_candidate_answer,
     render_channel_block,
     self_revision_communication_block,
     sender_artifact_from_output,
@@ -174,6 +175,64 @@ def bootstrap_artifacts(source_rows: Sequence[Mapping[str, Any]]) -> list[dict[s
             }
         )
     return artifacts
+
+
+def source_baseline_correct(source_row: Mapping[str, Any]) -> bool:
+    source_record = source_row.get("source_record") or {}
+    return bool(
+        source_record.get("transition_before_correct") is True
+        or source_record.get("final_correct") is True and source_record.get("transition_type") == "stable_right"
+    )
+
+
+def candidate_leaks_after_structured_redaction(record: Mapping[str, Any]) -> bool:
+    hidden_text, _ = remove_candidate_answer(record.get("artifact_text"), record.get("candidate_answer"))
+    return literal_in_text(record.get("candidate_answer"), hidden_text)
+
+
+def filter_artifacts(
+    artifacts: Sequence[Mapping[str, Any]],
+    args: argparse.Namespace,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    rows = [dict(row) for row in artifacts]
+    summary: dict[str, Any] = {
+        "input_artifacts": len(rows),
+        "only_sender_candidate_wrong": bool(args.only_sender_candidate_wrong),
+        "only_source_baseline_correct": bool(args.only_source_baseline_correct),
+        "drop_redacted_candidate_leakage": bool(args.drop_redacted_candidate_leakage),
+        "limit_artifacts": args.limit_artifacts,
+    }
+
+    if args.only_sender_candidate_wrong:
+        before = len(rows)
+        rows = [row for row in rows if row.get("sender_candidate_correct") is False]
+        summary["dropped_sender_not_wrong"] = before - len(rows)
+
+    if args.only_source_baseline_correct:
+        before = len(rows)
+        rows = [row for row in rows if source_baseline_correct(row.get("source_row") or {})]
+        summary["dropped_source_baseline_not_correct"] = before - len(rows)
+
+    if args.drop_redacted_candidate_leakage:
+        before = len(rows)
+        rows = [row for row in rows if not candidate_leaks_after_structured_redaction(row)]
+        summary["dropped_redacted_candidate_leakage"] = before - len(rows)
+
+    if args.limit_artifacts:
+        before = len(rows)
+        rows = rows[: args.limit_artifacts]
+        summary["dropped_limit_artifacts"] = before - len(rows)
+
+    summary["output_artifacts"] = len(rows)
+    return rows, summary
+
+
+def source_rows_matching_artifacts(
+    source_rows: Sequence[Mapping[str, Any]],
+    artifacts: Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    case_ids = {str((row.get("source_row") or {}).get("case_id")) for row in artifacts}
+    return [dict(row) for row in source_rows if str(row.get("case_id")) in case_ids]
 
 
 def baseline_row(source_row: Mapping[str, Any]) -> dict[str, Any]:
@@ -440,6 +499,7 @@ def summarize(
     artifacts: Sequence[Mapping[str, Any]],
     rows: Sequence[Mapping[str, Any]],
     args: argparse.Namespace,
+    artifact_filter: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     typecast_rows = [row.get("typecast_arena") or {} for row in rows]
     artifact_records = source_artifact_records(artifacts)
@@ -458,6 +518,7 @@ def summarize(
         "sender_artifacts_by_math_case_id": dict(sorted(Counter(str(row.get("math_case_id")) for row in artifact_records).items())),
         "sender_artifacts_by_source_surface": dict(sorted(Counter(str(row.get("source_surface")) for row in artifact_records).items())),
         "sender_candidate_correct_counts": dict(sorted(Counter(str(row.get("sender_candidate_correct")) for row in artifact_records).items())),
+        "artifact_filter": dict(artifact_filter or {}),
         "communication_rows_with_candidate_literal": sum(
             1 for row in typecast_rows if row.get("wrong_answer_literal_in_prompt")
         ),
@@ -468,6 +529,10 @@ def summarize(
             "sender_outputs": str(args.sender_outputs) if args.sender_outputs else None,
             "bootstrap_from_source": args.bootstrap_from_source,
             "max_cases": args.max_cases,
+            "limit_artifacts": args.limit_artifacts,
+            "only_sender_candidate_wrong": args.only_sender_candidate_wrong,
+            "only_source_baseline_correct": args.only_source_baseline_correct,
+            "drop_redacted_candidate_leakage": args.drop_redacted_candidate_leakage,
             "channels": args.channels,
         },
         "outputs": {
@@ -529,6 +594,8 @@ def render_readme(summary: Mapping[str, Any], artifacts: Sequence[Mapping[str, A
 
 
 def render_scoring_plan(summary: Mapping[str, Any]) -> str:
+    channels = summary.get("config", {}).get("channels") or []
+    filters = summary.get("artifact_filter") or {}
     return "\n".join(
         [
             "# TypeCastArena Scoring Plan",
@@ -543,18 +610,23 @@ def render_scoring_plan(summary: Mapping[str, Any]) -> str:
             "  --out-dir <run-dir>/evaluation",
             "```",
             "",
+            "Packet shaping:",
+            "",
+            f"- Active channels: `{channels}`",
+            f"- Artifact filter: `{filters}`",
+            "",
             "Primary contrasts:",
             "",
-            "- private scratch visible but inert vs peer message vs shared workspace vs memory;",
-            "- shared workspace vs majority consensus vs verifier-admitted result;",
-            "- admitted states vs rejected quarantine;",
-            "- typed evidence/inference/hypothesis/partial-derivation/candidate channels vs flat admitted states;",
+            "- direct peer message vs no-sender and unrelated-message controls;",
+            "- verifier-admitted result vs direct peer message;",
+            "- verifier-admitted result vs shared-workspace admitted state;",
+            "- typed partial derivation and rejected quarantine vs admitted visible states;",
             "- self-revision and unrelated-message controls.",
             "",
             "Promotion signal:",
             "",
-            "- admission/reuse states add invalid-cast pressure beyond direct peer messages and controls;",
-            "- typed or quarantine states reduce inherited operator/candidate casts without wiping out useful correct transfer.",
+            "- verifier/admitted states add invalid-cast pressure beyond direct peer messages and controls;",
+            "- typed or quarantine states reduce inherited operator/candidate casts relative to visible admitted states.",
             "",
             "Retirement signal:",
             "",
@@ -576,8 +648,16 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         sender_packet = load_jsonl(args.sender_packet)
         sender_outputs = load_jsonl(args.sender_outputs)
         artifacts = live_artifacts(source_rows, sender_packet, sender_outputs)
+    artifacts, artifact_filter = filter_artifacts(artifacts, args)
+    if (
+        args.only_sender_candidate_wrong
+        or args.only_source_baseline_correct
+        or args.drop_redacted_candidate_leakage
+        or args.limit_artifacts
+    ):
+        source_rows = source_rows_matching_artifacts(source_rows, artifacts)
     rows = build_rows(source_rows, artifacts, channels=args.channels)
-    summary = summarize(source_rows=source_rows, artifacts=artifacts, rows=rows, args=args)
+    summary = summarize(source_rows=source_rows, artifacts=artifacts, rows=rows, args=args, artifact_filter=artifact_filter)
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     write_jsonl(args.out_dir / "source_rows.jsonl", source_rows)
@@ -596,7 +676,22 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--sender-outputs", type=Path)
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
     parser.add_argument("--max-cases", type=int, default=30)
+    parser.add_argument("--limit-artifacts", type=int, default=0)
     parser.add_argument("--bootstrap-from-source", action="store_true")
+    parser.add_argument("--only-sender-candidate-wrong", action="store_true")
+    parser.add_argument(
+        "--only-source-baseline-correct",
+        action="store_true",
+        help=(
+            "Filter by the source trace's native baseline-correct label. "
+            "Avoid this for lossy MATH traces unless those labels have been audited."
+        ),
+    )
+    parser.add_argument(
+        "--drop-redacted-candidate-leakage",
+        action="store_true",
+        help="Drop artifacts whose candidate answer still appears after structured answer-field redaction.",
+    )
     parser.add_argument(
         "--channels",
         nargs="*",

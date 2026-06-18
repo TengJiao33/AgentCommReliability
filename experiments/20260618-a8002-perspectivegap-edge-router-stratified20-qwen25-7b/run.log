@@ -1,0 +1,40 @@
+[edge-router] run_id=20260618-a8002-perspectivegap-edge-router-stratified20-qwen25-7b
+[edge-router] workspace=/data/xuhaoming/yfy/research_workspace
+[edge-router] model=/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct served=qwen2.5-7b-perspectivegap-edge-router gpu=7 port=8066
+[edge-router] packet=/data/xuhaoming/yfy/research_workspace/experiments/20260618-local-perspectivegap-hard-routing-v0/hard_packet_stratified20.jsonl
+[edge-router] max_tokens=1024 run_timeout=3600
+[edge-router] gpu before:
+0, NVIDIA A800-SXM4-80GB, 3139, 78013, 0
+1, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+[edge-router] server_pid=226223
+[edge-router] vLLM ready after 14 checks
+[edge-router] running prompts -> /data/xuhaoming/yfy/research_workspace/experiments/20260618-a8002-perspectivegap-edge-router-stratified20-qwen25-7b/predictions.jsonl
+[edge-router] runner_status=0
+[edge-router] predictions=40
+[edge-router] summary:
+evaluations: 40
+strict_pass: 0.0000 (0/40)
+required_coverage: 0.3315
+boundary_precision: 0.6130
+distractor_leakage: 0.2000
+budget_pass: 0.5750
+budget_overrun: 4.0500
+source_accuracy_on_tp: 1.0000
+visibility_accuracy_on_tp: 0.7598
+reject_recall: 0.5500
+needed_rejected: 1.9000
+[edge-router] gpu after runner before cleanup:
+0, NVIDIA A800-SXM4-80GB, 3139, 78013, 0
+1, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 73417, 7735, 65

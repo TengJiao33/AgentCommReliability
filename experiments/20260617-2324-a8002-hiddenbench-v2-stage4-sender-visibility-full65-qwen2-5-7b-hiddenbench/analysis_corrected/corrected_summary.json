@@ -1,0 +1,267 @@
+{
+  "conditions": {
+    "blind_minimal_exchange": {
+      "accuracy": 0.7846153846153846,
+      "correct": 51,
+      "records": 65,
+      "unparsed": 0
+    },
+    "exchange_then_decide": {
+      "accuracy": 0.27692307692307694,
+      "correct": 18,
+      "records": 65,
+      "unparsed": 0
+    },
+    "fact_only_exchange": {
+      "accuracy": 0.7846153846153846,
+      "correct": 51,
+      "records": 65,
+      "unparsed": 0
+    },
+    "full_info": {
+      "accuracy": 0.8461538461538461,
+      "correct": 55,
+      "records": 65,
+      "unparsed": 0
+    },
+    "full_visibility_minimal_exchange": {
+      "accuracy": 0.7692307692307693,
+      "correct": 50,
+      "records": 65,
+      "unparsed": 0
+    },
+    "oracle_public_facts": {
+      "accuracy": 0.7846153846153846,
+      "correct": 51,
+      "records": 65,
+      "unparsed": 0
+    },
+    "private_plus_options_minimal_exchange": {
+      "accuracy": 0.8,
+      "correct": 52,
+      "records": 65,
+      "unparsed": 0
+    },
+    "private_plus_shared_minimal_exchange": {
+      "accuracy": 0.7846153846153846,
+      "correct": 51,
+      "records": 65,
+      "unparsed": 0
+    },
+    "private_plus_task_minimal_exchange": {
+      "accuracy": 0.7692307692307693,
+      "correct": 50,
+      "records": 65,
+      "unparsed": 0
+    },
+    "shared_only": {
+      "accuracy": 0.03076923076923077,
+      "correct": 2,
+      "records": 65,
+      "unparsed": 0
+    }
+  },
+  "message_audit": {
+    "blind_minimal_exchange": {
+      "avg_private_fact_token_overlap": 0.977,
+      "low_private_overlap_proxy_count": 1,
+      "low_private_overlap_proxy_rate": 0.003952569169960474,
+      "messages": 253,
+      "possible_answer_mention_count": 158,
+      "possible_answer_mention_rate": 0.6245059288537549,
+      "private_fact_exact_count": 227,
+      "private_fact_exact_rate": 0.8972332015810277,
+      "recommendation_leakage_count": 0,
+      "recommendation_leakage_rate": 0.0,
+      "records": 65,
+      "shared_fact_overtalk_count": 4,
+      "shared_fact_overtalk_rate": 0.015810276679841896
+    },
+    "exchange_then_decide": {
+      "avg_private_fact_token_overlap": 0.592,
+      "low_private_overlap_proxy_count": 8,
+      "low_private_overlap_proxy_rate": 0.03162055335968379,
+      "messages": 253,
+      "possible_answer_mention_count": 244,
+      "possible_answer_mention_rate": 0.9644268774703557,
+      "private_fact_exact_count": 8,
+      "private_fact_exact_rate": 0.03162055335968379,
+      "recommendation_leakage_count": 104,
+      "recommendation_leakage_rate": 0.41106719367588934,
+      "records": 65,
+      "shared_fact_overtalk_count": 150,
+      "shared_fact_overtalk_rate": 0.5928853754940712
+    },
+    "fact_only_exchange": {
+      "avg_private_fact_token_overlap": 0.917,
+      "low_private_overlap_proxy_count": 5,
+      "low_private_overlap_proxy_rate": 0.019762845849802372,
+      "messages": 253,
+      "possible_answer_mention_count": 161,
+      "possible_answer_mention_rate": 0.6363636363636364,
+      "private_fact_exact_count": 181,
+      "private_fact_exact_rate": 0.7154150197628458,
+      "recommendation_leakage_count": 0,
+      "recommendation_leakage_rate": 0.0,
+      "records": 65,
+      "shared_fact_overtalk_count": 4,
+      "shared_fact_overtalk_rate": 0.015810276679841896
+    },
+    "full_visibility_minimal_exchange": {
+      "avg_private_fact_token_overlap": 0.954,
+      "low_private_overlap_proxy_count": 3,
+      "low_private_overlap_proxy_rate": 0.011857707509881422,
+      "messages": 253,
+      "possible_answer_mention_count": 160,
+      "possible_answer_mention_rate": 0.6324110671936759,
+      "private_fact_exact_count": 203,
+      "private_fact_exact_rate": 0.8023715415019763,
+      "recommendation_leakage_count": 0,
+      "recommendation_leakage_rate": 0.0,
+      "records": 65,
+      "shared_fact_overtalk_count": 5,
+      "shared_fact_overtalk_rate": 0.019762845849802372
+    },
+    "private_plus_options_minimal_exchange": {
+      "avg_private_fact_token_overlap": 0.99,
+      "low_private_overlap_proxy_count": 0,
+      "low_private_overlap_proxy_rate": 0.0,
+      "messages": 253,
+      "possible_answer_mention_count": 159,
+      "possible_answer_mention_rate": 0.6284584980237155,
+      "private_fact_exact_count": 238,
+      "private_fact_exact_rate": 0.9407114624505929,
+      "recommendation_leakage_count": 0,
+      "recommendation_leakage_rate": 0.0,
+      "records": 65,
+      "shared_fact_overtalk_count": 4,
+      "shared_fact_overtalk_rate": 0.015810276679841896
+    },
+    "private_plus_shared_minimal_exchange": {
+      "avg_private_fact_token_overlap": 0.984,
+      "low_private_overlap_proxy_count": 0,
+      "low_private_overlap_proxy_rate": 0.0,
+      "messages": 253,
+      "possible_answer_mention_count": 159,
+      "possible_answer_mention_rate": 0.6284584980237155,
+      "private_fact_exact_count": 224,
+      "private_fact_exact_rate": 0.8853754940711462,
+      "recommendation_leakage_count": 0,
+      "recommendation_leakage_rate": 0.0,
+      "records": 65,
+      "shared_fact_overtalk_count": 4,
+      "shared_fact_overtalk_rate": 0.015810276679841896
+    },
+    "private_plus_task_minimal_exchange": {
+      "avg_private_fact_token_overlap": 0.985,
+      "low_private_overlap_proxy_count": 0,
+      "low_private_overlap_proxy_rate": 0.0,
+      "messages": 253,
+      "possible_answer_mention_count": 157,
+      "possible_answer_mention_rate": 0.6205533596837944,
+      "private_fact_exact_count": 225,
+      "private_fact_exact_rate": 0.8893280632411067,
+      "recommendation_leakage_count": 0,
+      "recommendation_leakage_rate": 0.0,
+      "records": 65,
+      "shared_fact_overtalk_count": 4,
+      "shared_fact_overtalk_rate": 0.015810276679841896
+    }
+  },
+  "num_records": 650,
+  "paired_contrasts": {
+    "blind_minimal_exchange_vs_exchange_then_decide": {
+      "both_correct": 16,
+      "both_wrong": 12,
+      "left_correct_right_wrong": 35,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 2
+    },
+    "blind_minimal_exchange_vs_full_visibility_minimal_exchange": {
+      "both_correct": 49,
+      "both_wrong": 13,
+      "left_correct_right_wrong": 2,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 1
+    },
+    "blind_minimal_exchange_vs_private_plus_options_minimal_exchange": {
+      "both_correct": 51,
+      "both_wrong": 13,
+      "left_correct_right_wrong": 0,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 1
+    },
+    "blind_minimal_exchange_vs_private_plus_shared_minimal_exchange": {
+      "both_correct": 50,
+      "both_wrong": 13,
+      "left_correct_right_wrong": 1,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 1
+    },
+    "blind_minimal_exchange_vs_private_plus_task_minimal_exchange": {
+      "both_correct": 50,
+      "both_wrong": 14,
+      "left_correct_right_wrong": 1,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 0
+    },
+    "fact_only_exchange_vs_blind_minimal_exchange": {
+      "both_correct": 47,
+      "both_wrong": 10,
+      "left_correct_right_wrong": 4,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 4
+    },
+    "fact_only_exchange_vs_exchange_then_decide": {
+      "both_correct": 17,
+      "both_wrong": 13,
+      "left_correct_right_wrong": 34,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 1
+    },
+    "fact_only_exchange_vs_full_visibility_minimal_exchange": {
+      "both_correct": 47,
+      "both_wrong": 11,
+      "left_correct_right_wrong": 4,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 3
+    },
+    "full_info_vs_shared_only": {
+      "both_correct": 2,
+      "both_wrong": 10,
+      "left_correct_right_wrong": 53,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 0
+    },
+    "full_visibility_minimal_exchange_vs_exchange_then_decide": {
+      "both_correct": 16,
+      "both_wrong": 13,
+      "left_correct_right_wrong": 34,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 2
+    },
+    "oracle_public_facts_vs_exchange_then_decide": {
+      "both_correct": 16,
+      "both_wrong": 12,
+      "left_correct_right_wrong": 35,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 2
+    },
+    "oracle_public_facts_vs_fact_only_exchange": {
+      "both_correct": 48,
+      "both_wrong": 11,
+      "left_correct_right_wrong": 3,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 3
+    },
+    "oracle_public_facts_vs_shared_only": {
+      "both_correct": 2,
+      "both_wrong": 14,
+      "left_correct_right_wrong": 49,
+      "paired_tasks": 65,
+      "right_correct_left_wrong": 0
+    }
+  },
+  "records": "experiments/20260617-2324-a8002-hiddenbench-v2-stage4-sender-visibility-full65-qwen2-5-7b-hiddenbench/records.jsonl",
+  "rescoring_changes": []
+}

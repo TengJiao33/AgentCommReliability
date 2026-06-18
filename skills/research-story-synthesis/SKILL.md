@@ -1,6 +1,6 @@
 ---
 name: research-story-synthesis
-description: Project-level skill for judging and shaping research-paper stories from reproduced evidence. Use when Codex needs to decide whether observations support a solid root-cause story, a genuinely novel angle, a live diagnostic handle, or only a known limitation; to align motivation, contribution shape, ablations, qualitative cases, quantitative results, and caveats into a paper or mentor narrative without inventing claims.
+description: Project-level skill for judging and shaping research-paper stories from reproduced evidence. Use when Codex needs to decide whether observations support a solid root-cause story, a genuinely novel angle, a live diagnostic handle, or only a known limitation; to perform external-pressure or literature-collision audits from full-paper evidence; to align motivation, contribution shape, ablations, qualitative cases, quantitative results, and caveats into a paper or mentor narrative without inventing claims.
 ---
 
 # Research Story Synthesis
@@ -41,6 +41,10 @@ contact with code, baselines, logs, traces, or small variations.
 Use `skills/repro-friction-memory/SKILL.md` when the project hits recurring
 operational blockers such as shell quoting, parser bugs, remote workflow
 friction, cache issues, or logging surprises.
+
+Use `skills/research-report-writing/SKILL.md` after the story judgment is made,
+when the task is to explain the state to the user, a mentor, or a paper-facing
+report in clear Chinese with claim-evidence discipline.
 
 Use this skill when there is enough reproduced material to ask:
 
@@ -151,6 +155,67 @@ If an observation cannot be tied to a file, command output, trace, report,
 manual label, paper card, or evidence-register row, treat it as a hypothesis,
 not a claim.
 
+## External Pressure And Collision Audit
+
+Treat external pressure as a claim-overlap audit, not a keyword alarm.
+
+Do not judge a paper as serious pressure from the abstract alone. Abstracts,
+titles, and search snippets may only create a reading queue or a weak
+``possible neighbor'' note. A collision judgment requires reading enough of the
+full paper to identify its actual object, mechanism, experiments, and final
+claim.
+
+Before saying a prior paper "already does this", inspect at least:
+
+- introduction: the problem and motivation the paper claims;
+- related work or positioning: what gap the authors say they fill;
+- method: the mechanism, interface, algorithm, or protocol;
+- experiments: the benchmark object, controls, metrics, and ablations;
+- conclusion or limitations: the final contribution claim and boundaries.
+
+Classify external work by overlap level:
+
+- background neighbor: shares domain words or motivation, but uses a different
+  object, mechanism, experiment, or claim;
+- useful prior: attacks a nearby problem and can support framing, baselines, or
+  evaluation, but does not occupy the project claim;
+- partial overlap: shares one or two of object, mechanism, experiment, or
+  claim; requires careful positioning and a differentiating experiment;
+- direct collision: substantially shares the research object, mechanism,
+  experimental test, and contribution claim; the project must pivot, narrow, or
+  explicitly outperform it.
+
+Use this overlap checklist before down-ranking a story:
+
+- Object: what exact phenomenon or system component is studied?
+- Concept: what named concept or decomposition carries the paper?
+- Mechanism: what intervention, algorithm, protocol, or causal explanation is
+  proposed?
+- Experiment: what perturbation, benchmark, control, and metric make the claim
+  visible?
+- Claim sentence: what would the authors put in the abstract or introduction as
+  their contribution?
+
+Only direct collision should strongly pressure novelty. Neighboring work is
+often helpful because it proves the area matters, supplies baselines, and gives
+language for reviewers. If overlap is uncertain, write "needs full-paper
+collision audit" rather than treating the paper as a threat.
+
+For this project, do not mark DALA, PerspectiveGap, WhoFlips, Trust, MINT,
+ProvenanceGuard, or related multi-agent communication papers as direct pressure
+unless the audit shows they also study the same state-admission object, the
+same source/scope/budget/verification mechanism, the same perturbation shape,
+and the same contribution claim.
+
+A good external-pressure note should output a compact table:
+
+```text
+Paper | Object | Mechanism | Experiments | Claim | Overlap level | What it pressures | How we differ
+```
+
+End the note with one of three actions: use as background, add as baseline, or
+pivot/narrow the project claim. Do not end with vague anxiety.
+
 ## Motivation Quality
 
 A good motivation is independent of "we want a higher score." It should:
@@ -221,14 +286,16 @@ parser/answer-contract confounds. Treat them as vocabulary, not a checklist.
 2. Separate facts, active interpretations, hypotheses, and caveats.
 3. Classify the candidate as solid, novel, live diagnostic, known limitation,
    or stale/not ready.
-4. Name A, B, C, M, and D: baseline, diagnosed cause, contribution shape,
+4. If literature pressure is involved, perform the full-paper collision audit
+   before judging novelty or declaring a neighboring paper threatening.
+5. Name A, B, C, M, and D: baseline, diagnosed cause, contribution shape,
    metric, and diagnostic.
-5. Check that each contribution component targets, exposes, or measures B.
-6. Check that each experiment tests either performance, B-reduction, or a
+6. Check that each contribution component targets, exposes, or measures B.
+7. Check that each experiment tests either performance, B-reduction, or a
    confound.
-7. Add at least one boundary case or counterexample.
-8. State what the current evidence cannot prove.
-9. Choose the next pressure point only after the story is bounded.
+8. Add at least one boundary case or counterexample.
+9. State what the current evidence cannot prove.
+10. Choose the next pressure point only after the story is bounded.
 
 When the story is not ready, say so. If it is live, preserve the handle and
 next escalation. If it is stale, return to contact mode.
@@ -257,11 +324,15 @@ A good synthesis in this project:
 - includes caveats near the claim, not buried at the end;
 - preserves failed or contradictory evidence;
 - avoids novelty language unless the evidence earns the harder threshold;
+- treats external pressure as full-paper claim overlap, not abstract-level
+  keyword similarity;
 - gives the user a clearer next contact point.
 
 A weak synthesis:
 
 - summarizes papers without runnable contact;
+- declares a literature collision after reading only abstracts, titles, or
+  search snippets;
 - cherry-picks the nicest run;
 - mistakes a known limitation for a root-cause insight;
 - proposes a module that is not tightly coupled to the motivation;

@@ -64,9 +64,9 @@ python src/main.py --model qwen2.5-1.5b --num_agents 4 --data arithmetics --data
 - `a8002-guarded-answer-diversity.patch` adds an experimental post-filter guard and optional `answer_only` retained-message surface; use only for bounded follow-up runs.
 - A800_2 cannot currently rely on Hugging Face access for GSM8K; use the project-local JSONL fallback or set `DAR_GSM8K_JSONL`.
 - Completed project runs are recorded under:
-  - `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-smoke/`
-  - `experiments/20260612-a8002-dar-qwen25-7b-arithmetics-short-matrix/`
-  - `experiments/20260612-a8002-dar-qwen25-7b-gsm8k-short-matrix/`
+  - `experiments/_archive/20260616-pruned/20260612-a8002-dar-qwen25-7b-arithmetics-smoke/`
+  - `experiments/_archive/20260616-pruned/20260612-a8002-dar-qwen25-7b-arithmetics-short-matrix/`
+  - `experiments/_archive/20260616-pruned/20260612-a8002-dar-qwen25-7b-gsm8k-short-matrix/`
 
 ## Next Check
 

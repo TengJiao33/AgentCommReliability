@@ -1,0 +1,49 @@
+{
+  "evaluations": 40,
+  "strict_pass_count": 0,
+  "metrics": {
+    "strict_pass": 0.0,
+    "required_coverage": 0.7914110429447853,
+    "boundary_precision": 0.4463667820069204,
+    "distractor_leakage": 0.0,
+    "source_accuracy_on_tp": 1.0,
+    "visibility_accuracy_on_tp": 0.7131782945736435,
+    "budget_overrun": 0.675,
+    "budget_pass": 0.85,
+    "reject_recall": 0.925,
+    "needed_rejected": 0.225,
+    "utility_ratio": 0.020291409671940645,
+    "raw_utility_ratio": 0.8113882184678645,
+    "completed_role_rate": 0.7745833333333334,
+    "exact_oracle_role_rate": 0.4700000000000002,
+    "per_role_budget_pass_rate": 0.8658333333333333,
+    "global_budget_pass": 0.1,
+    "global_budget_overrun": 7.15,
+    "closure_violations": 0.15
+  },
+  "counts": {
+    "tp": 129,
+    "fp": 160,
+    "fn": 34,
+    "distractor_leak": 0
+  },
+  "aux_counts": {
+    "source_checked": 129,
+    "source_correct": 129,
+    "visibility_checked": 129,
+    "visibility_correct": 92
+  },
+  "state_admission": {
+    "oracle_utility": 33561,
+    "raw_completed_utility": 27231,
+    "feasible_completed_utility": 681,
+    "utility_ratio": 0.020291409671940645,
+    "raw_utility_ratio": 0.8113882184678645,
+    "completed_role_rate": 0.7745833333333334,
+    "exact_oracle_role_rate": 0.4700000000000002,
+    "per_role_budget_pass_rate": 0.8658333333333333,
+    "global_budget_pass": 0.1,
+    "global_budget_overrun": 7.15,
+    "closure_violations": 0.15
+  }
+}

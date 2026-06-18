@@ -14,12 +14,14 @@ REQUEST_TIMEOUT="${REQUEST_TIMEOUT:-420}"
 RUN_TIMEOUT="${RUN_TIMEOUT:-21600}"
 LIMIT="${LIMIT:-}"
 EVALUATE="${EVALUATE:-0}"
+BOUNDARY_ANALYZE="${BOUNDARY_ANALYZE:-0}"
 
 PACKET="${PACKET:?Set PACKET to the TypeCastArena packet path}"
 LOG_DIR="${LOG_DIR:-$WORKSPACE/logs}"
 OUT_ROOT="${OUT_ROOT:-$WORKSPACE/experiments}"
 OUT_DIR="${OUT_DIR:-$OUT_ROOT/$RUN_ID}"
 EVAL_DIR="${EVAL_DIR:-$OUT_DIR/evaluation}"
+BOUNDARY_DIR="${BOUNDARY_DIR:-$OUT_DIR/boundary_obedience}"
 SERVER_LOG="$LOG_DIR/typecast-arena-vllm-${RUN_STAMP}.log"
 RUN_LOG="$LOG_DIR/typecast-arena-${RUN_STAMP}.log"
 
@@ -110,6 +112,19 @@ if [[ "$EVALUATE" == "1" ]]; then
     --prediction-source outputs \
     --out-dir "$EVAL_DIR" \
     >"$OUT_DIR/evaluator.stdout.json" 2>"$OUT_DIR/evaluator.stderr.log"
+fi
+
+if [[ "$BOUNDARY_ANALYZE" == "1" ]]; then
+  if [[ "$EVALUATE" != "1" ]]; then
+    echo "[typecast-arena] BOUNDARY_ANALYZE=1 requires EVALUATE=1" >&2
+    exit 1
+  fi
+  echo "[typecast-arena] boundary obedience -> ${BOUNDARY_DIR}" | tee -a "$RUN_LOG"
+  "$PY" scripts/analyze_typecast_boundary_obedience.py \
+    --packet "$RUN_PACKET" \
+    --run-dir "$EVAL_DIR" \
+    --out-dir "$BOUNDARY_DIR" \
+    >"$OUT_DIR/boundary.stdout.json" 2>"$OUT_DIR/boundary.stderr.log"
 fi
 
 echo "[typecast-arena] completed ${RUN_ID}" | tee -a "$RUN_LOG"

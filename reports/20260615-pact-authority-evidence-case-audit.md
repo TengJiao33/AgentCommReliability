@@ -7,7 +7,7 @@ Date: 2026-06-15
 This note manually inspects the behavior-changing cases from:
 
 - run: `experiments/20260615-2040-a8002-pact-authority-evidence-stress-qwen25-14b/`
-- packet: `experiments/20260615-local-pact-authority-evidence-stress-packet/`
+- packet: `experiments/_archive/20260616-pruned/20260615-local-pact-authority-evidence-stress-packet/`
 - prior report: `reports/20260615-pact-authority-evidence-stress-qwen25-14b.md`
 
 The audit target was not a new score. It was a mechanism check over the rows

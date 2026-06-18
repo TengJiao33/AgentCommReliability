@@ -132,8 +132,8 @@ Paper code supports:
 
 Short-subset evidence lives in:
 
-- `experiments/20260612-a8002-madmm-qwen25-14b-gsm8k-short-subset/`
-- `reports/20260612-madmm-short-subset-first-insights.md`
+- `experiments/_archive/20260616-pruned/20260612-a8002-madmm-qwen25-14b-gsm8k-short-subset/`
+- `reports/_archive/20260616-pruned/20260612-madmm-short-subset-first-insights.md`
 
 Early signal:
 

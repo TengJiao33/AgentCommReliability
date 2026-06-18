@@ -14,7 +14,7 @@ Setup artifacts:
 - evaluator: `scripts/evaluate_pact_authority_evidence_stress_packet.py`
 - A800_2 runner: `scripts/run_pact_authority_evidence_stress_a8002.sh`
 - local packet:
-  `experiments/20260615-local-pact-authority-evidence-stress-packet/`
+  `experiments/_archive/20260616-pruned/20260615-local-pact-authority-evidence-stress-packet/`
 - model run:
   `experiments/20260615-2040-a8002-pact-authority-evidence-stress-qwen25-14b/`
 

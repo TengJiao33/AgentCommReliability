@@ -1,0 +1,22 @@
+evaluations: 40
+strict_pass: 0.0250 (1/40)
+required_coverage: 0.4417
+boundary_precision: 0.4645
+distractor_leakage: 0.0000
+budget_pass: 1.0000
+budget_overrun: 0.0000
+source_accuracy_on_tp: 1.0000
+visibility_accuracy_on_tp: 0.8611
+reject_recall: 1.0000
+needed_rejected: 1.2500
+utility_ratio: 0.0409
+raw_utility_ratio: 0.0409
+completed_role_rate: 0.0975
+exact_oracle_role_rate: 0.3038
+per_role_budget_pass_rate: 1.0000
+global_budget_pass: 1.0000
+global_budget_overrun: 0.0000
+closure_violations: 1.6750
+oracle_utility: 33561
+feasible_completed_utility: 1371
+raw_completed_utility: 1371

@@ -184,7 +184,7 @@ Follow-up repair:
   conditions that display raw final-answer text extracted from the saved peer
   response rather than the older numeric parser field;
 - added local preview packet:
-  `experiments/20260615-local-raw-answer-only-preview/`;
+  `experiments/_archive/20260616-pruned/20260615-local-raw-answer-only-preview/`;
 - preview counts over the same source cases match the confound audit:
   `84/118` legacy answer-only rows are equivalent to raw peer answers,
   `27/118` semantically mismatch, and `7/118` remain unknown-equivalence;

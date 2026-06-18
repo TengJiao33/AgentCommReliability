@@ -1,0 +1,55 @@
+{
+  "rows": 220,
+  "scenarios": 110,
+  "seeds": [
+    1,
+    42
+  ],
+  "role_count_distribution": {
+    "2": 44,
+    "3": 66,
+    "4": 22,
+    "5": 66,
+    "6": 22
+  },
+  "fragment_count_distribution": {
+    "7": 66,
+    "9": 44,
+    "11": 22,
+    "12": 44,
+    "13": 44
+  },
+  "needed_event_stats_per_row": {
+    "min": 7,
+    "mean": 13.0,
+    "max": 20
+  },
+  "needed_fragments_per_role_stats": {
+    "min": 1,
+    "mean": 3.4210526315789473,
+    "max": 5
+  },
+  "shared_needed_fragment_stats_per_row": {
+    "min": 1,
+    "mean": 2.4,
+    "max": 4
+  },
+  "private_needed_fragment_stats_per_row": {
+    "min": 4,
+    "mean": 6.6,
+    "max": 8
+  },
+  "unused_fragment_stats_per_row": {
+    "min": 1,
+    "mean": 1.0,
+    "max": 1
+  },
+  "distractor_never_needed_rows": 220,
+  "baseline_prediction_files": {
+    "oracle": "D:\\develop\\AgentCommReliability\\experiments\\20260618-local-perspectivegap-contact\\baseline_predictions\\oracle.jsonl",
+    "all_to_all": "D:\\develop\\AgentCommReliability\\experiments\\20260618-local-perspectivegap-contact\\baseline_predictions\\all_to_all.jsonl",
+    "no_distractor_all_to_all": "D:\\develop\\AgentCommReliability\\experiments\\20260618-local-perspectivegap-contact\\baseline_predictions\\no_distractor_all_to_all.jsonl",
+    "shared_intersection_only": "D:\\develop\\AgentCommReliability\\experiments\\20260618-local-perspectivegap-contact\\baseline_predictions\\shared_intersection_only.jsonl",
+    "role_name_heuristic": "D:\\develop\\AgentCommReliability\\experiments\\20260618-local-perspectivegap-contact\\baseline_predictions\\role_name_heuristic.jsonl"
+  }
+}

@@ -5,7 +5,7 @@ Date: 2026-06-15
 ## What We Tried
 
 Ran the typed-boundary split packet from
-`reports/20260615-pact-typed-boundary-split-packet.md` on A800_2 with
+`reports/_archive/20260616-pruned/20260615-pact-typed-boundary-split-packet.md` on A800_2 with
 Qwen2.5-14B-Instruct.
 
 Artifacts:

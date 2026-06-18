@@ -1,0 +1,32 @@
+{
+  "rows": 9,
+  "metrics": {
+    "strict": 0.0,
+    "unit_recall": 0.24074074074074073,
+    "rejection_recall": 0.4444444444444444,
+    "scope_violations": 0.1111111111111111,
+    "absent_unit_violations": 0.1111111111111111,
+    "downstream_ok": 0.2222222222222222,
+    "option_state_recall": 0.6111111111111112
+  },
+  "by_condition": {
+    "base": {
+      "strict": 0.0,
+      "unit_recall": 0.2222222222222222,
+      "rejection_recall": 0.0,
+      "scope_violations": 0.0,
+      "absent_unit_violations": 0.0,
+      "downstream_ok": 0.6666666666666666,
+      "option_state_recall": 0.6666666666666666
+    },
+    "perturbation": {
+      "strict": 0.0,
+      "unit_recall": 0.25,
+      "rejection_recall": 0.6666666666666666,
+      "scope_violations": 0.16666666666666666,
+      "absent_unit_violations": 0.16666666666666666,
+      "downstream_ok": 0.0,
+      "option_state_recall": 0.5833333333333334
+    }
+  }
+}

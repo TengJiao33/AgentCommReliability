@@ -505,7 +505,7 @@ PACT 说明，公共字段如果失去原问题和证据授权，就会成为危
    它给了目前最强的通信生命周期正证据。
 
 6. TypeCastArena live sender / receiver：
-   `experiments/20260616-1427-a8002-typecast-math-live-receiver204-qwen25-14b/analysis/summary.md`
+   `experiments/_archive/20260616-pruned/20260616-1427-a8002-typecast-math-live-receiver204-qwen25-14b/analysis/summary.md`
 
    它是负向诊断：框架跑通，但这批压力没有诱发最终答案错误。
 

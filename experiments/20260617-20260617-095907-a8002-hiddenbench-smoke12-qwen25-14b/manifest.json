@@ -1,0 +1,28 @@
+{
+  "base_url": "http://127.0.0.1:8047/v1",
+  "benchmark": "HiddenBench",
+  "benchmark_path": "/data/xuhaoming/yfy/research_workspace/data/external/hiddenbench/benchmark.json",
+  "caveats": [
+    "This runner uses HiddenBench tasks but implements a local protocol rather than the official group-interaction harness.",
+    "single_private_agent rows are partial-information probes, not independent human-like participants.",
+    "exchange_then_decide can fail either because agents omit private facts or because the final decider misintegrates public messages."
+  ],
+  "claim_status": "preflight",
+  "conditions": [
+    "shared_only",
+    "single_private_agent",
+    "oracle_public_facts",
+    "full_info",
+    "exchange_then_decide"
+  ],
+  "failures": null,
+  "max_tokens": 220,
+  "model": "qwen2.5-14b-hiddenbench",
+  "num_tasks": 12,
+  "outputs": "/data/xuhaoming/yfy/research_workspace/experiments/20260617-20260617-095907-a8002-hiddenbench-smoke12-qwen25-14b/records.jsonl",
+  "request_timeout": 240,
+  "run_id": "20260617-20260617-095907-a8002-hiddenbench-smoke12-qwen25-14b",
+  "status": "completed",
+  "summary": "/data/xuhaoming/yfy/research_workspace/experiments/20260617-20260617-095907-a8002-hiddenbench-smoke12-qwen25-14b/summary.json",
+  "temperature": 0.0
+}

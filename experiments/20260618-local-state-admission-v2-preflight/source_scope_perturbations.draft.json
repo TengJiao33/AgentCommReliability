@@ -1,0 +1,224 @@
+[
+  {
+    "sketch_id": "hiddenbench_emergency_supply_drop",
+    "draft_status": "local_perturbation_draft_not_packet",
+    "source_fact_draft": "hiddenbench_fact_units.draft.json",
+    "perturbation_goal": "Check whether the same Warehouse evidence changes admission when verification state or recipient scope changes.",
+    "base_variant": {
+      "variant_id": "hb10_base_verified_role_scoped",
+      "content_policy": "same_source_facts_as_fact_unit_draft",
+      "source_scope_state": {
+        "hb10_hidden_0": "verified_observation:logistics_planner,final_decider",
+        "hb10_hidden_1": "verified_observation:logistics_planner,final_decider",
+        "hb10_hidden_2": "verified_observation:logistics_planner,final_decider",
+        "hb10_hidden_3": "verified_sensor:hazard_checker,final_decider"
+      },
+      "expected_admission_units": [
+        "hb10_unit_a_distribution_blocked",
+        "hb10_unit_b_hazard_blocked",
+        "hb10_unit_c_distribution_enabled"
+      ],
+      "expected_downstream_state": "decidable_from_admitted_facts"
+    },
+    "perturbation_variants": [
+      {
+        "variant_id": "hb10_b_hazard_quarantined",
+        "same_text_fact_ids": [
+          "hb10_hidden_3"
+        ],
+        "changed_only": "verification_state",
+        "source_scope_change": "Treat hb10_hidden_3 as quarantined_sensor, not verified_sensor.",
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb10_unit_b_hazard_blocked"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb10_hidden_3"
+              ],
+              "reason": "verification_reject",
+              "rationale": "The same noxious-gas text should not become a blocking admission while quarantined."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence, because Warehouse B cannot be safely blocked from admitted facts.",
+        "baseline_pressure": "A semantic card-packing baseline may still pick the gas fact; admission scoring must penalize that if verification state is ignored."
+      },
+      {
+        "variant_id": "hb10_c_enabler_no_final_scope",
+        "same_text_fact_ids": [
+          "hb10_hidden_2"
+        ],
+        "changed_only": "recipient_scope",
+        "source_scope_change": "Keep hb10_hidden_2 verified, but make it eligible only for logistics_planner and not final_decider.",
+        "expected_admission_delta": {
+          "modify_units": [
+            {
+              "unit_id": "hb10_unit_c_distribution_enabled",
+              "admit_to": [
+                "logistics_planner"
+              ],
+              "not_admit_to": [
+                "final_decider"
+              ],
+              "reason": "recipient_scope_reject_for_final_decider"
+            }
+          ]
+        },
+        "expected_downstream_delta": "Final_decider cannot claim a complete Warehouse C enabler unless a separate allowed report edge is introduced.",
+        "baseline_pressure": "Shared-context and CICL-style packing should be checked for over-sharing this fact to final_decider."
+      }
+    ],
+    "packet_gate_note": "Do not materialize this row until the evaluator can distinguish verification_reject from semantic irrelevance."
+  },
+  {
+    "sketch_id": "hiddenbench_conference_relocation",
+    "draft_status": "local_perturbation_draft_not_packet",
+    "source_fact_draft": "hiddenbench_fact_units.draft.json",
+    "perturbation_goal": "Check whether disabling and enabling venue facts obey verification and recipient scope rather than option salience.",
+    "base_variant": {
+      "variant_id": "hb11_base_verified_role_scoped",
+      "content_policy": "same_source_facts_as_fact_unit_draft",
+      "source_scope_state": {
+        "hb11_hidden_0": "verified_facility_report:facilities_checker,final_decider",
+        "hb11_hidden_1": "verified_recovery_report:recovery_checker,final_decider",
+        "hb11_hidden_2": "verified_facility_report:facilities_checker,final_decider",
+        "hb11_hidden_3": "verified_off_option_report:facilities_checker"
+      },
+      "expected_admission_units": [
+        "hb11_unit_library_fuel_blocked",
+        "hb11_unit_center_chemical_blocked",
+        "hb11_unit_school_restrooms_enabled"
+      ],
+      "expected_downstream_state": "decidable_from_admitted_facts"
+    },
+    "perturbation_variants": [
+      {
+        "variant_id": "hb11_school_repair_quarantined",
+        "same_text_fact_ids": [
+          "hb11_hidden_1"
+        ],
+        "changed_only": "verification_state",
+        "source_scope_change": "Treat hb11_hidden_1 as unverified_repair_claim rather than verified_recovery_report.",
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb11_unit_school_restrooms_enabled"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb11_hidden_1"
+              ],
+              "reason": "verification_reject",
+              "rationale": "The same restroom-restoration text should not enable School Gym until verified."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence, because the main School Gym repair fact is not admissible.",
+        "baseline_pressure": "Option-answer accuracy alone would hide this failure; scoring must require the enabler unit."
+      },
+      {
+        "variant_id": "hb11_library_fuel_no_final_scope",
+        "same_text_fact_ids": [
+          "hb11_hidden_0"
+        ],
+        "changed_only": "recipient_scope",
+        "source_scope_change": "Keep hb11_hidden_0 verified, but make it eligible only for facilities_checker and not final_decider.",
+        "expected_admission_delta": {
+          "modify_units": [
+            {
+              "unit_id": "hb11_unit_library_fuel_blocked",
+              "admit_to": [
+                "facilities_checker"
+              ],
+              "not_admit_to": [
+                "final_decider"
+              ],
+              "reason": "recipient_scope_reject_for_final_decider"
+            }
+          ]
+        },
+        "expected_downstream_delta": "Final_decider should not directly cite the library fuel blocker unless an allowed facilities summary edge is added.",
+        "baseline_pressure": "Shared verified context should become an explicit baseline that may over-admit this blocker."
+      }
+    ],
+    "packet_gate_note": "Do not score this row only by selecting School Gym; the perturbations must change admitted blocker/enabler obligations."
+  },
+  {
+    "sketch_id": "hiddenbench_evacuation_west_city",
+    "draft_status": "local_perturbation_draft_not_packet",
+    "source_fact_draft": "hiddenbench_fact_units.draft.json",
+    "perturbation_goal": "Strengthen the sanity row by adding verification and dependency-scope pressure to route blockers and West City accessibility.",
+    "base_variant": {
+      "variant_id": "hb01_base_verified_role_scoped",
+      "content_policy": "same_source_facts_as_fact_unit_draft",
+      "source_scope_state": {
+        "hb01_shared_3": "verified_public_route_notice:risk_checker,final_decider",
+        "hb01_hidden_0": "verified_route_report:route_planner,final_decider",
+        "hb01_hidden_1": "verified_risk_report:risk_checker,final_decider",
+        "hb01_hidden_2": "verified_route_report:route_planner,final_decider",
+        "hb01_hidden_3": "verified_risk_report:risk_checker,final_decider"
+      },
+      "expected_admission_units": [
+        "hb01_unit_east_town_blocked",
+        "hb01_unit_north_hill_blocked",
+        "hb01_unit_west_city_accessible"
+      ],
+      "expected_downstream_state": "decidable_from_admitted_facts"
+    },
+    "perturbation_variants": [
+      {
+        "variant_id": "hb01_west_bridge_unverified",
+        "same_text_fact_ids": [
+          "hb01_shared_3"
+        ],
+        "changed_only": "verification_state",
+        "source_scope_change": "Treat hb01_shared_3 as unverified_public_notice rather than verified_public_route_notice.",
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb01_unit_west_city_accessible"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb01_shared_3"
+              ],
+              "reason": "verification_reject",
+              "rationale": "The same river-level text should not establish West City accessibility while unverified."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence, because the remaining route for West City is not verified.",
+        "baseline_pressure": "A source-density baseline may keep the bridge fact; admission legality must reject it under this state."
+      },
+      {
+        "variant_id": "hb01_north_hill_split_scope_no_group_edge",
+        "same_text_fact_ids": [
+          "hb01_hidden_2",
+          "hb01_hidden_3"
+        ],
+        "changed_only": "recipient_scope_and_dependency_edge",
+        "source_scope_change": "Keep both North Hill blockers verified, but expose trail closure only to route_planner and driveway mudslide only to risk_checker, with no allowed cross-role group edge.",
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb01_unit_north_hill_blocked"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb01_hidden_2",
+                "hb01_hidden_3"
+              ],
+              "reason": "dependency_scope_incomplete",
+              "rationale": "No single recipient can assemble the complete North Hill blocker without an allowed cross-role dependency edge."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should not count North Hill as fully blocked for final_decider unless the packet explicitly adds a group edge.",
+        "baseline_pressure": "Shared-context baselines will likely assemble the blocker; that makes this variant useful for testing over-sharing."
+      }
+    ],
+    "packet_gate_note": "This row remains a sanity row unless the evaluator makes verification and dependency-scope failures visible."
+  }
+]

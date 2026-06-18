@@ -1,0 +1,1805 @@
+Demystifying Multi-Agent Debate: The Role of Confidence and Diversity
+Xiaochen Zhu*
+ Caiqi Zhang*
+ Yizhou Chi
+ Tom Stafford
+ Nigel Collier
+ Andreas Vlachos
+University of Cambridge
+ University of Sheffield
+{xz479, cz391, yc697, nhc30, av308}@cam.ac.uk
+t.stafford@sheffield.ac.uk
+Abstract
+Multi-agent debate (MAD) is widely used to
+improve large language model (LLM) perfor-
+mance through test-time scaling, yet recent
+work shows that vanilla MAD often underper-
+forms simple majority vote despite higher com-
+putational cost. Studies show that, under homo-
+geneous agents and uniform belief updates, de-
+bate preserves expected correctness and there-
+fore cannot reliably improve outcomes. Draw-
+ing on findings from human deliberation and
+collective decision-making, we identify two
+key mechanisms missing from vanilla MAD: (i)
+diversity of initial viewpoints and (ii) explicit,
+calibrated confidence communication. We pro-
+pose two lightweight interventions. First, a
+diversity-aware initialisation that selects a more
+diverse pool of candidate answers, increas-
+ing the likelihood that a correct hypothesis
+is present at the start of debate. Second, a
+confidence-modulated debate protocol in which
+agents express calibrated confidence and con-
+dition their updates on others’ confidence. We
+show theoretically that diversity-aware initiali-
+sation improves the prior probability of MAD
+success without changing the underlying up-
+date dynamics, while confidence-modulated up-
+dates enable debate to systematically drift to
+the correct hypothesis. Empirically, across six
+reasoning-oriented QA benchmarks, our meth-
+ods consistently outperform vanilla MAD and
+majority vote. Our results connect human de-
+liberation with LLM-based debate and demon-
+strate that simple, principled modifications can
+substantially enhance debate effectiveness.
+1 Introduction
+Multi-agent debate (MAD) has rapidly become a
+popular technique for improving large language
+models’ (LLMs) reasoning and test-time scaling
+(TTS) (Liang et al., 2024; Du et al., 2024; Yang
+*Equal contribution. Our code is available at: https:
+//github.com/SpaceHunterInf/DMAD
+After
+Debate
+After
+Debate
+(a) The Role of Initial Diversity
+A
+ A A A
+Scenario 1: Low Diversity is susceptible to limitations 
+such as conformity and local optima!
+A B C
+ C C C
+Scenario 2: High Diversity increases the probability 
+that the correct answer is in the pool!
+(b) The Role of Confidence Communication
+Answer: C
+Confidence: 4/10
+Answer: A
+Confidence: 3/10
+Answer: A
+Confidence: 3/10
+Answer: C
+Confidence: 9/10
+Answer: C
+Confidence: 8/10
+… …
+Answer: C
+Confidence: 8/10
+After
+Debate
+A
+ B
+Confidence-modulated debate allows beliefs to drift 
+towards correctness effectively!
+Figure 1: Illustration of two human-inspired ingredients
+for effective MAD: (a) diverse initial answers increase
+the chance the correct hypothesis is present; (b) ex-
+plicit confidence sharing enables confidence-weighted
+updates that steer beliefs toward the correct answer.
+et al., 2025c; Guo et al., 2024). Inspired by stud-
+ies of group deliberation, MAD operationalises the
+idea that independent agents exchanging reasons
+should, in principle, outperform individual sam-
+pling or simple voting (Mercier and Sperber, 2011;
+Moshman and Geil, 1998).
+Despite growing enthusiasm and substantial to-
+ken budgets devoted to multi-agent debate (MAD),
+its benefits are far from guaranteed (Choi et al.,
+2025; Wu et al., 2025). In practice, vanilla MAD
+often underperforms a simple majority vote despite
+incurring substantially higher computational cost.
+Choi et al. (2025) formally characterise this limita-
+tion by showing that, under homogeneous agents
+arXiv:2601.19921v3  [cs.CL]  3 Jun 2026
+
+--- PAGE BREAK ---
+
+and unweighted belief updates, debate preserves
+expected correctness over time. Mathematically,
+such behaviour is described as a martingale over be-
+lief trajectories. In other words, while agents may
+exchange arguments, the probability of converg-
+ing to the correct answer does not systematically
+increase.
+Previous work in cognitive science has identified
+several factors that affect the success of human
+deliberation:
+1. Diversity of initial viewpoints.Human group
+deliberation benefits from heterogeneous pri-
+ors and perspectives (Moshman and Geil,
+1998). Exposure to differing ideas increases
+the search space over possible solutions and
+thus benefits the deliberation (Smaldino et al.,
+2024). Empirical work shows that the diver-
+sity of positions raised during discussion is
+positively correlated with performance gains
+(Karadzhov et al., 2024).
+2. Confidence communication and alignment.
+In human discussion, participants do not only
+share answers; they also communicate uncer-
+tainty, negotiate and align their confidence
+expressions, and use these signals to weight
+others’ contributions when forming collective
+decisions (Bahrami et al., 2010; Dezecache
+et al., 2022; Mercier and Sperber, 2017).
+These two mechanisms are largely absent in stan-
+dard MAD implementations. Firstly, agents are
+sampled from the same or similar models without
+regard for diversity, a problem exacerbated by post-
+training and alignment that can induce diversity
+collapse (Padmakumar and He, 2024; Kirk et al.,
+2024). Secondly, unlike humans who convey confi-
+dence through tone, prosody, and facial expression
+(Guyer et al., 2021), LLMs can only communicate
+confidence in an explicitly verbalised manner. Such
+signals are rarely requested or used in current MAD
+protocols, and LLMs are known to exhibit over-
+confident expressions even when they are wrong
+(Sun et al., 2025).
+Recent work has started to analyse these failure
+modes and the role of diversity in MAD. Estornell
+and Liu (2024) show that when agents lack diver-
+sity, debate dynamics can quickly become static,
+causing the procedure to collapse back to the initial
+majority. Wynn et al. (2025) and Wu et al. (2025)
+empirically validate that, in such settings, MAD
+often provides little or no gain over majority vote.
+However, these works mostly diagnose the prob-
+lem; they do not offer mechanisms that can reli-
+ably increase diversity and thereby improve debate
+outcomes. In parallel, several studies attempt to
+incorporate numerical confidence expressions into
+debates (Yoffe et al., 2024; Lin and Hooi, 2025) and
+report promising improvements. Yet their imple-
+mentations typically rely on post-hoc calibration
+and focus only on having agents state their con-
+fidence, while overlooking how agents interpret
+and use others’ confidence, which is a central as-
+pect of human group decision-making (Zarnoth and
+Sniezek, 1997; Fusaroli et al., 2012).
+In this paper, we examine MAD through the
+lens of these two missing ingredients:diversity
+andconfidence. By analysing debate dialogues,
+we show that initial answer diversity correlates
+with performance gains with statistical significance,
+and that MAD is more effective on harder datasets
+where such diversity arises naturally. Following
+this, we introduce two simple interventions. First,
+adiversity-aware initializationthat selects a more
+diverse subset of candidate answers as the initial
+debate pool, improving performance without addi-
+tional training. Second, aconfidence-modulated
+debate protocolin which agents express calibrated
+confidence and condition their updates on others’
+confidence. Crucially, we view them as comple-
+mentary mechanisms acting on different stages of
+deliberation: diversity initialisation affects the ini-
+tial belief distribution (i.e., what hypotheses are
+present), while confidence affects the aggregation
+dynamics (i.e., how each contribution influences
+others). We provide theoretical guarantees show-
+ing that diversity increases the prior probability
+of the debate success, while confidence-weighted
+updates break the martingale limitation and allow
+beliefs to drift toward correctness. Empirically,
+our methods consistently outperform vanilla MAD
+and majority vote across six reasoning-oriented
+question-answering (QA) benchmarks. Conceptu-
+ally, this work integrates human deliberation theory
+with LLM-based MAD, offering a principled expla-
+nation and practical guidance for designing more
+effective multi-agent systems.
+2 Related Work
+Multi-Agent Debate.Human group deliberation
+often improves collective performance because dis-
+cussion allows individuals to pool information,
+detect mistakes of each other, and benefit from
+
+--- PAGE BREAK ---
+
+diverse cognitive perspectives (Kerr and Tindale,
+2004). MAD aims to replicate these advantages
+with LLMs, revising low-quality responses, reduc-
+ing hallucinations, and eliciting reasoning that may
+be overlooked by a single model (Chan et al., 2024;
+Liang et al., 2024; Estornell and Liu, 2024). The
+standard MAD protocol asks each agent to an-
+swer the same question and then revise their re-
+sponse given previous agents’ arguments (Yang
+et al., 2025c). While MAD sometimes yields mod-
+est gains over single-model sampling, a growing
+body of work shows that it often fails to inherit the
+benefits of human debate. Several studies report
+that MAD can perform worse than simple majority
+vote, especially when debates extend over multi-
+ple rounds (Wynn et al., 2025; Wu et al., 2025).
+Wu et al. (2025) argue that, unlike human groups,
+LLM agents struggle to recognise and disregard
+low-quality contributions, causing noise to prop-
+agate rather than dissipate. Most notably, Choi
+et al. (2025) show that homogeneous LLM agents
+produce debate dynamics that behave empirically
+like a martingale over agents’ expressed beliefs;
+they further prove that MAD cannot surpass the
+accuracy of majority vote in expectation. These
+findings reveal a fundamental discrepancy between
+human deliberation and LLM debate and motivate
+reconsideration of the assumptions and protocols
+underlying MAD.
+Diversity in Collective Problem Solving.Diver-
+sity is a central factor in the success of human
+deliberation. Psychological work shows that het-
+erogeneous viewpoints help mitigate conformity
+pressure and “groupthink,” where groups converge
+to majority opinions regardless of correctness (Ja-
+nis, 1972; Asch, 1955). Maintaining a diversity of
+candidate solutions and exploring disagreement im-
+proves group reasoning outcomes (Karadzhov et al.,
+2024; Smaldino et al., 2024). MAD exhibits similar
+vulnerabilities. Without sufficient diversity, debates
+collapse to the initial majority and fail to recover
+from incorrect early answers (Zhu et al., 2025; Es-
+tornell and Liu, 2024). The problem is exacerbated
+by properties of contemporary LLMs: post-training
+alignment reduces sampling diversity (Kirk et al.,
+2024; Padmakumar and He, 2024; Hu et al., 2025),
+and models often exhibit sycophantic tendencies
+toward user prompts (Sharma et al., 2024). Recent
+analyses of MAD suggest that greater diversity in
+initial reasoning is associated with improved perfor-
+mance (Wynn et al., 2025; Liang et al., 2024; Estor-
+nell and Liu, 2024). However, this line of work pri-
+marily attributes diversity to heterogeneity across
+model families, parameterisations, or prompting
+styles. As a result, it remains unclear what funda-
+mentally governs answer diversity or how it can be
+reliably increased in a simple, training-free manner.
+For example, Liang et al. (2024) and Choi et al.
+(2025) encourage diversity by prompting agents
+with different personas, while Estornell and Liu
+(2024) propose a KL-divergence–based pruning
+strategy to remove redundant answers during de-
+bate. These approaches alter prompting or debate
+structure but do not directly increase the diversity
+of the initial answer pool, nor do they explicitly
+target the prior probability of including a correct
+hypothesis.
+Confidence, Calibration, and Uncertainty Com-
+munication.In human deliberation, confidence
+sharing is crucial for effective collaboration: indi-
+viduals communicate uncertainty, align and adjust
+confidence expressions through interaction, and
+use others’ confidence cues to weight arguments
+when forming joint decisions (Bahrami et al., 2010;
+Fusaroli et al., 2012; Mercier, 2020). Such commu-
+nication is facilitated by paralinguistic signals, tone,
+prosody, facial expression (Guyer et al., 2021),
+which are unavailable in text-only LLM settings.
+Although recent work has sought to teach LLMs to
+proactively express uncertainty during generation
+(Zhang et al., 2025b; Yang et al., 2025b,a), these
+methods have not yet been systematically studied
+in debate or multi-turn settings (Zhang et al., 2026).
+Several recent studies instead introduce numerical
+confidence into MAD. Lin and Hooi (2025) and
+Yoffe et al. (2024) use post-hoc calibration meth-
+ods to assign confidence scores to agents’ answers
+and use these scores as additional signals during
+debate. While these approaches yield limited im-
+provements, they diverge from psychological theo-
+ries that emphasise aligned confidence communi-
+cation and shared metacognition. Moreover, they
+overlook the gap between confidence expression
+and perception in LLMs: models are known to
+be systematically overconfident in their verbalised
+confidence judgments (Sun et al., 2025), and there
+is no guarantee that LLM agents interpret or ap-
+propriately weight others’ confidence. As a result,
+current confidence-based approaches do not fully
+capture the mechanisms that make human delibera-
+tion successful.
+
+--- PAGE BREAK ---
+
+3 Formulation
+Following prior theoretical analyses of multi-agent
+debate (MAD), we adopt the framework of Choi
+et al. (2025) and consider a controlled setting with
+homogeneous LLM agents performing question
+answering (QA). This abstraction isolates the struc-
+tural properties of debate dynamics without con-
+flating them with model heterogeneity or explicit
+role specialisation.
+Let {a1, . . . , aN } denote N agents. For an input
+questionx∈ X, each agent samples an answer
+yi ∼a i(x), a i(x) :=f(x;θ i),(1)
+where f is the conditional distribution defined by
+an LLM with parameters θi. In the homogeneous
+setting, all agents share identical parameters (θi =
+θ), and stochasticity arises solely from sampling.
+Majority Vote.Given an initial pool of sampled
+responses {yi}N
+i=1, the majority vote baseline se-
+lects
+V({y i}N
+i=1) = arg max
+y
+freq(y).(2)
+This corresponds to test-time ensembling without
+interaction and provides an important empirical
+baseline for vanilla MAD.
+Multi-Agent Debate.A debate consists of T
+rounds of iterative revision. At round t= 1 ,
+each agent independently samples an initial answer
+yi,1 ∼a i(x). For each subsequent round t >1 ,
+every agent observes all the answers produced by
+other agents and itself in the previous round:
+Rt ={y j,t−1 |j= 1, . . . , N}.(3)
+Each agent then revises its answer by applying an
+answer-update operator
+yi,t =D(x,R t),(4)
+where D is instantiated as a prompting-based revi-
+sion operator executed by the LLM.
+After T rounds, the ensemble-level MAD out-
+put is obtained by majority vote over the terminal
+responses:
+yMAD =V({y i,T }N
+i=1).(5)
+4 Methodology
+Incentivized by the role of diversity and confidence
+in human deliberation, we incorporate diversity-
+aware initialization and confidence modulated de-
+bate as additional features on top of vanilla MAD.
+4.1 Diversity-aware Initialization
+Studies of human group deliberation suggest that
+considering a more diverse set of candidate solu-
+tions is correlated with higher collective answer
+correctness (Karadzhov et al., 2024). One proposed
+explanation is that broader exploration of the solu-
+tion space increases the likelihood that at least one
+high-quality hypothesis is discovered, rather than
+converging prematurely to suboptimal consensus
+(Smaldino et al., 2024). We adopt this intuition as a
+design principle for initializing multi-agent debate.
+Formally, given a set of answers S, we define its
+diversity as the number of distinct answers:
+div(S) =|unique(S)|.(6)
+Vanilla MAD initializes debate by independently
+sampling N answers {yi,1}N
+i=1. Instead, we first
+sample a larger pool of Ncand ≥N candidate an-
+swers {y(1), . . . , y(Ncand)}, and select a subset of
+sizeNto initialise the debate by solving
+Sdiv = argmax
+S⊆{1,...,Ncand},|S|=N
+div(S).(7)
+We apply a simple, training-free greedy approxima-
+tion that iteratively selects the candidate with the
+largest marginal contribution to diversity until N
+answers are chosen. Compared to vanilla MAD,
+this procedure incurs additional test-time cost by
+sampling Ncand rather than N initial answers, but
+requires no model training or architectural modi-
+fication. Unlike approaches that prune similar re-
+sponses within a single debate round (Estornell
+and Liu, 2024), our method preserves the standard
+MAD protocol and increases the probability that
+the initial debate state contains at least one correct
+hypothesis.
+4.2 Confidence-Modulated Debate
+Bahrami et al. (2010) show that when debate partic-
+ipants can directly communicate their uncertainty,
+joint decisions improve. In human deliberation,
+such uncertainty cues are often conveyed through
+paralinguistic signals (e.g., facial expressions and
+tone) (Guyer et al., 2021). However, these cues
+are unavailable in text-based LLM debates, where
+confidence must be expressed verbally. Moreover,
+estimating confidence for black-box models such
+as LLMs is itself non-trivial. While confidence
+can be inferred indirectly through sampling-based
+uncertainty estimates (Zhang et al., 2024, 2025a)
+or linguistic markers (Yang et al., 2025a,b), we fo-
+cus on verbalised numerical confidence, as it is the
+
+--- PAGE BREAK ---
+
+most direct signal agents can exchange during de-
+bate and can be explicitly calibrated (Zhang et al.,
+2025b).
+To incorporate confidence into debate, we extend
+each agent’s output at roundtto
+yconf
+i,t = (yi,t, w i,t),(8)
+where wi,t ∈ {0, . . . ,10} is a discrete confidence
+score indicating the agent’s self-assessed certainty,
+where 0 indicates the agent is unsure about its an-
+swer and 10 indicates total confidence. The debate-
+update operator becomes
+yw
+i,t =D w(x,R w
+t ),(9)
+where Rw
+t contains each agent’s answer and confi-
+dence.
+We use the termmodulatedto emphasise that
+confidence does not change the content of an
+agent’s answer, but instead scales its influence dur-
+ing aggregation, analogous to how modulation al-
+ters the strength of a carrier signal without chang-
+ing the underlying message (Crecraft and Gergely,
+2002). However, leveraging such confidence sig-
+nals introduces twokey challenges. First, verbally
+reported scores are often miscalibrated: LLMs may
+express high confidence even when incorrect (Sun
+et al., 2025). Second, even with calibrated scores,
+agents may fail touseconfidence effectively during
+interaction—i.e., they may ignore confidence cues
+or update their beliefs inappropriately. We there-
+fore (i) train agents to express calibrated numerical
+confidence, and (ii) teach agents to perceive and
+exploit confidence signals during debate via rein-
+forcement learning.
+Calibrated Confidence Expression.Rather than
+relying on post-hoc calibration (Lin and Hooi,
+2025; Yoffe et al., 2024), we directly train the
+model to generate calibrated confidence scores dur-
+ing debate using reinforcement learning (RL).
+Similar to Zhang et al. (2025b) and Stangel
+et al. (2025), we use a binary cross-entropy style
+log-based reward encouraging alignment between
+correctness and expressed confidence. Let zi,t ∈
+{0,1} denote the correctness indicator of yi,t and
+mapw i,t to(0,1), we adopt the following reward:
+rconf(yi,t, wi,t) = λ
+Rmax
+[zi,t log(wi,t)
++ (1−z i,t) log(1−w i,t)].
+(10)
+λ, Rmax are scaling coefficients. This encourages
+the model to assign higher confidence to correct
+predictions and lower confidence to incorrect ones.
+Confidence Perception and Usage.Expression
+alone does not guarantee that agents use confi-
+dence appropriately during debate. As empha-
+sised in Fusaroli et al. (2012), effective deliberation
+requires confidence alignment, where individuals
+adjust their reasoning strategies based on others’
+confidence signals. To train LLM agents to per-
+ceive and use confidence, we augment the reward
+with correctness signal and apply RL to the debate-
+update operator:
+rtotal =λ 1 zi,t +λ 2 rconf(yi,t, wi,t),(11)
+where λ1, λ2 control the trade-off between accu-
+racy and calibration. In this case, the learned pol-
+icy is encouraged to explicitly condition on others’
+confidence. This captures both calibrated expres-
+sion and active alignment and usage of confidence,
+two components necessary for mirroring human
+deliberation dynamics.
+5 Theoretical Analysis
+We now analyse how does our interventions im-
+prove over the vanilla MAD dynamics of Choi et al.
+(2025). Unlike prior work that studies diversity or
+confidence in isolation, we analyse them as comple-
+mentary mechanisms acting on different stages of
+the same deliberative process. We work within their
+Dirichlet–categorical model (DCM) for MAD, and
+state only the ingredients needed for our results; a
+full description is given in the Appendix D.1.
+Let A={1, . . . , K} be the finite answer set and
+assume, without loss of generality, that option 1 is
+the unique correct answer. At debate round t, agent
+iis parameterised by a Dirichlet vector
+αi,t =
+ 
+α(1)
+i,t , . . . , α(K)
+i,t
+
+∈R K
+>0,(12)
+and generates its answery i,t ∈Aby
+θi,t ∼Dir(α i,t), y i,t |θ i,t ∼Cat(θ i,t).
+We write
+pi,t := Pr(yi,t = 1|α i,t) =
+α(1)
+i,t
+PK
+k=1 α(k)
+i,t
+(13)
+for agent i’s belief on the correct option at roundt.
+In the given DCM model, agents update their
+Dirichlet parameters by adding one count for each
+agent’s answer in the previous round. LetFt denote
+the filtration generated by all belief parameters up
+to round t. In the homogeneous, fully connected
+
+--- PAGE BREAK ---
+
+setting where all agents share the same prior and
+observe the same multiset of answers, Choi et al.
+(2025) show that
+E[pi,t | F t−1] =p i,t−1,(14)
+so {pi,t}t>0 is a martingale. This means during the
+debate, the expected belief at the next round always
+equals to the current belief. In expectation, vanilla
+MAD neither helps nor hurts the performance.
+5.1 Diversity Improves What Is Debated
+Diversity-aware initialisation affects the support
+of the debate by increasing the likelihood that the
+initial answer pool contains at least one correct
+hypothesis. Importantly, this intervention operates
+entirely at initialisation and does not modify the
+subsequent debate dynamics.
+Proposition 1(Diversity-aware initialization im-
+proves prior success).LetA T be the event that
+debate outputs the correct answer at the final
+round T under the unweighted DCM dynamics.
+Let S denote the number of distinct informative
+hypotheses in the initial answer pool (e.g., the
+number of distinct options that are sampled at
+least once). Suppose that the conditional suc-
+cess probability P(AT |S=s) is nondecreas-
+ing in s, and that the distribution of S under our
+diversity-aware initialiser first-order stochasti-
+cally dominates that under random i.i.d. sam-
+pling. Then
+P(AT |diverse init)≥P(A T |random init).
+Proposition 1 formalises that diversity-aware ini-
+tialization improves MAD by shifting the distribu-
+tion of the initial debate state toward pools with
+broader hypothesis coverage. Conditional on this
+state, the unweighted debate dynamics remain a
+martingale, but the prior probability that debate be-
+gins with a useful hypothesis is strictly increased.
+A full proof is provided in Appendix D.2.
+5.2 Confidence Improves How Debate
+Aggregates
+Confidence-modulated debate changes how infor-
+mation is aggregated. Answers that are both high-
+confidence and positively correlated with correct-
+ness receive more weight in the Dirichlet updates,
+causing the expected belief in the correct answer
+to drift upward over rounds instead of remaining
+flat as in the unweighted martingale case. Con-
+sider the DCM debate model described above and
+extend it so that, at each round, agents exchange
+answers together with scalar confidence scores and
+update their Dirichlet parameters using confidence-
+weighted counts.
+Theorem 1(Confidence-weighted debate yields
+a submartingale).Assume that: (i) agents are
+homogeneous and fully connected; and (ii) con-
+fidence is positively correlated with correctness,
+in the sense that higher-confidence answers are,
+on average, more likely to be correct than lower-
+confidence ones. Let pi,t denote agent i’s belief
+on the correct answer at round t, and let Ft
+be the filtration generated by the debate his-
+tory. Then the belief process {pi,t}t≥0 becomes
+a strict submartingale:
+E[pi,t | F t−1]≥p i,t−1,
+with strict inequality on a set of positive proba-
+bility.
+Conceptually speaking, confidence-modulated
+debate breaks the martingale symmetry of vanilla
+MAD and, in expectation, strictly improves correct-
+ness over rounds. Whereas a martingale preserves
+the expected belief in the correct answer, a sub-
+martingale has increasing expected belief, imply-
+ing systematic progress toward the correct hypothe-
+sis. Appendix D.3 defines the confidence-weighted
+Dirichlet-categorical update, and Appendix D.4
+proves that this yields a (strict) submartingale.
+6 Experiment Setup
+We first conduct a series of experiments to study the
+dynamics of vanilla MAD and provide additional
+analysis under the setting of Choi et al. (2025).
+Specifically, we initialise 5 homogeneous agents
+using the same language model, and run debates for
+5 turns. To obtain a comprehensive understanding,
+we evaluate MAD across a wide range of tasks
+using multiple language models.
+Datasets.We cover a series of QA datasets with
+varying levels of difficulty. Our in-domain datasets
+include GSM8K (Cobbe et al., 2021), Common-
+senseQA (Talmor et al., 2019), HellaSwag (Zellers
+et al., 2019), and MMLU (Hendrycks et al., 2021),
+which contains 57 sub-tasks across diverse knowl-
+edge domains. We perform confidence-modulated
+debate training on these datasets. To assess the
+
+--- PAGE BREAK ---
+
+Model Strategy GSM8K CSQA HellaSwag MMLU-FL MMLU-PM MMLU-All GPQA ARC-C
+Qwen-2.5-7B-Instruct
+Single Model 0.908 0.784 0.752 0.547 0.765 0.735 0.298 0.805
+Debate5×5 0.847 0.727 0.698 0.571 0.734 0.727 0.339 0.882
+Majority V ote 0.908 0.808 0.762 0.548 0.806 0.764 0.335 0.880
+High Diversity 0.920 0.836 0.779 0.587 0.822 0.743 0.334 0.884
+HD + Learn2Agg 0.893 0.776 0.777 0.603 0.805 0.752 0.353 0.889
+Confidence 0.910 0.810 0.782 0.587 0.818 0.769 0.350 0.911
+HD + Confidence 0.932 0.828 0.781 0.619 0.825 0.769 0.361 0.890
+Llama-3.1-8B-Instruct
+Single Model 0.797 0.703 0.676 0.503 0.798 0.701 0.266 0.780
+Debate5×5 0.850 0.688 0.667 0.544 0.772 0.680 0.316 0.802
+Majority V ote 0.870 0.718 0.686 0.532 0.809 0.711 0.290 0.832
+High Diversity 0.863 0.721 0.701 0.548 0.805 0.687 0.321 0.877
+HD + Learn2Agg 0.891 0.747 0.677 0.551 0.797 0.700 0.350 0.832
+Confidence 0.882 0.734 0.685 0.548 0.818 0.720 0.352 0.882
+HD + Confidence 0.890 0.752 0.688 0.555 0.842 0.713 0.352 0.854
+Table 1: Benchmark performance for Qwen-2.5-7B-Instruct and Llama-3.1-8B-Instruct across major datasets. Cell
+background indicates improvement (green) relative to the Majority V ote baseline within each model group; color
+intensity scales with the magnitude of the change. Best results per model group arebolded. We specifically look
+into MMLU Formal Logic (FL) and Professional Medicine (PM) to keep consistent with Choi et al. (2025).
+Model r p
+Qwen-2.5-7B-Instruct 0.070 <0.001
+Llama-3.1-8B-Instruct 0.019 0.002
+Table 2: Pearson correlation (r) and significance levels
+(p) for initial answer diversity vs. debate performance
+gain (n=26,624).
+generalization capabilities of our methods, we addi-
+tionally evaluate on GPQA-Main (Rein et al., 2024)
+and ARC-Challenge (Clark et al., 2018), which we
+treat as out-of-domain (OOD) benchmarks.
+Language Models and Prompts.We evalu-
+ate Llama-3.1-8B-Instruct (Dubey et al., 2024)
+and Qwen-2.5-7B-Instruct (Team, 2024) for both
+vanilla MAD and our trained variants. In the MAD
+setting, we elicit chain-of-thought (CoT) reasoning
+(Wei et al., 2022) by prompting the model to out-
+put its reasoning steps followed by its final answer.
+To incorporate confidence, we additionally prompt
+the model to produce a numerical confidence value.
+Detailed prompts are provided in Appendix A.
+Sampling and Training Schema.For agent ini-
+tialisation and all inference steps, we apply tem-
+perature 1.0 and nucleus sampling with p= 0.9
+(Holtzman et al., 2020). For diversity injection, we
+set Ncand = 10 . For confidence expression cali-
+bration and perception training, we use the GRPO
+algorithm combined with LoRA adaptation (Shao
+et al., 2024; Hu et al., 2022). Further details on
+the sampling strategy and training configuration
+(a) Qwen Vanilla
+ (b) Qwen Confidence
+Figure 2: Sankey plots of correctness transitions from
+round 1 to round 5 (Qwen): The confidence-modulated
+debate (b) shows improvement on answer revision
+(blue), indicating better belief drift to correctness.
+are provided in the Appendix B. We evaluate our
+methods against single model, majority vote, and
+majority vote after debate as baselines.
+7 Results & Analysis
+Diversity alone improves MAD performance.
+We observe that vanilla MAD performs similarly or
+worse than simple majority vote, echoing findings
+reported in prior work (Choi et al., 2025). However,
+further analysis reveals several meaningful patterns.
+As shown in Table 2, even without any intervention,
+initial answer diversity in vanilla MAD is signifi-
+cantly correlated with final answer accuracy. While
+the correlation is weak, considering its consistency
+and direction in addition to the diversity collapse
+of the instruct model, they together suggest that
+diversity exerts a systematic effect in vanilla MAD,
+motivating mechanisms that explicitly leverage this
+
+--- PAGE BREAK ---
+
+0.3 0.4 0.5 0.6 0.7 0.8 0.9
+Dataset Accuracy
+0.25
+0.30
+0.35
+0.40
+0.45Initial Diversity
+Dataset Accuracy vs Initial Round Diversity
+Pearson r=-0.327, p=0.0095
+95% Confidence Interval
+Best fit: y=-0.100x+0.430
+(a) Diversity vs. Difficulty
+0.3 0.4 0.5 0.6 0.7 0.8 0.9
+Dataset Accuracy
+0.050
+0.025
+0.000
+0.025
+0.050
+0.075
+0.100
+0.125
+Performance Gain
+Dataset Accuracy vs Performance Gain
+Pearson r=-0.361, p=0.0039
+95% Confidence Interval
+Best fit: y=-0.120x+0.103 (b) Diversity vs. Performance Gain
+Figure 3:(a)Correlation between initial answer diver-
+sity and dataset difficulty (measured by model accuracy)
+over 62 datasets (including 57 MMLU sub-tasks).(b)
+Relationship between dataset difficulty and debate per-
+formance gain. MAD tends to yield larger gains on
+more difficult datasets.
+signal. This also mirrors findings in human group
+deliberation, where diversity promotes collective
+accuracy (Karadzhov et al., 2024).
+We additionally study how diversity interacts
+with task difficulty. We define the difficulty as a
+model’s accuracy on a given dataset. Figure 3a
+shows that MAD naturally produces a more diverse
+initial answer pool on harder datasets (i.e., low ac-
+curacy). Consequently, as illustrated in Figure 3b,
+MAD tends to be more beneficial on more chal-
+lenging tasks. These results provide an empirical
+explanation for when MAD helps and when it fails.
+As shown in Table 1, across both models, our
+diversity-aware initialisation consistently improves
+accuracy on nearly all datasets and surpasses sim-
+ple majority vote. To quantify this effect, we di-
+rectly measure (i) the number of unique answers
+and (ii) Pass@5 in the initial round (i.e., whether
+any agent initially produces a correct answer). As
+shown in Table 3, with diversity-aware initialisa-
+tion, both metrics increase across the board, demon-
+strating that our intervention raises the prior proba-
+bility of MAD success by ensuring more debates
+begin with at least one correct hypothesis. This di-
+rectly supports the theoretical conclusion of Propo-
+sition 1.
+Confidence-modulated debate improves aggre-
+gation.Our confidence-modulated debate includes
+an additional training phase in which agents learn
+to express calibrated confidence and to use others’
+confidence when revising their answers. To isolate
+the effect of confidence, we compare against an
+ablation that removes the confidence reward and
+simply trains a model to select the best answer
+via aggregation (Learn2Agg), similar to Zhao et al.
+(2025). Even without diversity-aware initialisation,
+(a) Overall Pass@5
+Model Random Diverse
+Qwen-2.5-7B-Instruct 0.7921 0.9097
+Llama-3.1-8B-Instruct 0.7423 0.9026
+(b) Number of Unique Answers@5
+Model Random Diverse
+Qwen-2.5-7B-Instruct 1.45 1.61
+Llama-3.1-8B-Instruct 1.92 2.32
+Table 3: Comparison of Pass@5 and answer diversity
+across models and initialisation regimes.
+the confidence-modulated debate consistently out-
+performs simple aggregation across all evaluated
+datasets, including the two OOD benchmarks. This
+confirms that incorporating confidence signals pro-
+vides a reliable mechanism for improving debate
+quality, consistent with the theoretical prediction of
+Theorem 1. We further analyse how the dynamics
+change with in the debate. We conducted a con-
+trolled experiment using the initial turn output from
+vanilla MAD to initialise the confidence modulated
+debate. As shown in Figure 2, confidence mod-
+ulation increases correction of initially incorrect
+answers and stabilises correct ones. This indicates
+that confidence-modulated debate improved belief
+propagation with better drift to correctness, align-
+ing with our theoretical analysis of Theorem 1.
+8 Conclusion
+We revisit multi-agent debate (MAD) through the
+lens of human group deliberation and recent theory
+showing that vanilla MAD induces a martingale
+over agents’ beliefs. Drawing on psycholinguistic
+and socio-cognitive insights, we identify two miss-
+ing ingredients in standard LLM debates: diversity
+of initial viewpoints and explicit, calibrated confi-
+dence communication. We introduce a diversity-
+aware initialization that increases the probability
+that debate starts with a correct hypothesis, and
+a confidence-modulated debate protocol in which
+agents express and use calibrated confidence. The-
+oretically, we show that diversity improves prior
+probability of MAD success without affecting mar-
+tingale dynamics, while confidence-weighted up-
+dates break the martingale symmetry and yield a
+submartingale over correctness. Empirically, our
+methods consistently outperform vanilla MAD and
+majority vote across six benchmarks. Overall, our
+results demonstrate that simple, principled changes
+inspired by human deliberation can substantially
+improve LLM multi-agent debate.
+
+--- PAGE BREAK ---
+
+Limitations
+Our work has several limitations. First, our theoret-
+ical analysis builds on the Dirichlet–categorical de-
+bate model and homogeneity assumptions of Choi
+et al. (2025). While this abstraction enables clear
+insights into debate dynamics, it does not fully cap-
+ture the complexity of real LLM behavior. In par-
+ticular, the DCM model reduces belief updates to
+simple counting, ignoring that agents may receive
+different inputs or contextual positions, which can
+induce effects such as position bias (Wang et al.,
+2024). Moreover, the martingale analysis abstracts
+away settings in which LLMs may refine their own
+beliefs through self-reflection or internal reasoning
+(Huang et al., 2023).
+Second, although our diversity-aware initializa-
+tion is training-free and effective, it relies on a
+heuristic selection of diverse outputs from a fixed
+candidate pool. We do not claim this strategy to be
+optimal, and more principled or adaptive objectives
+for promoting diversity may further improve debate
+outcomes (He et al., 2025; Anschel et al., 2025).
+Third, our confidence-modulated debate as-
+sumes that expressed confidence is positively cor-
+related with correctness after calibration. While
+our training procedure improves this alignment
+empirically, confidence miscalibration remains a
+known challenge for LLMs, and failures in confi-
+dence estimation could reduce the effectiveness of
+confidence-weighted aggregation.
+Fourth, our experiments focus on homogeneous
+agents and fully connected debate graphs. Extend-
+ing the framework to heterogeneous models, asym-
+metric communication topologies, or larger agent
+populations may introduce additional dynamics not
+captured in this work.
+Finally, we evaluate MAD primarily on English
+language question-answering benchmarks. While
+these tasks are standard for studying reasoning and
+debate, future work is needed to assess whether our
+findings generalize to more open-ended, interactive,
+or real-world multi-agent settings.
+Ethics Statement
+Our research adheres to strict ethical guidelines.
+We verified the licenses of all the software and
+datasets used in this study to ensure full compli-
+ance with their terms. No privacy concerns have
+been identified. We have conducted a thorough
+assessment of the project and do not anticipate any
+further risks. We only used AI assistance for gram-
+mar checking when writing the paper.
+Acknowledgement
+We thank Zhaobo Han, PhD candidate in pure math-
+ematics at UCLA, for reviewing our proofs. An-
+dreas Vlachos is supported by the DARPA program
+SciFy.
+References
+Oron Anschel, Alon Shoshan, Adam Botach, Shunit Ha-
+viv Hakimi, Asaf Gendler, Emanuel Ben Baruch, Na-
+dav Bhonker, Igor Kviatkovsky, Manoj Aggarwal,
+and Gerard Medioni. 2025. Group-aware reinforce-
+ment learning for output diversity in large language
+models. InProceedings of the 2025 Conference on
+Empirical Methods in Natural Language Processing,
+pages 32382–32403.
+Solomon E Asch. 1955. Opinions and social pressure.
+Scientific american, 193(5):31–35.
+Bahador Bahrami, Karsten Olsen, Peter E Latham,
+Andreas Roepstorff, Geraint Rees, and Chris D
+Frith. 2010. Optimally interacting minds.Science,
+329(5995):1081–1085.
+Chi-Min Chan, Weize Chen, Yusheng Su, Jianxuan Yu,
+Wei Xue, Shanghang Zhang, Jie Fu, and Zhiyuan
+Liu. 2024. Chateval: Towards better llm-based eval-
+uators through multi-agent debate. InThe Twelfth
+International Conference on Learning Representa-
+tions, ICLR 2024, Vienna, Austria, May 7-11, 2024.
+OpenReview.net.
+Hyeong Kyu Choi, Xiaojin Zhu, and Yixuan Li. 2025.
+Debate or vote: Which yields better decisions in
+multi-agent large language models?ArXiv preprint,
+abs/2508.17536.
+Peter Clark, Isaac Cowhey, Oren Etzioni, Tushar Khot,
+Ashish Sabharwal, Carissa Schoenick, and Oyvind
+Tafjord. 2018. Think you have solved question an-
+swering? try arc, the ai2 reasoning challenge.ArXiv
+preprint, abs/1803.05457.
+Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian,
+Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias
+Plappert, Jerry Tworek, Jacob Hilton, Reiichiro
+Nakano, Christopher Hesse, and John Schulman.
+2021. Training verifiers to solve math word prob-
+lems.ArXiv preprint, abs/2110.14168.
+David Crecraft and Stephen Gergely. 2002.Analog
+Electronics: circuits, systems and signal processing.
+Elsevier.
+Guillaume Dezecache, Martin Dockendorff, Dardo N
+Ferreiro, Ophelia Deroy, and Bahador Bahrami. 2022.
+Democratic forecast: Small groups predict the future
+better than individuals and crowds.Journal of Exper-
+imental Psychology: Applied, 28(3):525.
+
+--- PAGE BREAK ---
+
+Yilun Du, Shuang Li, Antonio Torralba, Joshua B.
+Tenenbaum, and Igor Mordatch. 2024. Improving
+factuality and reasoning in language models through
+multiagent debate. InForty-first International Con-
+ference on Machine Learning, ICML 2024, Vienna,
+Austria, July 21-27, 2024. OpenReview.net.
+Abhimanyu Dubey, Abhinav Jauhri, Abhinav Pandey,
+Abhishek Kadian, Ahmad Al-Dahle, Aiesha Letman,
+Akhil Mathur, Alan Schelten, Amy Yang, Angela
+Fan, and 1 others. 2024. The llama 3 herd of models.
+arXiv e-prints, pages arXiv–2407.
+Andrew Estornell and Yang Liu. 2024. Multi-llm de-
+bate: Framework, principals, and interventions. In
+Advances in Neural Information Processing Systems
+38: Annual Conference on Neural Information Pro-
+cessing Systems 2024, NeurIPS 2024, Vancouver, BC,
+Canada, December 10 - 15, 2024.
+Riccardo Fusaroli, Bahador Bahrami, Karsten Olsen,
+Andreas Roepstorff, Geraint Rees, Chris Frith, and
+Kristian Tylén. 2012. Coming to terms: Quantifying
+the benefits of linguistic coordination.Psychological
+science, 23(8):931–939.
+Taicheng Guo, Xiuying Chen, Yaqi Wang, Ruidi Chang,
+Shichao Pei, Nitesh V . Chawla, Olaf Wiest, and Xi-
+angliang Zhang. 2024. Large language model based
+multi-agents: A survey of progress and challenges. In
+Proceedings of the Thirty-Third International Joint
+Conference on Artificial Intelligence, IJCAI 2024,
+Jeju, South Korea, August 3-9, 2024, pages 8048–
+8057. ijcai.org.
+Joshua J Guyer, Pablo Briñol, Thomas I Vaughan-
+Johnston, Leandre R Fabrigar, Lorena Moreno, and
+Richard E Petty. 2021. Paralinguistic features com-
+municated through voice can affect appraisals of con-
+fidence and evaluative judgments.Journal of nonver-
+bal behavior, 45(4):479–504.
+Andre Wang He, Daniel Fried, and Sean Welleck. 2025.
+Rewarding the unlikely: Lifting grpo beyond distri-
+bution sharpening. InProceedings of the 2025 Con-
+ference on Empirical Methods in Natural Language
+Processing, pages 25559–25571.
+Dan Hendrycks, Collin Burns, Steven Basart, Andy
+Zou, Mantas Mazeika, Dawn Song, and Jacob Stein-
+hardt. 2021. Measuring massive multitask language
+understanding. In9th International Conference on
+Learning Representations, ICLR 2021, Virtual Event,
+Austria, May 3-7, 2021. OpenReview.net.
+Ari Holtzman, Jan Buys, Li Du, Maxwell Forbes, and
+Yejin Choi. 2020. The curious case of neural text
+degeneration. In8th International Conference on
+Learning Representations, ICLR 2020, Addis Ababa,
+Ethiopia, April 26-30, 2020. OpenReview.net.
+Edward J. Hu, Yelong Shen, Phillip Wallis, Zeyuan
+Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and
+Weizhu Chen. 2022. Lora: Low-rank adaptation of
+large language models. InThe Tenth International
+Conference on Learning Representations, ICLR 2022,
+Virtual Event, April 25-29, 2022. OpenReview.net.
+Tiancheng Hu, Benjamin Minixhofer, and Nigel Collier.
+2025. Navigating the alignment-calibration trade-off:
+A pareto-superior frontier via model merging.arXiv
+preprint arXiv:2510.17426.
+Jiaxin Huang, Shixiang Gu, Le Hou, Yuexin Wu, Xuezhi
+Wang, Hongkun Yu, and Jiawei Han. 2023. Large
+language models can self-improve. InProceedings of
+the 2023 conference on empirical methods in natural
+language processing, pages 1051–1068.
+Irving L Janis. 1972. Victims of groupthink: A psycho-
+logical study of foreign-policy decisions and fiascoes.
+Georgi Karadzhov, Andreas Vlachos, and Tom Stafford.
+2024. The effect of diversity on group decision-
+making.ArXiv preprint, abs/2402.01427.
+Norbert L Kerr and R Scott Tindale. 2004. Group per-
+formance and decision making.Annu. Rev. Psychol.,
+55(1):623–655.
+Robert Kirk, Ishita Mediratta, Christoforos Nalmpantis,
+Jelena Luketina, Eric Hambro, Edward Grefenstette,
+and Roberta Raileanu. 2024. Understanding the ef-
+fects of RLHF on LLM generalisation and diversity.
+InThe Twelfth International Conference on Learning
+Representations, ICLR 2024, Vienna, Austria, May
+7-11, 2024. OpenReview.net.
+Tian Liang, Zhiwei He, Wenxiang Jiao, Xing Wang,
+Yan Wang, Rui Wang, Yujiu Yang, Shuming Shi, and
+Zhaopeng Tu. 2024. Encouraging divergent thinking
+in large language models through multi-agent debate.
+InProceedings of the 2024 conference on empiri-
+cal methods in natural language processing, pages
+17889–17904.
+Zijie Lin and Bryan Hooi. 2025. Enhancing multi-agent
+debate system performance via confidence expres-
+sion.ArXiv preprint, abs/2509.14034.
+Hugo Mercier. 2020. Not born yesterday: The science
+of who we trust and what we believe. InNot born
+yesterday. Princeton University Press.
+Hugo Mercier and Dan Sperber. 2011. Why do hu-
+mans reason? arguments for an argumentative theory.
+Behavioral and brain sciences, 34(2):57–74.
+Hugo Mercier and Dan Sperber. 2017.The enigma of
+reason. Harvard University Press.
+David Moshman and Molly Geil. 1998. Collaborative
+reasoning: Evidence for collective rationality.Think-
+ing & Reasoning, 4(3):231–248.
+Vishakh Padmakumar and He He. 2024. Does writing
+with language models reduce content diversity? In
+The Twelfth International Conference on Learning
+Representations, ICLR 2024, Vienna, Austria, May
+7-11, 2024. OpenReview.net.
+David Rein, Betty Li Hou, Asa Cooper Stickland, Jack-
+son Petty, Richard Yuanzhe Pang, Julien Dirani, Ju-
+lian Michael, and Samuel R Bowman. 2024. Gpqa:
+A graduate-level google-proof q&a benchmark. In
+First Conference on Language Modeling.
+
+--- PAGE BREAK ---
+
+Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu,
+Junxiao Song, Xiao Bi, Haowei Zhang, Mingchuan
+Zhang, YK Li, Yang Wu, and 1 others. 2024.
+Deepseekmath: Pushing the limits of mathematical
+reasoning in open language models.ArXiv preprint,
+abs/2402.03300.
+Mrinank Sharma, Meg Tong, Tomasz Korbak, David
+Duvenaud, Amanda Askell, Samuel R. Bowman,
+Esin Durmus, Zac Hatfield-Dodds, Scott R. Johnston,
+Shauna Kravec, Timothy Maxwell, Sam McCandlish,
+Kamal Ndousse, Oliver Rausch, Nicholas Schiefer,
+Da Yan, Miranda Zhang, and Ethan Perez. 2024. To-
+wards understanding sycophancy in language models.
+InThe Twelfth International Conference on Learning
+Representations, ICLR 2024, Vienna, Austria, May
+7-11, 2024. OpenReview.net.
+Paul E Smaldino, Cody Moser, Alejandro Perez Velilla,
+and Mikkel Werling. 2024. Maintaining transient
+diversity is a general principle for improving collec-
+tive problem solving.Perspectives on Psychological
+Science, 19(2):454–464.
+Paul Stangel, David Bani-Harouni, Chantal Pellegrini,
+Ege Özsoy, Kamilia Zaripova, Matthias Keicher, and
+Nassir Navab. 2025. Rewarding doubt: A reinforce-
+ment learning approach to calibrated confidence ex-
+pression of large language models.ArXiv preprint,
+abs/2503.02623.
+Fengfei Sun, Ningke Li, Kailong Wang, and Lorenz
+Goette. 2025. Large language models are over-
+confident and amplify human bias.ArXiv preprint,
+abs/2505.02151.
+Alon Talmor, Jonathan Herzig, Nicholas Lourie, and
+Jonathan Berant. 2019. CommonsenseQA: A ques-
+tion answering challenge targeting commonsense
+knowledge. InProceedings of the 2019 Conference
+of the North American Chapter of the Association for
+Computational Linguistics: Human Language Tech-
+nologies, Volume 1 (Long and Short Papers), pages
+4149–4158, Minneapolis, Minnesota. Association for
+Computational Linguistics.
+Qwen Team. 2024. Qwen2.5: A party of foundation
+models.
+Peiyi Wang, Lei Li, Liang Chen, Zefan Cai, Dawei Zhu,
+Binghuai Lin, Yunbo Cao, Lingpeng Kong, Qi Liu,
+Tianyu Liu, and 1 others. 2024. Large language mod-
+els are not fair evaluators. InProceedings of the
+62nd Annual Meeting of the Association for Compu-
+tational Linguistics (Volume 1: Long Papers), pages
+9440–9450.
+Xuezhi Wang, Jason Wei, Dale Schuurmans, Quoc V .
+Le, Ed H. Chi, Sharan Narang, Aakanksha Chowd-
+hery, and Denny Zhou. 2023. Self-consistency
+improves chain of thought reasoning in language
+models. InThe Eleventh International Conference
+on Learning Representations, ICLR 2023, Kigali,
+Rwanda, May 1-5, 2023. OpenReview.net.
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten
+Bosma, Brian Ichter, Fei Xia, Ed H. Chi, Quoc V . Le,
+and Denny Zhou. 2022. Chain-of-thought prompting
+elicits reasoning in large language models. InAd-
+vances in Neural Information Processing Systems 35:
+Annual Conference on Neural Information Process-
+ing Systems 2022, NeurIPS 2022, New Orleans, LA,
+USA, November 28 - December 9, 2022.
+Haolun Wu, Zhenkun Li, and Lingyao Li. 2025. Can
+llm agents really debate? a controlled study of multi-
+agent debate in logical reasoning.ArXiv preprint,
+abs/2511.07784.
+Andrea Wynn, Harsh Satija, and Gillian Hadfield.
+2025. Talk isn’t always cheap: Understanding fail-
+ure modes in multi-agent debate.ArXiv preprint,
+abs/2509.05396.
+Ruihan Yang, Caiqi Zhang, Zhisong Zhang, Xinting
+Huang, Sen Yang, Nigel Collier, Dong Yu, and De-
+qing Yang. 2025a. LoGU: Long-form generation
+with uncertainty expressions. InProceedings of the
+63rd Annual Meeting of the Association for Compu-
+tational Linguistics (Volume 1: Long Papers), pages
+18947–18968, Vienna, Austria. Association for Com-
+putational Linguistics.
+Ruihan Yang, Caiqi Zhang, Zhisong Zhang, Xinting
+Huang, Dong Yu, Nigel Collier, and Deqing Yang.
+2025b. UNCLE: Benchmarking uncertainty expres-
+sions in long-form generation. InProceedings of the
+2025 Conference on Empirical Methods in Natural
+Language Processing, pages 30328–30344, Suzhou,
+China. Association for Computational Linguistics.
+Yongjin Yang, Euiin Yi, Jongwoo Ko, Kimin Lee, Zhi-
+jing Jin, and Se-Young Yun. 2025c. Revisiting
+multi-agent debate as test-time scaling: A systematic
+study of conditional effectiveness.ArXiv preprint,
+abs/2505.22960.
+Luke Yoffe, Alfonso Amayuelas, and William Yang
+Wang. 2024. Debunc: Improving large language
+model agent communication with uncertainty metrics.
+ArXiv preprint, abs/2407.06426.
+Paul Zarnoth and Janet A Sniezek. 1997. The so-
+cial influence of confidence in group decision mak-
+ing.Journal of Experimental Social Psychology,
+33(4):345–366.
+Rowan Zellers, Ari Holtzman, Yonatan Bisk, Ali
+Farhadi, and Yejin Choi. 2019. HellaSwag: Can a ma-
+chine really finish your sentence? InProceedings of
+the 57th Annual Meeting of the Association for Com-
+putational Linguistics, pages 4791–4800, Florence,
+Italy. Association for Computational Linguistics.
+Caiqi Zhang, Fangyu Liu, Marco Basaldella, and Nigel
+Collier. 2024. LUQ: Long-text uncertainty quantifi-
+cation for LLMs. InProceedings of the 2024 Con-
+ference on Empirical Methods in Natural Language
+Processing, pages 5244–5262, Miami, Florida, USA.
+Association for Computational Linguistics.
+
+--- PAGE BREAK ---
+
+Caiqi Zhang, Ruihan Yang, Zhisong Zhang, Xinting
+Huang, Sen Yang, Dong Yu, and Nigel Collier. 2025a.
+Atomic calibration of LLMs in long-form genera-
+tions. InProceedings of the 14th International Joint
+Conference on Natural Language Processing and
+the 4th Conference of the Asia-Pacific Chapter of
+the Association for Computational Linguistics, pages
+148–169, Mumbai, India. The Asian Federation of
+Natural Language Processing and The Association
+for Computational Linguistics.
+Caiqi Zhang, Ruihan Yang, Xiaochen Zhu, Chengzu
+Li, Tiancheng Hu, Yijiang River Dong, Deqing
+Yang, and Nigel Collier. 2026. Confidence estima-
+tion for llms in multi-turn interactions.Preprint,
+arXiv:2601.02179.
+Caiqi Zhang, Xiaochen Zhu, Chengzu Li, Nigel Col-
+lier, and Andreas Vlachos. 2025b. Reinforcement
+learning for better verbalized confidence in long-form
+generation.ArXiv preprint, abs/2505.23912.
+Wenting Zhao, Pranjal Aggarwal, Swarnadeep Saha,
+Asli Celikyilmaz, Jason Weston, and Ilia Kulikov.
+2025. The majority is not always right: Rl
+training for solution aggregation.ArXiv preprint,
+abs/2509.06870.
+Xiaochen Zhu, Caiqi Zhang, Tom Stafford, Nigel Col-
+lier, and Andreas Vlachos. 2025. Conformity in large
+language models. InProceedings of the 63rd Annual
+Meeting of the Association for Computational Lin-
+guistics (Volume 1: Long Papers), pages 3854–3872.
+
+--- PAGE BREAK ---
+
+A Prompts
+Here we provide the prompt we used for MAD. We
+use the prompt in Table 4 to elicit the initial pool of
+answers for the debate. For the subsequent rounds,
+we use the prompt in Table 5 to encourage debate.
+For a single agent, the other agents’ responses in
+the previous round will be concatenated together
+and presented together with its own previous re-
+sponse. For settings not incorporating confidence,
+the confidence related descriptions are simply re-
+moved. All the interactions are done using chat
+template.
+Initial Round Prompt with Confidence
+Answer the question. Think step by step first, at the
+end of your reasoning, provide your final answer
+and confidence level, ranging from 0 to 10, where 0
+means no confidence at all and 10 means complete
+confidence.
+Output format:
+<reasoning> YOUR DETAILED REASONING
+HERE </reasoning>
+<answer> YOUR FINAL ANSWER </an-
+swer> {extra_info}
+<confidence> INTEGER </confidence>
+{question}
+Table 4: Initial Round Prompt with Confidence.
+B Sampling and Training Schema
+All experiments are conducted on NVIDIA A100
+GPUs (80GB), with a total consumption of approx-
+imately 1,500 GPU hours. We use vLLM (v0.11.0)
+for all inference. Both training and inference
+are performed in float16 precision. For all fine-
+tuning stages, we employ LoRA with rank 64.
+B.1 Confidence Expression Training
+We first initialize the model with a small number
+of supervised fine-tuning (SFT) steps to improve
+format adherence for confidence expression. To
+construct gold labels, we subsample 5k data points
+from the combined training datasets and use self-
+consistency (Wang et al., 2023) to derive numerical
+confidence targets. We then proceed with reinforce-
+ment learning (RL) training on a subsampled set of
+10k difficult examples from the training data. Table
+6 demonstrate that trained models exhibits well-
+calibrated verbalised confidence. Model also main-
+MAD Prompt with Confidence
+You are revising your answer after reviewing other
+agents’ reasoning.
+Question: {question}
+Other agents’ responses: {other_agents}
+Your previous reasoning and answer: {reasoning}
+Instructions:
+- Reflect on how others reasoned.
+- You may revise your answer if someone’s reasoning
+provides stronger evidence.
+- However, if you believe all of them missed
+something important, propose a better or alternative
+answer — clearly explain why.
+- Be concise and clear.
+- Update your confidence level to reflect how certain
+you are now. Confidence level is ranging from 0 to
+10, where 0 means no confidence at all and 10 means
+complete confidence.
+Think step by step first, at the end of your reasoning,
+provide your final answer and confidence level in the
+following format:
+<reasoning> YOUR DETAILED REASONING
+HERE </reasoning>
+<answer> YOUR FINAL ANSWER </answer> {ex-
+tra_info}
+<confidence> INTEGER </confidence>
+Table 5: MAD Prompt with Confidence.
+tains a similar accuracy demonstrating the training
+does not introduce new knowledge that causing
+data leakage.
+Llama-3.1-8B-Instruct
+Method Brier ECE AUROC Acc
+Vanilla 0.217 0.257 0.644 0.491
+SC 0.051 0.157 0.852 N/A
+VC 0.069 0.167 0.763 0.502
+Qwen-2.5-7B-Instruct
+Method Brier ECE AUROC Acc
+Vanilla 0.212 0.217 0.576 0.567
+SC 0.078 0.156 0.855 N/A
+VC 0.046 0.153 0.754 0.578
+Table 6: Calibration and performance metrics for Llama-
+3.1-8B-Instruct and Qwen-2.5-7B-Instruct on hard sub-
+sampled datasets. Lower is better for Brier score and
+ECE; higher is better for AUROC and accuracy. All
+values rounded to three significant digits.
+B.2 Confidence Perception and Usage
+Training
+Since the input–output format between debate
+rounds is identical, the debate process can be
+viewed as Markovian, with each turn conditioned
+only on agents’ responses from the previous round.
+
+--- PAGE BREAK ---
+
+GRPO Confidence Calibration Setup
+LoRA (r=64,α=32; q/k/v/o proj)
+Seq. Length 2048
+Epochs 1
+Batch Size 4 (×2 grad acc.)
+Learning Rate5×10 −6
+Generations / Prompt 8
+SamplingT=1.0, top-p=0.9
+s KL Coefficientβ=0.01
+Table 7: Training configuration for confidence calibra-
+tion.
+GRPO Multi-Agent Debate Setup
+LoRA (r=64,α=32; q/k/v/o proj)
+Epochs 1
+Batch Size 4 (×4 grad acc.)
+Learning Rate5×10 −5
+Generations / Prompt 8
+SamplingT=1.0, top-p=1.0
+KL Coefficientβ=0.01
+Max Completion Length 1024
+Confidence Used Yes
+Reward Scales Correct: 10, Conf: 3,
+Engage: 5
+Wrong-Format Penalty−30
+Table 8: GRPO configuration for multi-agent debate
+training.
+We therefore apply GRPO to single-turn inputs and
+outputs using the combined correctness and confi-
+dence rewards defined in Equation (11).
+During training, we observed reward hacking be-
+havior, where agents stopped engaging with others’
+reasoning or confidence signals and instead output
+only a final answer. To mitigate this, we introduce
+a simple engagement constraint that encourages
+constructive interaction by rewarding the presence
+of discourse cues (e.g., “agent”, “I agree”, “but
+I think”, “convinced”, “skeptical”). This heuris-
+tic helps ensure that agents actively reference and
+respond to others during debate.
+C What We Tried but Did Not Work
+Increasing temperature does not increase an-
+swer diversity.In early experiments, we attempted
+to promote diversity by increasing the sampling
+temperature. However, as shown in Table 9, rais-
+ing the temperature from 1.0 to 1.2 did not yield
+more diverse answers or improved MAD perfor-
+mance. We attribute this to the fact that higher
+temperature primarily induces diversity inreason-
+ing pathsrather than in final answers. For instance,
+Qwen often produced the same answer expressed
+through different languages (e.g., Chinese or Ko-
+rean) or stylistic variations. A higher tempera-
+ture also harms instruction following and lead to
+worse output quality. This observation suggests
+that naive temperature scaling is insufficient for
+inducing answer-level diversity and motivates the
+need for more targeted diversity-aware initializa-
+tion strategies.
+Qwen-2.5-7B-Instruct
+Temperature Unique Answers@5 Accuracy
+t= 0.81.18 0.722
+t= 1.01.45 0.753
+t= 1.21.42 0.733
+Table 9: Effect of temperature on answer diversity and
+average accuracy for Qwen-2.5-7B-Instruct. Values
+rounded to three significant digits.
+Training on harder data improves confidence
+calibration.For confidence expression training,
+we initially subsampled 12k data points uniformly
+from the training datasets. In practice, the model
+struggled to converge under this setting. We at-
+tribute this to the model’s already high accuracy
+on these datasets: during GRPO training, many tra-
+jectories resulted in correct answers with maximal
+confidence (10), leading to a collapse in reward
+diversity and poor sampling efficiency. To address
+this issue, we manually curated a harder subset of
+data on which model accuracy was closer to 50%.
+Training on this subset substantially improved con-
+vergence and led to more stable confidence calibra-
+tion.
+
+--- PAGE BREAK ---
+
+D Proofs
+In this appendix we show that both our interventions of diversity injection and confidence-modulated
+debate could benefit the result of the vanilla MAD which is essentially a martingale process as established
+in (Choi et al., 2025). For diversity injection, we are not changing the dynamics of the martingale
+process, but increases the prior probability of success. For confidence-modulated debate, the incorpora-
+tion of a confidence score that is positively correlated with correctness breaks martingale process into
+submartingale.
+D.1 Baseline DCM Debate Model
+We briefly recall the Bayesian model of multi-agent debate used in Choi et al. (2025). LetA={1, . . . , K}
+denote the finite answer set and let answer 1 be the unique correct option. There are N agents indexed by
+i∈ {1, . . . , N}. At debate roundt, agentiis parameterized by a Dirichlet belief vector
+αi,t =
+ 
+α(1)
+i,t , . . . , α(K)
+i,t
+
+∈R K
+>0,(15)
+and generates its answery i,t ∈Aas
+θi,t ∼Dir(α i,t),
+yi,t |θ i,t ∼Cat(θ i,t).
+The induced marginal probability of choosing optionkis
+Pr(yi,t =k|α i,t) =
+α(k)
+i,t
+PK
+j=1 α(j)
+i,t
+.(16)
+We write
+pi,t := Pr(yi,t = 1|α i,t) =
+α(1)
+i,t
+PK
+j=1 α(j)
+i,t
+(17)
+for agenti’s belief (probability) on the correct option at roundt.
+Let G be the (undirected) debate graph and N(i) denote the neighbors of i (possibly including i itself).
+In theunweightedmodel, agent i aggregates its neighbors’ answers {yj,t−1 :j∈ N(i)} into a count
+vectorc i,t = (c(1)
+i,t , . . . , c(K)
+i,t ), where
+c(k)
+i,t =
+X
+j∈N(i)
+1{yj,t−1 =k}.(18)
+The Dirichlet parameters are then updated by Bayesian conjugacy:
+αi,t =α i,t−1 +c i,t.(19)
+Let Ft denote the filtration generated by all belief parameters up to round t, Ft :=σ
+ 
+{αi,s :i≤
+N, s≤t}
+
+. In the homogeneous, fully-connected setting where all agents share the same prior and
+observe the same multiset of answers, Choi et al. (2025) show that
+E[pi,t | F t−1] =p i,t−1,(20)
+so {pi,t}t>0 is a martingale. Intuitively, each neighbour contributes oneunweighted“ball” to a Pólya-urn-
+like update, and symmetry ensures that, in expectation, debate neither helps nor hurts.
+
+--- PAGE BREAK ---
+
+D.2 Effect of Diversity Injection
+Recall that the martingale result of Choi et al. (2025) states that, conditional on the initial debate state F1
+(the first-round pool and its arguments), the expected belief does not drift:
+E[pt | F 1] =p 1 ∀t,(21)
+so the probability that debate outputs the correct answer is determined entirely by the quality ofF 1.
+We now formalize how diversity-aware initialization improves this prior success probability without
+altering the martingale dynamics.
+Theorem 2(Effect of diversity-aware initialization).Let AT be the event that debate outputs the
+correct answer at the final roundT , and let S∈N denote the number of distinct informative hypotheses
+(e.g., distinct correct or partially-correct reasoning chains) present in the initial poolF1. Assume:
+(i) (Monotonicity in coverage) The success probability is weakly increasing inS, i.e.
+Pr(AT |S=s)is nondecreasing ins.(22)
+(ii) (Diversity increases coverage) Let Srand and Sdiv denote the values of S under random sampling
+and diversity-aware initialization respectively. Then Sdiv first-order stochastically dominates
+Srand, i.e.
+Pr(Sdiv ≥s)≥Pr(S rand ≥s)∀s,(23)
+with strict inequality for somes.
+Then the overall probability of eventual correctness is higher under diversity-aware initialization:
+Pr(AT |diverse)≥Pr(A T |random),(24)
+with strict inequality whenever the dominance in(23)is strict.
+Proof.Define the function
+f(s) := Pr(A T |S=s), s∈N.(25)
+Assumption (22) states thatfis nondecreasing.
+Under a given initialization scheme (random or diverse), we can write the overall success probability
+using the law of total probability as
+Pr(AT |scheme) =E
+
+f(S scheme)
+
+,(26)
+whereS scheme is the corresponding random variable (Srand orS div).
+By first-order stochastic dominance (23), we know that for any nondecreasing functionf,
+E
+
+f(S div)
+
+≥E
+
+f(S rand)
+
+,(27)
+with strict inequality if dominance is strict on a set wherefis strictly increasing.
+Combining these facts gives
+Pr(AT |diverse) =E
+
+f(S div)
+
+≥E
+
+f(S rand)
+
+= Pr(AT |random),(28)
+with strict inequality under strict dominance. This is exactly the claimed result.
+
+--- PAGE BREAK ---
+
+Simple illustration (signal-coverage model).As a concrete example, suppose each distinct informative
+hypothesis in the initial pool independently has correctness probability p >0 . Then, conditional on
+observingS=ssuch hypotheses,
+Pr(AT |S=s) = 1−(1−p) s,(29)
+which is strictly increasing in s, verifying the monotonicity assumption (22). If diversity-aware initializa-
+tion increases the effective spread of hypotheses so thatS div stochastically dominatesS rand, then
+Pr(AT |diverse) =E
+
+1−(1−p) Sdiv
+
+≥E
+
+1−(1−p) Srand
+
+= Pr(AT |random),(30)
+in agreement with Theorem 2.
+Relation to the martingale result.Note that all improvement arises from a better initial distribution
+over F1. The martingale property of Choi et al. (2025) states that, once F1 is fixed, debate cannot raise the
+conditional expectation of correctness in subsequent rounds. Diversity-aware initialization operatesbefore
+this point: it shifts the distribution of F1 toward states that already contain useful hypotheses, thereby
+increasing the overall probability of correctness without altering the debate dynamics themselves.
+D.3 Confidence-Weighted Debate
+We now extend this model by allowing agents to emit not only an answer yi,t but also a scalar confidence
+wi,t ∈(0,1]. At each roundt, agentitherefore outputs a pair(y i,t, wi,t).
+Confidence-weighted counts.Given neighbors’ outputs {(yj,t−1, wj,t−1) :j∈ N(i)} , agent i con-
+structs aconfidence-weightedcount vector eci,t ∈R K
+≥0 with components
+ec(k)
+i,t :=
+X
+j∈N(i)
+wj,t−1 1{yj,t−1 =k}, k= 1, . . . , K.(31)
+We then update the Dirichlet parameters by adding the weighted counts:
+αi,t =α i,t−1 +eci,t.(32)
+This preserves conjugacy:
+θi,t | F t ∼Dir(α i,t),(33)
+but the increments are now real-valued rather than integer counts.
+For notational convenience, write the total Dirichlet mass as
+Si,t :=
+KX
+k=1
+α(k)
+i,t ,(34)
+and define, for the update fromt−1tot,
+∆i,t :=
+KX
+k=1
+ec(k)
+i,t =
+X
+j∈N(i)
+wj,t−1,(35)
+and the confidence-weighted “mass on the correct answer”
+∆(1)
+i,t :=ec(1)
+i,t =
+X
+j∈N(i)
+wj,t−1 1{yj,t−1 = 1}.(36)
+Under the confidence-weighted update (32), the belief of agent i in the correct answer at round t can be
+written as
+pi,t =
+α(1)
+i,t−1 + ∆(1)
+i,t
+Si,t−1 + ∆i,t
+.(37)
+D.4 From Martingale to Submartingale
+We now study the conditional expectation of pi,t given Ft−1. The key observation is that, under (37), the
+next-round belief can be written as a convex combination of the current belief pi,t−1 and a confidence
+term.
+
+--- PAGE BREAK ---
+
+Lemma 1(Convex combination form).Assume ∆i,t >0 . Define the realised fraction of confidence
+mass that lands on the correct answer as
+ˆqi,t−1 :=
+∆(1)
+i,t
+∆i,t
+.(38)
+Then, for each agentiand roundt,
+pi,t = ¯λi,t pi,t−1 +
+ 
+1− ¯λi,t
+
+ˆqi,t−1,(39)
+where
+¯λi,t := Si,t−1
+Si,t−1 + ∆i,t
+∈(0,1).(40)
+In particular,p i,t is (pathwise) a convex combination ofp i,t−1 andˆqi,t−1.
+Proof.Starting from (37) and usingα (1)
+i,t−1 =p i,t−1Si,t−1 and∆ (1)
+i,t = ˆqi,t−1 ∆i,t, we obtain
+pi,t = pi,t−1Si,t−1 + ˆqi,t−1 ∆i,t
+Si,t−1 + ∆i,t
+.(41)
+Definex:=S i,t−1/∆i,t. Then
+pi,t = xpi,t−1 + ˆqi,t−1
+x+ 1 = x
+x+ 1 pi,t−1 + 1
+x+ 1 ˆqi,t−1,(42)
+which is exactly (39) with ¯λi,t =x/(x+ 1)∈(0,1).
+Lemma 1 shows that, on each realisation, the new belief is a convex combination of the previous belief
+and the realised confidence-weighted fraction of correct answers among the neighbors. To understand the
+effect on theexpectedbelief, we now take conditional expectations and formalise a positive-correlation
+assumption.
+Assumption 1(Confidence is positively correlated with correctness).For each agent j and round
+t−1, define
+pj,t−1 := Pr(yj,t−1 = 1| F t−1),(43)
+and let
+ρj,t−1 := E[wj,t−1 1{yj,t−1 = 1} | F t−1]
+E[wj,t−1 | F t−1] .(44)
+We say confidence ispositively correlated with correctnessif
+ρj,t−1 ≥p j,t−1 for allj, t,(45)
+with strict inequality on a set of positive probability (for at least one agent and round). In words,
+among the mass of answers that receive high confidence, the fraction that are correct is at least as
+large as the agent’s marginal accuracy, and strictly larger sometimes.
+We also define the conditional expectation of the confidence-weighted correctness fraction:
+Definition 1(Confidence-weighted expected correctness).For each agentiand roundt, define
+qi,t−1 :=
+E
+h
+∆(1)
+i,t | F t−1
+i
+E[∆i,t | F t−1] .(46)
+
+--- PAGE BREAK ---
+
+Under mild regularity conditions (e.g., finite second moments), qi,t−1 captures the expected fraction of
+total confidence mass that lands on the correct answer.
+We can now relateq i,t−1 to the neighbour-levelρ j,t−1’s:
+Lemma 2(Decomposition of confidence-weighted correctness).For each agentiand roundt,
+qi,t−1 =
+X
+j∈N(i)
+ωj,t−1 ρj,t−1,(47)
+where
+ωj,t−1 := E[wj,t−1 | F t−1]P
+ℓ∈N(i) E[wℓ,t−1 | F t−1] ∈(0,1),
+X
+j∈N(i)
+ωj,t−1 = 1.(48)
+Proof.By definition,
+E[∆(1)
+i,t | F t−1] =E
+
+ X
+j∈N(i)
+wj,t−11{yj,t−1 = 1}
+
+Ft−1
+
+
+=
+X
+j∈N(i)
+E[wj,t−1 1{yj,t−1 = 1} | F t−1].
+Similarly,
+E[∆i,t | F t−1] =
+X
+j∈N(i)
+E[wj,t−1 | F t−1].(49)
+Plugging into (46) yields
+qi,t−1 =
+P
+j∈N(i) E[wj,t−1 1{yj,t−1 = 1} | F t−1]
+P
+j∈N(i) E[wj,t−1 | F t−1] =
+X
+j∈N(i)
+ωj,t−1 ρj,t−1,(50)
+withω j,t−1 andρ j,t−1 as defined above.
+Combining Assumption 1 with Lemma 2 immediately yields:
+Corollary 1.Under Assumption 1, if the debate graph is fully connected and all agents are homoge-
+neous so thatp j,t−1 =p i,t−1 for allj∈ N(i), then
+qi,t−1 ≥p i,t−1,(51)
+with strict inequality on a set of positive probability.
+Proof.By Lemma 2,
+qi,t−1 =
+X
+j∈N(i)
+ωj,t−1 ρj,t−1,(52)
+with ωj,t−1 ≥0 andP
+j ωj,t−1 = 1. By Assumption 1, ρj,t−1 ≥p j,t−1 for all j, with strict inequality for
+somejwith positive probability. Under homogeneityp j,t−1 =p i,t−1 for allj, so
+qi,t−1 ≥
+X
+j∈N(i)
+ωj,t−1 pi,t−1 =p i,t−1,(53)
+with strict inequality whenever at least oneρ j,t−1 > p i,t−1 withω j,t−1 >0.
+We can now prove that confidence-weighted debate is a submartingale.
+
+--- PAGE BREAK ---
+
+Theorem 3(Confidence-weighted debate is a submartingale).Assume:
+1. the debate graph is fully connected and all agents are homogeneous, so pj,t−1 =p i,t−1 for all j;
+2. the Dirichlet update uses confidence-weighted counts(31)–(32); and
+3. Assumption 1 holds.
+Then for each agentiand each roundt≥1,
+E[pi,t | F t−1]≥p i,t−1,(54)
+with strict inequality on a set of positive probability. That is, {pi,t}t≥0 is a strict submartingale and
+therefore cannot be a martingale.
+Proof.From Lemma 1 we have, pathwise,
+pi,t = ¯λi,t pi,t−1 + (1− ¯λi,t) ˆqi,t−1,(55)
+with ¯λi,t ∈(0,1) . Taking conditional expectations with respect to Ft−1 and using the fact that pi,t−1 is
+Ft−1-measurable, we obtain
+E[pi,t | F t−1] =E[ ¯λi,t | F t−1]p i,t−1 +E
+
+(1− ¯λi,t) ˆqi,t−1 | F t−1
+
+.(56)
+By definition of qi,t−1 and Jensen-type arguments, we can interpret qi,t−1 as the conditional expected
+fraction of confidence on the correct answer, so that
+E[ˆqi,t−1 | F t−1] =q i,t−1.(57)
+Using this and linearity of expectation we get
+E[pi,t | F t−1] =λ i,t pi,t−1 + (1−λ i,t)q i,t−1,(58)
+where
+λi,t :=E[ ¯λi,t | F t−1]∈(0,1).(59)
+Finally, by Corollary 1,q i,t−1 ≥p i,t−1 with strict inequality on a set of positive probability. Hence
+E[pi,t | F t−1] =λ i,tpi,t−1 + (1−λ i,t)qi,t−1 ≥λ i,tpi,t−1 + (1−λ i,t)pi,t−1 =p i,t−1,(60)
+with strict inequality wheneverq i,t−1 > p i,t−1 and1−λ i,t >0. Thus{p i,t}t≥0 is a strict submartingale
+and cannot be a martingale.
+Discussion.Theorem 3 makes precise the intuition that confidence-weighted debate breaks the martin-
+gale behavior of vanilla multi-agent debate. In the unweighted case, symmetry implies that the expected
+belief in the correct answer is preserved across rounds. Once we weight peer messages by confidence, and
+confidence is even mildly informative about correctness, the expected belief drifts upward. In other words,
+confidence-weighted debate can, in expectation, do strictly better than simple unweighted majority vote.
+
+--- PAGE BREAK ---
+
+E Example Output
+Table 10: Example of Debate Trajectory
+Model Input
+<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+Cutting Knowledge Date: December 2023
+Today Date: 26 Jul 2024
+<|eot_id|><|start_header_id|>user<|end_header_id|>
+You are revising your answer after reviewing other agents’ reasoning.
+Question:If the Moon is setting at noon the phase of the Moon must be
+(A) third quarter.
+(B) waning crescent.
+(C) waxing crescent.
+(D) full.
+Other agents’ responses:
+Agent 1provided the following reasoning and final answer:
+<reasoning>To determine the phase of the Moon when it is setting at noon, we need to understand the lunar cycle and how it
+relates to the position of the Earth, Sun, and Moon.
+1. The lunar cycle is about 29.5 days, which is the time it takes for the Moon to orbit the Earth.
+(Steps 2 - 7 omitted here)
+8. Since the Moon sets at noon, this means that the portion of the illuminated Moon that is visible from our location on Earth
+is decreasing.
+9. Therefore, it must be in the waning phase of the lunar cycle.
+The phase of the Moon when it sets at noon is waning. So, the answer is (B) waning crescent.</reasoning>
+<answer>(B)</answer> <confidence>2</confidence>
+Agent 2reasoning:
+<reasoning>The Moon is setting at noon, and it’s in the waning phase. Since it’s waning and visible as a crescent in the sky
+at noon, we are witnessing a waning crescent Moon.</reasoning>
+<answer>(B)</answer> <confidence>3</confidence>
+Agent 3reasoning:
+<reasoning>Based on the relationship between the Earth, Sun, and Moon’s positions, the Moon’s phase when setting at
+noon can be determined. Since the Moon is on the opposite side of the Earth from the Sun at this time, it can either be waning
+crescent or third quarter. However, the only phase that meets the condition of the Moon being on the left side of the Sun and
+setting at noon is the third quarter.</reasoning>
+<answer>(A)</answer> <confidence>2</confidence>
+Agent 4reasoning:
+<reasoning>When the Moon is setting at noon, it is on the opposite side of the Earth from the Sun, and it must be fully
+illuminated. Therefore, it cannot be in any waning phase, waxing crescent phase, or third quarter. This leaves us with the full
+moon phase as the only possibility.</reasoning>
+<answer>(D)</answer> <confidence>3</confidence>
+Your previous reasoning and answer:
+The Moon’s position relative to the Sun at noon determines its phase. Since the Moon is in the western part of the sky at noon
+and the Sun is in the eastern part, the Moon must be on the opposite side of the Earth from the Sun. This can only be the case
+for a full moon.
+<answer>(D)</answer> <confidence>3</confidence>
+Instructions:
+- Reflect on how others reasoned.
+- You may revise your answer if someone’s reasoning provides stronger evidence.
+- However, if you believe all of them missed something important, propose a better or alternative answer — clearly explain
+why.
+- Be concise and clear.
+- Update your confidence level to reflect how certain you are now. Confidence level is ranging from 0 to 10, where 0 means
+no confidence at all and 10 means complete confidence
+Think step by step first, at the end of your reasoning, provide your final answer and confidence level in the following format:
+
+--- PAGE BREAK ---
+
+<reasoning>YOUR DETAILED REASONING HERE</reasoning>
+<answer>YOUR FINAL ANSWER</answer>, where YOUR FINAL ANSWER is one of (A), (B), (C) or (D).
+<confidence>INTEGER</confidence> <|eot_id|>
+Model Output
+<reasoning>Upon reviewing the reasoning provided by Agents 1, 2, 3, and 4, I notice that we all agree on the basic premise
+that the Moon’s phase can be determined by its position relative to the Sun at noon. However, our conclusions differ slightly.
+Agent 1 and Agent 2 both consider the waning crescent Moon as a possibility, but Agent 3 and I initially agreed on the full
+moon phase. Agent 4, on the other hand, also concludes that the full moon phase is the only possibility.
+Upon further reflection, I realize that Agent 3’s reasoning is particularly strong, as they correctly identify that the Moon must
+be in the third quarter phase to meet the condition of being on the left side of the Sun and setting at noon. This is a more
+precise analysis than my initial reasoning, which focused solely on the full moon phase.
+However, I also notice that Agent 4’s reasoning is not entirely flawed. They correctly point out that the Moon must be fully
+illuminated when setting at noon, which does indeed suggest the full moon phase. The key difference lies in the interpretation
+of the Moon’s position relative to the Sun. While Agent 4 assumes the Moon is on the right side of the Sun, which would
+indeed result in a full moon, Agent 3’s analysis shows that the Moon can be on the left side of the Sun and still be in the third
+quarter phase.
+Considering these points, I revise my initial answer to reflect the stronger evidence presented by Agent 3. While the full
+moon phase is still a possibility, the third quarter phase is a more accurate conclusion based on the Moon’s position relative to
+the Sun at noon.</reasoning>
+<answer>(A)</answer>
+<confidence>8</confidence>

@@ -2,7 +2,86 @@
 
 Use this folder for human-readable research notes and mentor-facing summaries.
 
-Reports can interpret evidence, but they should not force significance onto a run. They do not replace paper cards, run records, or raw logs.
+Reports can interpret evidence, but they should not force significance onto a run. They do not replace paper cards, run records, raw logs, or the evidence register.
+
+When writing or revising a substantial report, follow `skills/research-report-writing/SKILL.md`: state the judgment first, keep each paragraph to one message, map major claims to evidence, and keep caveats close to the claim.
+
+## Current Surface
+
+As of `2026-06-18`, the top-level folder is deliberately kept small. It should show only the reports that still help steer the benchmark-first live story:
+
+- benchmark-first reset and the retirement boundary for the old MATH / TypeCast main story;
+- HiddenBench communication-necessity evidence and protocol pressure;
+- PerspectiveGap role-specific routing and source/scope pressure;
+- State Admission / role-scoped evidence admission pressure, including local baselines, executor results, external collision audits, and V2 preflight;
+- PACT-style split-evidence notes, using HotpotQA / 2Wiki style settings as benchmark pressure;
+- TeamBench / Docker feasibility and other external benchmark constraints;
+- MATH / TypeCast mechanism microscopes only when they explain an externally motivated failure;
+- model-family and setting-gap notes that keep Qwen2.5-14B diagnostic results in bounds.
+
+Older reproduction contact, superseded setup notes, weak probes, and failed intermediate branches are archived under:
+
+```text
+reports/_archive/20260616-pruned/
+```
+
+Archived reports remain citable evidence. They are not part of the active reading surface.
+
+## Active Reports
+
+- `20260618-skill-guided-state-admission-v2-preflight.md`
+- `20260618-state-admission-v2-option-state-and-direct-controls.md`
+- `20260618-state-admission-v2-smoke-gpu.md`
+- `20260618-reviewer-verdict-state-admission-series.md`
+- `20260618-state-admission-v1-ledger-hidden-unit-pressure.md`
+- `20260618-state-admission-v1-priority-7b-replication.md`
+- `20260618-state-admission-v1-priority-executor-pressure.md`
+- `20260618-state-admission-v1-qwen25-14b-pressure.md`
+- `20260618-state-admission-v1-local-baselines.md`
+- `20260618-state-admission-external-pressure-wave2.md`
+- `20260618-state-admission-fullpaper-collision-audit.md`
+- `20260618-perspectivegap-model-smoke-and-paper-story.md`
+- `20260618-perspectivegap-benchmark-contact.md`
+- `20260617-benchmark-first-reckoning.md`
+- `20260617-hiddenbench-v2-design-audit.md`
+- `20260617-hiddenbench-v2-stage1-smoke12-qwen25-14b.md`
+- `20260617-hiddenbench-v2-stage1-full65-qwen25-14b.md`
+- `20260617-hiddenbench-v2-stage2-sender-ablation-preflight.md`
+- `20260617-hiddenbench-v2-stage2-sender-ablation-smoke12-qwen25-14b.md`
+- `20260617-hiddenbench-v2-stage2-sender-ablation-full65-qwen25-14b.md`
+- `20260617-hiddenbench-v2-stage3-blind-sender-preflight.md`
+- `20260617-hiddenbench-v2-stage3-blind-sender-full65-qwen25-14b.md`
+- `20260617-hiddenbench-stage2-external-pressure.md`
+- `20260617-hiddenbench-communication-necessity-qwen25-14b.md`
+- `20260617-communication-necessity-benchmark-landscape.md`
+- `20260617-model-family-and-experiment-setting-gap.md`
+- `20260617-a8002-docker-feasibility.md`
+- `20260617-math-operator-lifecycle-v1-packet.md`
+- `20260617-math-operator-lifecycle-v1-qwen25-14b.md`
+- `20260617-next-typecast-experiment-preflight.md`
+- `20260617-typecast-boundary-obedience-preflight.md`
+- `20260617-typecast-math200-inert-receiver315-qwen25-14b.md`
+- `20260617-typecast-repaired-controlstable-packet.md`
+- `20260617-typecast-repaired-controlstable117-qwen25-14b.md`
+- `20260615-authority-genesis-idea.md`
+- `20260615-math200-peer-claim-hygiene.md`
+- `20260615-pact-authority-evidence-case-audit.md`
+- `20260615-pact-authority-evidence-stress-qwen25-14b.md`
+- `20260615-pact-field-contract-quarantine.md`
+- `20260615-pact-public-state-field-bridge.md`
+- `20260615-pact-public-state-field-qwen25-14b-pressure.md`
+- `20260615-pact-typed-boundary-split-qwen25-14b.md`
+- `20260615-slot-level-peer-influence-protocol.md`
+- `20260615-typed-public-state-math200-statistical-pressure.md`
+- `20260616-a-conference-story-synthesis-epistemic-type-erasure.md`
+- `20260616-external-novelty-pressure-epistemic-type-erasure.md`
+- `20260616-math-authority-genesis-ladder-qwen25-14b.md`
+- `20260616-math-authority-genesis-mechanism-audit.md`
+- `20260616-math-epistemic-type-erasure-v2-qwen25-14b.md`
+- `20260616-math-sender-receiver-micro-protocol-qwen25-14b.md`
+- `20260616-multiagent-specificity-external-pdf-pressure.md`
+- `20260616-research-progress-synthesis.md`
+- `20260616-typecast-math200-clean-rawgold-diagnosis.md`
 
 ## Report Types
 
@@ -30,58 +109,4 @@ A common sequence:
 What We Tried -> What Happened -> Things Noticed -> Failures / Friction -> Loose Threads -> Caveats
 ```
 
-## Existing Reports
-
-- `20260612-madmm-short-subset-first-insights.md`
-- `20260612-madmm-trace-message-retention.md`
-- `20260612-dar-arithmetics-short-matrix.md`
-- `20260612-dar-gsm8k-short-matrix.md`
-- `20260612-multi-agent-frontier-scan.md`
-- `20260613-moc-gsm8k-topology-smoke.md`
-- `20260613-moc-forced-merge-smoke.md`
-- `20260613-madmm-dar-trace-case-followup.md`
-- `20260613-retained-message-role-audit.md`
-- `20260613-guarded-retention-offline-simulation.md`
-- `20260613-dar-guarded-answer-diversity-run.md`
-- `20260613-madmm-benchmark-atlas.md`
-- `20260613-dar-retention-split-ablation.md`
-- `20260614-dar-sample20-retained-surface-note.md`
-- `20260614-pact-hotpot-smoke.md`
-- `20260614-communication-regimes-synthesis.md`
-- `20260614-m2cl-code-contact.md`
-- `20260614-communication-regime-harness-smoke.md`
-- `20260614-real-trace-v11-regime-labels.md`
-- `20260614-derived-context-event-audit.md`
-- `20260614-dar-context-failure-audit.md`
-- `20260614-pact-final-answer-contract-gpu.md`
-- `20260614-current-evidence-checkpoint.md`
-- `20260614-pact-offset50-final-answer-contract.md`
-- `20260614-pact-offset50-case-atlas.md`
-- `20260614-pact-offset50-public-state-gold-cases.md`
-- `20260614-pact-offset50-sample58-drift.md`
-- `20260614-pact-offset50-target-slot-drift.md`
-- `20260614-pact-offset100-target-contract-gpu.md`
-- `20260614-public-state-communication-idea-memo.md`
-- `20260614-pact-offset150-compact-target-state.md`
-- `20260614-moc-role-sensitive-split-evidence-probe.md`
-- `20260614-moc-merge-prompt-role-audit.md`
-- `20260615-field-authority-standalone-projection.md`
-- `20260615-field-authority-offset100-pressure.md`
-- `20260615-field-authority-offset100-bridge-audit.md`
-- `20260615-field-authority-story-audit.md`
-- `20260615-field-authority-offset150-fresh-slice.md`
-- `20260615-field-authority-offset150-semantic-focus.md`
-- `20260615-field-authority-cross-slice-semantic-focus.md`
-- `20260615-field-authority-answer-contract-outside-check.md`
-- `20260615-field-authority-answer-contract-audit-seed.md`
-- `20260615-field-authority-answer-contract-negative-controls.md`
-- `20260615-field-authority-answer-contract-verifier-packet.md`
-- `20260615-pact-answer-contract-verifier-qwen25-14b.md`
-- `20260615-pact-answer-contract-verifier-v2-qwen25-14b.md`
-- `20260615-pact-answer-contract-split-alarm-qwen25-14b.md`
-- `20260615-external-pressure-taste-audit.md`
-- `20260615-pact-authority-evidence-stress-qwen25-14b.md`
-- `20260615-pact-authority-evidence-case-audit.md`
-- `20260615-pact-authority-injection-arena-qwen25-14b.md`
-- `20260615-pact-typed-boundary-split-packet.md`
-- `20260615-pact-typed-boundary-split-qwen25-14b.md`
+Do not keep a report at top level because it once mattered. Keep it at top level only if it still guides the current research decision.

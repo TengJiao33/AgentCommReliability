@@ -1,0 +1,162 @@
+{
+  "oracle": {
+    "role_assignment": {
+      "evaluations": 220,
+      "strict_pass_count": 220,
+      "strict_pass": 1.0,
+      "net_match_score_mean": 1.0,
+      "required_coverage": 1.0,
+      "boundary_precision": 1.0,
+      "distractor_leakage_per_eval": 0.0,
+      "counts": {
+        "tp": 2860,
+        "fp": 0,
+        "fn": 0,
+        "distractor_leak": 0
+      }
+    },
+    "prompt_writing": {
+      "evaluations": 220,
+      "strict_pass_count": 220,
+      "strict_pass": 1.0,
+      "net_match_score_mean": 1.0,
+      "required_coverage": 1.0,
+      "boundary_precision": 1.0,
+      "distractor_leakage_per_eval": 0.0,
+      "counts": {
+        "tp": 2860,
+        "fp": 0,
+        "fn": 0,
+        "distractor_leak": 0
+      }
+    }
+  },
+  "all_to_all": {
+    "role_assignment": {
+      "evaluations": 220,
+      "strict_pass_count": 0,
+      "strict_pass": 0.0,
+      "net_match_score_mean": 0.0,
+      "required_coverage": 1.0,
+      "boundary_precision": 0.31784841075794623,
+      "distractor_leakage_per_eval": 3.8,
+      "counts": {
+        "tp": 2860,
+        "fp": 6138,
+        "fn": 0,
+        "distractor_leak": 836
+      }
+    },
+    "prompt_writing": {
+      "evaluations": 220,
+      "strict_pass_count": 0,
+      "strict_pass": 0.0,
+      "net_match_score_mean": 0.0,
+      "required_coverage": 1.0,
+      "boundary_precision": 0.31784841075794623,
+      "distractor_leakage_per_eval": 3.8,
+      "counts": {
+        "tp": 2860,
+        "fp": 6138,
+        "fn": 0,
+        "distractor_leak": 836
+      }
+    }
+  },
+  "no_distractor_all_to_all": {
+    "role_assignment": {
+      "evaluations": 220,
+      "strict_pass_count": 0,
+      "strict_pass": 0.0,
+      "net_match_score_mean": 0.05714285714285714,
+      "required_coverage": 1.0,
+      "boundary_precision": 0.3504043126684636,
+      "distractor_leakage_per_eval": 0.0,
+      "counts": {
+        "tp": 2860,
+        "fp": 5302,
+        "fn": 0,
+        "distractor_leak": 0
+      }
+    },
+    "prompt_writing": {
+      "evaluations": 220,
+      "strict_pass_count": 0,
+      "strict_pass": 0.0,
+      "net_match_score_mean": 0.05714285714285714,
+      "required_coverage": 1.0,
+      "boundary_precision": 0.3504043126684636,
+      "distractor_leakage_per_eval": 0.0,
+      "counts": {
+        "tp": 2860,
+        "fp": 5302,
+        "fn": 0,
+        "distractor_leak": 0
+      }
+    }
+  },
+  "shared_intersection_only": {
+    "role_assignment": {
+      "evaluations": 220,
+      "strict_pass_count": 0,
+      "strict_pass": 0.0,
+      "net_match_score_mean": 0.0,
+      "required_coverage": 0.03076923076923077,
+      "boundary_precision": 1.0,
+      "distractor_leakage_per_eval": 0.0,
+      "counts": {
+        "tp": 88,
+        "fp": 0,
+        "fn": 2772,
+        "distractor_leak": 0
+      }
+    },
+    "prompt_writing": {
+      "evaluations": 220,
+      "strict_pass_count": 0,
+      "strict_pass": 0.0,
+      "net_match_score_mean": 0.0,
+      "required_coverage": 0.03076923076923077,
+      "boundary_precision": 1.0,
+      "distractor_leakage_per_eval": 0.0,
+      "counts": {
+        "tp": 88,
+        "fp": 0,
+        "fn": 2772,
+        "distractor_leak": 0
+      }
+    }
+  },
+  "role_name_heuristic": {
+    "role_assignment": {
+      "evaluations": 220,
+      "strict_pass_count": 0,
+      "strict_pass": 0.0,
+      "net_match_score_mean": 0.0012987012987012987,
+      "required_coverage": 0.5678321678321678,
+      "boundary_precision": 0.27966247632168073,
+      "distractor_leakage_per_eval": 3.713636363636364,
+      "counts": {
+        "tp": 1624,
+        "fp": 4183,
+        "fn": 1236,
+        "distractor_leak": 817
+      }
+    },
+    "prompt_writing": {
+      "evaluations": 220,
+      "strict_pass_count": 0,
+      "strict_pass": 0.0,
+      "net_match_score_mean": 0.0012987012987012987,
+      "required_coverage": 0.5678321678321678,
+      "boundary_precision": 0.27966247632168073,
+      "distractor_leakage_per_eval": 3.713636363636364,
+      "counts": {
+        "tp": 1624,
+        "fp": 4183,
+        "fn": 1236,
+        "distractor_leak": 817
+      }
+    }
+  }
+}

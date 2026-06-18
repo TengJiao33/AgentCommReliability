@@ -1,0 +1,35 @@
+[state-admission-v2] run_id=20260618-1738-a8002-state-admission-v2-direct-admissible-smoke9-qwen25-14b
+[state-admission-v2] workspace=/data/xuhaoming/yfy/research_workspace
+[state-admission-v2] model=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct served=qwen2.5-14b-state-admission-v2-direct-admissible gpu=7 port=8072
+[state-admission-v2] packet=/data/xuhaoming/yfy/research_workspace/experiments/20260618-local-state-admission-v2-smoke/packet.jsonl
+[state-admission-v2] max_model_len=16384 max_tokens=260 run_timeout=1800
+[state-admission-v2] prompt_style=direct_answer_admissible_facts
+[state-admission-v2] gpu before:
+0, NVIDIA A800-SXM4-80GB, 3175, 77977, 0
+1, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+[state-admission-v2] server_pid=1176856
+[state-admission-v2] vLLM ready after 23 checks
+[state-admission-v2] running prompts -> /data/xuhaoming/yfy/research_workspace/experiments/20260618-1738-a8002-state-admission-v2-direct-admissible-smoke9-qwen25-14b/predictions.jsonl
+[state-admission-v2] runner_status=0
+[state-admission-v2] predictions=9
+[state-admission-v2] summary:
+rows: 9
+gold_answer_ok: 0.8889
+admissible_downstream_ok: 0.3333
+base: gold_answer_ok=1.0000, admissible_downstream_ok=1.0000
+perturbation: gold_answer_ok=0.8333, admissible_downstream_ok=0.0000
+[state-admission-v2] gpu after runner before cleanup:
+0, NVIDIA A800-SXM4-80GB, 3175, 77977, 0
+1, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 71779, 9373, 89

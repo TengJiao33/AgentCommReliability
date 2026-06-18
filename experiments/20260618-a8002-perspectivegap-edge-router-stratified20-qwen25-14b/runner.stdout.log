@@ -1,0 +1,46 @@
+model=qwen2.5-14b-perspectivegap-edge-router
+packet=/data/xuhaoming/yfy/research_workspace/experiments/20260618-local-perspectivegap-hard-routing-v0/hard_packet_stratified20.jsonl
+evaluations=40
+temperature=0.0
+max_tokens=1024
+completed=0
+[1/40] edge_router pg_000__seed_1__hard_cards_v0
+[2/40] edge_router pg_000__seed_42__hard_cards_v0
+[3/40] edge_router pg_002__seed_1__hard_cards_v0
+[4/40] edge_router pg_002__seed_42__hard_cards_v0
+[5/40] edge_router pg_003__seed_1__hard_cards_v0
+[6/40] edge_router pg_003__seed_42__hard_cards_v0
+[7/40] edge_router pg_004__seed_1__hard_cards_v0
+[8/40] edge_router pg_004__seed_42__hard_cards_v0
+[9/40] edge_router pg_005__seed_1__hard_cards_v0
+[10/40] edge_router pg_005__seed_42__hard_cards_v0
+[11/40] edge_router pg_006__seed_1__hard_cards_v0
+[12/40] edge_router pg_006__seed_42__hard_cards_v0
+[13/40] edge_router pg_007__seed_1__hard_cards_v0
+[14/40] edge_router pg_007__seed_42__hard_cards_v0
+[15/40] edge_router pg_015__seed_1__hard_cards_v0
+[16/40] edge_router pg_015__seed_42__hard_cards_v0
+[17/40] edge_router pg_022__seed_1__hard_cards_v0
+[18/40] edge_router pg_022__seed_42__hard_cards_v0
+[19/40] edge_router pg_029__seed_1__hard_cards_v0
+[20/40] edge_router pg_029__seed_42__hard_cards_v0
+[21/40] edge_router pg_049__seed_1__hard_cards_v0
+[22/40] edge_router pg_049__seed_42__hard_cards_v0
+[23/40] edge_router pg_062__seed_1__hard_cards_v0
+[24/40] edge_router pg_062__seed_42__hard_cards_v0
+[25/40] edge_router pg_066__seed_1__hard_cards_v0
+[26/40] edge_router pg_066__seed_42__hard_cards_v0
+[27/40] edge_router pg_069__seed_1__hard_cards_v0
+[28/40] edge_router pg_069__seed_42__hard_cards_v0
+[29/40] edge_router pg_072__seed_1__hard_cards_v0
+[30/40] edge_router pg_072__seed_42__hard_cards_v0
+[31/40] edge_router pg_076__seed_1__hard_cards_v0
+[32/40] edge_router pg_076__seed_42__hard_cards_v0
+[33/40] edge_router pg_079__seed_1__hard_cards_v0
+[34/40] edge_router pg_079__seed_42__hard_cards_v0
+[35/40] edge_router pg_089__seed_1__hard_cards_v0
+[36/40] edge_router pg_089__seed_42__hard_cards_v0
+[37/40] edge_router pg_099__seed_1__hard_cards_v0
+[38/40] edge_router pg_099__seed_42__hard_cards_v0
+[39/40] edge_router pg_109__seed_1__hard_cards_v0
+[40/40] edge_router pg_109__seed_42__hard_cards_v0
