@@ -1,0 +1,845 @@
+                                                    Chimera: Latency- and Performance-Aware Multi-agent Serving for
+                                                                         Heterogeneous LLMs
+
+
+                                                        Kangqi Ni 1 Wenyue Hua 2 Xiaoxiang Shi 3 Jiang Guo 4 Shiyu Chang 5 Tianlong Chen 1
+
+
+                                                                     Abstract                                  2025; Guo et al., 2024; Wu et al., 2024; Hong et al., 2023;
+                                                                                                               Li et al., 2023). In such systems, a single user query triggers
+                                                 Multi-agent applications often execute complex
+                                                                                                               a sequence of dependent LLM calls, where each stage con-
+arXiv:2603.22206v1 [cs.LG] 23 Mar 2026
+
+
+
+
+                                                 tasks as multi-stage workflows, where each stage
+                                                                                                               sumes the accumulated context and passes its output to the
+                                                 is an LLM call whose output becomes part of
+                                                                                                               next stage. This shift from isolated requests to multi-agent
+                                                 context for subsequent steps. Existing LLM serv-
+                                                                                                               workflows is widely adopted in diverse real-world applica-
+                                                 ing systems largely assume homogeneous clusters
+                                                                                                               tions (Wu et al., 2024; Park et al., 2023; Qian et al., 2024;
+                                                 with identical model replicas. This design over-
+                                                                                                               Yang et al., 2024).
+                                                 looks the potential of heterogeneous deployments,
+                                                 where models of different sizes and capabilities              At the same time, LLM serving is both expensive and
+                                                 enable finer trade-offs between latency and perfor-           latency-sensitive, motivating extensive work on inference
+                                                 mance. However, heterogeneity introduces new                  optimizations to improve throughput (Kwon et al., 2023;
+                                                 challenges in scheduling across models with di-               Zheng et al., 2024; Fu et al., 2024; Jiang et al., 2025). Mean-
+                                                 verse throughput and performance. We present                  while, deployments are becoming increasingly heteroge-
+                                                 Chimera, a predictive scheduling system for multi-            neous: providers expose multiple model families and param-
+                                                 agent workflow serving on heterogeneous LLM                   eter sizes and use routing to adaptively select models per
+                                                 clusters that jointly improves end-to-end latency             query, balancing cost and performance (Ong et al., 2024;
+                                                 and task performance. Chimera applies semantic                Feng et al., 2025a; Shirkavand et al., 2025; Huang et al.,
+                                                 routing to estimate per-model confidence scores               2025). However, most routing methods assume a simplified
+                                                 for each request, predicts the total remaining out-           or static view of system load, treating latency as a fixed
+                                                 put length of the workflow, and estimates per-                model attribute rather than an emergent outcome of queue-
+                                                 model congestion using in-flight predicted token              ing and resource contention under bursty traffic. Conversely,
+                                                 volumes for load balancing. We evaluate Chimera               existing serving systems and schedulers primarily optimize
+                                                 on representative agentic workflows for code gen-             per-request execution within a homogeneous model cluster
+                                                 eration and math reasoning using multiple het-                (the same model replicated on each engine), and therefore
+                                                 erogeneous LLM configurations. Across compa-                  do not address how heterogeneous model capacity should
+                                                 rable settings, Chimera traces the best latency–              be allocated across requests of varying difficulty, or how
+                                                 performance frontier, reducing end-to-end latency             model choice itself affects queue congestion.
+                                                 by 1.2–2.4× and improving task performance by
+                                                                                                               These assumptions are not suitable for serving multi-agent
+                                                 8.0–9.5 percentage points on average over com-
+                                                                                                               workflows on heterogeneous LLM clusters. First, workflow
+                                                 petitive baselines including vLLM.
+                                                                                                               indicates end-to-end latency emerges from queueing interac-
+                                                                                                               tions across multiple dependent stages, making request-level
+                                                                                                               scheduling suboptimal (Luo et al., 2025). Second, model se-
+                                         1. Introduction                                                       lection and congestion are tightly coupled: routing requests
+                                         Large language models (LLMs) are increasingly deployed                to slower but more capable models ensure performance but
+                                         not only as standalone chatbots, but as multi-agent systems           can amplify contention for shared GPU resources and de-
+                                         that solve tasks through collaborative workflows (Plaat et al.,       grade latency for other workflows. As a result, multi-agent
+                                                                                                               serving exhibits an intrinsic trade-off between workflow
+                                             1
+                                              University of North Carolina, Chapel Hill 2 Microsoft            end-to-end latency and task performance, which is not ade-
+                                         3
+                                          Carnegie Mellon University 4 Amazon 5 University of                  quately addressed by prior work (Figure 1). Motivated by
+                                         California, Santa Barbara.   Correspondence to: Kangqi
+                                         Ni <kangqini@cs.unc.edu>,        Tianlong Chen <tian-                 these observations, we ask: How can we schedule multi-
+                                         long@cs.unc.edu>.                                                     agent workflows over heterogeneous LLMs to improve the
+                                                                                                               achievable latency and performance outcomes under load?
+                                         Preprint. March 24, 2026.
+
+                                                                                                           1
+                    Chimera: Latency and Performance-Aware Multi-agent Serving for Heterogeneous LLMs
+
+    Applications       Scheduling         LLM Serving System              SGLang (Zheng et al., 2024) supports efficient execution of
+                                                 Llama3B
+                      • Model Routing                                     structured LM programs with RadixAttention for KV reuse
+        Users         • Queue Managing                                    and fast structured decoding. Sarathi-serve optimizes batch-
+                      • Load Balancing           Ministral8B
+                                                                          ing with chunked prefill (Agrawal et al., 2024). A broad line
+                                                 Qwen14B                  of work further improves throughput and latency via phase
+                                                                          splitting and disaggregated prefill/decode (Patel et al., 2024;
+      Multi-agents Latency vs. Performance LLMs Request Queues            Zhong et al., 2024; Hu et al., 2024). At the application layer,
+                                                                          Parrot exposes cross-request structure for optimization (Lin
+Figure 1. LLMs differ in latency and performance, and model
+choice directly affects queue congestion under load. Online serving       et al., 2024), while Autellix targets agentic programs and
+over mixed LLMs requires a co-design of model routing, queue              reduces cumulative wait time with program-aware MLFQ
+managing, and load balancing. How can we schedule multi-agent             scheduling (Luo et al., 2025). These systems, however,
+workflows to balance low latency and high performance?                    assume homogeneous deployments, consisting of one or
+We present Chimera, a predictive scheduling system for                    multiple replicas of the same model. Instead, we address
+multi-agent workflow serving on heterogeneous LLM clus-                   heterogeneous multi-LLM serving by building a predictive
+ters that jointly improves latency and performance. Chimera               scheduler on top of an existing serving engine (vLLM), co-
+uses a transformer-based semantic router to estimate per-                 designing routing, queue optimization, and load balancing
+model confidence scores for each request, a lightweight                   to improve both latency and performance.
+CPU-based regressor to predict the total remaining output                 Output length prediction for scheduling. Prior work has
+tokens of a workflow (current stage plus future stages), and              shown that predicting generation length can improve LLM
+an activity monitor that tracks in-flight predicted token vol-            scheduling and batching efficiency (Jin et al., 2023; Cheng
+ume per engine to estimate load-induced delay. The load                   et al., 2024; Qiu et al., 2024b; Stojkovic et al., 2025). Most
+balancer then selects the best model that is sufficiently confi-          existing approaches formulate length prediction as request-
+dent while remaining within a configurable latency slack of               level regression or classification (Cheng et al., 2024; Qiu
+the fastest available option. Requests are prioritized with a             et al., 2024b;a; Zheng et al., 2023); recent work also demon-
+Shortest Total Job First (STJF) policy, with an aging-based               strates that relative length ordering alone can be sufficient
+anti-starvation mechanism. Chimera is implemented as a                    for queue optimization (Fu et al., 2024). In this work, we
+layer atop vLLM with asynchronous, batched router and                     adapt length prediction to multi-agent workflows by using a
+predictor services to keep scheduling overhead low. Our                   lightweight CPU-based regressor to predict the total output
+contributions are as follows:                                             length of the workflow. This prediction serves as a prior-
+• Problem formulation for heterogeneous multi-agent serv-                 ity signal for scheduling, combined with an aging-based
+  ing. We formulate online serving of multi-agent work-                   anti-starvation mechanism, to reduce end-to-end latency.
+  flows on heterogeneous LLMs and measure the achievable                  LLM routing. LLM routing selects among multiple LLMs
+  (latency, performance) operating points under load.                     to maintain task performance while reducing cost/latency
+• Predictive scheduling that couples model routing and                    and has rapidly moved from academic prototypes to widely
+  workflow-level length prediction. Chimera combines se-                  deployed products (Zhang et al., 2023; Martian, 2025; Re-
+  mantic routing, workflow-level total output length predic-              questy, 2025; Microsoft, 2025). Lightweight routers focus
+  tion, and real-time load monitoring, using these signals to             on fast online decisions (Hari & Thomson, 2023), while
+  drive model selection and queue optimization.                           representation- and structure-aware methods learn richer de-
+• Latency and performance-aware dispatching. We propose                   cision signals via contrastive objectives (Chen et al., 2024)
+  a dispatch rule that chooses the highest-confidence model               or explicit relational structure (Feng et al., 2025b). Re-
+  within a latency slack of the fastest option, and prioritize            cent methods also study stronger training paradigms for
+  workflows by predicted total length with aging to reduce                routing policies and test-time compute allocation (Zhang
+  latency while preventing starvation.                                    et al., 2025a; Ding et al., 2025; Wang et al., 2025), inter-
+• End-to-end prototype and evaluation on agentic work-                    pretable routing objectives (Song et al., 2025), and tech-
+  flows. We implement Chimera atop vLLM and evaluate                      niques to generalize routing to newly introduced models
+  on code generation and math reasoning agentic tasks,                    at test time (Jitkrittum et al., 2025; Zhang et al., 2025b;
+  showing lower latency and higher performance across                     Zhuang et al., 2024). In our setting, routing is only one
+  diverse sets of LLMs comparing to baselines.                            component in a broader online serving loop for multi-stage
+                                                                          agent workloads. We integrate routing with workflow-aware
+                                                                          prioritization and real-time load balancing, so model choice
+2. Related Work                                                           and queue optimization are co-designed together.
+LLM serving systems. vLLM (Kwon et al., 2023)
+improves KV-cache utilization via PagedAttention, and
+
+                                                                      2
+                    Chimera: Latency and Performance-Aware Multi-agent Serving for Heterogeneous LLMs
+
+                             Applications                                                         Chimera
+                                                                            Semantic Router                  Length Predictor
+                                                                                                 0.6                             582
+                                                                                               0.4 0.5                           138
+                                                                                                                                 634
+                Users    Multi-agent Systems            Tasks                                              Arrivals Est. Total Lengths
+                                                                          Arrivals     Conf. Scores
+
+                           Inference Engines
+                                                                            Activity Monitor                   Load Balancer
+               Llama3B        Ministral8B            Qwen14B            Request ID Engine ID Est. Length
+              Queue            Queue          ...    Queue                                                  Service Time
+                                                                           182         1         582
+             Executor         Executor              Executor                                               Load Predictions
+                                                                            ...       ...         ...
+
+
+
+
+Figure 2. Chimera system overview. Chimera is a middleware layer that sits between multi-agent applications and a pool of inference
+engines hosting heterogeneous LLMs of varying sizes and families. For each incoming request, Chimera (i) predicts the confidence score
+for each candidate model (Semantic Router), (ii) predicts the total number of output tokens (Length Predictor), and (iii) tracks per-engine
+in-flight work (Activity Monitor). It then combines these information to choose an engine and enqueue the request (Load Balancer). Each
+backend engine executes requests from their local priority queues.
+
+
+3. Methodology                                                          3.2. Overview
+3.1. Problem Settings                                                   Chimera is implemented as a middleware layer between
+                                                                        agent applications and backend inference engines (Figure 2).
+Setups. We consider a GPU cluster that serves multi-agent               Applications define multi-agent workflows and issue re-
+workflows. A workflow specification defines a sequence                  quests that Chimera schedules on the available inference
+of agent stages, where each stage has a role (e.g., planner,            engines. The system is organized into four modules:
+solver, coder, verifier) and a system prompt encoding stage-
+specific instructions. The cluster deploys a heterogeneous              1. Semantic Router: a transformer-based encoder that out-
+set of LLMs M that differ in latency, memory footprint,                    puts a confidence score for each LLM request, estimating
+and task performance; each call invocation is served as an                 which model is most likely to achieve high performance.
+LLM request routed to one of these models.                              2. Length Predictor: a regression model that estimates the
+Notations. Each workflow execution is identified by a pro-                 total output token length for the workflow, which is used
+gram id p and consists of Np ordered stages {1, . . . , Np }.              to determine the request’s scheduling priority.
+The input to stage i includes the stage-i system prompt,                3. Activity Monitor: a program table that tracks per-request
+the user message, and the accumulated history from prior                   metadata and maintains estimates of in-flight workload,
+stages. Let Cp denote the end-to-end completion time of                    measured in predicted token volume, for each engine.
+workflow p (i.e., the completion time of stage Np ), and                4. Load Balancer: a dispatcher that integrates router con-
+let Sp denote a task-specific performance score of the fi-                 fidence scores with the monitored per-engine service
+nal output (e.g., accuracy, pass rate). A request is a tuple               workload to select a target engine and dispatch the re-
+r = (p, i, xr , meta infor ), where xr is the stage input                  quest accordingly.
+prompt and meta infor contains workflow identifiers and
+                                                                        Scheduling Algorithm. Upon receiving a request, Chimera
+decoding parameters.
+                                                                        first determines the model that will execute it. If the request
+Objective. Our goal is to jointly improve the latency and               belongs to an ongoing workflow whose earlier stages have
+performance of multi-agent workflows on a heterogeneous                 already been assigned to a model, that assignment is reused
+model cluster. Choosing a stronger model can increase                   to preserve execution locality. Otherwise, Chimera proceeds
+Sp but may increase Cp , especially under load. Because                 in two steps: it computes per-model scores using the seman-
+applications differ in how they value latency relative to               tic router, producing a logit for each candidate model that
+performance, we avoid collapsing the two into a single                  reflects predicted task performance, and it estimates each
+scalar objective. Instead, we assess a serving system by                model’s current load based on the predicted token volume of
+the set of achievable operating points in terms of (C, S): a            requests already in flight. Model selection balances latency
+system is strictly better if it can attain a lower latency with         and performance. Chimera chooses the highest-scoring
+a higher performance metric at the same time.                           model whose estimated delay falls within a configurable
+                                                                        slack relative to the fastest available option, while also en-
+                                                                        forcing a minimum score margin to avoid switching models
+                                                                        for marginal gains and to promote KV-cache reuse. After se-
+
+                                                                    3
+                    Chimera: Latency and Performance-Aware Multi-agent Serving for Heterogeneous LLMs
+
+Algorithm 1 Chimera’s Predictive Scheduler
+ 1: procedure S CHEDULE R EQUEST(r, Models M, Assign-
+    mentMap A, InFlightTokens I, ModelQueues Q, ModelPro-
+    files Π, Router S, Predictor Ŷ , LatencySlack τ , Confidence-
+    Margin ∆s)
+ 2:      if r.program id ∈     / A then
+ 3:           // Predict the confidence score for each model
+ 4:           for m ∈ M do                                                 Figure 3. Average queue time for serving multi-agentic workflows
+ 5:               q[m] ← S(r.prompt, m)                                    with single Qwen models. Prioritization based on Shortest Total
+ 6:           // Accumulate the TTLT for each model                        Job First (STJF) reduces the most amount of queue time, com-
+ 7:           for m ∈ M do                                                 paring to First-Come First-Served (FCFS) and Shortest Job First
+ 8:               Pm ← 0                                                   (SJF).
+ 9:               for each t ∈ Values(I[m]) do
+10:                    Pm ← Pm + t                                         scores per candidate model. Given a tokenized prompt
+                               Pm · Π[m].decode ms per token               xr , the encoder produces a pooled representation hr (e.g.,
+11:                L[m] ←
+                                    Π[m].max batch size                    [CLS]), and a linear head outputs logits ℓr,m for each model.
+12:           mfast ← arg minm∈M L[m]                                      We use sigmoid activations to obtain q[m] = σ(ℓr,m ). Train-
+13:           Lfast ← L[mfast ]                                            ing uses offline traces where each (xr , m) pair is labeled
+14:           // Select the highest scoring model within the latency
+    slack and above the score margin
+                                                                           by task-specific correctness (1 if correct, 0 otherwise), opti-
+15:           m⋆ ← mfast                                                   mized with binary cross entropy.
+16:           q ⋆ ← q[mfast ]
+17:           for m ∈ M sorted by q[m] descending do                       3.4. Length Predictor
+18:                if L[m] ≤ (1 + τ ) · Lfast then
+19:                    if q[m] ≥ q ⋆ + ∆s then                             Objective. For a request r = (p, i, ·) in a multi-agent
+20:                         m⋆ ← m                                         workflow, we characterize the total work as the sum of
+21:                         q ⋆ ← q[m]
+22:                         break
+                                                                           outputs produced by the current and subsequent agent
+23:           A[r.program id] ← m⋆                                         stages. We define the total output tokens as Yr =
+                                                                           PNp
+24:      else                                                                 j=i OutTokens(p, j), where OutTokens(p, j) is the out-
+25:           // Reuse the assigned model                                  put length of stage j. Chimera predicts this quantity online
+26:           m⋆ ← A[r.program id]
+                                                                           and attaches the estimate ŷ ≈ median(Yr | ϕ(r), m⋆ ) to
+27:      // Predict the total output tokens as the priority                each request, where m⋆ is the selected model. The pre-
+28:      ŷ ← Ŷ (r.meta info, m⋆ )
+                                                                           dicted ŷ serves as the scheduling priority: requests with
+29:      r.predicted tokens ← ŷ
+30:      r.priority ← ŷ                                                   smaller estimated total work are given higher priority, ap-
+31:      // Track in-flight tokens and enqueue the request                 proximating a Shortest Total Job First (STJF) policy. While
+32:      I[m⋆ ][r.id] ← r.predicted tokens                                 one could prioritize by a weighted combination of input
+33:      Dispatch(Q[m⋆ ], r, r.priority, r.arrival)                        (prefill) tokens and predicted output (decode) tokens, we
+                                                                           find that it provides no measurable improvement over us-
+                                                                           ing ŷ alone as decoding time significantly dominates prefill
+lecting a model, Chimera predicts the total output tokens for              time for long outputs. As illustrated in Figure 3, Shortest
+the request’s workflow and uses this estimate as its schedul-              Job First (SJF), which schedules requests without workflow
+ing priority, so that requests with smaller predicted total                awareness, reduces queueing time by 26–48% relative to
+work are served earlier. Finally, the predicted token volume               First-Come First-Served (FCFS). Incorporating workflow-
+is recorded as additional in-flight load for the chosen model,             level information through STJF yields an additional 15–34%
+and the request is inserted into that model’s priority queue               reduction compared to SJF.
+for execution by the backend engine.                                       Modeling. Chimera uses a Quantile Random Forest (QRF)
+                                                                           to predict the conditional median of Yr . QRF offers two
+3.3. Semantic Router                                                       practical advantages: (i) low resource consumption and
+Objective. For each incoming request r, the router outputs                 cheap CPU-based inference, and (ii) robustness to heavy-
+a vector of confidence scores {q[m]}m∈M , where q[m] ∈                     tailed token lengths via quantiles. The predictor’s features
+[0, 1] estimates the probability that model m successfully                 are designed to be informative about both agent workflow
+solves r. The load balancer uses these confidence scores to                and prompt complexity and inexpensive to be computed
+select a target model.                                                     online. We use the following features:
+
+Modeling. The semantic router S is a fine-tuned transformer                • Token counts: token counts of the system prompt, user
+encoder from ModernBert-large (Warner et al., 2025) with                     prompt, and full input prompt.
+a multi-label head that produces independent confidence                    • Workflow state: categorical identifiers for the multi-agent
+
+                                                                       4
+                  Chimera: Latency and Performance-Aware Multi-agent Serving for Heterogeneous LLMs
+
+  workflow and the current agent stage.                             havior under load: as a larger model becomes congested, its
+• Model name: the base model identity since output length           L[m] increases and the system shifts traffic to less-loaded
+  distributions vary by model.                                      models. If the request’s program id has an existing assign-
+• Text sketch: a compact representation of user prompt via          ment, we reuse that assignment to reduce the overhead of
+  TF-IDF (uni/bi-grams) followed by dimensionality reduc-           calling the semantic router for multiple times, which occu-
+  tion through truncated Singular Value Decomposition.              pies GPU resources; at the same time, this application of
+                                                                    the router does not require a complex training process, thus
+                                                                    reduces the complexity of developing the router.
+3.5. Activity Monitor
+                                                                    Priority assignment. After selecting the model m⋆ ,
+Objective. The activity monitor maintains a program ta-
+                                                                    Chimera invokes the length predictor to obtain ŷ =
+ble that tracks per-request metadata and execution state,
+                                                                    Ŷ (r.meta info, m⋆ ) and uses πr := ŷ as the request pri-
+including workflow identifiers, the assigned engine iden-
+                                                                    ority. It then (i) inserts r.id 7→ ŷ into the in-flight map
+tifier, and the estimated total remaining output length. It
+                                                                    I[m⋆ ] and (ii) pushes the request into the per-model queue
+also maintains the predicted in-flight token volume used for
+                                                                    Q[m⋆ ] keyed by (πr , r.arrival), where arrival order breaks
+subsequent load estimation.
+                                                                    ties (FCFS among equal predicted work). The requests pre-
+For each served model m, the monitor stores a map I[m]              serve their priority scores within each inference engine’s
+for each request id and its predicted token volumes. Each           priority queue.
+request in the system has one entry r.id 7→ ŷ, where ŷ is
+produced by the length predictor after model selection. The         3.7. Anti-starvation.
+entry is removed once the request completes. Aggregating
+these values provides an estimate of per-engine service-time        Pure priority scheduling can delay long requests when short
+workload, and these aggregates are exposed to the load              requests continue to arrive. Chimera mitigates this with
+balancer to inform routing decisions.                               an aging-based promotion mechanism controlled by two
+                                                                    parameters: a starvation threshold S and a running quan-
+                                                                    tum Q. This is implemented within each inference en-
+3.6. Load Balancer
+                                                                    gine. Each queued request maintains an starvation count
+Objective. The load balancer selects an engine that                 recording how many consecutive scheduling iterations it
+improves expected performance while controlling load-               was not selected; once starvation count ≥ S, the request
+induced delay, and enqueues the request with a priority             is temporarily promoted by setting its starvation level −
+that reflects predicted total amount of work. It receives (i)       1, causing it to sort ahead of all normal requests in
+router scores {q[m]}m∈M and (ii) activity-monitor state             the min heap based priority queue. Promoted requests
+(A, I), and dispatches the request to a selected model m⋆           remain in this elevated starvation level. After receiv-
+with the predicted length as the priority.                          ing Q scheduling iterations, the requests are then de-
+                                                                    moted down a starvation level (starvation level + 1),
+Load estimation from in-flight predicted tokens. When
+                                                                    restoring standard ordering. The priority queue key is
+no prior assignment exists, the load balancer estimates the
+                                                                    (starvation level, priority, arrival time) within a local
+time-to-last-token for each model using the accumulated
+                                                                    engine. This simple mechanism improves worst-case wait-
+in-flight predicted tokens from previously admitted requests.
+                                                                    ing time while preserving the intended priority rule,
+For model m, it sums the token volumes in I[m]: Pm =
+P
+   t∈Values(I[m]) t, and computes the corresponding TTLT
+                                                                    3.8. Implementation Details
+                        Pm · Π[m].decode ms per token
+estimate L[m] =
+                              Π[m].max batch size                   Chimera builds on top of vLLM and exposes the same API
+where decode ms per token is profiled offline. This es-             compatible with standard OpenAI chat and generation end-
+timate accounts for both queue length and expected token            points. Furthermore, to keep per-request overhead low,
+volume already admitted to each model.                              both the semantic router and the length predictor run as
+                                                                    asynchronous batched services: incoming requests enqueue
+Latency and performance-aware routing.                The
+                                                                    lightweight feature objects, a background collector forms
+load balancer identifies the fastest model mfast =
+                                                                    batches up to a maximum size or a timeout; batched infer-
+arg minm∈M L[m] with Lfast = L[mfast ]. It then se-
+                                                                    ence is executed in a separate worker pool so that process-
+lects the highest-confidence model within a configurable
+                                                                    based isolation avoids contending with the scheduler event
+latency slack: starting from m⋆ = mfast and q ⋆ = q[mfast ],
+                                                                    loop. The scheduler only blocks on the minimal outputs
+it iterates models in descending q[m] and updates m⋆
+                                                                    needed for dispatch (router confidence scores for model
+to the first model satisfying both (i) a load constraint
+                                                                    selection, and an estimated total output length for priority),
+L[m] ≤ (1 + τ ) · Lfast and (ii) a confidence improvement
+                                                                    then records the prediction into the in-flight accounting and
+q[m] ≥ q ⋆ + ∆s. This rule yields monotone fallback be-
+
+                                                                5
+                                     Chimera: Latency and Performance-Aware Multi-agent Serving for Heterogeneous LLMs
+
+                                APPS                                                   Math                    (Qwen1.5B/3B/7B/14B) (Qwen et al., 2025), Ministral3-
+                 20
+                              Qwen2.5-1.5B-Instruct                                Qwen2.5-1.5B-Instruct       8B-Instruct (Minis8B) (Mistral AI, 2025), and Llama3.2-
+
+
+
+
+                                                      Percentage (%)
+Percentage (%)
+
+
+                              Qwen2.5-14B-Instruct                     40          Qwen2.5-14B-Instruct
+                                                                                                               3B-Instruct (Llama3B) (Grattafiori et al., 2024). We
+                 10                                                                                            use these shortened model names in later sections for
+                                                                       20                                      brevity. For each dataset, we evaluate four deployment
+                                                                                                               configurations that vary in model family, scale, and the
+                  0                                                     0
+                      0   500 1000 1500 2000 2500                           0   1000     2000   3000           number of deployed models. All experiments run on
+                               Tokens                                                  Tokens                  NVIDIA RTX A6000 GPUs (49GB VRAM).
+Figure 4. Total output length distributions for APPS and MATH.                                                 Baselines. We evaluate Chimera against three state-of-the-
+We observe that different models exhibit different total output
+length distributions with large standard deviations.                                                           art LLM serving systems:
+ enqueues the request to the chosen engine. Inference en-                                                      • vLLM: A high-performing LLM serving backend with
+ gines remain responsible for continuous batching, kernel                                                        PagedAttention and chunked prefill. Its load balancer
+ execution, and KV-cache management.                                                                             dispatches each request to the engine with the lowest
+                                                                                                                 weighted sum of waiting and running requests.
+ 4. Experiments                                                                                                • MLFQ: Extends vLLM with multiple priority queues and
+                                                                                                                 applies promotion and demotion based on service time.
+ 4.1. Datasets                                                                                                 • LTR: Uses a decoder-only language model to predict the
+ We evaluate Chimera with representative agentic tasks, such                                                     relative ordering of request output lengths, and applies
+ as code generation and mathematical reasoning, which vary                                                       a SJF policy to prioritize requests within each vLLM
+ in the total output token lengths across models as shown                                                        engine’s local queue.
+ in Figure 8. We construct workflows per dataset based on                                                      We also include using the oracle workflow-level total
+ ReAct (Yao et al., 2022); and each task’s workflow requires                                                   output length for prioritization in vLLM as a reference–
+ between one to four stages to complete. At runtime, the user                                                  vLLM(STJF)–to observe the lowest possible latency.
+ chooses a workflow to execute a query. This simulates a
+ realistic multi-agent serving situation in practice.                                                          Metrics. We focus on measuring both the end-to-end (E2E)
+                                                                                                               latency of workflows and the task performance. Therefore,
+ Code Generation: APPS. The APPS dataset is a bench-                                                           we report the average end-to-end latency per token vs. the
+ mark of programming problems drawn from competitive-                                                          task-specific performance score. For code generation, the
+ programming and interview-style settings. Each exam-                                                          score is the average % tests passed; for mathematical rea-
+ ple provides a natural-language problem statement with                                                        soning, the score is the average exact match. Points closer
+ input/output format details and constraints and requires gen-                                                 to the lower-right corner of the plot are better, as they show
+ erating an executable Python solution that passes hidden test                                                 lower latency with higher performance.
+ cases. For Qwen2.5-1.5B-Instruct, the total output length
+ averages 447 tokens with a standard deviation of 1276 to-                                                     4.3. Main Results
+ kens. For Qwen2.5-14B-Instruct, the total output length
+ averages 649 with a standard deviation of 534 tokens.                                                         In Figure 5, we present the main evaluation results of
+                                                                                                               Chimera. Across settings, Chimera achieves the strongest
+ Math Reasoning: MATH. The MATH dataset is a col-
+                                                                                                               operating points—simultaneously attaining the lowest E2E
+ lection of competition-style mathematics problems cover-
+                                                                                                               latency and the highest performance. Since other baselines
+ ing diverse topics (e.g., algebra, geometry, number the-
+                                                                                                               do not jointly optimize E2E latency and performance for
+ ory, combinatorics, probability) and multiple difficulty lev-
+                                                                                                               heterogeneous LLM serving, their gains primarily manifest
+ els. Problems are typically presented in short-form natural
+                                                                                                               as limited reductions in end-to-end latency, with little or no
+ language and require producing a final numeric or sym-
+                                                                                                               improvement in task performance. Moreover, Chimera pro-
+ bolic answer. The dataset includes questions from common
+                                                                                                               vides a tuning knob via the latency slack threshold, enabling
+ contest sources, such as AMC 10, AMC 12, and AIME.
+                                                                                                               providers to systematically adjust the latency–performance
+ For Qwen2.5-1.5B-Instruct, the total output length aver-
+                                                                                                               trade-off: tighter slack prioritizes lower latency, while larger
+ ages 606 tokens with a standard deviation of 2587 tokens.
+                                                                                                               slack unlocks higher performance.
+ For Qwen2.5-14B-Instruct, the total output length averages
+ 709.0, with a standard deviation of 715 tokens.                                                               APPS. On APPS (Figure 5(a1)–(a4)), Chimera consistently
+                                                                                                               achieves the strongest operating points across model config-
+ 4.2. Experimental Setup                                                                                       urations. For Qwen1.5+7B (Figure 5(a1)), across three RPS
+                                                                                                               values (RPS=8,12,16), vLLM achieves per token E2E laten-
+ We evaluate Chimera across popular LLM fami-                                                                  cies of 82.6 ms/token, 81.0 ms/token, and 107.8 ms/token,
+ lies and scales: Qwen2.5-1.5B/3B/7B/14B-Instruct
+
+                                                                                                           6
+                   Chimera: Latency and Performance-Aware Multi-agent Serving for Heterogeneous LLMs
+
+
+
+
+Figure 5. Latency vs. performance on heterogeneous model combinations. We evaluate on LLMs with various parameter sizes (1.5B, 3B,
+7B, 8B, and 14B) and families (Qwen, Llama, and Ministral). Chimera demonstrates lower latency and higher performance compared to
+other serving systems.
+
+with corresponding performance scores of 22.7%, 23.5%,              increase over vLLM, a 1.2× speedup and a 13.0% score
+and 20.6%. MLFQ achieves an average 2.4× speedup but                increase over MLFQ, and a 1.1× speedup and a 14.4%
+incurs a 2.9% average drop in scores over vLLM. LTR is              score increase over LTR. Since vLLM (STJF) only achieves
+more effective, achieving an average 2.6× speedup with              a 1.2× speedup over vLLM, this shows that Chimera al-
+the same score over vLLM. In comparison, Chimera im-                ready achieves near oracle speedup. We further evaluate
+proves both latency and performance, achieving a 3.4×               Chimera on the three-model configuration Qwen1.5+3+14B
+speedup and a 16.0% score increase over vLLM, a 1.42×               (Figure 5(a4,b4)). Compared to two-model combinations,
+speedup and a 19.6% score increase over MLFQ, and a                 introducing a third model adds additional routing and
+1.31× speedup and a 16.0% score increase over LTR. No-              load-balancing dynamics due to a wider range of latency–
+tably, increasing the latency slack improves performance            performance profiles. On APPS, MLFQ achieves low la-
+without degrading latency, illustrating a minimal latency–          tency under light load (RPS=8.0) but struggles as load in-
+performance tradeoff. For Qwen1.5+14B (Figure 5(a2)),               creases (RPS=12,16). LTR achieves better speedup while
+MLFQ achieves an average 1.7× speedup over vLLM,                    maintaining the same score over vLLM. Chimera achieves
+while LTR achieves an average 2.5× speedup over vLLM.               a 2.7× speedup with a 8.2% score increase over vLLM, a
+Chimera achieves the strongest joint improvement, attaining         1.5× speedup with a 6.7% score increase over MLFQ, and
+a 2.9× speedup and a 10.5% score increase over vLLM,                a 1.3× speedup with a 7.5% score increase over LTR.
+a 1.7× speedup and a 10.8% score increase over MLFQ,
+                                                                    MATH. On MATH, Chimera similarly achieves the
+and a 1.2× speedup with a 10.9% score increase over LTR.
+                                                                    strongest latency–performance trade-offs across the evalu-
+For Llama3B + Ministral8B (Figure 5(a3)), the overall la-
+                                                                    ated model configurations. For Qwen1.5+7B (Figure 5(b1)),
+tency is substantially higher because Llama3B and Minis-
+                                                                    LTR is second to Chimera, achieving an average 2.2×
+tral8B produces significantly longer outputs than the other
+                                                                    speedup and the same score over vLLM. In contrast,
+models (Appendix A.2). vLLM incurs per-token latencies
+                                                                    Chimera achieves a 2.5× speedup and a 2.2% score increase
+of 1156.7 ms/token, 1482.7 ms/token, and 1582.6 ms/token
+                                                                    over vLLM, as well as a 1.2× speedup and a 2.1% score
+for RPS=8,12,16 respectively. MLFQ provides little la-
+                                                                    increase over LTR. With a larger latency slack, Chimera of-
+tency reduction in this setting. LTR reduces latency un-
+                                                                    fers a trade-off for better performance, achieving an average
+der lighter loads (RPS=8,12) but still struggles at a higher
+                                                                    1.9× speedup with a 4.1% score increase over vLLM. For
+load (RPS=16). In contrast, Chimera achieves the strongest
+                                                                    Qwen1.5+14B (Figure 5(b2)), the improvement also persists
+overall outcome, with a 1.2× speedup and a 15.7% score
+                                                                    on MATH: Chimera achieves an average 2.1× speedup with
+
+                                                                7
+                           Chimera: Latency and Performance-Aware Multi-agent Serving for Heterogeneous LLMs
+
+Table 1. Chimera’s scheduling overhead. The scheduler (con-
+taining the router, the predictor, and other operations altogether)
+contribute ≤ 2.2% of the E2E latency across settings. This shows
+that Chimera is lightweight.
+
+ Dataset   RPS    Models        E2E Latency   Router       Predictor    Scheduler
+                  Qwen1.5+7B          17068   64 (0.4%)    179 (1.1%)   250 (1.5%)
+           8.0    Qwen1.5+14B         28750   72 (0.3%)    126 (0.4%)   206 (0.7%)
+ APPS             Qwen1.5+7B          24554   277 (1.1%)   234 (1.0%)   528 (2.2%)
+           16.0   Qwen1.5+14B         46522   315 (0.7%)   315 (0.7%)   646 (1.4%)
+                  Qwen1.5+7B          37025   49 (0.1%)    90 (0.2%)    144 (0.4%)
+           8.0    Qwen1.5+14B         61944   44 (0.1%)    82 (0.1%)    131 (0.2%)
+ MATH             Qwen1.5+7B          45485   71 (0.2%)    78 (0.2%)    155 (0.3%)
+           16.0   Qwen1.5+14B         79485   52 (0.1%)    101 (0.1%)   159 (0.2%)
+
+                                                                                         Figure 6. Pareto frontiers of Chimera with and without the semantic
+                                                                                         router. We ablate the router and compare the resulting latency–
+a 5.0% score increase over vLLM, a 1.4× speedup and a                                    performance tradeoff curves. Using the router yields a markedly
+3.8% score increase over MLFQ, the same latency and a                                    better Pareto frontier across all RPS values.
+3.7% score increase over LTR. Increasing latency slack of
+Chimera can further improve the performance with a small
+tradeoff of latency. For Qwen1.5+3+14B (Figure 5(b4)),
+Chimera achieves a 2.1× speedup and a 1.6% score increase
+over vLLM, a 1.2× speedup and a 1.3% score increase over
+MLFQ, and a 1.2× speedup and a 1.2% score increase over
+LTR.
+Scheduling overhead. Table 1 breaks down Chimera’s
+scheduling overhead across datasets, RPS, and model com-
+binations. Overall, Chimera adds negligible overhead: the
+scheduler contributes at most 2.2% of end-to-end latency
+(and often < 1%). On APPS it ranges from 0.7%–2.2%
+and on MATH from 0.2%–0.4%, showing that Chimera is                                      Figure 7. Pareto frontiers of Chimera and its oracle variants: (i)
+                                                                                         Oracle Predictor uses ground-truth total output lengths, and (ii)
+extremely lightweight.                                                                   Oracle Router uses ground-truth per-request success outcomes.
+                                                                                         The benefit of each oracle dependends on the model combination.
+4.4. Ablations
+                                                                                         comes (Oracle Router) in Figure 7. An oracle predictor fur-
+We conduct ablations to analyze the contributions of                                     ther reduces latency for Qwen1.5+7B especially given low
+Chimera’s key decision modules in isolation: the semantic                                latency slacks, indicating that length-prediction error mat-
+router and the length predictor.                                                         ters most when latency constraints are tight; however, it has
+                                                                                         limited impact for Qwen1.5+14B, where Chimera performs
+Effect of the semantic router. We compare Chimera with
+                                                                                         nearly identically with and without the oracle at RPS=8 and
+and without the router in Figure 6. We find that the router
+                                                                                         16. An oracle router improves the latency–performance fron-
+confidence scores enable Chimera to choose which model to
+                                                                                         tier for Qwen1.5+14B, yielding high performance at low
+run for each query based on the expected performance bene-
+                                                                                         latency, but offers smaller gains for Qwen1.5+7B, suggest-
+fit, rather than applying a fixed heuristic (e.g., always using
+                                                                                         ing routing is not the primary bottleneck there. These oracle
+the stronger model when the latency slack permits). This
+                                                                                         studies provide upper bounds: Chimera is already near-
+query-adaptive selection yields a markedly better Pareto
+                                                                                         oracle in several settings, and the remaining gaps highlight
+frontier. Without a semantic router, the system lacks per-
+                                                                                         the main opportunities for improvement (length prediction
+query confidence scores and therefore incurs higher latency
+                                                                                         for Qwen1.5+7B and routing for Qwen1.5+14B).
+to achieve comparable performance gains. This supports our
+design principle of coupling per-query, confidence-based
+model routing with predictive scheduling to jointly improve                              5. Conclusion
+latency and performance.
+                                                                                         We present Chimera, a lightweight middleware for serv-
+Comparison with the oracle. To quantify the remaining                                    ing multi-agent workflows on heterogeneous LLM clusters
+headroom in our learned components, we construct oracle                                  that jointly optimizes routing, load-aware dispatch, and
+variants of Chimera by replacing (i) the length predictor with                           workflow-aware prioritization to achieve strong latency–
+ground-truth generation lengths (Oracle Predictor) and (ii)                              performance trade-offs. Chimera combines a ModernBERT-
+the router with ground-truth per-request model success out-                              based semantic router for per-request model confidence, a
+
+                                                                                     8
+                   Chimera: Latency and Performance-Aware Multi-agent Serving for Heterogeneous LLMs
+
+CPU-efficient QRF predictor for workflow-level remaining              Grattafiori, A., Dubey, A., Jauhri, A., Pandey, A., Kadian,
+output tokens (enabling STJF scheduling), and an activity               A., Al-Dahle, A., Letman, A., Mathur, A., Schelten, A.,
+monitor that estimates load via in-flight predicted token               Vaughan, A., et al. The llama 3 herd of models. arXiv
+volume, with an aging-based anti-starvation mechanism to                preprint arXiv:2407.21783, 2024.
+bound waiting time. Across APPS and MATH under vary-
+ing RPS values and diverse model combinations, Chimera                Guo, T., Chen, X., Wang, Y., Chang, R., Pei, S., Chawla,
+consistently improves end-to-end latency while also increas-            N. V., Wiest, O., and Zhang, X. Large language model
+ing task performance, achieving favorable Pareto frontiers              based multi-agents: A survey of progress and challenges.
+relative to vLLM, MLFQ, and LTR, while adding negligible                arXiv preprint arXiv:2402.01680, 2024.
+scheduling overhead.                                                  Hari, S. N. and Thomson, M. Tryage: Real-time, intelligent
+                                                                        routing of user prompts to large language models. arXiv
+Acknowledgement                                                         preprint arXiv:2308.11601, 2023.
+
+This project was funded in part by the Amazon Research                Hong, S., Zhuge, M., Chen, J., Zheng, X., Cheng, Y., Wang,
+Award. The views and conclusions contained in this docu-                J., Zhang, C., Wang, Z., Yau, S. K. S., Lin, Z., et al.
+ment are those of the authors and should not be interpreted             Metagpt: Meta programming for a multi-agent collabora-
+as representing official policies, either expressed or implied,         tive framework. 2023.
+of the funding organizations.
+                                                                      Hu, C., Huang, H., Xu, L., Chen, X., Xu, J., Chen, S., Feng,
+                                                                        H., Wang, C., Wang, S., Bao, Y., et al. Inference without
+References                                                              interference: Disaggregate llm inference for mixed down-
+Agrawal, A., Kedia, N., Panwar, A., Mohan, J., Kwatra,                  stream workloads. arXiv preprint arXiv:2401.11181,
+  N., Gulavani, B., Tumanov, A., and Ramjee, R. Taming                  2024.
+  {Throughput-Latency} tradeoff in {LLM} inference with
+                                                                      Huang, C., Shi, T., Zhu, Y., Chen, R., and Quan, X. Looka-
+  {Sarathi-Serve}. In 18th USENIX Symposium on Operat-
+                                                                        head routing for large language models, 2025.
+  ing Systems Design and Implementation (OSDI 24), pp.
+ 117–134, 2024.                                                       Jiang, Y., Fu, F., Zhao, W., Rabanser, S., Lane, N. D., and
+                                                                         Yuan, B. Cascadia: A cascade serving system for large
+Chen, S., Jiang, W., Lin, B., Kwok, J., and Zhang, Y. Rou-               language models, 2025.
+  terdc: Query-based router by dual contrastive learning for
+  assembling large language models. Advances in Neural                Jin, Y., Wu, C.-F., Brooks, D., and Wei, G.-Y. S3 : Increasing
+  Information Processing Systems, 37:66305–66328, 2024.                  gpu utilization during generative inference for higher
+                                                                         throughput. volume 36, pp. 18015–18027, 2023.
+Cheng, K., Hu, W., Wang, Z., Du, P., Li, J., and Zhang, S.
+  Enabling efficient batch serving for lmaas via generation           Jitkrittum, W., Narasimhan, H., Rawat, A. S., Juneja, J.,
+  length prediction. pp. 853–864, 2024.                                  Wang, C., Wang, Z., Go, A., Lee, C.-Y., Shenoy, P., Pani-
+                                                                         grahy, R., et al. Universal model routing for efficient llm
+Ding, D., Mallick, A., Zhang, S., Wang, C., Madrigal, D.,                inference. arXiv preprint arXiv:2502.08773, 2025.
+  Garcia, M. D. C. H., Xia, M., Lakshmanan, L. V. S.,
+  Wu, Q., and Rühle, V. Best-route: Adaptive llm routing             Kwon, W., Li, Z., Zhuang, S., Sheng, Y., Zheng, L., Yu,
+  with test-time optimal compute. 2025. URL https:                     C. H., Gonzalez, J., Zhang, H., and Stoica, I. Efficient
+  //arxiv.org/abs/2506.22716.                                          memory management for large language model serving
+                                                                       with pagedattention. In Proceedings of the 29th sym-
+Feng, A., Srinivasan, B., Zhou, Y., Xu, Z., Zhou, K., Guan,            posium on operating systems principles, pp. 611–626,
+  S., Chen, Y., Wu, X., Kulkarni, N., Zhang, Y., et al. Ipr:           2023.
+  Intelligent prompt routing with user-controlled quality-
+  cost trade-offs, 2025a.                                             Li, G., Hammoud, H., Itani, H., Khizbullin, D., and Ghanem,
+                                                                         B. Camel: Communicative agents for” mind” exploration
+Feng, T., Shen, Y., and You, J. Graphrouter: A graph-                    of large language model society. Advances in Neural
+  based router for llm selections. 2025b. URL https:                    Information Processing Systems, 36:51991–52008, 2023.
+  //arxiv.org/abs/2410.03834.
+                                                                      Lin, C., Han, Z., Zhang, C., Yang, Y., Yang, F., Chen, C.,
+Fu, Y., Zhu, S., Su, R., Qiao, A., Stoica, I., and Zhang, H.            and Qiu, L. Parrot: Efficient serving of {LLM-based}
+  Efficient llm scheduling by learning to rank. Advances                applications with semantic variable. In 18th USENIX
+  in Neural Information Processing Systems, 37:59006–                   Symposium on Operating Systems Design and Implemen-
+  59029, 2024.                                                          tation (OSDI 24), pp. 929–945, 2024.
+
+                                                                  9
+                   Chimera: Latency and Performance-Aware Multi-agent Serving for Heterogeneous LLMs
+
+Luo, M., Shi, X., Cai, C., Zhang, T., Wong, J., Wang, Y.,                 Lin, J., Dang, K., Lu, K., Bao, K., Yang, K., Yu, L.,
+  Wang, C., Huang, Y., Chen, Z., Gonzalez, J. E., et al.                  Li, M., Xue, M., Zhang, P., Zhu, Q., Men, R., Lin, R.,
+  Autellix: An efficient serving engine for llm agents as                 Li, T., Tang, T., Xia, T., Ren, X., Ren, X., Fan, Y., Su,
+  general programs, 2025.                                                 Y., Zhang, Y., Wan, Y., Liu, Y., Cui, Z., Zhang, Z., and
+                                                                          Qiu, Z. Qwen2.5 technical report, 2025. URL https:
+Martian. Martian. Documentation, 2025. URL https:                         //arxiv.org/abs/2412.15115.
+ //docs.withmartian.com/. Accessed: 2026-01-
+ 26.                                                                    Requesty. Requesty: Production-grade llm router. Web-
+                                                                          page, 2025. URL https://www.requesty.ai/
+Microsoft. Model router for microsoft foundry. Documen-
+                                                                          solution/llm-routing. Accessed: 2026-01-26.
+ tation, 2025. URL https://learn.microsoft.
+ com/en-us/azure/ai-foundry/openai/                                     Shirkavand, R., Gao, S., Yu, P., and Huang, H. Cost-aware
+ concepts/model-router. Accessed: 2026-01-26.                             contrastive routing for llms, 2025.
+Mistral AI.     mistralai/ministral-3-8b-instruct-2512-
+                                                                        Song, W., Huang, Z., Cheng, C., Gao, W., Xu, B., Zhao,
+ bf16.   Hugging Face model card, 2025.           URL
+                                                                          G., Wang, F., and Wu, R. Irt-router: Effective and inter-
+ https://huggingface.co/mistralai/
+                                                                          pretable multi-llm routing via item response theory. arXiv
+ Ministral-3-8B-Instruct-2512-BF16.
+                                                                          preprint arXiv:2506.01048, 2025.
+ Accessed: 2026-01-26.
+
+Ong, I., Almahairi, A., Wu, V., Chiang, W.-L., Wu, T.,                  Stojkovic, J., Zhang, C., Goiri, Í., Torrellas, J., and Choukse,
+  Gonzalez, J. E., Kadous, M. W., and Stoica, I. Routellm:                E. Dynamollm: Designing llm inference clusters for
+  Learning to route llms with preference data. 2024.                      performance and energy efficiency. pp. 1348–1362, 2025.
+
+Park, J. S., O’Brien, J., Cai, C. J., Morris, M. R., Liang,             Wang, X., Liu, Y., Cheng, W., Zhao, X., Chen, Z., Yu, W.,
+  P., and Bernstein, M. S. Generative agents: Interactive                Fu, Y., and Chen, H. Mixllm: Dynamic routing in mixed
+  simulacra of human behavior. pp. 1–22, 2023.                           large language models. arXiv preprint arXiv:2502.18482,
+                                                                         2025.
+Patel, P., Choukse, E., Zhang, C., Shah, A., Goiri, Í., Maleki,
+  S., and Bianchini, R. Splitwise: Efficient generative llm             Warner, B., Chaffin, A., Clavié, B., Weller, O., Hallström,
+  inference using phase splitting. pp. 118–132, 2024.                    O., Taghadouini, S., Gallagher, A., Biswas, R., Ladhak,
+                                                                         F., Aarsen, T., et al. Smarter, better, faster, longer: A
+Plaat, A., van Duijn, M., van Stein, N., Preuss, M., van der             modern bidirectional encoder for fast, memory efficient,
+  Putten, P., and Batenburg, K. J. Agentic large language                and long context finetuning and inference. In Proceed-
+  models, a survey. arXiv preprint arXiv:2503.23037, 2025.               ings of the 63rd Annual Meeting of the Association for
+Qian, C., Liu, W., Liu, H., Chen, N., Dang, Y., Li, J., Yang,            Computational Linguistics (Volume 1: Long Papers), pp.
+  C., Chen, W., Su, Y., Cong, X., et al. Chatdev: Commu-                 2526–2547, 2025.
+  nicative agents for software development. In Proceed-
+                                                                        Wu, Q., Bansal, G., Zhang, J., Wu, Y., Li, B., Zhu, E., Jiang,
+  ings of the 62nd Annual Meeting of the Association for
+                                                                         L., Zhang, X., Zhang, S., Liu, J., et al. Autogen: Enabling
+  Computational Linguistics (Volume 1: Long Papers), pp.
+                                                                         next-gen llm applications via multi-agent conversations.
+  15174–15186, 2024.
+                                                                         2024.
+Qiu, H., Mao, W., Patke, A., Cui, S., Jha, S., Wang,
+  C., Franke, H., Kalbarczyk, Z., Başar, T., and Iyer,                 Yang, J., Jimenez, C. E., Wettig, A., Lieret, K., Yao,
+  R. K. Power-aware deep learning model serving with                      S., Narasimhan, K., and Press, O. Swe-agent: Agent-
+  {µ-Serve}. In 2024 USENIX Annual Technical Confer-                      computer interfaces enable automated software engineer-
+  ence (USENIX ATC 24), pp. 75–93, 2024a.                                 ing. Advances in Neural Information Processing Systems,
+                                                                          37:50528–50652, 2024.
+Qiu, H., Mao, W., Patke, A., Cui, S., Jha, S., Wang,
+  C., Franke, H., Kalbarczyk, Z. T., Başar, T., and Iyer,              Yao, S., Zhao, J., Yu, D., Du, N., Shafran, I., Narasimhan,
+  R. K. Efficient interactive llm serving with proxy                      K. R., and Cao, Y. React: Synergizing reasoning and
+  model-based sequence length prediction. arXiv preprint                  acting in language models. In The eleventh international
+  arXiv:2404.08509, 2024b.                                                conference on learning representations, 2022.
+
+Qwen, :, Yang, A., Yang, B., Zhang, B., Hui, B., Zheng,                 Zhang, H., Feng, T., and You, J. Router-r1: Teaching llms
+ B., Yu, B., Li, C., Liu, D., Huang, F., Wei, H., Lin, H.,                multi-round routing and aggregation via reinforcement
+ Yang, J., Tu, J., Zhang, J., Yang, J., Yang, J., Zhou, J.,               learning. 2025a.
+
+                                                                   10
+                   Chimera: Latency and Performance-Aware Multi-agent Serving for Heterogeneous LLMs
+
+Zhang, Y.-K., Huang, T.-J., Ding, Y.-X., Zhan, D.-C., and
+  Ye, H.-J. Model spider: Learning to rank pre-trained
+  models efficiently. volume 36, pp. 13692–13719, 2023.
+Zhang, Y.-K., Zhan, D.-C., and Ye, H.-J. Capability instruc-
+  tion tuning: A new paradigm for dynamic llm routing.
+  arXiv preprint arXiv:2502.17282, 2025b.
+
+Zheng, L., Yin, L., Xie, Z., Sun, C. L., Huang, J., Yu, C. H.,
+  Cao, S., Kozyrakis, C., Stoica, I., Gonzalez, J. E., et al.
+  Sglang: Efficient execution of structured language model
+  programs. volume 37, pp. 62557–62583, 2024.
+Zheng, Z., Ren, X., Xue, F., Luo, Y., Jiang, X., and You,
+  Y. Response length perception and sequence scheduling:
+  An llm-empowered llm inference pipeline. volume 36,
+  pp. 65517–65530, 2023.
+Zhong, Y., Liu, S., Chen, J., Hu, J., Zhu, Y., Liu, X., Jin, X.,
+  and Zhang, H. {DistServe}: Disaggregating prefill and
+  decoding for goodput-optimized large language model
+  serving. In 18th USENIX Symposium on Operating Sys-
+  tems Design and Implementation (OSDI 24), pp. 193–210,
+  2024.
+Zhuang, R., Wu, T., Wen, Z., Li, A., Jiao, J., and Ramchan-
+  dran, K. Embedllm: Learning compact representations of
+  large language models. arXiv preprint arXiv:2410.02223,
+  2024.
+
+
+
+
+                                                                   11
+                                      Chimera: Latency and Performance-Aware Multi-agent Serving for Heterogeneous LLMs
+
+A. Trace Files
+A.1. Agentic Workflows
+We use common agentic workflows based on the widely adopted ReAct framework. For code generation, we use three types
+of workflows that require between one to four stages: (1) Planner → Coder → QAAggent → Coder (4 stages); (2) Planner
+→ Coder (2 stages); (3) Coder (1 stage). For mathematical reasoning, we also use three types of workflows from one to four
+stages: (1) Planner → Solver → Verifier → Solver (4 stages); (2) Planner → Solver (2 stages); (3) Solver (1 stage). These
+workflows represent a varying number of stages, which is common in multi-agent applications.
+
+A.2. Total Output Length
+We show the total workflow-level output lengths for each model on the datasets to compliment the discussions in Section 4.1.
+This motivates our design for having model-specific workflow-level total output length predictors. Since we use CPU-based
+QRFs, it is cheap to train and serve multiple predictors simultaneously.
+
+                          Qwen2.5-3B-Instruct                                 Qwen2.5-7B-Instruct                                    Llama-3.2-3B-Instruct                         Ministral-3-8B-Instruct-2512-BF16
+                                                                     12                                                     45                                                          40
+Percentage (%)
+
+
+
+
+                                                    Percentage (%)
+
+
+
+
+                                                                                                           Percentage (%)
+                 9
+
+
+
+
+                                                                                                                                                                       Percentage (%)
+                                                                      9                                                                                                                 30
+                 6                                                                                                          30
+                                                                      6                                                                                                                 20
+                 3                                                                                                          15
+                                                                      3                                                                                                                 10
+                 0                                                    0                                                      0                                                           0
+                      0     500     1000    1500                          0     800     1600   2400                              0      6000 12000 18000 24000                                   0    8000 16000 24000
+                                  Tokens                                              Tokens                                                Tokens                                                        Tokens
+                                                                          Figure 8. Total output length distributions for APPS.
+
+
+                 16
+                          Qwen2.5-3B-Instruct                                 Qwen2.5-7B-Instruct                                    Llama-3.2-3B-Instruct                   Ministral-3-8B-Instruct-2512-BF16
+                                                                                                                         60
+                                                                     24
+Percentage (%)
+
+
+
+
+                                                   Percentage (%)
+
+
+
+
+                                                                                                        Percentage (%)
+
+
+
+
+                                                                                                                                                                 Percentage (%)
+                 12                                                                                                      45                                                       40
+                                                                     18
+                  8                                                                                                      30
+                                                                     12                                                                                                           20
+                  4                                                   6                                                  15
+                  0                                                   0                                                     0                                                       0
+                      0     1000    2000    3000                          0     800    1600 2400 3200                            0     6000 12000 18000 24000                                0       4000 8000 12000 16000
+                                   Tokens                                             Tokens                                                Tokens                                                       Tokens
+                                                                          Figure 9. Total output length distributions for MATH.
+
+B. Module Analysis
+B.1. Semantic Router
+We finetune the semantic router for 5 epochs, a learning rate of 1e − 5, and a batch size of 16. The training objectives have
+been detailed in Section 3.3. Since we directly leverage the router confidence scores in making decisions, we evaluate the
+router’s performance using macro mean Average Precision (meanAP) as threshold-free metric. From the results, we select
+ModernBert-large as the backbone as supports longer context than the original Bert models and achieves the best meanAP.
+
+                                                                                Table 2. Performance of the semantic router.
+
+                                                                                   Predictor                     Dataset                 mAP
+                                                                                                                 APPS                    0.521
+                                                                                   ModernBert-large              MATH                    0.740
+                                                                                                                 Avg.                    0.631
+                                                                                                                 APPS                    0.474
+                                                                                   ModernBert-base               MATH                    0.716
+                                                                                                                 Avg.                    0.595
+
+
+                                                                                                      12
+                  Chimera: Latency and Performance-Aware Multi-agent Serving for Heterogeneous LLMs
+
+                                         Table 3. Performance of total output length predictors.
+
+              Predictor        Dataset     Qwen1.5B      Qwen3B      Qwen7B       Qwen14B      Llama3B     Ministral8B
+                               APPS          0.207         0.139        0.124       0.129          0.270     0.220
+              QRF              MATH          0.146         0.195        0.185       0.222          0.254     0.154
+                               Avg.          0.176         0.167        0.155       0.175          0.262     0.187
+                               APPS          0.501         0.506        0.506       0.505          0.505     0.496
+              FCFS             MATH          0.498         0.495        0.495       0.498          0.506     0.495
+                               Avg.          0.499         0.501        0.500       0.502          0.505     0.496
+                               APPS          0.567         0.468        0.442       0.442          0.489     0.489
+              Input Length     MATH          0.704         0.646        0.670       0.642          0.525     0.609
+                               Avg.          0.635         0.557        0.556       0.542          0.507     0.549
+
+
+B.2. Length Predictor
+The training objectives have been detailed in Section 3.4. We measure the predictor’s performance as relative ranking errors
+using Kendall’s Tau distance ∈ [0, 1] (lower is better) comparing with the oracle STJF ranking in Table 3. For instance,
+a 0.124 means around 12.4% of the pairs are inverted in the ranking, while the oracle is 0% and FCFS is around 50%
+inversions. We show that using the predictor can markedly reduce Kendall’s tau distance by 0.314 over FCFS and 0.371
+over using the input length as a proxy.
+
+C. Extra Main Results
+Besides end-to-end latency per token, we present extra main results with the average end-to-end latency per workflow
+(makespan) in Figure 10. Chimera achieves the lowest makespan and the highest performance across all settings.
+
+
+
+
+                          Figure 10. Latency vs. performance on heterogeneous model serving combinations.
+
+
+
+
+                                                                   13
+

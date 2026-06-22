@@ -1,0 +1,700 @@
+                                         ARMOR-MAD: Adaptive Routing for Heterogeneous Multi-Agent Debate
+                                                     in Large Language Model Reasoning
+
+                                                                            Fuqiang Niu1 , Bowen Zhang2
+                                                                     1
+                                                                       School of Cyber Science and Technology,
+                                                          University of Science and Technology of China, Hefei, China
+                                              2
+                                                School of Artificial Intelligence, Shenzhen Technology University, Shenzhen, China
+
+
+
+                                                              Abstract                          can coordinate roles and workflows (Li et al., 2023;
+                                                                                                Wu et al., 2024; Chen et al., 2024b).
+                                             Multi-agent debate (MAD) can improve large
+                                                                                                   Despite these gains, many MAD systems still
+arXiv:2606.13197v1 [cs.AI] 11 Jun 2026
+
+
+
+
+                                             language model reasoning, but fixed debate
+                                             pipelines often waste computation and can am-      inherit two fragile assumptions. First, they assume
+                                             plify correlated errors among similar agents.      that multiple agents provide independent evidence
+                                             We propose ARMOR-MAD, a training-free              even when agents share the same backbone model
+                                             heterogeneous MAD framework that treats de-        or differ only through role prompts. In this setting,
+                                             bate as conditional computation. ARMOR-            agents can share knowledge gaps, reasoning biases,
+                                             MAD combines three components: Pre-debate          and error modes, so debate may reinforce com-
+                                             Agreement Routing (PAR) decides whether in-
+                                                                                                mon mistakes instead of correcting them (Zhang
+                                             dependently generated Round-0 answers re-
+                                             quire debate; Early Agreement Stopping Eval-       et al., 2024). Second, they assume that every in-
+                                             uator (EASE) stops debate after convergence;       put benefits from the same fixed debate procedure.
+                                             and Semantic Outlier Detection (SOD) down-         Fixed-round debate wastes computation on easy
+                                             weights abnormal final answers during aggrega-     examples where agents already agree, and it can
+                                             tion. Across MATH Level 5, GSM8K, MMLU,            amplify conformity on difficult examples where
+                                             and MMLU-Pro, ARMOR-MAD consistently               agents move toward an incorrect consensus.
+                                             improves over fixed-round heterogeneous de-
+                                                                                                   Recent analyses sharpen these concerns. Choi
+                                             bate with the same model pool, reaching 65.5%,
+                                             96.5%, 90.0%, and 81.5% accuracy, respec-          et al. (2026) disentangle multi-agent decision mak-
+                                             tively. The results suggest that genuine model     ing into voting and debate, showing that much of
+                                             heterogeneity and agreement-based control are      the empirical gain commonly attributed to MAD
+                                             both important for making MAD more accurate        can be explained by voting rather than deliberation
+                                             and efficient.                                     itself. Their theoretical analysis models debate as a
+                                                                                                martingale process over agents’ belief trajectories,
+                                         1   Introduction
+                                                                                                suggesting that debate alone does not necessarily
+                                         Large language models (LLMs) have made substan-        improve expected correctness under their assump-
+                                         tial progress on mathematical reasoning, scientific    tions. Complementarily, Pitre et al. (2025) iden-
+                                         question answering, and complex decision-making        tify sycophancy as a failure mode in multi-agent
+                                         tasks. Yet single-model reasoning remains brittle:     LLM interactions, where agents may conform to
+                                         models often fail to self-correct without external     peer responses instead of critically examining them.
+                                         feedback (Huang et al., 2024), chain-of-thought        These findings suggest that MAD should not be
+                                         prompting can propagate early mistakes (Wei et al.,    treated as “more agents plus more rounds”, but
+                                         2022), and confidence is not always calibrated with    as a controlled decision process whose behavior
+                                         correctness (Kadavath et al., 2022). Multi-agent de-   depends on agent diversity, input difficulty, and
+                                         bate (MAD) addresses these weaknesses by letting       disagreement structure.
+                                         multiple LLM agents generate answers, exchange            This view leads to two design principles. First,
+                                         rationales, critique one another, and revise their     heterogeneity gives independent perspectives: re-
+                                         predictions (Du et al., 2024; Liang et al., 2024).     ducing correlated errors requires agents from gen-
+                                         Prior work reports gains in factuality, reasoning,     uinely different model families, not only prompt-
+                                         and LLM-based evaluation (Du et al., 2024; Chan        level role variation. Second, adaptivity decides
+                                         et al., 2024), while broader multi-agent LLM frame-    how to use those perspectives: the system should
+                                         works show how conversation-based agent systems        determine when debate is necessary, when it should
+                                                          genuine model heterogeneity and adaptive control
+                                                          jointly improve performance and efficiency over
+                                                          fixed-round debate baselines.
+
+                                                          2   Related Work
+                                                          Multi-Agent Debate. Multi-agent debate has
+                                                          been introduced as a collective reasoning paradigm
+                                                          for improving the factuality and reasoning ability
+Figure 1: Motivating comparison between conventional      of large language models. Du et al. use multiple
+MAD and ARMOR-MAD. Conventional MAD can rely              LLM agents to generate answers independently,
+on agents with shared background knowledge and a          exchange reasoning over several rounds, and re-
+fixed workflow, which may preserve correlated errors.     vise predictions based on peer feedback (Du et al.,
+ARMOR-MAD uses heterogeneous agents and adaptive          2024). Liang et al. show that divergent agent
+control to route, stop, and aggregate reasoning accord-
+                                                          perspectives can improve reasoning by increasing
+ing to the structure of agent agreement.
+                                                          the diversity of intermediate solution paths (Liang
+                                                          et al., 2024). Wang et al. further analyze when
+stop, and how final answers should be aggregated.         multi-agent discussions improve LLM reasoning,
+Figure 1 summarizes the resulting contrast between        emphasizing that collaboration structure matters
+fixed homogeneous debate and adaptive heteroge-           rather than assuming discussion is uniformly ben-
+neous debate, motivating three coupled decisions:         eficial (Wang et al., 2024a). ChatEval extends
+WHO should participate, WHEN debate should be             debate to LLM-based evaluation, where evalua-
+triggered, and HOW unreliable or abnormal outputs         tor agents deliberate over generated outputs (Chan
+should be handled. This framing also separates            et al., 2024). These systems establish the value of
+agent diversity from debate control, two factors          interaction, but they typically run debate as a fixed
+that are often conflated in prior MAD pipelines.          procedure instead of deciding whether each input
+                                                          needs debate.
+    We propose ARMOR-MAD, an Adaptive Rout-
+                                                             Several works extend multi-agent reasoning be-
+ing Multi-Agent Reasoning and Debate framework
+                                                          yond homogeneous debate and task-specific de-
+that makes these decisions in a unified pipeline. For
+                                                          liberation. ReConcile studies round-table-style
+WHO, ARMOR-MAD uses heterogeneous LLM
+                                                          discussion among diverse LLMs and uses con-
+agents from different model families rather than
+                                                          sensus among agents to improve reasoning per-
+prompted copies of a single backbone. For WHEN,
+                                                          formance (Chen et al., 2024a). Dynamic LLM-
+it introduces Pre-debate Agreement Routing (PAR),
+                                                          agent networks explore adaptive collaboration
+a training-free mechanism that collects independent
+                                                          structures among agents, showing that agent inter-
+Round-0 answers and triggers debate only when
+                                                          action patterns can influence final performance (Liu
+initial agreement is insufficient. Early Agreement
+                                                          et al., 2024). Agent-oriented frameworks such as
+Stopping Evaluator (EASE) then terminates debate
+                                                          CAMEL, AutoGen, and AgentVerse provide gen-
+once agents converge. For HOW, Semantic Out-
+                                                          eral mechanisms for role-based conversation, tool
+lier Detection (SOD) assigns trust weights to fi-
+                                                          use, and multi-agent collaboration (Li et al., 2023;
+nal answers and down-weights semantically abnor-
+                                                          Wu et al., 2024; Chen et al., 2024b). These studies
+mal outputs. ARMOR-MAD therefore turns MAD
+                                                          suggest that the organization of agents matters, but
+from an indiscriminate fixed-round procedure into
+                                                          they still do not directly address pre-debate routing:
+an adaptive pipeline over agent construction, de-
+                                                          whether a given example should enter multi-round
+bate invocation, stopping, and aggregation.
+                                                          debate in the first place. ARMOR-MAD differs
+    Our contributions are threefold. (1) We formu-
+                                                          from prior MAD systems by treating debate as con-
+late multi-agent debate as an adaptive decision
+                                                          ditional computation rather than a default inference
+process governed by agent heterogeneity, debate
+                                                          procedure.
+routing, stopping, and aggregation. (2) We in-
+troduce ARMOR-MAD, a training-free heteroge-              Agent Heterogeneity. The effectiveness of multi-
+neous MAD framework combining PAR, EASE,                  agent reasoning depends on whether agents provide
+and SOD. (3) We provide empirical evidence across         genuinely independent perspectives. Standard ho-
+four reasoning and knowledge benchmarks that              mogeneous MAD uses multiple instances of the
+same backbone model, relying on sampling vari-           should be triggered instead of applying multi-round
+ation to produce useful disagreement (Du et al.,         deliberation to every input.
+2024; Liang et al., 2024). However, agents from the         Consensus formation in multi-agent debate also
+same model family can share correlated errors, sim-      faces robustness challenges. Pitre et al. iden-
+ilar reasoning biases, and overlapping knowledge         tify sycophancy as a failure mode in multi-agent
+gaps. Prompt-diversified methods attempt to in-          LLM interactions, where agents may reinforce
+crease diversity by assigning agents different roles,    peer responses rather than critically evaluate them
+expertise descriptions, or reasoning styles (Zhou        (Pitre et al., 2025). Routing-based methods ad-
+and Chen, 2025). Although role-based prompting           dress efficiency from a different perspective. Mas-
+can create surface-level behavioral differences, all     Router formulates multi-agent system routing as
+agents still operate within the same underlying pa-      a learned decision problem and selects collabo-
+rameter space when they share the same backbone          ration modes, agent roles, and LLM backbones
+model.                                                   through a cascaded controller (Yue et al., 2025).
+   Another line of work uses multiple model fam-         While these methods improve either consensus
+ilies to improve robustness. ReConcile studies it-       behavior or multi-agent routing, they typically
+erative consensus formation among diverse LLMs           rely on interaction-time prompting strategies or
+(Chen et al., 2024a). Mixture-of-agents combines         learned controllers. ARMOR-MAD instead uses
+outputs from multiple proposer models through an         a training-free control pipeline: PAR routes exam-
+aggregator model and improves response quality           ples based on Round-0 agreement, EASE stops
+through cross-model collaboration (Wang et al.,          debate once agents converge, and SOD performs
+2025). However, mixture-of-agents primarily per-         semantic outlier-aware aggregation.
+forms single-pass aggregation rather than adaptive
+multi-round debate (Wang et al., 2025). ARMOR-           3   Method
+MAD uses genuine model heterogeneity as the              Problem Formulation. Given an input question
+starting point, then decides whether interaction is      q, a multi-agent reasoning system consists of K
+needed from the agents’ initial agreement. This          LLM agents A = {a1 , . . . , aK }. Each agent pro-
+separates two questions that prior work often en-        duces an answer yi and, optionally, a rationale ri .
+tangles: how to construct diverse agents, and when       The system returns a final answer ŷ while control-
+their interaction should be invoked.                     ling inference cost C(q), measured by generated
+                                                         tokens.
+Adaptive Control. Adaptive control is important
+                                                            Conventional MAD systems apply a fixed debate
+for multi-agent LLM systems because debate can
+                                                         procedure to every input. In contrast, we formulate
+be costly and unreliable when applied indiscrimi-
+                                                         multi-agent debate as an adaptive decision process.
+nately. Self-consistency improves chain-of-thought
+                                                         The system must decide which agents should par-
+reasoning by sampling multiple reasoning paths
+                                                         ticipate, whether debate should be triggered, when
+from a single model and selecting the most consis-
+                                                         debate should stop, and how the final answer should
+tent answer (Wang et al., 2023). Structured deci-
+                                                         be aggregated.
+sion fusion has also been explored in social-media
+stance detection, where logic-augmented frame-           Overview of ARMOR-MAD. Figure 2 gives an
+works combine multiple decision signals rather           overview of ARMOR-MAD. The framework is or-
+than relying on a single classifier prediction (Zhang    ganized around three decisions. First, for WHO,
+et al., 2025). Choi et al. disentangle multi-agent de-   heterogeneous agents from different model families
+cision making into majority voting and inter-agent       answer the input question independently in Round
+debate, showing that much of the empirical gain          0, producing diverse candidate answers. Second,
+commonly attributed to MAD can be explained by           for WHEN, PAR measures initial agreement and
+voting rather than deliberation itself (Choi et al.,     routes high-agreement examples directly forward,
+2026). Their theoretical analysis models debate as       while low-agreement examples enter multi-round
+a martingale process over agents’ belief trajecto-       debate. EASE monitors the debate trajectory and
+ries, suggesting that debate alone does not neces-       stops once the agents become stable. Third, for
+sarily improve expected correctness under their as-      HOW, SOD detects semantically abnormal candi-
+sumptions (Choi et al., 2026). These findings moti-      dates and aggregates the consistent answers to pro-
+vate adaptive mechanisms that decide when debate         duce the final prediction.
+   This design turns MAD from an indiscriminate        Early Agreement Stopping. For examples
+fixed-round procedure into an adaptive pipeline.       routed to debate, ARMOR-MAD conducts iterative
+Heterogeneous agents address the agent composi-        interaction among agents. At each debate round t,
+tion problem, PAR and EASE address debate con-         every agent observes the previous-round answers
+trol, and SOD addresses robust aggregation. Al-        and rationales from other agents, and then updates
+gorithm 1 provides the corresponding procedural        its own answer:
+summary.
+                                                                         (t)
+                                                                       yi = ai (q, Y (t−1) ).
+Heterogeneous Agent Construction. To reduce
+correlated errors, ARMOR-MAD uses LLMs from              After each round, EASE computes the agree-
+different model families as agents. In our imple-      ment score among current answers. If the agree-
+mentation, the agent set consists of gpt-4o-mini,      ment score reaches a stopping threshold ϕ, the de-
+deepseek-v3, and qwen-plus. This differs from ho-      bate terminates early:
+mogeneous MAD, where all agents are sampled
+from the same backbone model, and from prompt-                           Agree(Y (t) ) ≥ ϕ.
+diversified MAD, where agents share model param-
+eters but receive different role or reasoning-style       Otherwise, the debate continues until reaching
+prompts.                                               the maximum number of rounds Tmax . In the main
+   The motivation is that useful debate requires       experiments, ϕ = 1.0, so EASE stops debate only
+agents to provide sufficiently independent perspec-    when all three agents converge to the same normal-
+tives. Agents from the same model family may           ized answer.
+share similar factual blind spots and reasoning bi-    Semantic Outlier Detection. After either the
+ases, causing debate to reinforce common errors.       Round-0 routing stage or the debate stage,
+In contrast, heterogeneous agents are more likely      ARMOR-MAD aggregates the available agent an-
+to exhibit complementary strengths and different       swers using Semantic Outlier Detection. Let Y =
+error profiles.                                        {y1 , . . . , yK } denote the final answer set to be ag-
+                                                       gregated. Before aggregation, answers are normal-
+Pre-debate Agreement Routing. PAR decides
+                                                       ized to task-level labels, such as option letters for
+whether debate should be triggered before running
+                                                       multiple-choice tasks or extracted final expressions
+any multi-round interaction. Given an input ques-
+                                                       for mathematical tasks. To estimate whether an
+tion q, each agent ai independently produces a
+                  (0)                                  answer is semantically isolated from the rest of the
+Round-0 answer yi . The system obtains the ini-
+                                                       group, each agent response is mapped to a TF-IDF
+tial answer set:
+                                                       representation ei computed over the final response
+                      (0)   (0)      (0)               text. We then compute a trust score for each answer
+          Y (0) = {y1 , y2 , . . . , yK }.
+                                                       based on its average semantic similarity to other
+                                                       answers:
+   PAR then computes an agreement score over the
+Round-0 answers after task-specific answer normal-                          1 X
+                                                                  wi =          cos(ei , ej ).
+ization. For multiple-choice tasks, normalization                         K −1
+                                                                                  j̸=i
+maps each prediction to an option label. For mathe-
+matical reasoning tasks, normalization extracts the       An answer is considered semantically abnormal
+final numeric or symbolic answer before compar-        if its dissimilarity exceeds a threshold:
+ison. The agreement score is defined as the vote
+share of the most frequent normalized answer:                             1 − wi > λout .
+
+                      1            (0)                   SOD then forms a reliability-adjusted score w̃i
+    Agree(Y (0) ) =     max |{i : yi = c}|.
+                      K c                              by setting the weight of abnormal answers to zero
+                                                       and keeping the original trust score for the remain-
+   If Agree(Y (0) ) ≥ τ , ARMOR-MAD skips de-          ing answers. The final prediction is selected from
+bate and directly aggregates the Round-0 answers.      the highest-scoring normalized answer cluster:
+Otherwise, the system triggers multi-round debate.
+In our experiments, we use τ = 0.67, which corre-
+                                                                                    X
+                                                                     ŷ = arg max        w̃i .
+sponds to at least two out of three agents agreeing.                             c
+                                                                                     i:yi =c
+Figure 2: Framework of ARMOR-MAD. Heterogeneous agents first produce independent Round-0 answers from
+different model families and knowledge sources. PAR decides whether the candidates already agree sufficiently; high-
+agreement cases skip debate, while low-agreement cases enter debate and are stopped by EASE after convergence.
+The resulting accepted candidates are then passed to SOD, which detects semantic outliers and aggregates consistent
+answers into the final prediction.
+
+
+If all answers are marked abnormal, ARMOR-                 (Hendrycks et al., 2021) contains high-difficulty
+MAD falls back to majority voting over the normal-         competition-style mathematical problems requiring
+ized answers. This fallback prevents the aggrega-          multi-step symbolic reasoning. GSM8K (Cobbe
+tion stage from discarding all available evidence in       et al., 2021) consists of grade-school mathemati-
+high-disagreement cases.                                   cal word problems and is used to evaluate arith-
+                                                           metic and textual reasoning. MMLU (Hendrycks
+Computational Cost. ARMOR-MAD always
+                                                           et al., 2020) is a standard multiple-choice bench-
+begins with K independent Round-0 model calls,
+                                                           mark covering a broad range of academic subjects.
+one for each heterogeneous agent. The adaptive
+                                                           MMLU-Pro (Wang et al., 2024b) is a more chal-
+components control only the additional debate cost.
+                                                           lenging multiple-choice benchmark with more an-
+Let I(q) indicate whether PAR routes input q to
+                                                           swer options and higher domain complexity. All
+debate, and let T (q) denote the number of debate
+                                                           methods are evaluated on exactly the same exam-
+rounds actually executed before EASE stops the
+                                                           ples to ensure paired comparison. Detailed dataset
+process. The total number of agent calls is
+                                                           statistics and sampling procedures are provided in
+               K + I(q) · K · T (q).                       Appendix A.
+
+By contrast, fixed-round MAD uses K(1 + Tmax )             4.2    Baselines
+calls for every input. ARMOR-MAD therefore
+                                                           We compare ARMOR-MAD with representative
+matches fixed-round debate on low-agreement ex-
+                                                           single-model, voting-based, debate-based, and
+amples that require the full number of rounds,
+                                                           aggregation-based baselines. Single-CoT (Wei
+but reduces computation whenever agents agree in
+                                                           et al., 2022) uses chain-of-thought prompting as a
+Round 0 or converge before Tmax . This cost model
+                                                           single-agent reasoning baseline. Self-Consistency
+clarifies why adaptivity is useful: high-agreement
+                                                           (Wang et al., 2023) samples multiple reasoning
+examples can often be solved through heteroge-
+                                                           paths and selects the final answer by majority vote.
+neous voting and robust aggregation, while low-
+                                                           Homo-MAD (Du et al., 2024) follows the stan-
+agreement examples still receive deliberation.
+                                                           dard multi-agent debate setting, where multiple
+4     Experimental Setup                                   agents debate over several rounds before final ag-
+                                                           gregation. D-MAD (Zhou and Chen, 2025) is a
+4.1    Datasets                                            prompt-diversified MAD baseline inspired by role-
+We evaluate ARMOR-MAD on four benchmarks                   diverse heterogeneous debate, where agents are as-
+covering mathematical reasoning and knowledge-             signed different reasoning styles while sharing the
+intensive question answering. MATH Level 5                 same model family. MoA (Wang et al., 2025) fol-
+Algorithm 1 ARMOR-MAD                                    Method             MATH L5   GSM8K   MMLU   MMLU-Pro
+                                                         Single-CoT           43.0     92.0   82.0     61.5
+Require: Question q, agents A = {a1 , . . . , aK },      Self-Consistency     50.0     94.0   84.0     66.0
+    routing threshold τ , stopping threshold ϕ, max-     Homo-MAD             53.5     64.5   66.5     54.0
+                                                         D-MAD                59.0     95.5   66.5     53.5
+    imum rounds Tmax                                     Hetero-Vote-only     50.5     93.0   87.5     71.5
+                                                         Hetero-MAD           63.5     89.0   84.5     76.0
+ 1: Obtain independent Round-0 answers Y (0) =           MoA                  60.5     94.5   89.0     79.0
+    {ai (q)}Ki=1                                         ARMOR-MAD            65.5     96.5   90.0     81.5
+ 2: Compute initial agreement s(0)                =
+    Agree(Y (0) )                                       Table 1: Main accuracy results across four benchmarks.
+ 3: if s(0) ≥ τ then
+ 4:
+                                                        4.4    Implementation Details
+ 5:   return SOD(Y (0) )
+ 6: end if                                              We use gpt-4o-mini for all single-model and
+ 7: for t = 1 to Tmax do                                homogeneous-agent baselines. For heteroge-
+ 8:   Each agent updates its answer after observ-       neous multi-agent methods, including Hetero-
+      ing Y (t−1)                                       MAD, Hetero-Vote-only, and ARMOR-MAD, we
+ 9:   Obtain updated answers Y (t)                      use a fixed model pool consisting of gpt-4o-mini,
+10:   Compute agreement s(t) = Agree(Y (t) )            deepseek-v3, and qwen-plus. Each model call is
+11:   if s(t) ≥ ϕ then                                  limited to 1,024 generated tokens. For ARMOR-
+12:      break                                          MAD, PAR uses an agreement threshold of τ =
+13:   end if                                            0.67, corresponding to at least two out of three
+14: end for                                             agents agreeing in Round 0. For routed examples,
+15:                                                     we use at most three debate rounds, and EASE
+16: return SOD(Y (t) )                                  stops debate once all three normalized answers
+                                                        converge. SOD uses λout = 0.7 as the seman-
+                                                        tic outlier threshold in the main experiments. De-
+lows the mixture-of-agents paradigm, where mul-         tailed prompts, baseline configurations, decoding
+tiple proposer outputs are synthesized by an ag-        settings, and answer extraction rules are provided
+gregator in a single pass. Hetero-MAD (Chen             in Appendix C.
+et al., 2024a) is a heterogeneous debate baseline
+inspired by ReConcile-style multi-model discus-         5     Experimental Results
+sion and consensus formation. Hetero-Vote-only
+                                                        5.1    Main Results
+(Choi et al., 2026) is a voting-only diagnostic base-
+line motivated by recent debate-or-vote analyses,       Table 1 reports the main results across four bench-
+where heterogeneous agents provide initial answers      marks. ARMOR-MAD obtains the highest accu-
+without iterative debate. Detailed model choices,       racy on all four benchmarks under the main ex-
+prompting strategies, debate rounds, and aggre-         perimental setting. On mathematical reasoning
+gation rules for all baselines are provided in Ap-      tasks, ARMOR-MAD reaches 65.5% on MATH
+pendix B.                                               Level 5 and 96.5% on GSM8K. On knowledge-
+                                                        intensive multiple-choice tasks, ARMOR-MAD
+4.3   Evaluation Metrics                                reaches 90.0% on MMLU and 81.5% on MMLU-
+Following the standard accuracy-based evaluation        Pro. Compared with Hetero-MAD, which uses
+protocols of these benchmarks (Hendrycks et al.,        the same heterogeneous model pool but performs
+2021; Cobbe et al., 2021; Hendrycks et al., 2020;       fixed-round debate, ARMOR-MAD improves per-
+Wang et al., 2024b), we report accuracy as the pri-     formance on all four datasets. Because Hetero-
+mary metric for all datasets. For multiple-choice       MAD uses the same model pool, this comparison
+benchmarks, including MMLU and MMLU-Pro,                isolates the contribution of adaptive routing, early
+a prediction is considered correct if the extracted     stopping, and semantic aggregation beyond model
+option matches the gold option. For mathematical        heterogeneity alone.
+reasoning benchmarks, including MATH Level 5               The results show three patterns. First, homo-
+and GSM8K, we extract the final answer from the         geneous debate is unstable: Homo-MAD sub-
+model output and compare it with the gold answer        stantially underperforms Single-CoT on GSM8K,
+using the same normalization rules for all methods.     MMLU, and MMLU-Pro, suggesting that re-
+         Variant / Dataset Variant ARMOR                 erogeneous debate on all four datasets, with the
+         Fixed heterogeneous debate                      largest gains on GSM8K and MMLU. The compar-
+         MATH L5              63.5        65.5           ison with Hetero-Vote-only shows that ARMOR-
+         GSM8K                89.0        96.5
+         MMLU                 84.5        90.0
+                                                         MAD is not merely a heterogeneous voting sys-
+         MMLU-Pro             76.0        81.5           tem: selective debate and robust aggregation im-
+         Heterogeneous vote only                         prove over Round-0 voting on all four benchmarks.
+         MATH L5             50.5         65.5           The diagnostic variants isolate individual design
+         GSM8K               93.0         96.5           choices. Replacing PAR with LLM-confidence
+         MMLU                87.5         90.0
+         MMLU-Pro            71.5         81.5           routing causes a large drop on MATH Level 5, sug-
+         Routing / aggregation variants
+                                                         gesting that subjective model confidence is weaker
+         Conf. route           51.5       65.5           than agreement among heterogeneous agents as a
+         Maj. vote             89.0       90.0           routing signal. Replacing SOD with majority vot-
+         No struct.            89.5       96.5
+                                                         ing slightly reduces MMLU accuracy, indicating
+Table 2: Ablation results. Conf. route is evaluated on   that semantic aggregation provides a modest but
+MATH L5, Maj. vote on MMLU, and No struct. on            measurable gain over simple voting. The GSM8K
+GSM8K. All numbers are accuracies.                       unstructured-output variant further shows that reli-
+                                                         able final-answer formatting matters for PAR, be-
+                                                         cause inconsistent numeric formats can hide agree-
+peated interaction among agents from the same            ment among agents.
+model family can amplify shared errors. Second,
+prompt diversity is task-dependent. D-MAD per-           5.3   Agent Heterogeneity and Echo Chambers
+forms strongly on GSM8K, where reasoning-style           The results in Table 1 provide evidence for two
+prompts can help arithmetic word-problem solv-           types of echo-chamber behavior. On GSM8K, D-
+ing, but it closely matches Homo-MAD on MMLU             MAD achieves 95.5%, showing that prompt diver-
+and MMLU-Pro. This pattern suggests that prompt          sity can induce useful alternative reasoning strate-
+diversity alone does not reliably remove shared          gies on arithmetic word problems. However, on
+knowledge blind spots in knowledge-intensive set-        MMLU and MMLU-Pro, D-MAD closely matches
+tings. Third, ARMOR-MAD improves over Hetero-            Homo-MAD and remains far below Hetero-MAD
+MAD on every dataset, showing the effect of adap-        and ARMOR-MAD. This suggests that knowledge-
+tive control when the model pool is fixed. We            intensive tasks can suffer from a knowledge-
+therefore interpret ARMOR-MAD as improving               parametric echo chamber: agents that share the
+the accuracy-efficiency trade-off of heterogeneous       same backbone model may also share similar fac-
+debate rather than merely benefiting from access to      tual blind spots. In such cases, role prompts or
+stronger or more diverse base models.                    reasoning-style prompts may not fully substitute
+                                                         for genuine model heterogeneity.
+5.2   Ablation Studies
+We ablate key design choices in ARMOR-MAD.               5.4   Interaction Between Heterogeneity and
+Table 2 summarizes two groups of comparisons.                  Adaptivity
+Hetero-MAD removes the adaptive components               The main results and ablations indicate that het-
+and runs fixed-round heterogeneous debate. Hetero-       erogeneity and adaptivity play different roles. Het-
+Vote-only removes debate and aggregates only the         erogeneity changes the evidence available to the
+initial heterogeneous answers. The remaining di-         system: agents from different model families are
+agnostic variants isolate specific implementation        more likely to disagree for meaningful reasons, ex-
+choices: LLM-confidence routing replaces PAR             posing uncertainty that homogeneous agents may
+with model-reported confidence as the routing sig-       hide. Adaptivity changes how the system uses that
+nal, majority voting replaces SOD with simple vot-       evidence: PAR treats high agreement as a signal
+ing, and the unstructured-output variant removes         to avoid unnecessary debate, EASE prevents ad-
+structured final-answer formatting on GSM8K.             ditional rounds after convergence, and SOD re-
+   The comparison with Hetero-MAD measures               duces the influence of isolated final answers. The
+the effect of ARMOR-MAD’s adaptive compo-                comparison between Hetero-MAD and ARMOR-
+nents under the same heterogeneous model pool.           MAD is therefore central because both methods
+Full ARMOR-MAD improves over fixed-round het-            use the same model pool; the gains of ARMOR-
+ Metric                MATH L5   GSM8K   MMLU   MMLU-Pro   largest efficiency benefit in a high-agreement set-
+ Debate Trigger Rate     83.0     10.5   25.0     59.5
+ Skip Rate               17.0     89.5   75.0     40.5
+                                                           ting. On MATH Level 5, most examples are routed
+ Skipped Accuracy        91.2     99.4   95.3     96.3     to debate, so the efficiency gain is smaller; neverthe-
+ Debated Accuracy        60.2     71.4   74.0     71.4
+                                                           less, ARMOR-MAD reduces average token usage
+Table 3: PAR routing behavior. Rates and accuracies        from 25,725 to 23,070 compared with fixed-round
+are reported in percentages.                               Hetero-MAD. On MMLU-Pro, ARMOR-MAD
+                                                           uses 16,467 tokens on average, compared with ap-
+                                                           proximately 20,000 tokens for Hetero-MAD. These
+MAD come from deciding when and how to use                 results show that the computational benefit is input-
+heterogeneous opinions, rather than simply adding          dependent. PAR is most useful when many exam-
+stronger agents.                                           ples can be safely solved from Round-0 agreement,
+   This also explains why voting-only and fixed-           while difficult low-agreement examples still receive
+debate baselines are incomplete controls. Hetero-          debate.
+Vote-only benefits from model diversity but can-
+not revise answers when agents initially disagree.         5.7    Discussion
+Fixed Hetero-MAD allows interaction but applies
+it uniformly, including cases where debate is unnec-       Taken together, the results suggest that the main
+essary or where additional rounds may encourage            benefit of ARMOR-MAD is not simply adding
+conformity. ARMOR-MAD occupies the middle                  more agents, but controlling when heterogeneous
+ground: it preserves the efficiency of voting for          opinions should interact. High agreement among
+high-agreement inputs while retaining debate for           different model families is a strong signal that addi-
+low-agreement cases. This supports our central             tional rounds are often redundant, as shown by the
+view that MAD should be formulated as condi-               high skipped accuracy on GSM8K, MMLU, and
+tional computation over diverse agents, not as a           MMLU-Pro. Low agreement, by contrast, indicates
+fixed number of deliberation rounds.                       examples where the system should spend more
+                                                           computation on deliberation and robust aggrega-
+5.5    PAR Routing Behavior                                tion. This pattern also clarifies the role of Figure 1:
+                                                           the failure mode of fixed MAD is not that debate is
+Table 3 reports how PAR partitions examples into
+                                                           always harmful, but that a uniform workflow can-
+skipped and debated subsets. Skipped examples are
+                                                           not distinguish easy high-agreement inputs from
+those for which heterogeneous agents already agree
+                                                           difficult low-agreement inputs. ARMOR-MAD ad-
+in Round 0 and therefore bypass debate. Across
+                                                           dresses this mismatch by combining heterogeneous
+datasets, skipped examples have high accuracy,
+                                                           evidence with lightweight agreement-based control.
+ranging from 91.2% on MATH Level 5 to 99.4%
+                                                           In this sense, agreement is used not as a final an-
+on GSM8K. This supports the main assumption
+                                                           swer by itself, but as a control signal for allocating
+behind PAR: high initial agreement among hetero-
+                                                           deliberation where it is most likely to help.
+geneous agents is a useful signal that debate is often
+unnecessary.
+                                                           6     Conclusion
+   The routing behavior varies substantially across
+datasets. GSM8K has the highest skip rate, indi-           We presented ARMOR-MAD, an adaptive het-
+cating that most examples are already solved con-          erogeneous multi-agent reasoning framework that
+sistently in Round 0. MATH Level 5 has the high-           treats debate as conditional computation rather than
+est debate-trigger rate, reflecting the difficulty of      a fixed procedure. ARMOR-MAD combines het-
+competition-style mathematical reasoning. MMLU             erogeneous agents with PAR for pre-debate routing,
+and MMLU-Pro fall between these two extremes,              EASE for early stopping, and SOD for semantic
+showing that PAR adapts to both task difficulty and        outlier-aware aggregation. Across MATH Level
+answer-space structure.                                    5, GSM8K, MMLU, and MMLU-Pro, ARMOR-
+                                                           MAD improves over fixed-round heterogeneous
+5.6    Efficiency Observations                             debate with the same model pool and achieves the
+PAR and EASE reduce computation by avoiding                best observed accuracy among evaluated methods.
+unnecessary debate. On GSM8K, ARMOR-MAD                    The ablations further suggest that prompt-level di-
+skips most examples and reduces average token              versity is not a reliable substitute for genuine model
+usage to 2,629 tokens per example, showing the             heterogeneity, and that agreement-based routing
+can avoid unnecessary debate while maintaining          work on transparent routing criteria, calibrated un-
+strong accuracy. This perspective makes adaptivity      certainty estimates, and stronger safeguards for sen-
+a first-class design choice for future MAD systems.     sitive applications.
+
+Limitations
+                                                        References
+This work has several limitations. First, our main
+                                                        Chi-Min Chan, Weize Chen, Yusheng Su, Jianxuan Yu,
+experiments use a fixed pool of three LLM agents,         Wei Xue, Shanghang Zhang, Jie Fu, and Zhiyuan Liu.
+gpt-4o-mini, deepseek-v3, and qwen-plus. Al-              2024. Chateval: Towards better LLM-based eval-
+though this pool is sufficient to study heterogeneity     uators through multi-agent debate. In The Twelfth
+and adaptive debate, the conclusions may vary with        International Conference on Learning Representa-
+                                                          tions.
+stronger or more specialized models, larger agent
+sets, or different model families. Second, the rout-    Justin Chen, Swarnadeep Saha, and Mohit Bansal.
+ing and stopping rules rely on answer agreement,          2024a. Reconcile: Round-table conference improves
+which is effective for short-answer and multiple-         reasoning via consensus among diverse llms. In Pro-
+                                                          ceedings of the 62nd Annual Meeting of the Associa-
+choice tasks but may be less reliable for open-ended      tion for Computational Linguistics (Volume 1: Long
+generation, dialogue, or tasks with many semanti-         Papers), pages 7066–7085.
+cally equivalent outputs. Third, SOD assumes that
+                                                        Weize Chen, Yusheng Su, Jingwei Zuo, Cheng Yang,
+semantically isolated answers are more likely to be      Chenfei Yuan, Chen Qian, Chi-Min Chan, Yujia Qin,
+unreliable. This assumption can fail in “lone ex-        Yaxi Lu, Ruobing Xie, and 1 others. 2024b. Agent-
+pert” cases, where a minority agent has the correct      verse: Facilitating multi-agent collaboration and ex-
+answer because it possesses domain knowledge             ploring emergent behaviors. In The Twelfth Interna-
+                                                         tional Conference on Learning Representations.
+that other agents lack. Fourth, our experiments
+are conducted on sampled subsets of four bench-         Hyeong Kyu Choi, Jerry Zhu, and Sharon Li. 2026.
+marks rather than full benchmark suites, so small         Debate or vote: Which yields better decisions in
+accuracy differences should be interpreted with sta-      multi-agent large language models? Advances in
+                                                          Neural Information Processing Systems, 38:101732–
+tistical caution. Finally, ARMOR-MAD reduces              101764.
+unnecessary debate in high-agreement cases, but it
+still requires multiple model calls in Round 0; de-     Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian,
+                                                          Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias
+ployment in cost-sensitive settings should therefore
+                                                          Plappert, Jerry Tworek, Jacob Hilton, Reiichiro
+consider both accuracy gains and API cost.                Nakano, and 1 others. 2021. Training verifiers
+                                                          to solve math word problems. arXiv preprint
+Ethical Considerations                                    arXiv:2110.14168.
+
+ARMOR-MAD is a general reasoning framework              Yilun Du, Shuang Li, Antonio Torralba, Joshua B Tenen-
+                                                           baum, and Igor Mordatch. 2024. Improving factual-
+built on top of existing LLMs, and therefore inher-
+                                                           ity and reasoning in language models through multia-
+its the risks of its underlying models. Heteroge-          gent debate. In Forty-first international conference
+neous agents may reduce some correlated errors,            on machine learning.
+but they do not guarantee factual correctness, fair-
+                                                        Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou,
+ness, or safety. In high-stakes domains such as           Mantas Mazeika, Dawn Song, and Jacob Steinhardt.
+medicine, law, finance, or education, outputs from        2020. Measuring massive multitask language under-
+ARMOR-MAD should be treated as decision sup-              standing. arXiv preprint arXiv:2009.03300.
+port rather than authoritative judgments, and hu-
+                                                        Dan Hendrycks, Collin Burns, Saurav Kadavath, Akul
+man oversight remains necessary. The use of mul-          Arora, Steven Basart, Eric Tang, Dawn Song, and
+tiple commercial or closed-source models can also         Jacob Steinhardt. 2021. Measuring mathematical
+increase inference cost, energy consumption, and          problem solving with the MATH dataset. In Thirty-
+dependence on external providers. Because the             fifth Conference on Neural Information Processing
+                                                          Systems Datasets and Benchmarks Track (Round 2).
+framework routes and aggregates model outputs
+automatically, practitioners should monitor failure     Jie Huang, Xinyun Chen, Swaroop Mishra,
+cases where agents converge on an incorrect answer         Huaixiu Steven Zheng, Adams Yu, Xinying
+                                                           Song, and Denny Zhou. 2024. Large language
+or where the aggregation mechanism suppresses a            models cannot self-correct reasoning yet.         In
+correct minority response. We release the method           International conference on learning representations,
+as a research contribution and encourage future            volume 2024, pages 32808–32824.
+Saurav Kadavath, Tom Conerly, Amanda Askell, Tom               in neural information processing systems, 35:24824–
+  Henighan, Dawn Drain, Ethan Perez, Nicholas                  24837.
+  Schiefer, Zac Hatfield-Dodds, Nova DasSarma, Eli
+  Tran-Johnson, and 1 others. 2022. Language mod-          Qingyun Wu, Gagan Bansal, Jieyu Zhang, Yiran Wu,
+  els (mostly) know what they know. arXiv preprint           Beibin Li, Erkang Zhu, Li Jiang, Xiaoyun Zhang,
+  arXiv:2207.05221.                                          Shaokun Zhang, Jiale Liu, and 1 others. 2024. Auto-
+                                                             Gen: Enabling next-gen LLM applications via multi-
+Guohao Li, Hasan Abed Al Kader Hammoud, Hani                 agent conversation. In ICLR 2024 Workshop on
+  Itani, Dmitrii Khizbullin, and Bernard Ghanem. 2023.       Large Language Model Agents.
+  CAMEL: Communicative agents for “mind” explo-
+  ration of large language model society. Advances in      Yanwei Yue, Guibin Zhang, Boyang Liu, Guancheng
+  Neural Information Processing Systems, 36:51991–           Wan, Kun Wang, Dawei Cheng, and Yiyan Qi. 2025.
+  52008.                                                     MasRouter: Learning to route LLMs for multi-agent
+                                                             systems. In Proceedings of the 63rd Annual Meet-
+Tian Liang, Zhiwei He, Wenxiang Jiao, Xing Wang,             ing of the Association for Computational Linguistics
+  Yan Wang, Rui Wang, Yujiu Yang, Shuming Shi, and           (Volume 1: Long Papers), pages 15549–15572.
+  Zhaopeng Tu. 2024. Encouraging divergent thinking
+  in large language models through multi-agent debate.     Bowen Zhang, Daijun Ding, Zhichao Huang, Ang
+  In Proceedings of the 2024 conference on empiri-           Li, Yangyang Li, Baoquan Zhang, and Hu Huang.
+  cal methods in natural language processing, pages          2024. Knowledge-augmented interpretable network
+  17889–17904.                                               for zero-shot stance detection on social media. IEEE
+Zijun Liu, Yanzhe Zhang, Peng Li, Yang Liu, and Diyi         Transactions on Computational Social Systems.
+   Yang. 2024. Dynamic LLM-agent network: An
+   LLM-agent collaboration framework with agent team       Bowen Zhang, Jun Ma, Xianghua Fu, and Genan Dai.
+   optimization.                                             2025. Logic augmented multi-decision fusion frame-
+                                                             work for stance detection on social media. Informa-
+Priya Pitre, Naren Ramakrishnan, and Xuan Wang. 2025.        tion Fusion, 122:103214.
+   Consensagent: Towards efficient and effective con-
+   sensus in multi-agent llm interactions through syco-    Yan Zhou and Yanguang Chen. 2025. Adaptive hetero-
+   phancy mitigation. In Findings of the Association for     geneous multi-agent debate for enhanced educational
+   Computational Linguistics: ACL 2025, pages 22112–         and factual reasoning in large language models. Jour-
+   22133.                                                    nal of King Saud University Computer and Informa-
+                                                             tion Sciences, 37(10):330.
+Junlin Wang, Jue Wang, Ben Athiwaratkun, Ce Zhang,
+  and James Y Zou. 2025. Mixture-of-agents enhances        A     Dataset Details
+  large language model capabilities. In International
+  Conference on Learning Representations, volume           We evaluate all methods on four benchmarks:
+  2025, pages 33944–33963.
+                                                           MATH Level 5, GSM8K, MMLU, and MMLU-
+Qineng Wang, Zihao Wang, Ying Su, Hanghang Tong,           Pro. For the main experiments, we sample n = 200
+  and Yangqiu Song. 2024a. Rethinking the bounds of        examples from each dataset using the same random
+  LLM reasoning: Are multi-agent discussions the key?
+  In Proceedings of the 62nd Annual Meeting of the
+                                                           seed, seed=123. All methods are evaluated on ex-
+  Association for Computational Linguistics (Volume        actly the same sampled examples to ensure paired
+  1: Long Papers), pages 6106–6131.                        comparisons across systems. All datasets are pub-
+                                                           licly available research benchmarks, and we use
+Xuezhi Wang, Jason Wei, Dale Schuurmans, Quoc V Le,
+  Ed H. Chi, Sharan Narang, Aakanksha Chowdhery,           them only for standard evaluation following their
+  and Denny Zhou. 2023. Self-consistency improves          original usage terms. The evaluated commercial
+  chain of thought reasoning in language models. In        LLMs are accessed through their official APIs un-
+  The Eleventh International Conference on Learning        der the corresponding providers’ terms of service.
+  Representations.
+Yubo Wang, Xueguang Ma, Ge Zhang, Yuansheng Ni,            MATH Level 5. MATH Level 5 is the most diffi-
+  Abhranil Chandra, Shiguang Guo, Weiming Ren,             cult subset of the MATH benchmark (Hendrycks
+  Aaran Arulraj, Xuan He, Ziyan Jiang, and 1 others.       et al., 2021). It contains competition-style mathe-
+  2024b. Mmlu-pro: A more robust and challenging           matical problems that require multi-step symbolic
+  multi-task language understanding benchmark. Ad-
+  vances in Neural Information Processing Systems,         reasoning across topics such as algebra, geometry,
+  37:95266–95290.                                          number theory, counting and probability, prealge-
+                                                           bra, and precalculus. We use Level 5 problems
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten
+   Bosma, Fei Xia, Ed Chi, Quoc V Le, Denny Zhou,
+                                                           because they provide a challenging setting where
+   and 1 others. 2022. Chain-of-thought prompting elic-    initial disagreement among agents is common and
+   its reasoning in large language models. Advances        debate may be beneficial.
+GSM8K. GSM8K is a grade-school mathemati-             same underlying model family. This baseline is
+cal word problem benchmark (Cobbe et al., 2021).      used to test whether prompt-level diversity can sub-
+Problems typically require multi-step arithmetic      stitute for genuine model heterogeneity.
+and textual reasoning, and the final answer is usu-
+                                                      MoA. MoA uses multiple proposer outputs and
+ally a single integer or short numeric expression.
+                                                      a separate aggregation step to synthesize the final
+This dataset is used to evaluate whether ARMOR-
+                                                      answer. Unlike MAD-style methods, MoA does
+MAD can avoid unnecessary debate on relatively
+                                                      not perform iterative inter-agent debate.
+high-agreement reasoning examples.
+                                                      Hetero-MAD. Hetero-MAD uses agents from
+MMLU. MMLU is a broad multiple-choice
+                                                      different model families and runs fixed-round de-
+benchmark covering 57 academic subjects across
+                                                      bate. This baseline serves as the heterogeneous
+STEM, humanities, social sciences, and other do-
+                                                      debate counterpart to ARMOR-MAD.
+mains (Hendrycks et al., 2020). Each question has
+four answer options. We use MMLU to evaluate          Hetero-Vote-only. Hetero-Vote-only collects
+knowledge-intensive reasoning and the effect of       only the initial Round-0 answers from hetero-
+model heterogeneity on standard multiple-choice       geneous agents and aggregates them without
+tasks.                                                any debate. This diagnostic baseline is used to
+                                                      distinguish gains from heterogeneous voting from
+MMLU-Pro. MMLU-Pro is a more challenging
+                                                      gains introduced by iterative debate.
+extension of MMLU that increases the number
+of answer options and emphasizes more difficult       C   Implementation Details
+reasoning-oriented questions (Wang et al., 2024b).
+Compared with standard MMLU, it reduces the           For single-model and homogeneous-agent base-
+chance-level baseline and provides a more discrim-    lines, we use gpt-4o-mini. For heterogeneous
+inative setting for evaluating robust aggregation     methods, we use gpt-4o-mini, deepseek-v3,
+and adaptive debate.                                  and qwen-plus. This heterogeneous model pool
+                                                      is used for Hetero-MAD, Hetero-Vote-only, and
+B   Baseline Details                                  ARMOR-MAD. Each model call is limited to 1,024
+                                                      generated tokens.
+We provide implementation details for all baselines      All MAD-style methods use a maximum of three
+used in the main experiments. All methods are         debate rounds. For ARMOR-MAD, PAR uses
+evaluated on the same sampled examples, and all       τ = 0.67 as the routing threshold. This corre-
+outputs are processed using the same answer ex-       sponds to two-out-of-three agreement in Round 0.
+traction and evaluation scripts.                      Examples below this threshold are routed to debate,
+Single-CoT. Single-CoT uses a single LLM              while high-agreement examples skip debate. For
+with chain-of-thought prompting. The model is         routed examples, EASE checks agreement after
+prompted to produce intermediate reasoning and        each debate round and stops debate once all three
+then output a final answer.                           normalized answers converge. SOD is applied as
+                                                      the final aggregation step with λout = 0.7 in the
+Self-Consistency. Self-Consistency samples k =        main experiments.
+5 independent reasoning paths from the same              For mathematical datasets, models are instructed
+model and aggregates the extracted final answers      to provide an explicit final answer to reduce ex-
+by majority vote.                                     traction ambiguity. For multiple-choice datasets,
+                                                      models are instructed to output one option from the
+Homo-MAD. Homo-MAD uses multiple agents
+                                                      given choices. All methods use the same answer
+instantiated from the same backbone model.
+                                                      extraction and normalization scripts. Dataset sam-
+Agents first generate independent initial answers
+                                                      pling details and baseline-specific configurations
+and then participate in a fixed number of debate
+                                                      are provided in Appendix A and Appendix B.
+rounds. The final answers are aggregated after the
+last round.
+D-MAD. D-MAD is a prompt-diversified MAD
+baseline. It uses agents with different reasoning-
+style prompts or role prompts while keeping the
+

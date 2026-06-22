@@ -1,0 +1,41 @@
+{
+  "evaluations": 5,
+  "strict_pass_count": 1,
+  "metrics": {
+    "strict_pass": 0.2,
+    "required_coverage": 0.6666666666666666,
+    "boundary_precision": 0.8571428571428571,
+    "distractor_leakage": 0.0,
+    "source_accuracy_on_tp": 1.0,
+    "visibility_accuracy_on_tp": 0.8333333333333334,
+    "budget_overrun": 0.0,
+    "budget_pass": 1.0,
+    "reject_recall": 1.0,
+    "needed_rejected": 0.8,
+    "utility_ratio": 0.7811158798283262,
+    "raw_utility_ratio": 0.7811158798283262,
+    "exact_target_role_rate": 0.5,
+    "budget_feasible_role_rate": 1.0
+  },
+  "counts": {
+    "tp": 18,
+    "fp": 3,
+    "fn": 9,
+    "distractor_leak": 0
+  },
+  "aux_counts": {
+    "source_checked": 18,
+    "source_correct": 18,
+    "visibility_checked": 18,
+    "visibility_correct": 15
+  },
+  "tight_budget": {
+    "oracle_utility": 233,
+    "raw_predicted_utility": 182,
+    "feasible_predicted_utility": 182,
+    "utility_ratio": 0.7811158798283262,
+    "raw_utility_ratio": 0.7811158798283262,
+    "exact_target_role_rate": 0.5,
+    "budget_feasible_role_rate": 1.0
+  }
+}

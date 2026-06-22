@@ -1,0 +1,57 @@
+[hsa-sseac] run_id=20260619-a8002-hsa-v0-sseac-full9-qwen25-14b
+[hsa-sseac] workspace=/data/xuhaoming/yfy/research_workspace
+[hsa-sseac] model=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct served=qwen2.5-14b-hsa-v0-sseac gpu=2 port=8075
+[hsa-sseac] packet=/data/xuhaoming/yfy/research_workspace/experiments/20260618-local-hsa-v0-sseac-adapter/hsa_v0_packet.jsonl
+[hsa-sseac] packet_run=/data/xuhaoming/yfy/research_workspace/experiments/20260619-a8002-hsa-v0-sseac-full9-qwen25-14b/packet_limit0.jsonl
+[hsa-sseac] limit=0 max_model_len=8192 max_tokens=2048 gpu_memory_utilization=0.75 run_timeout=1800
+[hsa-sseac] gpu before:
+0, NVIDIA A800-SXM4-80GB, 3175, 77977, 0
+1, NVIDIA A800-SXM4-80GB, 69595, 11557, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+[hsa-sseac] server_pid=4037865
+[hsa-sseac] vLLM ready after 25 checks
+[hsa-sseac] running prompts -> /data/xuhaoming/yfy/research_workspace/experiments/20260619-a8002-hsa-v0-sseac-full9-qwen25-14b/predictions.jsonl
+[hsa-sseac] runner_status=0
+[hsa-sseac] predictions=9
+[hsa-sseac] model_only summary:
+# HSA-v0 Compiled Summary
+
+- rows: `9`
+- strict: `3/9`
+- strict_rate: `0.3333`
+- base_strict_rate: `0.6667` over `3` rows
+- perturbation_strict_rate: `0.1667` over `6` rows
+- slot_recall: `0.8148`
+- extra_final_card_count: `8`
+- scope_violations_prevented: `0`
+- invalid_support_prevented: `0`
+- budget_rejections: `0`
+- forced_commitment_rate: `0.5556`
+[hsa-sseac] compiler summary:
+# HSA-v0 Compiled Summary
+
+- rows: `9`
+- strict: `7/9`
+- strict_rate: `0.7778`
+- base_strict_rate: `0.3333` over `3` rows
+- perturbation_strict_rate: `1.0000` over `6` rows
+- slot_recall: `0.7130`
+- extra_final_card_count: `8`
+- scope_violations_prevented: `3`
+- invalid_support_prevented: `1`
+- budget_rejections: `0`
+- forced_commitment_rate: `0.7778`
+[hsa-sseac] gpu after runner before cleanup:
+0, NVIDIA A800-SXM4-80GB, 3175, 77977, 0
+1, NVIDIA A800-SXM4-80GB, 69595, 11557, 0
+2, NVIDIA A800-SXM4-80GB, 59723, 21429, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 4, 81149, 0

@@ -1,0 +1,11 @@
+model=qwen2.5-14b-sseac-v0-pg40
+packet=/data/xuhaoming/yfy/research_workspace/experiments/20260619-a8002-sseac-v0-pg40-limit5-gpu7-rerun-qwen25-14b/packet_limit5.jsonl
+evaluations=5
+temperature=0.0
+max_tokens=2048
+completed=0
+[1/5] sseac_v0_pg40 pg_000__seed_1__source_rotated_scope_v0__tightbf55_rank_scope_v0
+[2/5] sseac_v0_pg40 pg_000__seed_42__source_rotated_scope_v0__tightbf55_rank_scope_v0
+[3/5] sseac_v0_pg40 pg_002__seed_1__source_rotated_scope_v0__tightbf55_rank_scope_v0
+[4/5] sseac_v0_pg40 pg_002__seed_42__source_rotated_scope_v0__tightbf55_rank_scope_v0
+[5/5] sseac_v0_pg40 pg_003__seed_1__source_rotated_scope_v0__tightbf55_rank_scope_v0

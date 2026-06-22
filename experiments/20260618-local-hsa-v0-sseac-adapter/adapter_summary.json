@@ -1,0 +1,6 @@
+{
+  "rows": 9,
+  "base_rows": 3,
+  "perturbation_rows": 6,
+  "out_dir": "experiments\\20260618-local-hsa-v0-sseac-adapter"
+}

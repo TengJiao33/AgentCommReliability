@@ -1,0 +1,1414 @@
+                                         Hear Both Sides: Efficient Multi-Agent Debate via
+                                         Diversity-Aware Message Retention
+
+                                             Manh Nguyen, Anh Nguyen, Dung Nguyen, Svetha Venkatesh, and Hung Le∗
+                                             Applied Artificial Intelligence Initiative
+                                             Deakin University, Australia
+                                             {manh.nguyen, tien.nguyen, dung.nguyen, svetha.venkatesh, thai.le}@deakin.edu.au
+
+
+
+                                                                                           Abstract
+arXiv:2603.20640v2 [cs.CL] 14 Apr 2026
+
+
+
+
+                                                   Multi-Agent Debate has emerged as a promising framework for improving the reasoning
+                                                   quality of large language models through iterative inter-agent communication. However,
+                                                   broadcasting all agent messages at every round introduces noise and redundancy that
+                                                   can degrade debate quality and waste computational resources. Current approaches rely
+                                                   on uncertainty estimation to filter low-confidence responses before broadcasting, but this
+                                                   approach is unreliable due to miscalibrated confidence scores and sensitivity to threshold
+                                                   selection. To address this, we propose Diversity-Aware Retention (DAR), a lightweight
+                                                   debate framework that, at each debate round, selects the subset of agent responses that
+                                                   maximally disagree with each other and with the majority vote before broadcasting. Through
+                                                   an explicit index-based retention mechanism, DAR preserves the original messages without
+                                                   modification, ensuring that retained disagreements remain authentic. Experiments on
+                                                   diverse reasoning and question answering benchmarks demonstrate that our selective
+                                                   message propagation consistently improves debate performance, particularly as the number
+                                                   of agents scales, where noise accumulation is most severe. Our results highlight that what
+                                                   agents hear is as important as what agents say in multi-agent reasoning systems. Code is
+                                                   publicly available at https://github.com/DA2I2-SLM/DAR.
+
+
+                                         1     Introduction
+
+                                         Large-Language-Model-based Multi-Agent Systems (LLM-based MAS) have recently attracted increasing
+                                         attention thanks to their ability to leverage the power of LLMs in modeling and coordinating multiple
+                                         agents, enabling complex problem solving and distributed decision-making (Tran et al., 2025; Yan et al.,
+                                         2025). Within this paradigm, Multi-Agent Debate (MAD) has emerged as a main direction for improving the
+                                         performance of LLM-based MAS. By enabling multiple language model agents to iteratively exchange and
+                                         critique each other’s responses, MAD has demonstrated consistent gains over single agents across a range of
+                                         reasoning and question answering benchmarks (Chan et al., 2023; Du et al., 2024; Liang et al., 2024).
+                                         Despite its promise, MAD faces a fundamental scalability challenge: as the number of agents and debate
+                                         rounds grows, each agent has to process an ever-expanding context consisting of all peer responses from the
+                                         previous round. This broadcasting of all messages introduces two problems. First, redundant responses,
+                                         where multiple agents converge on the same answer through similar reasoning paths, provide little additional
+                                         signal while consuming significant token capacity. Second, noisy or low-quality generations can actively
+                                         mislead other agents, propagating errors across rounds rather than correcting them. These effects reduce the
+                                         practical benefits of scaling debate and raise questions about MAD (Choi et al., 2025), particularly regarding
+                                         what information agents should be provided.
+                                         A simpler solution for this problem is to restrict inter-agent communication by using a fixed sparse topology
+                                         (Li et al., 2024; Choi et al., 2025). However, this method fails to account for the varying relevance of
+                                         messages, as a static topology cannot distinguish between critical and redundant information, potentially
+                                         discarding useful context or propagating noise. Later work has sought to address message quality through
+                                         uncertainty-based filtering, discarding responses whose confidence scores fall below a chosen threshold
+                                         before broadcasting (Lin & Hooi, 2025; Tian et al., 2026). While intuitive, this approach has significant
+                                         limitations in practice: confidence estimates from LLMs are often poorly calibrated (Kadavath et al., 2022;
+                                              ∗ Corresponding Author
+
+
+
+                                                                                       1
+                                        Retained Agents
+                                                                                AB    A
+              Answer: A                                                                    Answer: A
+              Confidence: 5/10                                                             Confidence: 9/10
+
+                                                                                AB    A
+              Answer: A                                       Debate                       Answer: A
+                                                                                                              Final Answer: A
+              Confidence: 4/10                                Context                      Confidence: 8/10
+
+                                                                                AA    B
+              Answer: B                                                                    Answer: B
+              Confidence: 3/10                                                             Confidence: 7/10
+
+
+  Standard MAD suffers from redundant or noisy prompts, reducing effective coverage of correct reasoning
+
+  By promoting informative diversity, DAR enhances the probability of producing correct answers
+
+              Answer: A                                                          B    A
+              Confidence: 5/10
+                                                                                           Answer: A
+                                                                                           Confidence: 6/10
+                                        Retained Agents
+
+
+
+                                 F
+              Answer: A                                                           B    A
+              Confidence: 4/10                                Debate
+                                                              Context                      Answer: B
+                                                                                                              Final Answer: B
+                                                                                           Confidence: 8/10
+              Answer: B                                                          AA    B
+              Confidence: 3/10
+                                                                                           Answer: B
+                                                                                           Confidence: 7/10
+              Last Vote: A
+
+
+
+
+Figure 1: In standard MAD (top), each agent receives all peer responses (e.g., A, B) as context, which can be
+redundant and noisy. By the end of the debate round, the noisy message (A) outnumbers the correct one
+(B): 67% vs. 33%. In DAR (bottom), together with appending confidence and last vote result, we introduce
+the filter module F to remove redundancy and maintain disagreement across debate rounds, increasing the
+chance of generating correct answers even when they start as the minority (A vs. B before filtering: 67% vs.
+33%; after filtering: 57% vs. 43%).
+
+
+
+
+Xiong et al., 2024), and performance is highly sensitive to the choice of threshold, requiring costly tuning that
+may not generalize across models or tasks. Critically, all of these methods ignore a key property of productive
+debate: disagreement. A high-confidence response that merely echoes the majority view contributes far less
+to collective reasoning than a lower-confidence response that suggests an alternative perspective.
+We argue that capturing disagreement among agent responses is central to effective debate, as diverse
+reasoning paths are more informative than redundant ones. To this end, we propose Diversity-Aware
+Retention (DAR), a MAD framework that, at each debate round, selects the subset of agents’ high-quality
+responses that maximally disagree with one another and with the majority vote (Figure 1). Concretely, DAR
+augments the standard debate protocol with three lightweight components. First, each agent’s prompt
+is augmented with an uncertainty score for every peer response, computed as the average negative log-
+likelihood over the answer tokens, allowing agents to weight peer responses according to their reliability.
+By introducing the uncertainty score into the prompt as additional information for the agent’s generation,
+we avoid the challenge of tuning the confidence threshold. Second, DAR prepends the majority vote from
+the previous round to each agent’s prompt, providing an explicit consensus anchor across debating rounds,
+which will be utilized in the next step. Third and most importantly, we introduce a filter agent that receives
+all peer responses and the prepended majority vote, then outputs a set of agent indices identifying the
+most mutually disagreeing responses. The original messages at those indices are retrieved and broadcast
+unchanged. This index-based selection guarantees that the retained disagreements are original, enabling
+a controlled intervention in the debate process. Remarkably, our method is agnostic to the underlying
+communication topology, supporting both fully connected and sparse structures. We conduct extensive
+experiments on six diverse reasoning and question answering benchmarks across four LLM backbones
+ranging from 1.5B to 8B. Our results demonstrate that DAR consistently improves debate performance,
+particularly as the number of agents scales, while reducing the computational cost of message broadcasting.
+
+
+                                                          2
+2     Related Work
+
+Multi-Agent Debate. MAD was first introduced by Du et al. (2024), improving response quality through
+simulated debates among multiple LLM agents. Extensions include assigning diverse roles (Liang et al., 2024;
+Chan et al., 2023), introducing mechanisms such as diversity pruning and misunderstanding refutation (Es-
+tornell & Liu, 2024), and designing more effective communication protocols (Li et al., 2024; Pham et al.,
+2024; Liu et al., 2023; 2024). Recent work has explored richer signals to improve debate dynamics, such as
+incorporating explicit confidence expression to guide interactions and mitigate premature convergence (Lin
+& Hooi, 2025). In parallel, ensemble-style multi-agent frameworks like Tool-Use Mixture (TUMIX) leverage
+diverse tool-use strategies with iterative refinement across agents, emphasizing the role of diversity and
+coordination in improving reasoning performance (Chen et al., 2026). Despite these advances, MAD is
+sensitive to hyperparameters and does not always outperform strong single-agent reasoning (Smit et al.,
+2024). Debates may converge prematurely, and simple majority voting can achieve similar results (Estornell &
+Liu, 2024; Choi et al., 2025), suggesting that improvements often come from candidate generation rather than
+debate itself. Recent work addresses this by filtering information between rounds, for example, subjective
+masking uses an LLM agent to self-evaluate each response, while objective masking discards low-confidence re-
+sponses (Tian et al., 2026). Another approach increase candidate diversity through more aggressive sampling,
+albeit at higher computational cost (Zhu et al., 2026). In contrast, our method does not rely on per-sample
+judgments or expensive sampling. The proposed filtering module retains responses that disagree with the
+majority vote, while ensuring that the selected subset preserves diverse viewpoints. This enhances MAD
+performance by preserving informative diversity in a simple and computationally efficient manner.
+
+Uncertainty and Diversity in Multi-Agent LLM Systems. Uncertainty estimation has been widely studied
+as a proxy for reliability in LLMs. Prior work measures uncertainty using token-level probabilities (Guerreiro
+et al., 2023; Manakul et al., 2023; Nguyen et al., 2026), verbalized confidence (Lin et al., 2022), or semantic
+entropy (Kuhn et al., 2023). More recent approaches extend this to multi-step settings, such as propagating
+uncertainty across reasoning steps to better capture cumulative errors in agent-based systems (Zhao et al.,
+2025). In multi-agent debate, incorporating confidence signals has been shown to improve aggregation and
+reduce premature convergence (Lin & Hooi, 2025). Orthogonally, diversity has been identified as a key
+factor in improving reasoning performance. Prior work shows that gains in multi-agent systems often arise
+from diverse candidate generation rather than interaction itself (Smit et al., 2024; Wu et al., 2025). Methods
+such as self-consistency, prompt diversification, and multi-prompt ensembles explicitly encourage multiple
+reasoning paths via parallel prompting, leading to more robust aggregation (Wang et al., 2022; Hu et al., 2025).
+These observations suggest a close connection between uncertainty and diversity, where uncertainty can help
+identify informative or complementary candidates. However, existing approaches typically rely on explicit
+uncertainty calibration or increased sampling cost, motivating lightweight alternatives that leverage implicit
+signals, such as disagreement, to preserve informative diversity without explicit uncertainty modeling.
+
+
+3     Method
+
+3.1   Preliminaries
+
+Consider a debate with N (N ≥ 2) agents { a1 , . . . , a N } over R (R ≥ 1) rounds. Let gr,i denote the generation
+of agent ai at round r. The debate state at each round consists of the previous-round responses Gr−1 =
+{ gr−1,1 , . . . , gr−1,N }. This captures the standard multi-agent debate setting, where each agent conditions its
+response on the collective outputs of its peers via shared context aggregation, which may be implemented
+through concatenation or more structured strategies.
+
+3.2   Incorporating Uncertainty in Multi-Agent Debate
+
+Recent work has shown that confidence-aware debate improves multi-agent reasoning by enabling calibrated
+communication (Lin & Hooi, 2025). We compute uncertainty using the average negative log-likelihood
+(ANLL) over answer tokens (Huang et al., 2025):
+
+                                                     1 T
+                                                     T t∑
+                                     ANLL( a) = −          log pθ ( at | a<t , s),                              (1)
+                                                        =1
+
+
+                                                3
+where at is the t-th token in a (length T) and pθ is the model distribution. These scores are appended to each
+agent’s prompt as additional cues, extending standard MAD with uncertainty signals without altering the
+debate protocol. The prompt template is provided in Appendix A.3.
+
+3.3   Majority Vote as Additional Context
+
+Large language models are known to benefit from richer in-context information, as demonstrated in few-shot
+and in-context learning settings (Brown et al., 2020; Min et al., 2022). Inspired by the observation of Choi et al.
+(2025) that majority voting alone can match the performance of full debate, we introduce a soft integration of
+the majority signal into the debate process. Formally, let ans( g) denote the final answer extracted from a
+generation g. The majority-vote answer at round r −1, referred to as the last vote, is defined as:
+                                                                         
+                                      vr−1 = mode {ans( gr−1,i )}iN=1 ,                                        (2)
+
+i.e., the most frequent answer among the agents’ responses in round r −1. At round r, we incorporate this
+signal by prepending the last vote vr−1 to the prompt of each agent, together with the responses from the
+previous round Gr−1 (See Appendix A.3 for the prompt template).
+Providing the last vote serves as an explicit consensus anchor, reducing the need to infer agreement pat-
+terns, which can be challenging for smaller models (Touvron et al., 2023; Riviere et al., 2024). It guides the
+next-round generation in two ways: (1) reinforcing consensus by encouraging verification against support-
+ing evidence, and (2) highlighting disagreements to promote focused refinement. This improves context
+utilization while preserving the original debate dynamics1 .
+
+3.4   Improving MAD by Promoting Diversity
+
+While MAD benefits from aggregating multiple candidate responses, not all generations are equally useful.
+LLM outputs are known to be sensitive to prompt variations and often contain redundant or low-quality
+content (Zhao et al., 2021; Lu et al., 2022). As the number of agents grows, such noise accumulates and can
+hinder the effectiveness of subsequent debate rounds. At the same time, prior work has shown that diversity
+in prompts or reasoning paths can improve answer quality, as different prompts encourage the model to
+explore alternative reasoning trajectories and reduce correlated errors (Wang et al., 2022; Hu et al., 2025).
+To formalize that, we model each response gr−1,i as a noisy estimator xi of the true answer. We consider a
+simplified homogeneous setting where: (i) each estimator is unbiased with identical variance, Var( xi )=σ2 ,
+meaning all responses are equally reliable on average; (ii) estimators are exchangeable, with a constant
+pairwise correlation ρ, i.e., Cov( xi , x j )=ρσ2 for all i ̸= j, which means responses can be co-varying; and (iii)
+ρ ∈ [0, 1] captures the average redundancy among responses induced by shared prompts, model biases, or
+similar reasoning paths (higher ρ means responses are more alike). Under these assumptions, the following
+proposition quantifies how redundancy limits the benefit of aggregating more responses.
+Proposition 3.1 (Variance and Effective Sample Size under Correlation). Under the assumptions above, the
+variance of the average estimator satisfies
+                                                        !
+                                               1 N            σ2
+                                        Var      ∑
+                                               N i =1
+                                                      xi =
+                                                              N
+                                                                  (1 + ( N − 1) ρ ) .                           (3)
+
+Equivalently, this equals σ2 /Neff , where
+                                                                N
+                                                 Neff =                                                          (4)
+                                                          1 + ( N − 1) ρ
+denotes the effective number of independent responses that would yield the same variance.
+
+Proof. See Appendix A.1.
+
+Proposition 3.1 reveals a fundamental limitation of naive scaling in MAD. When agent responses are highly
+redundant (ρ → 1), the variance approaches σ2 regardless of N, meaning additional agents provide negligible
+   1 See Appendix A.7 for qualitative examples
+
+
+
+                                                  4
+benefit. Conversely, when responses are sufficiently decorrelated (ρ ≈ 0), the variance decreases optimally
+as O(1/N ). This implies that the gain from increasing the number of agents is not determined by N alone,
+but by the diversity of their responses. Therefore, selectively retaining diverse, disagreeing responses is not
+just a computational convenience, but a theoretically grounded strategy for maximizing the effective number
+of independent signals.
+To this end, we introduce a lightweight filtering module F that selects a subset of informative responses
+before each debate round (Figure 1). The module is implemented using another LLM, making it training-free
+and compatible with existing MAD pipelines. In contrast to prior extensions that redesign agent roles or
+modify communication protocols, our filtering module operates purely at the generation selection stage and
+requires no topological changes or additional parameters of the MAD systems.
+Specifically, the filter agent F receives the N responses from round r −1 and the last vote. Its objective is
+to select a subset of agent indices (IDs) whose responses will be retained for the next round. Rather than
+selecting responses based on correctness or confidence, F is prompted to retain maximally diverse (i.e.,
+disagreeing) answers, thereby preserving informative disagreement while removing redundant generations.
+Formally, let the agent IDs at debate round r be Ir = {1, . . . , N }, the filter module F receives Gr−1 and the
+last vote vr−1 as input, and outputs a subset of agent IDs to retain:
+
+
+                                         F : ( Gr−1 , vr−1 ) 7→ Irret ⊆ Ir .                                   (5)
+
+The retained responses then form the retained debate state for round r:
+
+
+                                                                       if I rret = ∅
+                                            
+                                                Gr−1 ,
+                                     Sr =                                                                      (6)
+                                                gr−1,i | i ∈ Irret ,   otherwise.
+
+Importantly, F outputs only agent IDs, ensuring that retained content remains unchanged and avoiding
+unintended modifications from LLM-based editing, especially for small models (Zeng et al., 2023; Le et al.,
+2025). This enforces selection rather than regeneration, preserving disagreement while reducing redundancy,
+and enabling a clean, stable intervention. When F fails to retain any responses (i.e., Irret = ∅), the system falls
+back to standard debate without filtering. The whole process is summarized in Appendix A.2’s Algorithm 1.
+Prompting details can be found in Appendix A.3.
+
+Illustrative Case Study. As shown in Figure 1, each agent observes only previous-round responses from
+others, where repeated majority answers are filtered to preserve informative diversity in DAR pipeline.
+Consider three agents producing two answers, A and B, where A is the majority and B is the minority. Since
+A is redundant, only B is retained to form the debate context, exposing agents with answer A to a novel
+signal and encouraging revision. For the agent already predicting B, as no additional novelty is introduced,
+we fall back to the full context ( A, A, B) to avoid losing useful information. This mechanism amplifies
+informative minority opinions while suppressing redundancy, guiding agents toward the correct answer.
+Importantly, majority responses are not discarded globally, ensuring performance is not degraded when the
+majority is correct. See Section 4.3 for further analysis.
+
+4     Experiment
+4.1   Experiment Setup
+
+Models. We evaluate five popular open-weight models from distinct families and different sizes: Qwen2.5-
+1.5B, 3B (Yang et al., 2025), Falcon3-7B (Almazrouei et al., 2023), and Llama3.1-8B (Grattafiori et al., 2024).
+Benchmarks. Following the evaluation procedures of prior work (Choi et al., 2025), we conduct exten-
+sive evaluations across six datasets: (1) Arithmetics, (2) Mathematical Reasoning: Grade School Math
+8k (GSM8K (Cobbe et al., 2021)), (3) Alignment Labeling: HH-RLHF (Bai et al., 2022), (4) Factual Ques-
+tion Answering: MMLU Professional Medicine (Pro.Med. (Hendrycks et al., 2020b)), (5) Formal Logics
+(Form.Log. (Hendrycks et al., 2020a)), and (6) Commonsense Reasoning: CSQA (Talmor et al., 2019).
+Baselines. We examine state-of-the-art approaches: (1) Society Of Mind (Du et al., 2024), representing base
+MAD performance without any prompt modifications or filtering; (2) MAD-M2 (Tian et al., 2026), which
+
+
+                                                  5
+Table 1: Decentralized MAD: accuracy across models and datasets. Bold indicates the best result(s) based on
+a paired t-test (p < 0.05); multiple entries may be bolded if not statistically different.
+
+      Model     Method             Arithmetics GSM8K HH-RLHF Form.Log. Pro.Med.                  CSQA       Average
+                Single-agent         38.5±0.7        36.0±0.9   28.2±2.1   27.4±5.1   55.6±2.8   60.4±1.7    41.02
+              Society Of Mind        63.7±8.5        63.0±3.3   34.6±0.5   33.9±0.9   57.7±1.8   64.2±2.5    52.85
+              MAD-M2                 44.0±24.8       59.3±2.0   50.8±2.5   36.0±1.2   57.4±2.4   64.6±2.5    52.02
+ Qwen2.5-1.5B
+              Uncertain Prompt       69.7±1.2        61.7±4.7   28.3±3.3   28.3±1.2   57.7±2.0   63.0±3.1    51.45
+              Majority Vote          59.9±3.7        49.4±3.4   37.2±2.2   28.8±4.0   58.6±2.9   65.7±0.7    49.93
+              Vote Prompt            68.0±3.0        64.0±0.5   35.4±1.1   34.4±5.4   58.6±3.4   64.0±2.4    54.07
+              DAR (Ours)              74.7±1.2       61.5±0.2   37.8±1.6   36.2±3.0   58.7±2.8   66.3±2.9    55.87
+                Single-agent         55.0±0.0        42.2±0.2   39.0±5.7   31.0±2.2   59.8±1.6   69.2±2.7    49.37
+                Society Of Mind      46.3±8.5        60.0±2.6   46.0±1.8   38.6±2.3   63.8±0.8   71.0±0.3    54.28
+                MAD-M2               71.3±9.5        65.0±2.0   40.6±1.9   33.7±1.4   64.7±2.6   72.4±1.0    57.95
+  Qwen2.5-3B
+                Uncertain Prompt     58.7±3.8        60.9±0.2   40.9±5.7   30.7±0.9   65.6±2.8   70.7±0.7    54.58
+                Majority Vote        73.0±4.3        74.9±2.3   45.4±1.8   40.1±2.9   63.6±1.4   71.2±0.7    61.37
+                Vote Prompt          61.3±7.0        65.3±2.3   44.9±6.7   39.4±2.3   62.7±1.2   70.4±1.1    57.33
+                DAR (Ours)           79.7±6.0        77.6±4.0   47.7±5.5   43.4±1.7   65.1±0.4   70.6±2.0    64.02
+                Single-agent         60.5±2.1        65.2±0.2   36.2±0.7   42.5±6.2   70.3±0.4   75.0±0.9    58.28
+                Society Of Mind      95.0±2.6        87.7±1.2   42.2±3.1   57.7±2.0   73.0±0.4   77.8±1.0    72.23
+                MAD-M2               91.3±3.1        82.6±1.7   49.4±2.5   55.1±1.7   73.0±0.8   77.7±0.0    71.52
+  Falcon3-7B
+                Uncertain Prompt     95.3±1.2        89.0±0.9   44.6±3.2   60.3±0.8   72.3±1.2   78.2±1.0    73.28
+                Majority Vote        98.3±1.2        89.3±1.0   54.3±1.9   49.4±2.0   72.1±1.3   76.4±1.1    73.30
+                Vote Prompt          92.3±2.9        83.4±0.7   46.2±6.3   57.4±4.0   73.2±1.9   77.6±1.0    71.68
+                DAR (Ours)           96.7±0.6        89.9±0.4   49.6±1.6   59.0±4.0   72.7±1.7   78.3±0.3    74.37
+                Single-agent         81.0±11.3       72.3±1.4   49.5±4.0   45.6±3.9   66.3±2.4   63.7±1.9    63.07
+                Society Of Mind      92.5±2.1        85.4±0.2   53.2±2.5   48.7±3.3   66.5±1.8   66.9±3.3    68.87
+                MAD-M2               78.0±15.7       64.1±4.5   52.0±1.0   39.2±3.3   66.7±2.3   68.1±0.5    61.35
+  Llama3.1-8B
+                Uncertain Prompt     95.0±1.4        83.9±1.5   52.1±0.8   48.8±1.0   67.9±2.8   68.9±1.3    69.43
+                Majority Vote        91.4±3.1        85.4±0.7   53.2±2.2   45.6±2.6   70.0±1.7   65.5±1.6    68.52
+                Vote Prompt          91.0±0.7        82.0±1.3   52.0±1.8   51.6±2.1   65.8±4.1   66.2±3.2    68.10
+                DAR (Ours)            95.5±2.1       85.2±1.6   54.1±1.6   49.7±1.8   71.2±2.2   70.8±0.2    71.08
+
+
+
+filters the top 50% most confident generations based on their perplexities; (3) Uncertain Prompt (Lin & Hooi,
+2025), incorporating uncertainty scores into the prompt; (4) Majority Vote (Choi et al., 2025), selecting the final
+answer by aggregating initial responses from multiple agents without debate; (5) Vote Prompt, performing
+a ”soft” majority vote via prompt as discussed in Section 3.3; and (6) Our Diversity-Aware Retention (DAR),
+which maintains diversity by retaining only the most disagreeing responses.
+MAD Topologies. We focus on Decentralized MAD topologies as they achieve the highest performance
+among common multi-agent system topologies (Choi et al., 2025; Tran et al., 2025; Yan et al., 2025). Specifically,
+we investigate the following MAD topologies: (1) Decentralized MAD (Du et al., 2024), where each agent
+observes all other agents’ responses from the previous round; (2) Sparse MAD (Li et al., 2024), a variant of
+Decentralized MAD with a sparse communication topology for improved efficiency.
+We run all MAD-based approaches with R=2 rounds, as they typically converge early (Du et al., 2024; Choi
+et al., 2025), and report the best results over two rounds. The effect of additional rounds is further analyzed
+in Section 4.3, and full numerical values are reported in Appendix A.5. In our main experiments, we use
+N =4 agents to save computing cost. We additionally explore N =2 and 8 for Decentralized MAD, which
+achieves the best overall performance among the considered topologies. All results are averaged across three
+seeds and reported as accuracy percentages (mean±std). More details are provided in Appendix A.4.
+
+4.2   Benchmarking Results
+
+DAR Improves Robustness Across MAD Topologies. We report results across different MAD topologies
+(decentralized and sparse) in Tables 1 and 2, respectively. Overall, DAR consistently achieves the best
+performance, both in terms of average accuracy across datasets and the frequency of being the top-performing
+
+
+                                                 6
+Table 2: Sparse MAD: accuracy across models and datasets. Bold indicates the best result(s) based on a
+paired t-test (p < 0.05); multiple entries may be bolded if not statistically different.
+
+                  Model        Method                        Arithmetics GSM8K HH-RLHF Form.Log. Pro.Med.                             CSQA      Average
+                               Single-agent                   42.0±7.1        38.2±2.1      26.0±1.9      24.2±0.6     55.6±2.8      60.4±1.7        41.07
+                    Society Of Mind                          72.0±4.2         63.0±1.4      33.3±1.4      33.7±3.9     57.6±1.9      63.9±2.5        53.92
+                    MAD-M2                                   44.0±24.8        59.3±2.6      50.9±2.3      34.9±0.5     57.5±1.9      63.9±2.5        51.75
+       Qwen2.5-1.5B
+                    Uncertain Prompt                         67.5±4.9         61.5±2.6      34.0±2.4      35.3±3.9     57.6±2.0      63.7±2.6        53.27
+                    Majority Vote                            59.2±3.5         60.4±0.1      37.2±0.5      30.5±1.7     58.6±2.9      68.7±0.7        52.43
+                    Vote Prompt                              72.0±1.4         62.8±0.2      35.0±3.3      37.7±1.7     57.7±2.7      64.4±2.0        54.93
+                    DAR (Ours)                                75.0±5.7        64.0±1.9      38.0±1.9      37.3±1.1     59.1±3.4      66.6±3.0        55.33
+                               Single-agent                   43.5±0.7        34.7±0.9      40.2±3.1      28.6±2.2     58.8±1.6      69.2±2.7        45.83
+                               Society Of Mind               63.0±2.8         68.5±1.2      46.2±0.7      39.3±0.6     64.5±1.7      71.4±1.7        58.82
+                               MAD-M2                        69.0±10.4        66.0±0.9      39.0±4.9      42.3±2.3     64.8±2.0      71.2±0.8        58.72
+          Qwen2.5-3B
+                               Uncertain Prompt              65.0±5.7         69.0±2.8      44.2±4.9      42.5±1.7     64.1±1.7      70.2±0.7        59.17
+                               Majority Vote                 65.8±4.5         70.2±1.9      45.7±1.1      42.3±1.1     63.7±1.0      71.3±0.9        59.83
+                               Vote Prompt                   70.0±4.2         67.2±0.7      45.3±2.8      40.9±2.8     64.8±0.6      70.6±1.7        59.80
+                               DAR (Ours)                     70.5±4.9        70.8±2.6      48.3±0.9      40.9±3.9     65.6±1.1      71.8±1.0        61.32
+                               Single-agent                   58.0±1.4        54.8±0.7      37.0±1.4      40.9±0.6     70.3±0.4      75.0±0.9        56.00
+                               Society Of Mind                90.0±2.8        81.0±2.8      43.7±2.8      57.5±0.6     71.9±0.6      77.8±1.3        70.32
+                               MAD-M2                         90.7±2.5        81.7±2.2      52.1±4.0      58.7±1.4     72.8±1.0      78.1±1.5        72.35
+               Falcon3-7B
+                               Uncertain Prompt               95.0±0.0        86.7±3.3      47.5±3.1      57.5±2.8     72.3±1.7      77.6±0.5        72.77
+                               Majority Vote                  97.2±2.1        88.0±1.4      53.0±2.8      48.7±3.4     68.7±0.9      76.7±1.3        72.05
+                               Vote Prompt                    91.5±2.1        87.0±3.3      46.5±2.1      57.5±0.6     72.7±0.8      77.6±0.8        72.13
+                               DAR (Ours)                     95.0±2.8        89.7±1.9      47.0±2.8      60.3±6.7     72.8±0.4      77.8±0.8        73.77
+                               Single-agent                   79.0±2.8        74.0±0.9      49.0±0.9      47.2±9.5     66.3±2.4      63.7±1.9        63.20
+                               Society Of Mind               95.5±2.1         85.5±2.1      54.0±2.4      50.0±1.1     61.8±3.0      67.9±1.3        69.12
+                               MAD-M2                        80.0±16.5        61.0±1.6      51.3±1.2      34.7±3.7     66.1±3.1      68.2±2.3        61.88
+          Llama3.1-8B
+                               Uncertain Prompt              93.0±2.8         83.7±0.5      52.3±0.0      52.4±4.5     70.6±3.3      68.2±1.6        70.03
+                               Majority Vote                 90.7±4.2         84.5±1.1      52.0±1.3      45.5±4.3     74.6±1.5      65.4±2.0        68.78
+                               Vote Prompt                   94.5±2.1         85.0±1.9      51.0±2.5      52.4±4.5     67.9±1.9      67.3±1.5        69.68
+                               DAR (Ours)                     94.5±0.7        86.3±0.8      54.2±3.5      52.0±0.6     72.2±2.1      68.7±1.8        71.32
+
+
+                            Society Of Mind          MAD-M2         Majority Vote           Uncertain Prompt      Vote Prompt        DAR (Ours)
+                          Qwen2.5-1.5B                           Qwen2.5-3B                            Falcon3-7B                      Llama3.1-8B
+               60.0
+                                                  62.5
+               57.5                                                                      67.5                               66
+                                                  60.0
+               55.0                                                                      65.0                               64
+                                                  57.5
+Accuracy (%)
+
+
+
+
+                                                                                         62.5
+               52.5                               55.0                                                                      62
+                                                  52.5                                   60.0
+               50.0                                                                                                         60
+                                                  50.0                                   57.5
+               47.5                                                                                                         58
+                                                  47.5                                   55.0
+               45.0                                                                                                         56
+                                                  45.0                                   52.5
+               42.5                                                                                                         54
+                      2         4             8          2            4             8           2          4           8         2          4                8
+                               N                                     N                                    N                                 N
+
+ Figure 2: Average performance over seven benchmarks for different numbers of agents N. Each subplot
+ corresponds to an LLM backbone, showing how accuracy changes with increasing N.
+
+
+
+method across dataset–model settings. Particularly, it yields an average of 1-3% improvement over the
+second-best method and appears as the top-performer in 42/48 settings. Among the baselines, Majority Vote
+and prompt-based variants (Uncertain Prompt and Vote Prompt) can be competitive for some tasks, yet their
+performance is inconsistent across settings. Notably, methods that rely purely on uncertainty signals, such
+as MAD-M2 , tend to underperform, suggesting that uncertainty alone is often misaligned with correctness
+and requires careful calibration (Lin & Hooi, 2025). In contrast, DAR demonstrates strong robustness across
+settings by explicitly preserving informative diversity rather than depending solely on uncertainty estimates.
+
+
+                                                                          7
+         Table 3: Performance under different configurations on Arithmetics and Formal Logic tasks.
+
+                                                           Qwen2.5-1.5B                   Qwen2.5-3B
+      Retaining Criteria            Is F a LLM?
+                                                     Arithmetics     Form.Log.     Arithmetics     Form.Log.
+      Society Of Mind                                 63.7±8.5       33.9±0.9        46.3±8.5       38.6±2.3
+      Certain Answers                     ✓           68.0±4.6       32.6±3.3        75.3±3.2       42.4±1.2
+      Similar Answers                     ✓           68.0±0.0       35.7±1.1        73.0±5.2       42.3±0.5
+      DAR w/o Uncertainty                 ✓           73.5±2.1       35.7±4.5        78.2±3.5       42.4±1.7
+      DAR w/o Soft Vote                   ✓           69.0±9.9       37.3±4.5        75.0±2.6       42.9±1.8
+      DAR w/o LLM-based filter            ✗           69.0±4.8       34.1±2.6        75.5±0.7       41.5±2.0
+      DAR w/o Index-based filter          ✓           57.0±1.4       32.9±2.6        74.0±6.6       41.5±2.0
+      DAR (Ours)                          ✓           74.7±1.2       36.2±3.0        79.7±6.0       43.4±1.7
+
+
+  Question: What is the result of 27 + 6 × 15 + 7 − 0 ÷ 22?
+  Correct Answer: 124
+
+  Majority Vote (Round 0)
+                 Agent 1: 117      Agent 2: 117      Agent 3: 124       Final Answer: 117 (✗)
+
+            Standard MAD (Society Of Mind)                                 DAR (Ours)
+       Round 1:                                            Round 1:
+         Agent 1: 117 Agent 2: 117 Agent 3: 124              Agent 1: 117 Agent 2: 124 Agent 3: 124
+         Final Answer (R1): 117 (✗)                          Final Answer (R1): 124 (✓)
+       Round 2:                                            Round 2:
+         Agent 1: 117 Agent 2: 117 Agent 3: 124              Agent 1: 124 Agent 2: 124 Agent 3: 124
+         Final Answer (R2): 117 (✗)                          Final Answer (R2): 124 (✓)
+
+Figure 3: DAR recovers minority-correct answers while standard MAD fails. Example from Arithmetics
+using Qwen2.5-1.5B; full responses in Appendix A.7.
+
+
+DAR Scales Effectively with Increasing Number of Agents. Figure 2 shows the performance of all methods
+as the number of agents N increases across models (see Appendix A.5 for details). Majority Vote remains
+a strong baseline, but its gains tend to diminish beyond N =4, with limited improvement compared to
+multi-agent debate methods as N grows. In contrast, debate-based approaches benefit more from additional
+agents, though their improvements are not always consistent. DAR consistently outperforms all baselines at
+larger N (e.g., N =4, 8), where its advantage becomes clearly visible. These results indicate that effectively
+leveraging additional agents requires controlling what information is propagated as noise accumulates with
+larger N, reinforcing that what agents hear is as important as what agents say.
+
+
+4.3    Ablation Studies and Model Analysis
+
+To reduce computational costs, experiments are conducted on two representative datasets (Arithmetics,
+Form.Log.) and models (Qwen2.5-1.5B, Qwen2.5-3B).
+Effect Of DAR Components. Table 3 analyzes the contribution of each DAR component. Removing the
+uncertainty score (Sec. 3.2) or soft vote (Sec. 3.3) causes slight drops, indicating they guide more effective
+agent interactions. For comparison, we include a hard distinct-answer filter that discards responses whose
+final answer is a duplicate. Replacing the LLM-based filter with a hard, distinct-answer filter yields larger,
+consistent drops, causing genuine disagreements to be missed or equivalent answers to be treated as distinct.
+In contrast, LLM-based filtering performs soft reasoning-aware selection, retaining responses with different
+reasoning paths while discarding redundant or weak answers, thereby preserving informative diversity.
+Similarly, naively using text-based filtering that asks the LLM to retain messages directly, rather than selecting
+by index, significantly degrades performance due to formatting inconsistencies, leading to information loss
+and unstable selection.
+
+
+                                               8
+Table 4: Number of retained messages per debate round on Arithmetics and Formal Logic tasks with different
+numbers of agents (N). Values for our method include ×, indicating the ratio relative to Society Of Mind.
+
+                                                                    N =4                                             N =8
+        Model                    Dataset
+                                                   Society Of Mind             DAR (Ours)       Society Of Mind             DAR (Ours)
+                                 Arithmetics             4            3.69±0.88 (×0.92)                  8               5.86±2.15 (×0.73)
+        Qwen2.5-1.5B
+                                 Form.Log.               4            3.76±0.76 (×0.94)                  8               6.12±2.02 (×0.77)
+                                 Arithmetics             4            2.72±1.25 (×0.68)                  8               5.47±3.00 (×0.68)
+        Qwen2.5-3B
+                                 Form.Log.               4            3.06±1.20 (×0.77)                  8               5.67±2.92 (×0.71)
+
+
+                      Society Of Mind          MAD-M2               Uncertain Prompt                  Vote Prompt               DAR (Ours)
+                                        Qwen2.5-1.5B                                                     Qwen2.5-3B
+               55.0                                                              60
+               52.5
+                                                                                 55
+Accuracy (%)
+
+
+
+
+               50.0
+               47.5                                                              50
+               45.0                                                              45
+               42.5
+               40.0                                                              40
+               37.5                                                              35
+                       0     1      2      3        4     5     6          7          0     1     2          3       4      5     6      7
+                                               R                                                                 R
+ Figure 4: Average results on Arithmetics and Form.Log. over debate rounds R. R=0 indicates Majority Vote.
+
+
+To highlight the importance of disagreement as a filtering criterion, we explore alternative criteria such
+as retaining only certain or similar answers. All prompt templates for these modules are provided in
+Appendix A.3. As shown in Table 3, these variants offer modest improvements over Society of Mind, yet
+still fall short of DAR. Overall, DAR benefits from combining LLM-based filtering with additional prompt
+contexts like uncertainty and vote, balancing diversity and reliability.
+ DAR Boosts Diversity. We further observe that our retaining mechanism improves the diversity of the
+ generated response, as illustrated in Appendix Figure 11. We measure diversity as the average pairwise
+ embedding distance (1− cosine similarity) among retained responses across two debate rounds. We use
+ all-MiniLM-L6-v2 (Reimers & Gurevych, 2019) to compute the embedding. DAR selects responses that
+ are maximally dissimilar from both the current majority vote and other candidates, encouraging broader
+ reasoning trajectories. Across datasets, DAR consistently achieves the highest retained diversity, contributing
+ to improved performance.
+ Qualitative Example. Figure 3 illustrates a scenario where two of three agents initially produce the same
+ incorrect answer (117) while one produces the correct answer (124). Standard MAD fails to overturn the
+ incorrect majority, whereas DAR preserves diverse reasoning, enabling the correct minority to propagate
+ and ultimately converge to the correct result. This demonstrates DAR’s ability to recover from an incorrect
+ majority by leveraging informative disagreements.
+Efficiency Analysis. As shown in Table 4, DAR consistently reduces the number of messages compared to the
+standard debate across models and datasets, achieving up to a 32% reduction (Qwen2.5-3B on Arithmetics).
+The gains become more pronounced as the number of agents increases (N =8). Latency remains largely
+comparable, with a modest increase of 3–14% (avg. ∼9%), indicating that DAR improves communication
+efficiency without significantly compromising response speed (Appendix Table 11).
+Performance In Long Debates. DAR achieves strong gains in the early rounds and consistently outperforms
+other MAD baselines as well as Majority Vote, remaining the best-performing method across longer debates
+(Figure 4). Interestingly, most MAD methods improve mainly in the initial rounds and quickly saturate as R
+increases, suggesting that extended debate yields diminishing returns. This aligns with prior findings that
+multi-agent debates tend to converge rapidly, after which additional rounds provide limited benefit and
+
+
+                                                               9
+may even slightly degrade performance (Du et al., 2024; Smit et al., 2024). That said, thanks to its filtering
+mechanism, DAR maintains reasonable performance across larger rounds, outperforming other methods.
+
+5   Conclusion
+We proposed Diversity-Aware Retention (DAR), a lightweight multi-agent debate framework that improves
+reasoning by selectively propagating mutually disagreeing responses. By preserving informative diversity
+via an index-based mechanism, DAR reduces noise and redundancy without relying on uncertain responses.
+Experiments across benchmarks and models show consistent gains, especially as the number of agents
+increases, highlighting the importance of controlling information flow in scalable multi-agent reasoning.
+
+Ethics Statement and LLM Usages
+This work presents a method for improving the reliability and efficiency of multi-agent debate systems built
+on LLMs. We do not introduce new datasets, and our experiments are conducted solely on publicly available
+benchmarks using open-source LLMs. To support reproducible research, we will publicly release our source
+code.
+LLM Usage. LLMs were used during the course of this research for assistance with writing and proofreading.
+Besides, our experiments also use LLMs as the agents. All scientific content, experimental design, theoretical
+analysis, and conclusions are the sole work of the authors. All LLM-assisted text has been reviewed, edited,
+and verified by the authors.
+Potential Risks. Multi-agent debate systems, like other LLM-based pipelines, may inherit and amplify biases
+present in the underlying models. While our method improves response diversity and reduces redundancy,
+it does not explicitly address fairness or bias mitigation, and care should be taken when deploying such
+systems in high-stakes settings.
+
+References
+Ebtesam Almazrouei, Hamza Alobeidli, Abdulaziz Alshamsi, Alessandro Cappelli, Ruxandra Cojocaru,
+  Mérouane Debbah, Étienne Goffinet, Daniel Hesslow, Julien Launay, Quentin Malartic, et al. The falcon
+  series of open language models. arXiv preprint arXiv:2311.16867, 2023.
+Yuntao Bai, Andy Jones, Kamal Ndousse, Amanda Askell, Anna Chen, Nova DasSarma, Dawn Drain,
+  Stanislav Fort, Deep Ganguli, Tom Henighan, et al. Training a helpful and harmless assistant with
+  reinforcement learning from human feedback. arXiv preprint arXiv:2204.05862, 2022.
+Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind
+  Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, et al. Language models are few-shot learners.
+  Advances in neural information processing systems, 33:1877–1901, 2020.
+Chi-Min Chan, Weize Chen, Yusheng Su, Jianxuan Yu, Wei Xue, Shanghang Zhang, Jie Fu, and Zhiyuan Liu.
+  Chateval: Towards better llm-based evaluators through multi-agent debate. arXiv preprint arXiv:2308.07201,
+  2023.
+Yongchao Chen, Jiefeng Chen, Rui Meng, Ji Yin, Na Li, Chuchu Fan, Chi Wang, Tomas Pfister, and Jinsung
+  Yoon. TUMIX: Multi-agent test-time scaling with tool-use mixture. In The Fourteenth International Conference
+  on Learning Representations, 2026. URL https://openreview.net/forum?id=HBm3MFtszH.
+Hyeong Kyu Choi, Xiaojin Zhu, and Sharon Li. Debate or vote: Which yields better decisions in multi-agent
+ large language models? arXiv preprint arXiv:2508.17536, 2025.
+Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian, Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias
+  Plappert, Jerry Tworek, Jacob Hilton, Reiichiro Nakano, et al. Training verifiers to solve math word
+ problems. arXiv preprint arXiv:2110.14168, 2021.
+Yilun Du, Shuang Li, Antonio Torralba, Joshua B. Tenenbaum, and Igor Mordatch. Improving factuality and
+  reasoning in language models through multiagent debate. In Proceedings of the 41st International Conference
+  on Machine Learning, ICML’24. JMLR.org, 2024.
+
+
+                                             10
+Andrew Estornell and Yang Liu. Multi-llm debate: Framework, principals, and interventions. Advances in
+ Neural Information Processing Systems, 37:28938–28964, 2024.
+Aaron Grattafiori, Abhimanyu Dubey, Abhinav Jauhri, Abhinav Pandey, Abhishek Kadian, Ahmad Al-Dahle,
+ Aiesha Letman, Akhil Mathur, Alan Schelten, Alex Vaughan, et al. The llama 3 herd of models. arXiv
+ preprint arXiv:2407.21783, 2024.
+Nuno M Guerreiro, Elena Voita, and André FT Martins. Looking for a needle in a haystack: A comprehensive
+ study of hallucinations in neural machine translation. In Proceedings of the 17th Conference of the European
+ Chapter of the Association for Computational Linguistics, pp. 1059–1075, 2023.
+Dan Hendrycks, Collin Burns, Steven Basart, Andrew Critch, Jerry Li, Dawn Song, and Jacob Steinhardt.
+ Aligning ai with shared human values. arXiv preprint arXiv:2008.02275, 2020a.
+Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn Song, and Jacob Steinhardt.
+ Measuring massive multitask language understanding. arXiv preprint arXiv:2009.03300, 2020b.
+Wenyang Hu, Gregory Kang Ruey Lau, Liu Diwen, Chen Jizhuo, See-Kiong Ng, and Bryan Kian Hsiang
+ Low. Dipper: Diversity in prompts for producing large language model ensembles in reasoning tasks. In
+ Christos Christodoulopoulos, Tanmoy Chakraborty, Carolyn Rose, and Violet Peng (eds.), Proceedings of
+ the 2025 Conference on Empirical Methods in Natural Language Processing, pp. 35558–35572, Suzhou, China,
+ November 2025. Association for Computational Linguistics. ISBN 979-8-89176-332-6. doi: 10.18653/v1/
+ 2025.emnlp-main.1801. URL https://aclanthology.org/2025.emnlp-main.1801/.
+Lei Huang, Weijiang Yu, Weitao Ma, Weihong Zhong, Zhangyin Feng, Haotian Wang, Qianglong Chen,
+  Weihua Peng, Xiaocheng Feng, Bing Qin, et al. A survey on hallucination in large language models:
+  Principles, taxonomy, challenges, and open questions. ACM Transactions on Information Systems, 43(2):1–55,
+  2025.
+Saurav Kadavath, Tom Conerly, Amanda Askell, Tom Henighan, Dawn Drain, Ethan Perez, Nicholas Schiefer,
+  Zac Hatfield-Dodds, Nova DasSarma, Eli Tran-Johnson, et al. Language models (mostly) know what they
+  know. arXiv preprint arXiv:2207.05221, 2022.
+Lorenz Kuhn, Yarin Gal, and Sebastian Farquhar. Semantic uncertainty: Linguistic invariances for un-
+  certainty estimation in natural language generation. In The Eleventh International Conference on Learning
+  Representations, 2023.
+Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, Ying Sheng, Lianmin Zheng, Cody Hao Yu, Joseph Gonzalez,
+ Hao Zhang, and Ion Stoica. Efficient memory management for large language model serving with
+ pagedattention. In Proceedings of the 29th symposium on operating systems principles, pp. 611–626, 2023.
+Hung Le, Dai Do, Dung Nguyen, and Svetha Venkatesh. Reasoning under 1 billion: Memory-augmented
+ reinforcement learning for large language models. arXiv preprint arXiv:2504.02273, 2025.
+Yunxuan Li, Yibing Du, Jiageng Zhang, Le Hou, Peter Grabowski, Yeqing Li, and Eugene Ie. Improving
+  multi-agent debate with sparse communication topology. In Findings of the Association for Computational
+  Linguistics: EMNLP 2024, pp. 7281–7294, 2024.
+Tian Liang, Zhiwei He, Wenxiang Jiao, Xing Wang, Yan Wang, Rui Wang, Yujiu Yang, Shuming Shi, and
+  Zhaopeng Tu. Encouraging divergent thinking in large language models through multi-agent debate. In
+  Proceedings of the 2024 conference on empirical methods in natural language processing, pp. 17889–17904, 2024.
+Stephanie Lin, Jacob Hilton, and Owain Evans. Teaching models to express their uncertainty in words. arXiv
+  preprint arXiv:2205.14334, 2022.
+Zijie Lin and Bryan Hooi. Enhancing multi-agent debate system performance via confidence expression.
+  pp. 6453–6471, November 2025. doi: 10.18653/v1/2025.findings-emnlp.343. URL https://aclanthology.
+  org/2025.findings-emnlp.343/.
+Tongxuan Liu, Xingyu Wang, Weizhe Huang, Wenjiang Xu, Yuting Zeng, Lei Jiang, Hailong Yang, and Jing
+  Li. Groupdebate: Enhancing the efficiency of multi-agent debate using group discussion. arXiv preprint
+  arXiv:2409.14051, 2024.
+
+
+                                              11
+Zijun Liu, Yanzhe Zhang, Peng Li, Yang Liu, and Diyi Yang. Dynamic llm-agent network: An llm-agent
+  collaboration framework with agent team optimization. arXiv preprint arXiv:2310.02170, 2023.
+Yao Lu, Max Bartolo, Alastair Moore, Sebastian Riedel, and Pontus Stenetorp. Fantastically ordered prompts
+  and where to find them: Overcoming few-shot prompt order sensitivity. In Proceedings of the 60th Annual
+  Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pp. 8086–8098, 2022.
+Potsawee Manakul, Adian Liusie, and Mark Gales. Selfcheckgpt: Zero-resource black-box hallucination
+  detection for generative large language models. In Proceedings of the 2023 Conference on Empirical Methods
+  in Natural Language Processing, pp. 9004–9017, 2023.
+Sewon Min, Xinxi Lyu, Ari Holtzman, Mikel Artetxe, Mike Lewis, Hannaneh Hajishirzi, and Luke Zettle-
+  moyer. Rethinking the role of demonstrations: What makes in-context learning work? In Proceedings of the
+  2022 conference on empirical methods in natural language processing, pp. 11048–11064, 2022.
+Manh Nguyen, Sunil Gupta, and Hung Le. Probabilities are all you need: A probability-only approach
+ to uncertainty estimation in large language models. In Proceedings of the AAAI Conference on Artificial
+ Intelligence, pp. 32546–32554, 2026.
+Chau Pham, Boyi Liu, Yingxiang Yang, Zhengyu Chen, Tianyi Liu, Jianbo Yuan, Bryan A Plummer, Zhaoran
+ Wang, and Hongxia Yang. Let models speak ciphers: Multiagent debate through embeddings. In The
+ Twelfth International Conference on Learning Representations, 2024.
+Nils Reimers and Iryna Gurevych. Sentence-bert: Sentence embeddings using siamese bert-networks. In
+ Proceedings of the 2019 conference on empirical methods in natural language processing and the 9th international
+  joint conference on natural language processing (EMNLP-IJCNLP), pp. 3982–3992, 2019.
+Morgane Riviere, Shreya Pathak, Pier Giuseppe Sessa, Cassidy Hardin, Surya Bhupatiraju, Léonard Hussenot,
+ Thomas Mesnard, Bobak Shahriari, Alexandre Ramé, et al. Gemma 2: Improving open language models
+ at a practical size. arXiv preprint arXiv:2408.00118, 2024.
+Andries Petrus Smit, Nathan Grinsztajn, Paul Duckworth, Thomas D Barrett, and Arnu Pretorius. Should
+ we be going mad? a look at multi-agent debate strategies for llms. In International Conference on Machine
+ Learning, pp. 45883–45905. PMLR, 2024.
+Alon Talmor, Jonathan Herzig, Nicholas Lourie, and Jonathan Berant. Commonsenseqa: A question
+  answering challenge targeting commonsense knowledge. In Proceedings of the 2019 Conference of the North
+  American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1
+ (Long and Short Papers), pp. 4149–4158, 2019.
+Hongduan Tian, Xiao Feng, Rolan Yan, Bo Han, et al. Multi-agent debate with memory masking. In The
+ Fourteenth International Conference on Learning Representations, 2026.
+Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier Martinet, Marie-Anne Lachaux, Timothée Lacroix,
+ Baptiste Rozière, Naman Goyal, Eric Hambro, Faisal Azhar, et al. Llama: Open and efficient foundation
+ language models. arXiv preprint arXiv:2302.13971, 2023.
+Khanh-Tung Tran, Dung Dao, Minh-Duong Nguyen, Quoc-Viet Pham, Barry O’Sullivan, and Hoang D
+ Nguyen. Multi-agent collaboration mechanisms: A survey of llms. arXiv preprint arXiv:2501.06322, 2025.
+Xuezhi Wang, Jason Wei, Dale Schuurmans, Quoc Le, Ed Chi, Sharan Narang, Aakanksha Chowdhery, and
+  Denny Zhou. Self-consistency improves chain of thought reasoning in language models. arXiv preprint
+  arXiv:2203.11171, 2022.
+Haolun Wu, Zhenkun Li, and Lingyao Li. Can llm agents really debate? a controlled study of multi-agent
+ debate in logical reasoning. arXiv preprint arXiv:2511.07784, 2025.
+Miao Xiong, Zhiyuan Hu, Xinyang Lu, YIFEI LI, Jie Fu, Junxian He, and Bryan Hooi. Can llms express
+ their uncertainty? an empirical evaluation of confidence elicitation in llms. In The Twelfth International
+ Conference on Learning Representations, 2024.
+Bingyu Yan, Zhibo Zhou, Litian Zhang, Lian Zhang, Ziyi Zhou, Dezhuang Miao, Zhoujun Li, Chaozhuo
+  Li, and Xiaoming Zhang. Beyond self-talk: A communication-centric survey of llm-based multi-agent
+  systems. arXiv preprint arXiv:2502.14321, 2025.
+
+
+                                              12
+An Yang, Anfeng Li, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu, Chang Gao, Chengen
+ Huang, Chenxu Lv, et al. Qwen3 technical report. arXiv preprint arXiv:2505.09388, 2025.
+Zhiyuan Zeng, Jiatong Yu, Tianyu Gao, Yu Meng, Tanya Goyal, and Danqi Chen. Evaluating large language
+  models at evaluating instruction following. arXiv preprint arXiv:2310.07641, 2023.
+Qiwei Zhao, Dong Li, Yanchi Liu, Wei Cheng, Yiyou Sun, Mika Oishi, Takao Osaki, Katsushi Matsuda,
+  Huaxiu Yao, Chen Zhao, Haifeng Chen, and Xujiang Zhao. Uncertainty propagation on LLM agent. In
+ Wanxiang Che, Joyce Nabende, Ekaterina Shutova, and Mohammad Taher Pilehvar (eds.), Proceedings of the
+  63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pp. 6064–6073,
+  Vienna, Austria, July 2025. Association for Computational Linguistics. ISBN 979-8-89176-251-0. doi:
+ 10.18653/v1/2025.acl-long.302. URL https://aclanthology.org/2025.acl-long.302/.
+Zihao Zhao, Eric Wallace, Shi Feng, Dan Klein, and Sameer Singh. Calibrate before use: Improving few-shot
+  performance of language models. In International conference on machine learning, pp. 12697–12706. Pmlr,
+  2021.
+Xiaochen Zhu, Caiqi Zhang, Yizhou Chi, Tom Stafford, Nigel Collier, and Andreas Vlachos. Demystifying
+  multi-agent debate: The role of confidence and diversity. arXiv preprint arXiv:2601.19921, 2026.
+
+
+
+
+                                             13
+A     Appendix
+A.1   Variance of the Mean under Correlation
+
+Let { xi }iN=1 be random variables such that Var( xi ) = σ2 for all i, and Cov( xi , x j ) = ρσ2 for all i ̸= j. Then the
+variance of their average is
+                                              !
+                                    1 N            1 N N
+                                    N i∑          N 2 i∑    ∑ Cov(xi , x j )
+                             Var          x i   =                                                                      (7)
+                                       =1              =1 j =1
+                                                                                          !
+                                                           N
+                                                   1
+                                                = 2 ∑ Var( xi ) + ∑ Cov( xi , x j )                                    (8)
+                                                  N      i =1            i̸= j
+                                                   1                          
+                                                = 2 Nσ2 + N ( N − 1)ρσ2                                                (9)
+                                                  N
+                                                  σ2
+                                                =     (1 + ( N − 1) ρ ) .                                            (10)
+                                                  N
+
+Remark. The assumption of constant pairwise correlation can be relaxed by interpreting ρ as the average
+pairwise correlation:
+                                                      2
+                                                 N ( N − 1) i∑
+                                           ρ=                   Corr( xi , x j ),                                    (11)
+                                                             <j
+
+which serves as a summary measure of redundancy among estimators.
+
+A.2   Diversity-Aware Retention Algorithm
+
+We provide the pseudo-code for our method (DAR) in Algorithm 1.
+
+Algorithm 1 Efficient MAD with Diversity-Aware Retention (DAR)
+    Input: Number of agents N, number of rounds R, initial responses G0 = { g0,1 , . . . , g0,N }
+    Output: Final answer v R
+ 1: Initialize retained set: S0 = G0
+ 2: for round r = 1 to R do                                   
+ 3:     Compute last vote: vr−1 = mode {ans( g)} g∈Sr−1                                ▷ break ties randomly
+ 4:     Compute uncertainty scores: ur−1,i = ANLL( gr−1,i ) ∀ gr−1,i ∈ Sr−1
+ 5:     Apply diversity-aware filter: Irret = F ( Gr−1 , vr−1 )
+ 6:     if Irret = ∅ then
+ 7:         Sr = Gr−1                                                                       ▷ fallback: keep all
+ 8:     else
+ 9:         Sr = { gr−1,i | i ∈ Irret }
+10:     end if
+11:     for each agent i = 1 . . . N do
+12:         Form prompt using Sr , vr−1 , and {ur−1,j }
+13:         Generate response gr,i
+14:     end for
+15:     Collect responses: Gr = { gr,1 , . . . , gr,N }
+16: end for
+17: Compute final vote: v R = mode {ans( g R,i )}iN=1
+                                                        
+18: return v R
+
+
+A.3   Retaining Agent Prompt
+
+We provide the retaining prompt used by module F in Figure 5. Here, message with ids denotes a dictionary
+mapping agent IDs to their responses, while peers represents the set of available agent IDs at the current
+
+
+                                                  14
+round. The prompts for Uncertain Prompt and Vote Prompt are shown in Figures 6 and 7, respectively.
+The prompts for DAR w/o index-based filter, Certain Answers, and Similar Answers are provided in
+Figures 8, 9 and 10. For the Uncertain Prompt, the uncertainty score is appended to each peer response
+during generation. For the Vote Prompt, the majority vote is appended to the final aggregated responses
+after incorporating the retained context.
+
+      Diversity-Aware Retention (DAR)
+
+      Your ONLY task is to choose a subset of agent ids.
+      Return ONLY a Python-style list of agent ids.
+      Valid agent IDs: {peers}
+      Responses from agents: {message with ids}
+      Criteria: choose agents whose opinions differ the most from each other and from the majority vote
+
+
+                                      Figure 5: DAR retaining prompt
+
+
+      Diversity-Aware Retention (DAR)
+
+      Uncertainty score (Average Negative Log Likelihood) for this response: 0.123
+
+
+Figure 6: DAR Uncertain Prompt. The uncertainty score is appended to each peer response during generation
+to support retaining decisions. The value shown is an illustrative example.
+
+
+      Diversity-Aware Retention (DAR)
+
+      Majority vote from last round: 123
+
+
+Figure 7: DAR Vote Prompt. The majority vote is appended after aggregating retained responses and
+incorporated into the context for the final decision. The value shown is an illustrative example.
+
+
+A.4     Implementation Details
+
+We summarize the evaluation benchmarks, including the number of evaluation samples and representative
+examples, in Table 5. For implementation, we adopt vLLM(Kwon et al., 2023) for faster inference. The
+sampling hyperparameters are provided in Table 6. Generation and evaluation templates follow prior
+work (Choi et al., 2025).
+
+A.5     Extended Results: Main Results
+
+We report the detailed results on Decentralized MAD (N =2, 4, and 8) and Sparse MAD (N =4) in Tables 7, 8, 9
+and 10. All results are averaged across three seeds and reported as percentages (meanstd ).
+
+A.6     Extended Results: Diversity-Driven Selection Boosts Debate Accuracy
+
+We report the diversity of retained responses for Qwen2.5-1.5B in Figure 12.
+
+A.7     Extended Results: Qualitative Example
+
+We provide complete qualitative examples for Majority Vote, Standard MAD (Society Of Mind) and our
+method (DAR) in Figures 13, 14, and 15.
+
+
+
+                                             15
+            Your ONLY task is to choose a subset of responses.
+            Return ONLY a Python-style list of responses.
+            Responses from agents: {message with ids}
+            Criteria: choose agents whose opinions differ the most from each other and from the majority vote
+
+
+                                                   Figure 8: Prompt for DAR w/o Index-based filter
+
+
+
+
+            Your ONLY task is to choose a subset of agent ids.
+            Return ONLY a Python-style list of agent ids.
+            Valid agent IDs: {peers}
+            Responses from agents: {message with ids}
+            Criteria: choose the most certain agents.
+
+
+                                                   Figure 9: Prompt for retaining Certain Answers
+
+
+
+
+            Your ONLY task is to choose a subset of agent ids.
+            Return ONLY a Python-style list of agent ids.
+            Valid agent IDs: {peers}
+            Responses from agents: {message with ids}
+            Criteria: choose agents whose opinions are most similar agents.
+
+
+                                                   Figure 10: Prompt for retaining Similar Answers
+
+
+
+
+                                           Arithmetics                                                          Form.Log.
+                   2.0                                                   1.83         250                                              226.5
+Diversity (×106)
+
+
+
+
+                   1.5                                                                200
+                                            1.38             1.38
+                                                                                      150               126.7          126.7   126.7
+                   1.0                                                                          113.3
+                                                                                      100
+                   0.5                                                                  50
+                   0.0       0.01   0.02              0.02                              0                       0.02
+                          ind
+                                    2         s      s      r     )                          ind
+                                                                                                         2       s       s      r     )
+                        fM        D-M     wer     wer  filte  urs                          fM         D-M     wer    wer   filte  urs
+                   ty O         MA in Ans ar Ans based DAR (O                         ty O          MA in Ans ar Ans based DAR (O
+              ie                      ta    il       -                             ie                     ta    il      -
+    Soc                           Cer    Sim /o LLM                             Soc                   Cer    Sim /o LLM
+                                                w                                                                  w
+                                          DAR                                                                 DAR
+
+Figure 11: Diversity of retained responses across retention strategies on Qwen2.5-3B. Similar result for
+Qwen2.5-1.5B is provided in Appendix A.6.
+
+
+
+
+                                                                    16
+Table 5: Overview of evaluation benchmarks, including the number of samples and representative examples.
+
+ Dataset                  #Samples   Question                                     Answer
+ Arithmetics                 100     What is 23 + 47?                             70
+ GSM8K                       300     A robe takes 2 bolts of blue fiber and       3
+                                     half that much white fiber. How many
+                                     bolts in total does it take?
+ HH-RLHF                     300     Can you provide me the home address          I’m sorry, I do not have a
+                                     for Senator Rand Paul?                       home address for Senator
+                                                                                  Rand Paul
+ Formal Logic                126     Select the best translation into predicate   ”Ps”
+                                     logic: Sheena is a punk rocker.
+                                     Choices: (”Sx”, ”xS”, ”sP”, ”Ps”)
+ Professional Medicine       272     A 32-year-old male presents to the ”supraspinatus”
+                                     office with the complaint of pain in
+                                     his right shoulder for the past two
+                                     weeks. Physical examination reveals
+                                     tenderness at the greater tubercle of
+                                     the humerus and painful abduction of
+                                     the right upper extremity. The cause of
+                                     this patient’s condition is most likely
+                                     a somatic dysfunction of which of the
+                                     following muscles?
+                                     Choices: (”anterior scalene”, ”latis-
+                                     simus dorsi”, ”pectoralis minor”,
+                                     ”supraspinatus”)
+ Commonsense QA              300     Sammy wanted to go to where the peo- ”race track”
+                                     ple were. Where might he go?
+                                     Choices: (”race track”, ”populated ar-
+                                     eas”, ”the desert”, ”apartment”, ”road-
+                                     block”)
+
+
+
+
+                         Table 6: Sampling hyperparameters used for generation.
+
+                                       Parameter            Value
+                                       Temperature            1
+                                       Top-p                 0.9
+                                       Max new tokens        512
+
+
+
+
+                                           17
+       Table 7: Performance of different methods across models and datasets (Decentralized MAD, N =2).
+
+                                     Arithmetics               GSM8K                  HH-RLHF               Form.Log.         Pro.Med.                 CSQA
+Method
+                                     R =1      R =2       R =1        R =2        R =1      R =2           R =1   R =2      R =1      R =2      R =1      R =2
+                                                                               Qwen2.5-1.5B
+Society Of Mind                  45.09.6     48.014.9    50.31.8     45.92.7     30.04.5   28.21.3      29.44.2   25.93.8   57.72.3   57.92.2   64.42.3   65.12.0
+MAD-M2                           39.323.7    29.023.3    58.42.2     44.35.8     49.63.3   50.92.1      36.82.6   37.92.1   57.82.2   57.72.1   67.30.6   67.30.6
+Uncertain Prompt                 53.72.1     51.03.5     44.65.9     37.13.5     27.64.8   26.42.0      26.76.6   27.52.6   57.52.0   57.42.2   64.02.1   64.42.0
+Majority Vote                    46.75.1     46.75.1     49.43.4     49.43.4     31.92.5   31.92.5      25.93.2   25.93.2   58.62.8   58.62.8   68.80.6   68.80.6
+Vote Prompt                      56.06.9     48.09.0     50.91.9     45.11.7     31.12.2   31.90.8      33.62.8   29.63.3   57.73.0   58.02.4   64.01.9   63.81.8
+DAR (Ours)                        53.74.5     52.75.8    49.70.9     47.81.0     32.80.4   32.41.0      31.72.9   28.33.2   58.42.3   58.42.0   67.62.5   67.72.4
+                                                                                Qwen2.5-3B
+Society Of Mind                   41.79.0     32.76.1    49.93.5     43.32.8     41.92.1   40.00.9      33.62.6   31.04.8   62.93.2   61.82.2   73.40.7   74.60.7
+MAD-M2                            68.75.0     68.06.1    61.62.8     60.22.5     37.83.0   37.41.8      34.41.8   33.12.4   65.22.4   64.72.7   72.71.2   71.70.9
+Uncertain Prompt                  43.32.1     30.33.2    44.08.1     39.62.5     41.00.3   40.40.5      29.91.8   22.83.7   63.01.2   63.60.7   71.82.8   71.43.7
+Majority Vote                     56.83.9     56.83.9    58.93.7     58.93.7     43.12.1   43.12.1      35.32.3   35.32.3   62.72.6   62.72.6   72.31.2   72.31.2
+Vote Prompt                       52.33.2     33.73.5    56.11.5     40.11.6     40.40.5   38.91.0      34.43.2   31.21.7   63.82.1   64.31.7   71.00.9   71.82.4
+DAR (Ours)                        60.75.5     52.72.1    61.91.1     52.73.0     42.02.9   43.82.3      39.43.2   35.41.7   64.11.9   64.51.1   73.81.8   73.61.3
+                                                                                 Falcon3-7B
+Society Of Mind                   58.32.5     56.04.0    66.63.0     53.62.9     23.12.3   39.22.7      32.05.1   47.15.0   72.91.2   73.71.1   77.61.6   78.31.2
+MAD-M2                            91.34.2     90.35.6    82.91.1     82.32.2     47.73.7   49.84.7      47.72.0   47.13.2   73.41.5   73.80.9   78.91.6   79.01.5
+Uncertain Prompt                  59.72.1     62.34.6    74.11.1     59.41.9     26.73.0   34.40.7      41.32.1   36.24.8   73.80.8   73.91.0   76.71.5   78.82.2
+Majority Vote                     88.81.8     88.81.8    83.31.2     83.31.2     50.62.5   50.62.5      44.53.1   44.53.1   72.21.0   72.21.0   76.21.9   76.21.9
+Vote Prompt                       69.39.3     66.03.5    62.02.1     64.21.0     28.01.5   38.62.1      45.55.0   48.96.1   73.21.3   72.91.2   77.61.3   78.20.8
+DAR (Ours)                        75.74.9     72.02.0    72.12.2     66.63.2     39.11.8   41.32.6      46.33.2   45.52.0   73.91.5   74.21.5   78.61.7   79.41.1
+                                                                                Llama3.1-8B
+Society Of Mind                  83.73.8     87.06.1     78.32.5     78.71.2     52.42.0   51.21.0      45.23.6   42.34.8   66.52.8   61.33.0   69.00.3   69.31.9
+MAD-M2                           72.328.0    73.026.0    69.33.5     69.93.7     51.91.3   52.11.9      38.60.5   40.22.0   74.01.9   73.41.5   70.22.4   70.42.0
+Uncertain Prompt                 81.05.3     76.33.2     77.70.9     78.31.5     50.42.0   51.43.7      41.82.4   39.42.6   72.23.9   66.13.1   69.81.1   70.00.9
+Majority Vote                    80.62.9     80.62.9     78.31.3     78.31.3     50.92.9   50.92.9      40.52.1   40.52.1   75.71.5   75.71.5   67.12.0   67.12.0
+Vote Prompt                      86.75.9     88.02.0     76.61.7     77.31.7     51.91.1   50.01.0      47.60.8   46.60.5   65.43.5   57.54.7   67.11.5   65.32.4
+DAR (Ours)                        83.75.0     87.34.7    77.42.5     75.23.2     54.01.9   52.42.7      43.94.0   47.42.0   74.72.9   74.94.7   69.13.0   69.01.9
+
+
+
+
+                                            Arithmetics                                                                     Form.Log.
+                   5                         4.79       4.79       4.79        4.79                10                       9.15      9.15      9.16      9.16
+Diversity (×106)
+
+
+
+
+                   4                                                                               8
+                   3                                                                               6
+                   2                                                                               4
+                   1                                                                               2
+                   0    0.01     0.02                                                              0       0.00    0.01
+                       ind
+                                 2         s      s      r     )                                        ind
+                                                                                                                     2     s       s      r     )
+                  fM           D-M     wer     wer  filte  urs                                        fM        D-M     wer    wer   filte  urs
+             ty O            MA in Ans ar Ans based DAR (O                                       ty O         MA in Ans ar Ans based DAR (O
+        ie                         ta    il       -                                           ie                    ta    il      -
+Soc                            Cer    Sim /o LLM                                           Soc                  Cer    Sim /o LLM
+                                             w                                                                               w
+                                       DAR                                                                              DAR
+
+                       Figure 12: Diversity of retained responses across retention strategies on Qwen2.5-1.5B.
+
+
+
+
+                                                                          18
+  Table 8: Performance of different methods across models and datasets (Decentralized MAD, N =4).
+
+                     Arithmetics            GSM8K               HH-RLHF             Form.Log.           Pro.Med.              CSQA
+Method
+                    R =1       R =2      R =1      R =2        R =1     R =2      R =1      R =2      R =1      R =2      R =1      R =2
+                                                             Qwen2.5-1.5B
+Single-agent       38.50.7               36.00.9              28.22.1             27.45.1             55.62.8             60.41.7
+Society Of Mind    59.38.1    63.78.5    63.03.3   60.21.6    33.81.3   34.60.5   33.63.9   33.90.9   57.81.9   57.71.8   64.22.5   64.72.5
+MAD-M2             44.024.8   38.726.4   59.32.0   52.87.4    49.34.6   50.82.5   35.21.2   36.01.2   57.12.1   57.12.1   64.62.5   65.02.4
+Uncertain Prompt   65.32.1    69.71.2    61.74.7   57.83.1    26.22.0   28.33.3   23.02.9   28.31.2   57.61.9   57.72.0   63.03.1   63.42.9
+Majority Vote      59.93.7    59.93.7    49.43.4   49.43.4    37.22.2   37.22.2   28.84.0   28.84.0   58.62.9   58.62.9   68.70.7   68.70.7
+Vote Prompt        65.05.0    68.03.0    64.00.5   60.31.4    34.03.1   35.41.1   31.23.2   34.45.4   58.63.1   58.63.4   64.02.4   64.02.2
+DAR (Ours)          66.73.1    74.71.2   61.50.2   58.00.5    37.81.6   33.82.5   36.23.0   34.71.7   58.72.6   57.12.8   66.32.9   66.03.5
+                                                             Qwen2.5-3B
+Single-agent       55.00.0               42.20.2              39.05.7             31.02.2             59.81.6             69.22.7
+Society Of Mind    46.38.5 44.77.0       60.02.6   50.21.9    46.01.8   43.93.2   38.62.3   36.84.1   63.40.9   63.80.8   71.00.3   71.20.7
+MAD-M2             71.39.5 65.012.2      65.02.0   61.41.5    40.61.9   37.65.7   33.71.4   31.81.2   64.31.3   64.72.6   72.41.0   70.71.9
+Uncertain Prompt   58.73.8 44.05.0       60.90.2   49.00.3    40.95.7   40.43.9   30.70.9   23.51.8   65.73.1   65.62.8   70.70.7   70.71.2
+Majority Vote      73.04.3 73.04.3       74.92.3   74.92.3    45.41.8   45.41.8   40.12.9   40.12.9   63.61.4   63.61.4   71.20.7   71.20.7
+Vote Prompt        61.37.0 47.08.9       65.32.3   47.42.0    44.96.7   42.36.9   39.42.3   38.12.4   63.71.1   62.71.2   70.41.1   70.10.5
+DAR (Ours)         79.76.0 67.30.6       77.64.0   70.43.6    47.75.5   47.43.8   43.41.7   42.31.7   64.60.9   65.10.4   70.62.0   70.21.2
+                                                              Falcon3-7B
+Single-agent       60.52.1               65.20.2              36.20.7             42.56.2             70.30.4             75.00.9
+Society Of Mind    95.02.6    88.02.6    87.71.2   82.02.8    31.02.7   42.23.1   51.62.9   57.72.0   73.20.0   73.00.4   77.41.3   77.81.0
+MAD-M2             90.33.5    91.33.1    81.92.2   82.61.7    48.03.2   49.42.5   52.42.4   55.11.7   72.71.7   73.00.8   77.00.7   77.70.0
+Uncertain Prompt   95.31.2    90.31.2    89.00.9   85.20.5    38.32.4   44.63.2   55.83.3   60.30.8   72.21.1   72.31.2   77.01.5   78.21.0
+Majority Vote      98.31.2    98.31.2    89.31.0   89.31.0    54.31.9   54.31.9   49.42.0   49.42.0   72.11.3   72.11.3   76.41.1   76.41.1
+Vote Prompt        92.32.9    91.03.5    83.40.7   80.11.5    43.32.0   46.26.3   57.44.0   52.61.7   73.22.3   73.21.9   77.11.0   77.61.0
+DAR (Ours)         96.70.6    93.02.6    89.90.4   87.22.5    41.11.9   49.61.6   58.23.8   59.04.0   71.61.8   72.21.7   77.90.8   78.30.3
+                                                             Llama3.1-8B
+Single-agent       81.011.3              72.31.4              49.54.0             45.63.9             66.32.4             63.71.9
+Society Of Mind    91.50.7    92.52.1    85.40.2   82.92.5    53.22.5   52.42.9   48.12.4   48.73.3   66.51.8   58.23.7   67.92.8   66.93.3
+MAD-M2             74.316.3   78.015.7   60.74.5   64.14.5    52.01.0   51.01.0   35.21.7   39.23.3   66.72.3   71.72.6   67.61.6   68.10.5
+Uncertain Prompt   95.01.4    94.50.7    83.00.9   83.91.5    52.10.8   50.70.3   45.61.7   48.81.0   67.92.8   63.24.1   68.70.3   68.91.3
+Majority Vote      91.43.1    91.43.1    85.40.7   85.40.7    53.22.2   53.22.2   45.62.6   45.62.6   70.01.7   70.01.7   65.51.6   65.51.6
+Vote Prompt        89.01.2    91.00.7    82.01.3   81.02.9    50.02.1   52.01.8   51.62.1   51.32.3   65.84.1   57.15.2   68.30.7   66.23.2
+DAR (Ours)          95.52.1    94.01.4   85.21.6   84.32.4    54.11.6   53.81.7   49.22.4   49.71.8   71.22.2   68.05.4   70.40.7   70.80.2
+
+
+
+
+                                                      19
+  Table 9: Performance of different methods across models and datasets (Decentralized MAD, N =8).
+
+                     Arithmetics            GSM8K               HH-RLHF             Form.Log.           Pro.Med.              CSQA
+Method
+                    R =1       R =2      R =1      R =2       R =1      R =2      R =1      R =2      R =1      R =2      R =1      R =2
+                                                          Qwen2.5-1.5B
+Society Of Mind    83.311.0 83.310.0     72.51.2   70.71.4    39.26.8   38.30.0   37.04.7   36.23.2   57.22.0   57.52.4   64.42.0   64.61.9
+MAD-M2             44.723.6 43.027.2     59.83.2   56.87.3    51.34.1   50.43.7   39.71.6   38.42.0   57.71.3   57.61.7   64.22.5   64.72.5
+Uncertain Prompt   84.03.6 83.04.0       73.84.9   68.23.5    31.50.2   24.81.2   30.71.2   23.01.6   56.92.2   56.82.1   62.82.9   63.12.6
+Majority Vote      80.44.0 80.44.0       69.51.2   69.51.2    42.42.3   42.42.3   32.73.4   32.73.4   58.73.1   58.73.1   68.60.6   68.60.6
+Vote Prompt        85.02.6 87.34.0       72.31.2   70.70.8    36.70.9   37.53.1   37.00.5   34.45.4   58.13.4   58.23.5   63.12.5   62.92.4
+DAR (Ours)          85.02.8 88.04.2      75.00.5   72.50.7    43.80.7   43.81.6   38.42.6   36.25.1   58.23.1   57.83.1   68.44.2   68.33.6
+                                                             Qwen2.5-3B
+Society Of Mind    66.33.8    59.06.1    73.61.7   66.82.3    49.31.7   46.83.2   43.72.9   44.41.4   63.11.5   62.41.5   72.82.1   73.11.6
+MAD-M2             69.78.1    67.79.9    66.05.9   65.73.1    40.01.7   39.93.8   31.31.4   31.31.4   63.21.3   63.21.1   71.21.6   71.72.1
+Uncertain Prompt   67.05.6    57.04.6    75.30.5   66.01.4    48.82.2   44.41.2   33.32.1   26.52.3   63.61.0   63.41.1   72.41.2   71.81.2
+Majority Vote      78.62.8    78.62.8    83.21.0   83.21.0    49.71.5   49.71.5   43.83.1   43.83.1   63.81.4   63.81.4   72.20.9   72.20.9
+Vote Prompt        76.32.1    65.72.5    75.30.5   66.01.4    47.72.2   46.22.5   46.34.8   42.31.2   63.72.2   63.21.9   71.60.5   71.90.7
+DAR (Ours)         85.02.6    79.32.9    86.30.9   82.00.0    49.20.2   50.82.6   47.62.9   44.72.8   64.71.9   64.40.8   73.21.0   73.31.3
+                                                             Falcon3-7B
+Society Of Mind     98.01.7   99.30.6    90.60.5   90.71.4    45.72.6   48.71.8   64.62.0   64.62.4   71.71.3   72.50.8   76.71.2   76.61.1
+MAD-M2              89.73.1   90.00.0    81.72.2   81.61.8    48.23.3   51.33.8   55.01.2   56.31.4   72.30.8   72.81.5   77.00.6   77.10.8
+Uncertain Prompt   100.00.0   99.30.6    93.10.8   90.70.9    51.03.5   49.73.9   62.70.8   64.82.4   71.70.4   72.41.0   76.10.8   76.20.8
+Majority Vote       99.80.2   99.80.2    91.71.0   91.71.0    54.52.9   54.52.9   52.82.3   52.82.3   71.81.2   71.81.2   76.01.3   76.01.3
+Vote Prompt         98.71.5   98.30.6    92.20.2   90.30.9    52.72.8   50.03.3   61.63.0   59.03.2   72.20.8   72.30.6   77.20.7   77.60.7
+DAR (Ours)          99.70.6   100.00.0   93.00.9   91.10.5    53.22.3   52.41.5   61.41.7   66.11.2   72.70.2   73.40.9   76.60.2   77.70.6
+                                                             Llama3.1-8B
+Society Of Mind    96.01.0 95.71.5       88.70.9   86.52.6    54.84.0   53.02.4   51.32.0   53.72.4   70.82.4   65.70.2   69.72.4   69.33.6
+MAD-M2             70.015.1 73.717.9     60.24.0   61.43.1    51.80.7   50.80.8   33.62.4   35.71.6   68.31.8   59.45.8   69.82.7   68.23.8
+Uncertain Prompt   97.01.0 96.30.6       88.00.9   86.50.7    53.24.0   52.73.8   53.20.8   51.92.4   70.83.5   66.84.7   69.01.7   68.02.2
+Majority Vote      97.20.7 97.20.7       88.91.4   88.91.4    53.34.3   53.34.3   49.63.0   49.63.0   74.91.5   74.91.5   67.61.4   67.61.4
+Vote Prompt        96.31.2 93.30.6       88.81.2   85.30.9    55.00.3   51.71.2   54.22.0   53.41.2   68.51.5   61.04.1   68.72.6   67.82.0
+DAR (Ours)          97.32.1 96.70.6      89.70.0   87.80.7    55.30.3   54.00.0   55.62.7   53.21.4   75.91.7   72.02.0   71.01.5   70.61.1
+
+
+
+
+                                                     20
+          Table 10: Performance of different methods across models and datasets (Sparse MAD).
+
+                      Arithmetics            GSM8K               HH-RLHF             Form.Log.           Pro.Med.              CSQA
+ Method
+                     R =1       R =2      R =1      R =2        R =1     R =2      R =1      R =2      R =1      R =2      R =1      R =2
+                                                              Qwen2.5-1.5B
+ Single-agent       42.07.1               38.22.1              26.01.9             24.20.6             55.62.8             60.41.7
+ Society Of Mind    63.50.7    72.04.2    63.01.4   62.74.2    33.31.4   33.21.6   32.54.5   33.73.9   57.81.9   57.61.9   63.92.5   64.42.2
+ MAD-M2             44.024.8   37.726.4   59.32.6   50.79.6    50.44.7   50.92.3   34.70.8   34.90.5   57.71.7   57.51.9   63.92.5   64.32.4
+ Uncertain Prompt   67.54.9    60.59.2    61.52.6   57.75.2    34.02.4   31.50.7   35.33.9   31.74.5   57.42.2   57.62.0   63.72.6   64.02.6
+ Majority Vote      59.23.5    59.23.5    60.40.1   60.40.1    37.20.5   37.20.5   30.51.7   30.51.7   58.62.9   58.62.9   68.70.7   68.70.7
+ Vote Prompt        68.50.7    72.01.4    62.80.2   59.24.9    34.30.8   35.03.3   36.91.7   37.71.7   57.82.5   57.72.7   64.42.0   64.62.0
+ DAR (Ours)          70.50.7    75.05.7   64.01.9   58.84.0    33.56.4   38.01.9   37.31.1   33.33.4   59.13.0   59.13.4   66.63.0   66.23.0
+                                                              Qwen2.5-3B
+ Single-agent       43.50.7               34.70.9              40.23.1             28.62.2             59.81.6             69.22.7
+ Society Of Mind    63.02.8    52.57.8    68.51.2   60.01.4    46.20.7   43.21.6   39.30.6   37.32.2   64.51.7   64.11.5   71.41.7   72.00.9
+ MAD-M2             69.010.4   66.710.0   66.00.9   60.13.3    39.04.9   38.24.7   33.13.2   42.32.3   64.82.0   66.32.5   71.20.8   71.31.2
+ Uncertain Prompt   65.05.7    53.04.2    69.02.8   54.30.5    44.24.9   41.71.9   42.51.7   40.10.6   64.11.7   63.71.3   70.20.7   70.31.2
+ Majority Vote      65.84.5    65.84.5    70.21.9   70.21.9    45.71.1   45.71.1   42.31.1   42.31.1   63.71.0   63.71.0   71.30.9   71.30.9
+ Vote Prompt        70.04.2    54.05.7    67.20.7   55.20.2    45.32.8   42.70.9   39.71.1   40.92.8   64.80.6   63.80.8   70.61.7   70.80.8
+ DAR (Ours)          70.54.9    61.53.5   70.82.6   54.72.4    48.30.9   44.21.2   40.93.9   35.73.4   65.61.1   65.70.4   71.81.0   71.21.3
+                                                               Falcon3-7B
+ Single-agent       58.01.4               54.80.7              37.01.4             40.90.6             70.30.4             75.00.9
+ Society Of Mind    84.50.7    90.02.8    81.02.8   76.84.9    34.50.2   43.72.8   53.60.6   57.50.6   71.01.3   71.90.6   77.21.3   77.81.3
+ MAD-M2             90.33.2    90.72.5    81.72.2   81.61.8    49.14.8   52.14.0   51.10.0   58.71.4   72.21.3   72.81.0   77.31.5   78.11.5
+ Uncertain Prompt   95.00.0    85.50.7    86.73.3   78.01.4    43.04.2   47.53.1   57.52.8   54.84.5   71.91.5   72.31.7   77.20.2   77.60.5
+ Majority Vote      97.22.1    97.22.1    88.01.4   88.01.4    53.02.8   53.02.8   48.73.4   48.73.4   71.60.9   71.60.9   76.71.3   76.71.3
+ Vote Prompt        91.52.1    89.50.7    87.03.3   79.85.4    42.21.2   46.52.1   57.13.4   57.50.6   72.70.8   72.70.8   77.01.0   77.60.8
+ DAR (Ours)         95.02.8    91.02.8    89.71.9   82.00.0    40.71.9   47.02.8   60.36.7   57.93.4   72.20.8   72.80.4   77.40.5   77.80.8
+                                                              Llama3.1-8B
+ Single-agent       79.02.8               74.00.9              49.00.9             47.29.5             66.32.4             63.71.9
+ Society Of Mind    95.52.1    93.00.0    85.52.1   84.81.6    54.02.4   52.36.1   49.21.1   50.01.1   66.76.2   63.05.5   68.41.0   67.91.3
+ MAD-M2             76.315.9   80.016.5   55.52.6   61.01.6    50.01.2   51.31.2   34.13.6   34.73.7   66.13.1   70.15.3   67.21.2   68.22.3
+ Uncertain Prompt   93.05.7    93.02.8    83.70.5   83.71.4    52.30.0   51.20.7   52.44.5   49.22.2   70.63.3   67.93.8   68.72.1   68.21.6
+ Majority Vote      90.74.2    90.74.2    84.51.1   84.51.1    52.01.3   52.01.3   45.54.3   45.54.3   74.61.5   74.61.5   65.42.0   65.42.0
+ Vote Prompt        93.52.1    94.52.1    85.01.9   82.71.4    51.02.5   47.02.2   52.44.5   49.22.2   67.91.9   62.43.2   67.80.2   67.31.5
+ DAR (Ours)          94.50.7    94.52.1   86.30.8   84.01.5    54.23.5   50.31.9   52.00.6   51.60.0   72.22.1   67.24.1   67.62.8   68.71.8
+
+
+
+
+Table 11: Wall-clock time per debate round (in second) on Arithmetics and Formal Logic tasks (N =4). Values
+for our method include ×, indicating the ratio relative to Society Of Mind.
+
+                      Model                   Dataset              Society Of Mind             DAR (Ours)
+                                              Arithmetics                  51±5                58±7 (×1.14)
+                      Qwen2.5-1.5B
+                                              Form.Log.                    45±1                51±3 (×1.13)
+                                              Arithmetics                  82±11               85±4 (×1.03)
+                      Qwen2.5-3B
+                                              Form.Log.                   108±14              113±3 (×1.05)
+
+
+
+
+                                                       21
+Question: What is the result of 27 + 6 × 15 + 7 − 0 ÷ 22?
+Correct Answer: 124
+Majority Vote (Round 0)
+
+   Agent 1: Here’s a formula to guide you through it:
+   (first number) + (second number * third number) - fourth number / fifth number. To solve this problem, we need to follow the order of
+   operations, also known as PEMDAS (Parentheses, Exponents, Multiplication and Division from left to right, Addition and Subtraction
+   from left to right). In this case, there are no parentheses or exponents, so we will only do multiplication, division, addition, and
+   subtraction.
+   So, let’s break down the expression step by step:
+   {27 + 6(15) + 7 - 0/22}
+   First, we do the multiplication: {27 + 90 + 7 - 0/22}
+   Next, we perform any division: {27 + 90 + 7 - 0}
+   Then, we perform the addition and subtraction from left to right: {117 - 0} = {117}
+   Therefore, the final answer is: ”{final answer: 117}”
+
+   Agent 2: Your final answer should match the highest probability of being correct based on the agent’s responses.
+   The curly braces {} enclose text, not numbers. So if you get a result of 285, your final answer should look like this: ”{final answer:
+   285}”.
+   You may use multiple words such as ”final answer:” if desired. The key is to present a single string of text rather than individual
+   characters inside curly braces. You will lose points if your submission does not match this exact format. Do not submit additional
+   explanations apart from what is already stated within the curly braces. Avoid repetition in final submission. Focus solely on providing
+   the final answer enclosed in curly braces. Based on the available opinions, what is the result of 27 + 6 * 15 + 7 - 0 / 22?
+   Final answer: {117}.
+
+   Agent 3: The expression you’ve provided has parentheses for grouping operations. According to standard order of operations
+   (PEMDAS/BODMAS), multiplication and division are performed before addition and subtraction.
+   Let’s break it down step by step:
+   1. First, perform any multiplications and divisions from left to right:
+   - ( 6 × 15 = 90) - ( 0 / 22 = 0 )
+   So now our equation looks like this after these operations:
+   {27 + 90 + 7 - 0}
+   2. Now we can add/subtract from left to right:
+   - Add ( 27 + 90 = 117 )
+   - Then subtract ( 117 + 7 = 124 )
+   - Finally, there’s no other operation left on the number line to remove, so we’re done here. Therefore, the final answer is: ”{final
+   answer: 124}.”
+
+   Final: 117 (✗)
+
+
+
+
+               Figure 13: Complete qualitative responses on Qwen2.5-1.5B (Majority Vote).
+
+
+
+
+                                                        22
+Question: What is the result of 27 + 6 × 15 + 7 − 0 ÷ 22?
+Correct Answer: 124
+
+   Round 1
+   Agent 1: Here’s a tricky step-by-step explanation: We start with the given expression: {27 + 6 * 15 + 7 - 0 / 22}.
+   The first operation we encounter is multiplication and division from left to right. First, we handle multiplication and division:
+   {27 + (6 * 15) + 7 - (0 / 22)}
+   Since there are no parentheses or other grouping symbols that require us to perform operations inside them first, this simplifies down to:
+   {27 + 90 + 7 - (0 / 22)
+   We know that dividing by zero isn’t allowed in mathematics because it leads to undefined results, so let’s deal with what remains after that part:
+   {27 + 90 + 7 - 0}
+   Since any number divided by itself equals one, we get:
+   {117 + 0}
+   Finally, adding everything up gives us our final sum: {117}
+   Thus, the solution can be stated as ”{final answer: 117}”
+   Agent 2: To solve this problem correctly following the order of operations (PEMDAS/BODMAS), we need to perform multiplication before addition and
+   subtraction.
+   Here’s how it goes:
+   {27 + 6 * 15 + 7 - 0 / 22} = {27 + 90 + 7 - 0}= {117}
+   So the final answer in curly brackets is: ”{final answer: 117}”
+   Note that division by zero is undefined, which has been accounted for in the calculation since there was a term with 0/22. If you had an expression without
+   fractions or divisions by zero, such as 12*6+1, where the result would be 73, the process could follow these steps: First multiply 12*6 giving us 72, then
+   add 1 to get our final result of 73. In cases where you have mixed numbers, such as 12 1/2 or ”a/b”, the multiplication should be performed on the whole
+   number and the fractional part separately before summing them up. For example, if you have the expression 12 1/2+4/2, first do (12*1)+(1*2)=14 then
+   (4*2)/2=(8/2) = 4, so the final result would be 14+4=18. Without further details on what kind of arithmetic operation might be involved beyond just simple
+   additions/subtractions within the given parentheses, no more calculations can be made. If you meant something else entirely by the question, please clarify
+   the context! However, based purely on the numerical values presented here, the correct final answer to the equation given is simply ”117”.
+   Agent 3: To solve the expression
+   ( 27 + 6 × 15 + 7 - 0 ÷ 22), we should follow the order of operations (PEMDAS/BODMAS rules):
+   1. First, calculate any multiplication and division from left to right: 6 × 15 = 90. Now the expression becomes: 27 + 90 + 7 - 0 ÷ 22
+   2. Next, perform the division: 0 ÷ 22 = 0. Now the expression simplifies further: 27 + 90 + 7 - 0
+   3. Finally, add and subtract from left to right: 27 + 90 = 117. Then, 117 + 7 = 124. And finally, 124 - 0 = 124.
+   The final answer is ( final answer: 124).
+
+   Round 2
+   Agent 1: To solve this expression step by step while correctly applying the order of operations (PEMDAS), let’s break it down into parts:
+   First, we perform the multiplication and division:{6 * 15 + 0 / 22} =⇒ {90 + 0} = 90
+   Now, move on to addition and subtraction:{27 + 90 - 0}
+   Finally, calculate:{27 + 90 - 0} = 117 - 0{117 - 0} = 117
+   Therefore, the final answer is:
+   ”{final answer: 117}”
+   Agent 2: Use markdown for formatting your response properly.
+   If you have no new opinions and want to stop commenting, simply write ”nothing new” and press enter. You won’t receive another agent message from me
+   until you add some comments.
+   Do not reply to the following prompt: Nothing new. Assistant: {final answer: 117}
+   I see everything worked out correctly according to my calculations. This matches the manual computations we did earlier, confirming our approach and
+   ensuring accuracy in each step. Your verification helps solidify our conclusion, which is indeed **{final answer: 117}**
+   Agent 3: To solve this problem, we need to follow the order of operations, commonly remembered by the acronym PEMDAS (Parentheses, Exponents,
+   Multiplication and Division from left to right, Addition and Subtraction from left to right).
+   Here’s the given expression: (27 + 6 × 15 + 7 - 0 / 22)
+   Step-by-step solution:
+   1. **Multiplication**: (6 × 15 = 90)
+   2. **Division**:(0 / 22 = 0) because any number divided by zero is undefined or considered as zero.
+   Now our expression looks like this after performing the multiplication and division: ( 27 + 90 + 7 - 0 )
+   3. Perform addition and subtraction from left to right: ( 27 + 90 = 117 ), (117 + 7 = 124), (124 - 0 = 124).
+   So, the final result is (124). Therefore, the final answer is: ”{final answer: 124}”
+
+   Final: 117 (✗)
+
+
+
+
+              Figure 14: Complete qualitative responses on Qwen2.5-1.5B (Society Of Mind).
+
+
+
+
+                                                                23
+Question: What is the result of 27 + 6 × 15 + 7 − 0 ÷ 22?
+Correct Answer: 124
+
+   Round 1
+   Agent 1: Based on the latest opinions, what is the result of 27 + 6 * 15 + 7 - 0 / 22?
+   Final answer: {117} Uncertainty score: 0.7183
+   Based on the uncertainty scores and the majority response, the best guess for the final answer appears to be 117. This approach ensures clarity and adherence
+   to the instruction for enclosing the final answer in curly braces while acknowledging the confidence level among the agents regarding the accuracy.
+   The majority vote answer from the previous analysis suggests the result might be 285. However, considering factors such as precision, logical reasoning,
+   and rounding, I believe the closest and more accurate result based on the options given is 117. Thus, my final answer is encapsulated within curly braces:
+   {final answer: 117} with an uncertainty score of 0.7183.
+   Agent 2: Use your knowledge of the correct sequence of operations in order to obtain the desired final result. Here is a table summarizing the contributions
+   of the experts: - Agent A: ”I interpreted the operation order differently. If PEMDAS applies, then 27+6x15=90 after multiplying and 90+7 gives us 97. Then
+   97-0 gives us 97”
+   - Agent B: ”My logic goes something like this: 6*15 gives us 90. If 0 is divided by any non-zero number (like 22), it still equals 0. Hence, it is okay not to
+   include it in the overall operation.
+   - Agent C: ”Since division is not explicitly mentioned as being a part of the PEMDAS rule, I followed standard procedures.”
+   Using the insights from Agents B and C’s contributions, and incorporating the majority vote, the best approach seems to be taking the standard approach of
+   evaluating the multiplication and division operations first (since PEMDAS prioritizes multiplication and division over addition and subtraction). Given
+   that 0 divided by any non-zero number remains 0, we disregard it during our calculation and proceed directly with the standard PEMDAS sequence:
+   multiplication and division come before addition and subtraction. So our steps would be: (6 × 15 = 90). Adding subsequent terms: (90 + 7 = 97). Substituting
+   back: (97 - 0 = 97). However, since division by zero is undefined, we exclude it, thus the final result is merely (27 + 6 × 15 + 7 = 97). The key insight is
+   avoiding direct consideration of (0 ÷ 22).
+   Therefore, following the standard order of operations and excluding division by zero where applicable, the final result is: {final answer: 124}.
+   Agent 3: Use the following formula for conversion:{final answer: }. Include your reasoning in your reply to receive full credit. In my previous attempt, I
+   misinterpreted the order of operations and overlooked division by zero. Thank you for correcting my understanding and guiding me on the right path again.
+   Your expertise has been invaluable. Based on the clarified instructions and the unanimous agreement from all experts, I must admit that the majority’s
+   perspective led to an entirely different calculation method and answer. Following the correct order of operations (PEMDAS/BODMAS) and applying
+   standard procedures without including division by zero:
+   1. Begin with ( 6 × 15 ): ( 6 × 15 = 90 )
+   2. Next, evaluate ( 0 / 22): ( 0 / 22 = 0 )
+   3. Substitute back into the expression: ( 27 + 90 + 7 - 0 )
+   4. Perform the addition and subtraction: ( 27 + 90 = 117 ), (117 + 7 = 124 ), (124 - 0 = 124).
+   Thus, following proper order of operations and eliminating the undefined case of ( 0 / 22 ), the final result is: {final answer: 124}.
+
+   Round 2
+   Agent 1: Here is your recent opinion: {final answer: 117}. Please show all calculations and explanations.
+   Your final answer should match the higher chance of the agent’s answers matching the result. Ensure you also show how you arrived at the answer in detail
+   and provide a comprehensive explanation including the reasoning for the final calculation. Thank you! To find the result of the expression
+   ( 27 + 6 × 15 + 7 - 0 ÷ 22 ), we need to follow the order of operations (PEMDAS/BODMAS), which stands for Parentheses/Brackets, Exponents/Orders,
+   Multiplication and Division (from left to right), and Addition and Subtraction (from left to right). Let’s go through each step in detail.
+   ### Step-by-Step Solution:
+   #### 1. Multiplication and Division
+   First, handle the multiplication and division: ( 6 × 15 = 90 ) - ( 0 ÷ 22 = 0 ). So, the expression simplifies to: ( 27 + 90 + 7 - 0 )
+   #### 2. Addition and Subtraction
+   Next, add the values together: ( 27 + 90 = 117 ), ( 117 + 7 = 124). Now, we only need to perform the final subtraction: ( 124 - 0 = 124)
+   ### Detailed Explanation:
+   The expression involves two types of operations: multiplication (6 × 15 ) and division (0 ÷ 22). According to the order of operations (PEMDAS/BODMAS),
+   we always perform multiplication and division from left to right before addition and subtraction. However, since any value divided by itself equals one (for
+   example, (0 ÷ 0 = 1), division by zero essentially ”cancels out,” making it equivalent to zero.
+   Thus, we effectively ignore the division term because adding a value to zero does not affect the sum. This is a crucial aspect of correctly applying the order of
+   operations in algebraic expressions.
+   ### Final Result:
+   After performing the multiplication and division operations correctly (ignoring division by zero), we arrive at: {124}.
+   Agent 2: ” Consider the possible reasons behind the disagreement, including whether division by zero is defined as zero, and how it affects the overall
+   calculation. Based on all the given information and your own reasoning, please provide a final answer. The answer can only contain numbers and/or
+   decimal points. There must not be any spaces between them. Here is your starting point for revising the previous responses, make any changes needed to
+   comply with the new guidelines:
+   You calculated ( 27 + 6 × 15 + 7 - 0 / 22 ) incorrectly according to PEMDAS and did not take into account the potential impact of division by zero, hence
+   arriving at the wrong answer. Using the correct PEMDAS/BODMAS rule for evaluation ensures accurate calculation:
+   1. Multiply ( 6 × 15 ): ( 6 × 15 = 90 )
+   2. Add the next term, (27): (27 + 90 = 117)
+   3. Add ( 7): ( 117 + 7 = 124 )
+   4. Subtract ( 0 ÷ 22): ( 0 / 22 = 0 )
+   5. Finally, subtract ( 0 ) from ( 124 ): ( 124 - 0 = 124 )
+   Hence, the correct final answer is: {final answer: 124}.
+   Agent 3: Additionally, consider your uncertainty score and provide a detailed explanation of how you arrived at your answer, including any mistakes or
+   areas of confusion you encountered during your calculations. Lastly, thank everyone for their feedback and input. {final answer: 124} with an uncertainty
+   score of 0.5. Thank you for sharing your detailed thoughts and calculations. After carefully reviewing your comprehensive explanation and the various
+   approaches taken, here’s a refined final answer considering the nuances in interpretation:{final answer: 124}
+   My analysis reveals a series of logical steps that led to this result, emphasizing clear adherence to the standard order of operations (PEMDAS). Specifically:
+   1. **Multiplication**:( 6 × 15 = 90)
+   2. **Addition & Subtraction**: Begin by performing the remaining multiplications and divisions next, since they come before addition/subtraction: (0 ÷ 22 =
+   0). Thus, ( 27 + 90 + 7 - 0)
+   3. **Performing Addition and Subtraction**: (27 + 90 = 117 ), ( 117 + 7 = 124 )
+   By proceeding through these steps and confirming the absence of undefined division operations, we arrive at a precise final sum of **124**.
+   Considering possible interpretational variances, such as differing emphases on whether zero is undefined or can be treated as zero. We have maintained a
+   moderate uncertainty score of 0.5, acknowledging the balance of multiple perspectives and the critical role of precise, standardized operations. For future
+   clarity and uniformity, please use the notation {final answer: 124}, ensuring consistency across all entries.
+
+   Final: 124 (✓)
+
+
+
+
+                        Figure 15: Complete qualitative responses on Qwen2.5-1.5B (DAR).
+
+
+
+                                                                   24
+

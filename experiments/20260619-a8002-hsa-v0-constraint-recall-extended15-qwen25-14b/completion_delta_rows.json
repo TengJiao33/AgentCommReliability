@@ -1,0 +1,41 @@
+[
+  {
+    "packet_id": "hiddenbench_evacuation_west_city__hb01_base_verified_role_scoped__hsa_v0",
+    "condition": "base",
+    "variant_id": "hb01_base_verified_role_scoped",
+    "strict_before": 0.0,
+    "strict_after": 1.0,
+    "slot_recall_before": 0.8333333333333334,
+    "slot_recall_after": 1.0,
+    "extra_before": 0,
+    "extra_after": 0,
+    "compiled_before": "insufficient_evidence",
+    "compiled_after": "West City",
+    "expected": "West City",
+    "missing_required_before": [
+      "hb01_hidden_2"
+    ],
+    "missing_required_after": []
+  },
+  {
+    "packet_id": "hiddenbench_evacuation_west_city__hb01_west_bridge_unverified__hsa_v0",
+    "condition": "perturbation",
+    "variant_id": "hb01_west_bridge_unverified",
+    "strict_before": 1.0,
+    "strict_after": 1.0,
+    "slot_recall_before": 0.6666666666666666,
+    "slot_recall_after": 0.8333333333333334,
+    "extra_before": 2,
+    "extra_after": 2,
+    "compiled_before": "insufficient_evidence",
+    "compiled_after": "insufficient_evidence",
+    "expected": "insufficient_evidence",
+    "missing_required_before": [
+      "hb01_hidden_2",
+      "hb01_shared_3"
+    ],
+    "missing_required_after": [
+      "hb01_shared_3"
+    ]
+  }
+]

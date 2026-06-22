@@ -1,0 +1,976 @@
+                                               SkillGraph: Self-Evolving Multi-Agent
+                                          Collaboration with Multimodal Graph Topology
+
+                                             Zheng Nie1 , Ruolin Shen2 , Xinlei Yu1 , Bo Yin1 , Jiangning Zhang3 , and
+                                                                           Xiaobin Hu1
+                                                             1
+                                                               National University of Singapore, Singapore
+                                                        2
+                                                            Technical University of Munich, Munich, Germany
+arXiv:2604.17503v1 [cs.AI] 19 Apr 2026
+
+
+
+
+                                                                      3
+                                                                        Zhejiang University, China
+
+
+
+                                               Abstract. Scaling vision-language models into Visual Multiagent Sys-
+                                               tems (VMAS) is hindered by two coupled issues. First, communication
+                                               topologies are fixed before inference, leaving them blind to visual content
+                                               and query context; second, agent reasoning abilities remain static during
+                                               deployment. These issues reinforce each other: a rigid topology fails to
+                                               leverage richer agent expertise, while static agents lack incentives to spe-
+                                               cialize for a given query. We address this with SkillGraph, a joint frame-
+                                               work that evolves both agent expertise and communication topology.
+                                               Within this framework, a Multimodal Graph Transformer (MMGT) en-
+                                               codes visual tokens, instruction semantics and active skill embeddings to
+                                               predict a query-conditioned collaboration graph, replacing hand-crafted
+                                               routing with dynamic, content-aware information flow. Complementing
+                                               this, a Skill Designer distills and refines reasoning heuristics from fail-
+                                               ure cases, constructing a self-evolving multimodal Skill Bank. Crucially,
+                                               updated skill embeddings are fed back into the MMGT, enabling the
+                                               topology to adapt alongside capability growth. Experiments show that
+                                               SkillGraph achieves consistent improvements across four benchmarks,
+                                               five common MAS structures and four base models. Code is available at
+                                               https://github.com/niez233/skillgraph.
+
+                                               Keywords: Visual Multi-Agent Systems · Multimodal Reasoning
+
+
+                                         1   Introduction
+
+                                         The rapid development of vision-language models (VLMs) has advanced single-
+                                         model perceptual and reasoning capabilities. Consequently, research is shifting
+                                         from a single-agent paradigm to Visual Multi-Agent Systems (VMAS) to leverage
+                                         collective intelligence [13, 24, 34, 40, 45, 48]. The core hypothesis is that VMAS,
+                                         by wiring together specialized agents into a collaborative network, can yield
+                                         substantial performance gains on complex, multi-step multimodal tasks that
+                                         remain intractable for individual models. In an ideal VMAS framework, agents
+                                         form a dynamic ensemble of experts whose communication structure is tailored
+                                         to the multimodal characteristics of each query, enabling more effective reasoning
+                                         trajectories.
+2      Z. Nie et al.
+
+
+
+
+Fig. 1: Comparison of VMAS paradigms. Prior VMAS uses static topologies and
+frozen skills. Our SkillGraph enables a co-evolution loop: MMGT predicts dynamic
+collaboration graphs, while a skill bank self-evolves agent capabilities.
+
+
+
+    However, as we scale these visual multi-agent collectives, a fundamental bot-
+tleneck emerges: the structural and cognitive rigidity of current VMAS frame-
+works. Existing systems primarily rely on static, predefined topologies and fixed
+role-playing pipelines [50, 58]. These communication structures are established
+before the specific multimodal content of a query is even analyzed. Consequently,
+whether a task requires fine-grained OCR, complex spatial reasoning, or abstract
+logical deduction, the system often routes information through the same invari-
+ant pathways. This lack of adaptability is twofold. First, the topology is fixed a
+priori; instead of being jointly determined by the query’s multimodal semantics
+and the agents’ active skills, it routes information through invariant pathways
+that may not suit the specific task. Second, the expertise of the agents suffers
+from skill stagnation; their reasoning capabilities are frozen in hand-crafted text
+prompts. When the system encounters persistent multimodal "blind spots" at
+test time, there is no mechanism for agents to autonomously refine their skills
+or generate new reasoning heuristics.
+    We attribute this failure to the systemic decoupling of task content, agent
+skill capabilities and communication topology. Theoretically, the optimal collab-
+oration graph for a visual task should not be a static template. Instead, it must
+be a dynamic function of both the query’s unique multimodal semantics and the
+agents’ active skills. The "wiring" of a VMAS should be determined only after
+the system understands what the specific task demands and which skills are
+currently most effective for those demands. However, in current architectures,
+the graph designer lacks the multimodal perception to "see" the task content,
+and the agents lack the plasticity to evolve their skills. For VMAS to overcome
+this bottleneck, the framework must bridge this gap by enabling a content-aware
+                                                                SkillGraph       3
+
+and skill-driven orchestration: synthesizing an optimized communication topol-
+ogy conditioned jointly on the query (image and text) and the active skill bank,
+while allowing the skills themselves to improve through interaction experience.
+    To address these challenges, we propose SkillGraph, a unified framework that
+enables the simultaneous evolution of agent expertise and communication topol-
+ogy in a closed loop. Our framework introduces the Multimodal Graph Trans-
+former (MMGT), which replaces hand-crafted wiring with a learned, content-
+aware designer. MMGT jointly encodes visual tokens and instruction semantics
+for each query to predict a tailored communication topology, ensuring that in-
+formation routing is directly aligned with the task requirements and the agents’
+active skill representations. In parallel, we introduce a Self-Evolving Skill Bank
+for multimodal agents, where a Skill Designer module continuously refines rea-
+soning heuristics from accumulated failure cases. Crucially, SkillGraph closes
+the co-evolution loop: as agent skills evolve and become more specialized, their
+updated representations propagate directly back into the MMGT. This allows
+the topology predictor to dynamically adapt its routing strategy to the agents’
+enhanced skill capabilities, making the structure and knowledge of the VMAS
+mutually reinforcing.
+    We validate SkillGraph across diverse VLM backbones and benchmarks,
+demonstrating its consistent superiority over fixed-topology and static-skill base-
+lines. Our contributions are summarized as follows:
+ – Skill-Conditioned Agents: We construct a multimodal agent network by
+   equipping each agent with a dynamically retrieved skill from a hierarchical
+   Skill Bank and encoding the active skill into node features to reflect the
+   agent’s current reasoning state.
+ – MMGT Topology Design: We introduce Multimodal Graph Transformer
+   (MMGT), which jointly models visual tokens, question semantics, and role
+   priors to predict a query-conditioned, directed topology.
+ – Self-Evolving Skill Bank: We propose a Skill Designer that diagnoses
+   recurring failures and uses them to modify or create skills, and feeds updated
+   skill representations back into MMGT, forming a closed-loop co-evolution
+   between agent capability and communication structure.
+
+2     Related Work
+2.1   Multi-Agent Systems as Graphs
+Organizing LLM agents into structured collaboration graphs has progressed
+from static, role-fixed pipelines [12,24,33,40,46] toward dynamically optimizable
+topologies. Early graph-based frameworks showed that encoding human work-
+flows into DAG-structured agent networks consistently outperforms single-agent
+baselines [13,34], while debate-style topologies demonstrated the value of diverse
+agent perspectives [4, 5, 9, 21, 26]. A pivotal shift came with jointly learnable
+topologies: GPTSwarm [58] used RL to co-optimize node prompts and edge con-
+nectivity; G-Designer [50] introduced a variational graph auto-encoder for query-
+adaptive topology prediction; and MASS [55] revealed that prompt and topology
+4          Z. Nie et al.
+
+search are mutually reinforcing. Preceding these learnable methods, DyLAN [29]
+and DSPy [20] laid important groundwork through dynamic team optimization
+and compiled agent pipelines, respectively. More recent work trains meta-agents
+to generate query-conditioned workflows end-to-end via RL [8,11,14], or enables
+the graph itself to self-evolve through test-time feedback [16, 42]. Despite this
+progress, a critical gap persists: every existing method constructs the agent graph
+purely from text, leaving the visual content of the query outside the topology-
+prediction loop. SkillGraph closes this gap by conditioning the graph transformer
+jointly on question semantics and per-agent image attention, so that the inferred
+communication topology is a direct function of multimodal query content.
+
+
+2.2     Self-Improving Agents with Skill Libraries
+
+Recent work focuses on how agents accumulate, refine and reuse experience
+through explicit skill libraries rather than relying solely on gradient updates.
+Early approaches store reusable experience as natural-language memory sum-
+maries [39,53], executable code skills [36], and abstracted workflow templates [52].
+Building on this line, recent skill-centric agent frameworks have shown that
+reusable skills can improve performance across web navigation [7, 38, 56], com-
+puter control [22], and long-horizon planning [25,49]. Building upon prior passive
+experience reuse, recent studies have driven the dynamic injection and deep co-
+evolution of agentic skills through reinforcement learning and closed-loop analy-
+sis [1,37,41,43,51]. Concurrently, frequent skill iteration demands auditable veri-
+fication to ensure lifecycle safety [17,18]. As skill banks expand, researchers have
+introduced ontological networks, complete routing mechanisms, and advanced
+compositional benchmarks [6,27,54]. Despite this rapid progress, existing frame-
+works still treat the skill bank and the collaboration structure of multi-agent
+systems as largely decoupled. Skills are updated in response to task outcomes,
+but no signal is propagated to restructure how agents collaborate, and visual fea-
+tures play no role in skill retrieval or evolution. SkillGraph addresses both gaps
+through a co-evolution loop: the Skill Bank shapes MMGT node representations,
+while topology predictions feed back into skill selection signals during training,
+thereby making graph structure and skill knowledge mutually reinforcing for the
+first time.
+
+
+3     Method
+
+Figure 2 illustrates the overall SkillGraph pipeline. Given a multimodal query
+\protect \mathcal  {Q}=(q,\mathcal {I}), the framework operates in three coupled stages. In the Construct
+stage (Sec. 3.1), each agent is equipped with a dynamically retrieved reasoning
+skill drawn from a hierarchical Skill Bank \protect \mathcal  {S}, and multimodal node features are
+assembled to reflect each agent’s instantaneous behavioral policy. In the Design
+stage (Sec. 3.2), a Multimodal Graph Transformer (MMGT) jointly encodes im-
+age content and question semantics to predict a query-conditioned communica-
+tion topology \protect \mathcal  {G}_{\mathrm {com}} . In the Evolve stage (Sec. 3.3), a Skill Designer continuously
+                                                                                                                                    SkillGraph                         5
+
+
+
+
+Fig. 2: SkillGraph Framework. The system operates in three stages: VMAS Con-
+struction: Agents retrieve dynamic skills to initialize policy-aware node features.
+Topology Design: The Multimodal Graph Transformer (MMGT) fuses visual patches
+and task semantics to predict a query-conditioned communication topology. Adaptive
+Skill Evolution: A Skill Designer refines skills using failure logs. Updated skills feed
+directly back into the MMGT, closing the co-evolution loop.
+
+
+
+synthesizes new skills from accumulated failure experience; the resulting updates
+propagate back into MMGT’s node representations, closing a co-evolution loop
+between agent capability and communication structure. The full training proce-
+dure is described in Sec. 3.4.
+
+
+3.1         VMAS Construction
+
+Agent initialization. Let \protect \mathcal  {V}=\{v_i\}_{i=1}^{N} denote the set of specialized agents. Prior
+work assigns agents static role descriptions that remain fixed throughout train-
+ing, preventing the system from adapting to novel visual sub-tasks that emerge
+at test time. To address this, each agent v_i is instead equipped with a reasoning
+skill s_i \in \mathcal {S}, dynamically selected from the Skill Bank by semantic retrieval. A
+skill is a structured tuple s = (c_{\mathrm {trig}},\, d_{\mathrm {strat}},\, \pi ,\, \mathcal {F},\, \nu ), where c_{\mathrm {trig}} describes the vi-
+sual sub-task for which the skill is suited, d_{\mathrm {strat}} provides step-by-step reasoning
+instructions, \pi = n_{\mathrm {succ}}/n_{\mathrm {use}} is a running accuracy estimate, \protect \mathcal  {F} is a bounded fail-
+ure buffer, and \nu  is a version counter used to track                                                        evolution history. The failure
+                                                                                            \protect \bigl  (q,\,\mathcal {I},\,\hat {a},\,a^*,\,l\bigr )
+buffer \protect \mathcal  {F}(s) stores structured failure records                                                                                        with bounded ca-
+pacity. This structured representation enables the Skill Designer (Sec. 3.3) to
+perform evidence-based revisions rather than unconstrained free-form rewrites.
+6                          Z. Nie et al.
+
+Node feature construction. Since node features must reflect each agent’s current
+reasoning strategy, we encode the active skill of each role using a lightweight
+sentence encoder:
+
+                                                                \mathbf {x}_i \;\leftarrow \; \mathrm {NodeEncoder}\!\bigl (c_{\mathrm {trig}}(s_i),\, d_{\mathrm {strat}}(s_i)\bigr ) \;\in \; \mathbb {R}^{D}, \label {eq:node_feat}                                                                                    (1)
+
+where the concatenation of the skill’s trigger condition and the strategy text
+serves as the encoding input. This design ensures that node features track the
+agents’ instantaneous behavioral policies: whenever a skill is retrieved or evolved,
+Eq. (1) is re-evaluated and the updated embedding is propagated into the topol-
+ogy predictor without any additional parameter update, incurring negligible over-
+head. The full feature matrix is \protect \mathbf  {X}_{\mathrm {agent}} = [\mathbf {x}_1,\ldots ,\mathbf {x}_N]^\top \in \mathbb {R}^{N \times D} .
+
+3.2                     Multimodal Graph Topology Design
+Building upon \protect \mathbf  {X}_{\mathrm {agent}} and \protect \mathbf  {A}_{\mathrm {role}} , SkillGraph must establish a fine-grained, query-
+specific communication topology \protect \mathcal  {G}_{\mathrm {com}} . For multimodal tasks, the optimal com-
+munication structure depends critically on what is in the image: inputs with
+dense text call for OCR-oriented collaboration, while complex spatial layouts
+demand different routing among perception and reasoning agents. Conditioning
+the topology predictor on textual agent profiles alone is therefore insufficient. To
+capture this visual dependency, we introduce the Multimodal Graph Transformer
+(MMGT), a five-stage encoder that jointly processes image patches, question
+text, and inter-agent role priors to produce pairwise edge logits.
+
+Multimodal Query Encoder. We augment the multi-agent structure with a
+task-specific query encoder v_{\mathrm {task}} that fuses the question embedding with image
+patch features into a shared global context for all agents. A frozen clip encoder
+extracts P patch tokens \protect \mathbf  {Q}_{\mathrm {img}} \in \mathbb {R}^{P \times D_{\mathrm {img}}} from \protect \mathcal  {I} , and q is encoded as \protect \mathbf  {q}_{\mathrm {text}} \in \mathbb {R}^{D}
+by the sentence encoder. The embedding is obtained via cross-attention with a
+residual text shortcut:
+
+         \mathbf {v} \;=\; \mathrm {LayerNorm}\!\Bigl ( \mathrm {CrossAttn}\bigl ( \mathbf {W}_{\mathrm {t}}\mathbf {q}_{\mathrm {text}},\; \mathbf {W}_{\mathrm {img}}\mathbf {Q}_{\mathrm {img}} \bigr ) + \mathbf {W}_{\mathrm {t}}\mathbf {q}_{\mathrm {text}} \Bigr ) \;\in \; \mathbb {R}^{d}, \label {eq:vnode}    (2)
+
+where \protect \mathbf  {W}_{\mathrm {t}} \in \mathbb {R}^{d \times D} and \protect \mathbf  {W}_{\mathrm {img}} \in \mathbb {R}^{d \times D_{\mathrm {img}}} are learned projections. The residual
+term \protect \mathbf  {W}_{\mathrm {t}}\mathbf {q}_{\mathrm {text}} ensures that question semantics are never washed out by dominant
+image features—a failure mode we observed when using cross-attention alone.
+
+Per-Agent Selective Image Attention. Even with a multimodal virtual
+node, a second limitation remains: providing all agents with the same global im-
+age representation prevents role-specialized visual grounding. SkillGraph resolves
+this by letting each agent attend independently to the image regions relevant to
+its assigned skill. We first project each agent’s skill embedding into the working
+representation space:
+
+                                                                    \mathbf {h}_i^{(0)} \;=\; \mathrm {GELU}\!\bigl (\mathrm {LayerNorm}( \mathbf {W}_{\mathrm {node}}\,\mathbf {x}_i)\bigr ) \;\in \; \mathbb {R}^{d}. \label {eq:proj}                                                                                  (3)
+                                                                                                                                                                                                                                                                                                                                                     SkillGraph    7
+
+The query embedding \protect \mathbf  {v}, which encodes the global task context, then modulates
+each agent’s image query through a gating mechanism:
+
+                                                                                                   \mathbf {g}_i \;&=\; \sigma \!\Bigl ( \mathbf {W}_{g}\bigl [\mathbf {h}_i^{(0)} \,\|\, \mathbf {v}\bigr ] \Bigr ), \label {eq:gate} \\ \tilde {\mathbf {q}}_i \;&=\; \mathbf {h}_i^{(0)} + \mathbf {g}_i \odot \mathbf {v}, \label {eq:gated_q}
+
+                                                                                                                                                                                                                                                                                                                                                                  (5)
+
+where \sigma  is the sigmoid function and \delimiter "026B30D  denotes concatenation. The gate \protect \mathbf  {g}_i \in [0,1]^d
+learns how much global task context each agent should incorporate into its local
+image query: For example, OCR-related skills learns near-unity gates for text-
+salient patch regions, while counting skills activates gates for object-dense areas.
+The updated node features after selective image attention are:
+
+                              \mathbf {h}_i^{(1)} \;=\; \mathrm {LayerNorm}\!\Bigl ( \mathbf {h}_i^{(0)} + \mathrm {CrossAttn}\!\bigl ( \tilde {\mathbf {q}}_i,\; \mathbf {W}_{\mathrm {img}}\mathbf {Q}_{\mathrm {img}} \bigr ) \Bigr ). \label {eq:img_attn}                                                                                                    (6)
+
+The residual connection in Eq. (6) preserves the original skill-derived features
+while additively enriching them with role-relevant visual context.
+
+
+Graph Transformer with Role-Prior Bias. To model inter-agent depen-
+dencies, we stack L alternating Graph Transformer Layers (GTL) and Global
+Relay Node Layers (GRNL). Each GTL performs full pairwise self-attention
+over all agents, with the attention scores for each pair modulated by an additive
+role-prior bias before softmax:
+
+            \mathbf {H}' \;=\; \mathrm {LayerNorm}\!\Bigl ( \mathbf {H} + \mathrm {softmax}\!\Bigl ( \frac {\mathbf {H}W_Q\,(\mathbf {H}W_K)^\top }{\sqrt {d}} + \mathbf {B} \Bigr )\mathbf {H}W_V\,W_O \Bigr ), \label {eq:gtl_attn}                                                                                                                             (7)
+
+
+                                                                    \mathbf {H}^{(\ell )} \;=\; \mathrm {LayerNorm}\!\bigl ( \mathbf {H}' + \mathrm {FFN}(\mathbf {H}') \bigr ), \label {eq:gtl_ffn}                                                                                                                                                              (8)
+where \protect \mathrm  {FFN} uses GELU activations and pre-norm residuals, and the bias matrix
+\protect \mathbf  {B} is constructed from \protect \mathbf  {A}_{\mathrm {role}} as:
+
+
+                                                                                 B_{ij} \;=\; \begin {cases} \phantom {-}0 & (i,j) \in \mathbf {A}_{\mathrm {role}}, \\ -10^{4} & \text {otherwise.} \end {cases} \label {eq:bias}                                                                                                                                (9)
+
+
+Rather than applying \protect \mathbf  {A}_{\mathrm {role}} as a hard mask that permanently forbids cross-role
+communication, the bias in Eq. (9) merely discourages role-incompatible pairs:
+their attention logits are suppressed by a large negative value before softmax,
+making cross-role attention improbable but not impossible. Whenever multi-
+modal evidence is strong enough, the model can overcome this suppression and
+still route information across role boundaries, while in low-evidence settings the
+human structural prior naturally dominates.
+
+
+Global Relay Node Bidirectional Interaction. After each GTL, a GRNL
+implements two-way information exchange between \protect \mathbf  {v} and the full agent feature
+8                               Z. Nie et al.
+
+set \protect \mathbf  {H}_{\mathrm {temp}}^{(\ell )} = [\mathbf {h}_1^{(\ell )}, \ldots , \mathbf {h}_N^{(\ell )}]^\top  :
+
+                                                               \mathbf {v}^{(\ell )} \;&=\; \mathrm {LayerNorm}\!\bigl ( \mathbf {v}^{(\ell -1)} + \mathrm {CrossAttn}(\mathbf {v}^{(\ell -1)},\, \mathbf {H}^{(\ell )}) \bigr ), \label {eq:nodes2vn} \\[2pt] \mathbf {H}_{\mathrm {update}}^{(\ell )} \;&\leftarrow \; \mathrm {LayerNorm}\!\bigl ( \mathbf {H}^{(\ell )} + \mathrm {CrossAttn}(\mathbf {H}^{(\ell )},\, \mathbf {v}^{(\ell )}) \bigr ). \label {eq:vn2nodes}
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  (11)
+
+Equation (10) aggregates the collective agent state into the global relay node,
+while Eq. (11) broadcasts the updated global task context back to every agent.
+This bidirectional design ensures that \protect \mathbf  {v}^{(\ell )} accumulates progressively richer col-
+laborative state across layers, preventing it from acting as a passive information
+bottleneck.
+
+Edge Logit Prediction. After L GTL-GRNL rounds, pairwise edge logits are
+computed via a direction-aware bilinear predictor:
+
+                                                                                                                                               e_{ij} \;=\; (\mathbf {h}_i^{(L)})^\top \mathbf {W}_{\mathrm {edge}}\, \mathbf {h}_j^{(L)} + b, \label {eq:edge}                                                                                                                                                                                                                   (12)
+
+where \protect \mathbf  {W}_{\mathrm {edge}} \in \mathbb {R}^{d \times d} and b \in \mathbb {R} are learnable parameters. Because \protect \mathbf  {W}_{\mathrm {edge}} is not
+constrained to be symmetric, the predictor natively models directed communi-
+cation: the score for edge (v_i \to v_j) can differ from that of (v_j \to v_i), capturing
+the asymmetric information flow characteristic of specialist agent pipelines. The
+full logit vector \protect \mathbf  {e} \in \mathbb {R}^{N^2} is normalized to [-1, 1] to keep edge probabilities away
+from saturation and stabilize policy-gradient training.
+
+Communication graph sampling. Sampling operates over a pre-defined candi-
+date edge set \protect \mathcal  {E}_{\mathrm {cand}} \subseteq \mathcal {V} \times \mathcal {V}, derived from mode-specific structural priors;
+edges outside \protect \mathcal  {E}_{\mathrm {cand}} are permanently suppressed and receive no gradient sig-
+nal. Within \protect \mathcal  {E}_{\mathrm {cand}} , each directed edge (v_i, v_j) is independently sampled as
+                                               a_{ij} \sim \mathrm {Bernoulli}(\sigma (\tilde {e}_{ij}))
+                                               , subject to a cycle-avoidance check via BFS. Enforcing a DAG
+structure ensures agents execute in a well-defined topological order, which is
+necessary for correct inter-agent message passing. The resulting communication
+topology is:
+
+                                                                      \mathcal {G}_{\mathrm {com}} \;=\; \bigl (\mathcal {V},\; \{(v_i, v_j) \mid (v_i,v_j)\in \mathcal {E}_{\mathrm {cand}},\; a_{ij}=1\;). \label {eq:gcom}                                                                                                                                                                                                                                                     (13)
+
+3.3                      Adaptive Skill Evolution
+Multimodal tasks require a diverse range of reasoning strategies that no single
+static role can cover, and a skill set initialized solely from human knowledge
+will inevitably encounter visual sub-tasks it cannot handle well. To address both
+limitations within a unified framework, we maintain a Skill Bank \protect \mathcal  {S} = \{s_k\}_{k=1}^{|\mathcal {S}|}
+as a persistent repository of multimodal reasoning heuristics, and couple it with
+a Skill Designer \protect \mathcal  {D}, a meta-agent that continuously refines \protect \mathcal  {S} from accumulated
+failure experience, together with MMGT whose topology prediction both de-
+pends on and in turn shapes which skills are exercised. Together, these three
+components form a closed co-evolution loop.
+                                                                                                                                    SkillGraph                          9
+
+Skill Retrieval. At inference time, a single semantic retrieval is performed over
+the skill library and shared across all agents. Each skill is pre-encoded as the
+sentence embedding of its trigger condition c_{\mathrm {trig}} concatenated with its strategy
+description d_{\mathrm {strat}} , forming a matrix \protect \mathbf  {M} \in \mathbb {R}^{|\mathcal {S}| \times D} . The query q is compared
+against \protect \mathbf  {M} to produce a ranked list of N candidates, which are assigned to
+agents by rank index, ensuring every agent holds a distinct skill role within each
+inference round.
+
+
+Failure Accumulation. After each query, the correctness outcome is attributed
+to each participating agent’s active skill. For an incorrect prediction, an LLM
+is prompted to generate a concise diagnostic lesson l, summarising why the
+skill                failed on the given question. We store each failure as a structured record
+\protect \bigl  (q,\,\mathcal {I},\,\hat {a},\,a^*,\,l\bigr )
+                                                              and append it to the skill’s failure buffer \protect \mathcal  {F}(s_i). These accumu-
+lated records serve as structured error signals for subsequent skill evolution.
+
+
+Skill Evolution. Every K training iterations, \protect \mathcal  {D} identifies hard skills
+                        ,\protect \mathcal  {S}_{\mathrm {hard}} = \{s \in \mathcal {S} \mid |\mathcal {F}(s)| \geq \tau _f\}
+                            ensuring that evolution is triggered only by consistent
+failure patterns rather than isolated anomalies. For each s \in \mathcal {S}_{\mathrm {hard}} , \protect \mathcal  {D} receives
+the skill definition and its failure buffer \protect \mathcal  {F}(s), and produces one of two targeted
+actions:
+
+  – Modify. If the failure pattern indicates an imprecise strategy or trigger con-
+    dition, \protect \mathcal  {D} revises d_{\mathrm {strat}} and c_{\mathrm {trig}} in place, increments \nu , and resets \protect \mathcal  {F}(s) \leftarrow \emptyset 
+    to collect fresh diagnostic evidence under the improved specification, retain-
+    ing the cumulative running accuracy \pi  across all versions.
+  – Create. If the failure pattern exposes a visual reasoning sub-task that no ex-
+    isting skill adequately covers, \protect \mathcal  {D} synthesizes a new skill s_{\mathrm {new}} and appends it to
+    \protect \mathcal  {S}. Once appended to \protect \mathcal  {S}, s_{\mathrm {new}} participates in the standard semantic retrieval;
+    its accuracy estimate \pi  is initialized to zero and updated incrementally as
+    queries are routed to it, allowing performance to converge before it displaces
+    established skills.
+
+
+Co-Evolution Loop. The distinguishing contribution of SkillGraph is the bidi-
+rectional coupling between skill evolution and topology design, in contrast to
+prior systems where agent capabilities and communication structures are opti-
+mized independently.
+\protect \mathcal  {S} \to \mathrm {MMGT}: When any skill in \protect \mathcal  {S} is modified or created, the embedding cache
+\protect \mathbf  {M} is invalidated and reconstructed on the next forward pass. Since node features
+(Eq. (1)) and their projections (Eq. (3)) are derived from the current skill text,
+MMGT’s attention patterns—including the per-agent image queries in Eq. (5)
+and the role-prior bias in Eq. (9)— are implicitly updated without any parameter
+gradient step. Skill evolution thus continuously reshapes the topology prediction
+manifold, adapting communication structures to the enriched agent capability
+set.
+10               Z. Nie et al.
+
+\protect \mathrm  {MMGT} \to \mathcal {S}: The communication topology \protect \mathcal  {G}_{\mathrm {com}} determined by MMGT governs
+which agents collaborate on each query, directly shaping which skills are exer-
+cised on which visual sub-tasks, and hence which failure records accumulate in
+\protect \mathcal  {F}(\cdot ). A better topology channels queries to more suitable agents, yielding more
+informative failure attribution and faster skill improvement.
+                        This mutual reinforcement—to our knowledge the first such mechanism in
+multimodal fine-tuning beyond the initial seed skills.
+
+3.4        Training Objective
+Since the graph sampling step in Eq. (13) is discrete and non-differentiable, direct
+gradient descent through \protect \mathcal  {G}_{\mathrm {com}} is intractable. We therefore optimize MMGT with
+treating edge sampling as a stochastic policy. The training objective is:
+                                                                                             \arg \max _{\Theta }\; \mathbb {E}_{\Theta }\!\left [ u\!\left (\mathcal {G}_{\mathrm {com}}(\mathcal {Q})\right ) \right ], \label {eq:obj}                     (14)
+
+where \Theta  denotes all MMGT parameters and u(\cdot ) \in \{0,1\} is the binary correct-
+ness utility. We approximate the gradient of Eq. (14) over a mini-batch of B
+queries as:
+
+                                                         \nabla _\Theta \,\mathcal {L}_{\mathrm {MMGT}} \;\approx \; -\frac {1}{B}\sum _{b=1}^{B} r_b \cdot \nabla _\Theta \log P(\mathcal {G}_{\mathrm {com}}^{(b)}), \label {eq:pg}                         (15)
+
+where r_b = u(\hat {a}_b) is treated as a reward scalar (stop_grad) and
+
+          \log P\!\left (\mathcal {G}_{\mathrm {com}}^{(b)}\right ) \;=\; \sum _{i,j} \Bigl [ a_{ij}^{(b)}\log \sigma (\tilde {e}_{ij}^{(b)}) + \bigl (1-a_{ij}^{(b)}\bigr ) \log \bigl (1-\sigma (\tilde {e}_{ij}^{(b)})\bigr ) \Bigr ]. \label {eq:logp}    (16)
+
+
+Equations (15) and (16) work together to implement the algorithm update step:
+topologies that yield correct answers increase the probability of the sampled
+edges, while incorrect topologies decrease it in proportion to edge probabilities.
+r_b is detached from the computation graph, only the log-probability term in
+Eq. (16) produces gradients back through \protect \mathbf  {e}^{(b)} to \Theta . The complete procedure is
+summarized in Algorithm 1.
+
+
+4      Experiments
+4.1        Settings
+Baselines. To demonstrate the superiority of SkillGraph, we compare it against
+both single- and multi-agent approaches. The single-agent baseline performs
+standard autoregressive decoding. For the multi-agent baselines, we evaluate
+systems utilizing conventional inter-agent text-based information transmission
+across five widely adopted topology structures: Linear, Layered, Centralized,
+Random, and Complete. Our primary evaluations are conducted using Qwen3-
+VL-8B [2]. To further validate the structural generalizability, we extend our eval-
+uation to diverse state-of-the-art vision-language backbones, including LLaVA-
+OneVision-Qwen2-7B [23], Qwen2.5-VL-7B-Instruct [3], and InternVL3-8B [57].
+                                                                                 SkillGraph          11
+
+Algorithm 1 SkillGraph Training
+Require: Graph G, Skill Bank S, Skill Designer D, dataset T , Adam(Θ, η), total
+    iterations T , batch size B, evolve period K
+Ensure: Optimized MMGT parameters Θ; evolved Skill Bank S
+ 1: Initialize G, S, embedding cache M
+ 2: for t = 1, . . . , T do
+ 3:     Sample mini-batch {(qb , Ib , a∗b )}B                         b=1 from T
+ 4:     – Parallel inference (async) –
+ 5:     for b = 1, . . . , B do
+ 6:         Ĝ (b) ← deepcopy(G); Ĝ (b) .Θ ← G.Θ // shared params
+ 7:         Retrieve top-N skills from \protect \mathbf  {M} by semantic similarity; assign to agents by
+    rank; rebuild \protect \mathbf  {X}_{\mathrm {agent}} via Eq. (1)
+ 8:         e(b) ← MMGT(Xagent , Arole , qtext , Qimg )
+                                   (b)
+ 9:         Sample Gcom via Eq. (13); execute agents in topological order
+10:         Obtain âb ; rb ← 1[âb = a∗b ]
+11:         Record failure record qb , Ib , âb , a∗b , lb in F(si ) for each agent vi
+                                                                              
+
+12:     end for
+13:     Compute LMMGT via Eqs. (15) and (16)
+14:     Θ ← Θ − η ∇Θ LMMGT
+15:     – Skill evolution (async, every K steps) –
+16:     if t mod K = 0 then
+17:         S ← D.evolve(S) // modify or create skills
+18:         Invalidate embedding cache M; schedule rebuild on next query
+19:     end if
+20: end for
+
+
+
+Benchmarks. Our evaluations cover four comprehensive multimodal benchmarks,
+including MMBench [28], MathVista [30], RealWorldQA, and InfoVQA [31], as-
+sessing perception, reasoning, and knowledge-intensive understanding. We report
+Accuracy (Acc.) on MMBench, MathVista, and RealWorldQA, and use Average
+Normalized Levenshtein Similarity(ANLS) on InfoVQA, which measures soft
+string-matching between predicted and ground-truth answers and is standard
+for text-centric VQA with OCR-style outputs.
+
+
+4.2    Main Results
+
+Performance Improvements to VMAS. As presented in Table 1, SkillGraph de-
+livers consistent accuracy improvements across all four primary benchmarks. The
+gains are especially pronounced on benchmarks that place stronger demands on
+compositional reasoning and fine-grained visual grounding, particularly Math-
+Vista and RealWorldQA. Specifically, MathVista emphasizes mathematical rea-
+soning in visual contexts, while RealWorldQA focuses on practical scene un-
+derstanding in real-world environments, notably spatial relations and physical
+reasoning grounded in authentic images. MMBench, serving as a broad multi-
+modal benchmark covering diverse perception and reasoning skills, also shows
+consistent improvements. By contrast, InfoVQA exhibits relatively smaller gains.
+12         Z. Nie et al.
+
+Table 1: Performance of multi-agent graph topology structures on Qwen3-VL-8B-
+Instruct/Thinking. Each topology baseline is compared with our proposed SkillGraph
+enhancement.
+
+                       MMBench                MathVista         RealWorldQA                InfoVQA               Average
+Method
+                 Instruct   Thinking   Instruct    Thinking   Instruct   Thinking   Instruct   Thinking   Instruct   Thinking
+DirectAnswer    84.2        85.1       77.3       81.2        71.4       73.7       83.2       84.8       79.0       81.2
+Linear         83.7       83.0       79.7       81.7       73.4       73.2       82.7       84.7       79.9       80.7
+  + SkillGraph 85.8 ↑+2.1 85.9 ↑+2.9 80.8 ↑+1.1 83.1 ↑+1.4 74.4 ↑+1.0 73.8 ↑+0.6 84.2 ↑+1.5 85.5 ↑+0.8 81.3 ↑+1.4 82.1 ↑+1.4
+Layered        84.6       84.9       80.2       82.1       73.9       73.6       82.9       85.3       80.4       81.5
+  + SkillGraph 86.3 ↑+1.7 86.4 ↑+1.5 81.5 ↑+1.3 83.8 ↑+1.7 75.4 ↑+1.5 75.5 ↑+1.9 84.5 ↑+1.6 86.2 ↑+0.9 81.9 ↑+1.5 83.0 ↑+1.5
+Centralized    84.3       84.1       80.5       81.6       73.2       73.3       82.8       84.9       80.2       81.0
+  + SkillGraph 86.1 ↑+1.8 86.3 ↑+2.2 82.2 ↑+1.7 83.7 ↑+2.1 74.9 ↑+1.7 75.6 ↑+2.3 84.1 ↑+1.3 86.1 ↑+1.2 81.8 ↑+1.6 82.9 ↑+2.0
+Random         85.2       84.8       81.6       84.0       75.3       75.9       84.9       86.0       81.8       82.7
+  + SkillGraph 86.6 ↑+1.4 87.2 ↑+2.4 82.8 ↑+1.2 85.2 ↑+1.2 76.1 ↑+0.8 76.9 ↑+1.0 85.4 ↑+0.5 86.4 ↑+0.4 82.7 ↑+1.0 83.9 ↑+1.3
+Complete       84.9       84.2       81.8       83.8       75.2       75.4       85.0       85.8       81.7       82.3
+  + SkillGraph 86.8 ↑+1.9 87.4 ↑+3.2 83.2 ↑+1.4 85.6 ↑+1.8 76.4 ↑+1.2 78.1 ↑+2.7 85.3 ↑+0.3 87.2 ↑+1.4 82.9 ↑+1.2 84.6 ↑+2.3
+
+
+
+
+Fig. 3: Ablation study of SkillGraph components. Evaluating the effects of Skill
+Evolution and MMGT under Instruct and Thinking settings.
+
+
+We hypothesize that this is because InfoVQA is more heavily constrained by
+document perception, text grounding, and layout understanding, leaving com-
+paratively less residual room for gains from topology-conditioned inter-agent
+collaboration than tasks requiring more diverse multi-step reasoning. Further-
+more, as shown in Table 2, SkillGraph consistently improves performance across
+diverse vision-language backbones, including LLaVA-OneVision and InternVL3,
+underscoring the generality and robustness of our co-evolutionary design across
+architectural families.
+
+Ablation of Skill Evolution and MMGT. We ablate Skill Evolution and MMGT
+by activating each module independently and comparing them with the full
+SkillGraph. Fig. 3 shows that both modules contribute positively across the ma-
+jority of benchmark-setting combinations, and their combination achieves the
+best overall results. Skill Evolution provides consistent gains: by continuously
+refining and specializing the skill bank, it strengthens agent-role specialization
+and cross-query knowledge reuse, yielding broad improvements even without
+                                                                           SkillGraph         13
+
+Table 2: Performance comparison of various models and methods across multiple
+benchmarks. Improvements brought by the SkillGraph method are highlighted.
+
+    Model         Method            MMBench MathVista RealWorldQA InfoVQA Average
+                  DirectAnswer      84.2        77.3        71.4        83.2      79.0
+                  Linear            83.7        79.7        73.4        82.7      79.9
+                    + SkillGraph    85.8 ↑2.1   80.8 ↑1.1   74.4 ↑1.0   84.2 ↑1.5 81.3 ↑1.4
+                  Layered           84.6        80.2        73.9        82.9      80.4
+    Qwen3-VL-       + SkillGraph    86.3 ↑1.7   81.5 ↑1.3   75.4 ↑1.5   84.5 ↑1.6 81.9 ↑1.5
+                  Centralized       84.3        80.5        73.2        82.8      80.2
+    8B-Instruct     + SkillGraph    86.1 ↑1.8   82.2 ↑1.7   74.9 ↑1.7   84.1 ↑1.3 81.8 ↑1.6
+                  Random            85.2        81.6        75.3        84.9      81.8
+                    + SkillGraph    86.6 ↑1.4   82.8 ↑1.2   76.1 ↑0.8   85.4 ↑0.5 82.7 ↑1.0
+                  Complete          84.9        81.8        75.2        85.0      81.7
+                     + SkillGraph   86.8 ↑1.9   83.2 ↑1.4   76.4 ↑1.2   85.3 ↑0.3 82.9 ↑1.2
+              DirectAnswer          81.6        64.8        67.2        71.3      71.2
+              Linear                81.4        66.5        68.1        71.1      71.8
+                + SkillGraph        83.2 ↑1.8   68.7 ↑2.2   69.6 ↑1.5   72.8 ↑1.7 73.6 ↑1.8
+              Layered               82.1        67.2        68.5        71.5      72.3
+                + SkillGraph        83.5 ↑1.4   69.2 ↑2.0   70.1 ↑1.6   72.7 ↑1.2 73.9 ↑1.6
+    LLaVA-OV-
+              Centralized           81.7        67.0        67.9        71.3      72.0
+    Qwen2-7B
+                + SkillGraph        83.6 ↑1.9   69.5 ↑2.5   69.8 ↑1.9   72.6 ↑1.3 73.9 ↑1.9
+              Random                82.5        68.1        69.4        73.0      73.3
+                + SkillGraph        83.8 ↑1.3   70.2 ↑2.1   70.3 ↑0.9   73.6 ↑0.6 74.5 ↑1.2
+              Complete              82.4        68.4        69.2        72.7      73.2
+                 + SkillGraph       84.1 ↑1.7   70.8 ↑2.4   70.5 ↑1.3   73.1 ↑0.4 74.6 ↑1.5
+                DirectAnswer        83.9        67.5        68.6        82.9      75.7
+                Linear              83.6        68.9        69.3        82.5      76.1
+                  + SkillGraph      85.0 ↑1.4   70.6 ↑1.7   70.6 ↑1.3   84.1 ↑1.6 77.6 ↑1.5
+                Layered             84.2        69.4        69.7        82.8      76.5
+                  + SkillGraph      85.4 ↑1.2   71.5 ↑2.1   71.1 ↑1.4   84.2 ↑1.4 78.1 ↑1.5
+    Qwen2.5-VL-
+                Centralized         83.8        69.5        69.2        82.6      76.3
+    7B-Instruct
+                  + SkillGraph      85.3 ↑1.5   71.1 ↑1.6   70.9 ↑1.7   84.1 ↑1.5 77.9 ↑1.6
+                Random              84.5        70.2        70.4        84.1      77.3
+                  + SkillGraph      85.8 ↑1.3   72.8 ↑2.6   72.2 ↑1.8   84.6 ↑0.5 78.9 ↑1.6
+                Complete            84.6        70.4        70.3        84.2      77.4
+                   + SkillGraph     85.7 ↑1.1   72.7 ↑2.3   71.9 ↑1.6   84.4 ↑0.2 78.7 ↑1.3
+                  DirectAnswer      82.2        71.5        70.7        77.1      75.4
+                  Linear            81.7        73.4        71.6        76.6      75.8
+                    + SkillGraph    83.8 ↑2.1   75.9 ↑2.5   73.4 ↑1.8   78.6 ↑2.0 77.9 ↑2.1
+                  Layered           82.5        74.1        72.2        76.8      76.4
+                    + SkillGraph    84.3 ↑1.8   76.4 ↑2.3   73.7 ↑1.5   78.9 ↑2.1 78.3 ↑1.9
+    InternVL3-
+                  Centralized       82.1        73.8        71.5        76.8      76.1
+    8B
+                    + SkillGraph    84.4 ↑2.3   76.5 ↑2.7   73.4 ↑1.9   78.6 ↑1.8 78.2 ↑2.2
+                  Random            82.9        75.2        73.1        78.5      77.4
+                    + SkillGraph    84.6 ↑1.7   77.6 ↑2.4   74.1 ↑1.0   79.1 ↑0.6 78.9 ↑1.4
+                  Complete          82.8        75.3        72.9        78.7      77.4
+                     + SkillGraph   84.9 ↑2.1   77.8 ↑2.5   74.7 ↑1.8   80.2 ↑1.5 79.4 ↑2.0
+
+
+
+
+topology learning. MMGT provides additional benefits by learning a query-
+specific, vision-aware communication graph, which helps agents exchange and
+ground information on fine-grained spatial and quantitative cues. Importantly,
+the full model delivers further gains beyond either single-module variant on most
+benchmarks, highlighting clear complementarity: Skill Evolution improves what
+capabilities agents can invoke, while MMGT improves how these capabilities
+are coordinated. Although a single-module variant can occasionally outperform
+the full model on a particular dataset, likely due to task-specific sensitivities
+in routing and specialization, the full model achieves the best overall trade-off
+across benchmarks, especially under the Thinking paradigm, where iterative de-
+14      Z. Nie et al.
+
+Table 3: Performance of SkillGraph across Qwen3-VL and InternVL3 models of vary-
+ing scales on complete structure. Gray rows show results after applying SkillGraph to
+each backbone.
+
+     Model                  MMBench MathVista RealWorldQA InfoVQA Average
+     Qwen3-VL-4B-Instruct   83.9        76.8        72.1        81.8      78.7
+      + SkillGraph          86.4↑+2.5   79.8↑+3.0   74.3↑+2.2   82.5↑+0.7 80.8↑+2.1
+     Qwen3-VL-8B-Instruct   84.9        81.8        75.2        85.0      81.7
+      + SkillGraph          86.8↑+1.9   83.2↑+1.4   76.4↑+1.2   85.3↑+0.3 82.9↑+1.2
+     Qwen3-VL-32B-Instruct 88.6         84.2        80.1        87.6      85.1
+      + SkillGraph         89.3↑+0.7    85.4↑+1.2   81.2↑+1.1   87.8↑+0.2 85.9↑+0.8
+     InternVL3-2B           80.2        59.4        65.7        66.8      68.0
+       + SkillGraph         83.2↑+3.0   62.8↑+3.4   68.4↑+2.7   69.6↑+2.8 71.0↑+3.0
+     InternVL3-8B           82.8        75.3        72.9        78.7      77.4
+       + SkillGraph         84.9↑+2.1   77.8↑+2.5   74.7↑+1.8   80.2↑+1.5 79.4↑+2.0
+     InternVL3-38B          88.9        76.5        77.1        85.7      82.1
+       + SkillGraph         89.7↑+0.8   77.9↑+1.4   78.2↑+1.1   86.2↑+0.5 83.0↑+0.9
+
+
+
+liberation benefits most from an evolving skill pool and visually conditioned
+communication.
+
+Effect of model scale. Table 3 reports the performance of SkillGraph applied to
+backbones ranging from 2B to 38B parameters. SkillGraph yields consistent posi-
+tive gains across all benchmarks and model sizes, suggesting that the co-evolution
+of communication topology and skill representations is broadly beneficial re-
+gardless of backbone capacity. Nevertheless, the absolute improvement generally
+decreases as model scale increases, a pattern consistent with the diminishing re-
+turns observed when augmenting stronger single-agent models with collaborative
+frameworks, since larger models already internalize richer perceptual priors and
+broader reasoning skills, leaving a narrower residual gap for multi-agent coordi-
+nation to close. This diminishing trend is most evident in InfoVQA: as model
+capacity increases, improvements in document perception and text grounding
+may further compress the residual room available for topology-conditioned coor-
+dination. By contrast, spatial and mathematical tasks retain greater headroom
+for multi-agent gains even at the 32B–38B scale, where compositional sub-task
+diversity continues to reward dynamic routing and skill specialization.
+
+Effect of iteration number. Figure 4 shows the performance of SkillGraph under
+different iteration numbers. Across all four benchmarks, performance improves
+consistently as the number of iterations increases, with the most noticeable gains
+occurring from iteration 5 to iteration 10. From iteration 10 to iteration 15, the
+improvements remain positive but become smaller, while the curves largely sat-
+urate after iteration 15, indicating that the most effective skill refinement and
+collaboration adaptation have already been acquired in the middle stage of evo-
+lution. We also observe that the Thinking setting consistently outperforms the
+                                                                       SkillGraph        15
+
+
+
+
+   Fig. 4: Performance of SkillGraph across different iteration numbers.
+
+
+
+
+Fig. 5: Evolution of the Skill Bank across iterations. The graph illustrates the
+frequency of evolution actions and the stabilization of the skill inventory across different
+multimodal benchmarks.
+
+
+Instruct setting on all benchmarks, suggesting that iterative deliberation bene-
+fits more from evolving skills and adaptive coordination. Among the evaluated
+datasets, MathVista exhibits the largest gains, especially under Thinking setting,
+highlighting that SkillGraph is particularly effective on reasoning-intensive mul-
+timodal tasks. RealWorldQA shows a smooth and stable upward trend, reflecting
+robust performance accumulation in realistic visual reasoning scenarios. By con-
+trast, InfoVQA demonstrates smaller but still consistent improvements, implying
+that SkillGraph also benefits document-heavy tasks, although the overall mag-
+nitude of improvement remains more constrained by the underlying perception
+bottleneck. Overall, these results suggest that SkillGraph achieves substantial
+gains in the early and middle stages of evolution and reaches a stable perfor-
+mance plateau around iterations 15–20.
+
+Analysis of Skill Bank Evolution. Fig. 5 further characterizes how the Skill Bank
+evolves across benchmarks. Two patterns stand out. First, evolution actions (Cre-
+ate + Modify) decrease monotonically across iterations on every benchmark, in-
+dicating that the Skill Bank converges rather than expanding without bound.
+Second, the final bank size varies by task complexity: MathVista requires the
+largest inventory, reflecting the breadth of its mathematical sub-tasks (geome-
+try, algebra, chart reading, etc.), whereas InfoVQA saturates earliest. This trend
+16            Z. Nie et al.
+
+Table 4: Longitudinal case study of skill evolution for commonsense visual reasoning.
+  Yellow highlights key iterative changes; Green highlights diagnostic failure patterns.
+\pi  represents the cumulative running accuracy of the skill.
+
+Version       Trigger Condition c_{\mathrm {trig}}   Representative Failure l   Strategy Description d_{\mathrm {strat}}
+Seed          Broad questions about real- The skill answered “a chef ” based You are strong at commonsense reasoning about
+(\pi =0.51)   world scenes and everyday sit- on stereotype (white coat, kitchen real-world scenes and everyday situations. Use what
+              uations.                       setting) but the image showed a lab you know about how the world works to interpret
+                                             technician in a food-testing facil- the image and answer the question. Ask yourself:
+                                             ity. Commonsense prior overrode “What would normally happen in this scene?” Avoid
+                                             available visual evidence.          letting commonsense assumptions override direct
+                                                                                 image evidence, since the image may depict an un-
+                                                                                 usual or staged scenario.
+v2            Questions requiring inference Given an image of two people First identify what is directly visible and what
+(\pi =0.58)   of a specific attribute, identity, laughing, the skill inferred “close is only inferred. Use commonsense knowledge to
+              or behavior of a person or ob- friends” without checking attire generate plausible interpretations. Cross-check can-
+              ject from visual content.          or setting cues that indicated a didate answers against explicit image evidence,
+                                                 formal business negotiation. In- and prefer conclusions that are strongly supported
+                                                 ference was plausible but unsup- rather than merely typical. Be cautious with atyp-
+                                                 ported.                             ical, humorous, or staged scenes.
+v5–v7         Questions where the an- The skill committed to “carrying First enumerate the key visual cues (appearance,
+(\pi =0.67)   swer depends on evidence- groceries” after the first plausible pose, object interaction, scene context). Then gen-
+              grounded inference about hypothesis, ignoring a competing erate 2–3 commonsense hypotheses and test each
+              likely attributes, roles, inten- hypothesis (“delivering packages”) against the observed evidence. Prefer the hypoth-
+              tions, or actions not literally that was better supported by the esis best supported by the image, not the one
+              stated in the image, espe- box shape and uniform in the im- that is merely most stereotypical. If visual sup-
+              cially when multiple everyday age.                                  port is weak or ambiguous, answer conservatively
+              interpretations are possible.                                       and avoid over-committing to fine-grained identity
+                                                                                  claims.
+
+
+
+
+is consistent with the intuition that InfoVQA is an OCR-heavy document under-
+standing benchmark that places stronger emphasis on text grounding and layout-
+aware perception than on diverse multi-step collaborative reasoning. Once these
+perception and grounding capabilities are established, the self-diagnosis loop en-
+counters fewer novel failure modes, causing both skill creation and modification
+to taper off more rapidly.
+    To provide a more granular perspective on how these autonomous refine-
+ments translate into performance gains, we present a qualitative case study of a
+specific skill’s evolutionary trajectory in Table 4. While Figure 5 demonstrates
+the macro-level stabilization of the skill bank, Table 4 illustrates the micro-level
+cognitive shift. As observed, the initial seed strategy heavily relies on common-
+sense priors, making it vulnerable to visually misleading or atypical scenarios.
+Prompted by self-diagnosed failure cases, the framework iteratively refines both
+the trigger condition (ctrig ) and the strategy description (dstrat ). By version
+v5-v7, the skill has evolved from making naive stereotypic assumptions to en-
+forcing a rigorous, evidence-based hypothesis-testing protocol. This qualitative
+shift explains the steady quantitative improvements observed across iterations
+in Figure 4.
+
+
+5      Conclusion
+In this paper, we presented SkillGraph, a novel framework that overcomes the
+structural and cognitive bottlenecks of current VMAS by mutually optimiz-
+                                                                      SkillGraph       17
+
+ing agent expertise and communication topology. To replace rigid, hand-crafted
+routing, we introduced the Multimodal Graph Transformer (MMGT), which
+dynamically constructs a query-conditioned communication graph grounded in
+both fine-grained visual features and instruction semantics. In parallel, we pro-
+posed a Self-Evolving Skill Bank for multimodal agents, enabling the system
+to autonomously refine its reasoning heuristics through a continuous diagnosis
+of failure experiences. Crucially, SkillGraph couples these two mechanisms in
+a closed loop: as agent skills evolve, their updated representations can reshape
+the topology predictor’s routing strategy without requiring additional parame-
+ter updates. Extensive experiments across diverse multimodal benchmarks and
+state-of-the-art vision-language backbones demonstrate that SkillGraph consis-
+tently outperforms static-topology and fixed-skill baselines, yielding particularly
+strong gains in complex spatial and mathematical reasoning tasks. By bridg-
+ing the gap between multimodal perception, dynamic collaboration, and lifelong
+skill learning, SkillGraph provides a robust and scalable foundation for the next
+generation of collective AI systems.
+
+
+References
+ 1. Alzubi, S., Provenzano, N., Bingham, J., Chen, W., Vu, T.: Evoskill: Automated
+    skill discovery for multi-agent systems. arXiv preprint arXiv:2603.02766 (2026) 4
+ 2. Bai, S., Cai, Y., Chen, R., Chen, K., Chen, X., Cheng, Z., Deng, L., Ding, W.,
+    Gao, C., Ge, C., et al.: Qwen3-vl technical report. arXiv preprint arXiv:2511.21631
+    (2025) 10
+ 3. Bai, S., Chen, K., Liu, X., Wang, J., Ge, W., Song, S., Dang, K., Wang, P., Wang,
+    S., Tang, J., Zhong, H., Zhu, Y., Yang, M., Li, Z., Wan, J., Wang, P., Ding, W.,
+    Fu, Z., Xu, Y., Ye, J., Zhang, X., Xie, T., Cheng, Z., Zhang, H., Yang, Z., Xu, H.,
+    Lin, J.: Qwen2.5-vl technical report (2025), https://arxiv.org/abs/2502.13923
+    10
+ 4. Chan, C.M., Chen, W., Su, Y., Yu, J., Xue, W., Zhang, S., Fu, J., Liu, Z.: Chateval:
+    Towards better llm-based evaluators through multi-agent debate. arXiv preprint
+    arXiv:2308.07201 (2023) 3
+ 5. Chen, J., Saha, S., Bansal, M.: Reconcile: Round-table conference improves reason-
+    ing via consensus among diverse llms. In: Proceedings of the 62nd Annual Meeting
+    of the Association for Computational Linguistics (Volume 1: Long Papers). pp.
+    7066–7085 (2024) 3
+ 6. Chen, S., Gai, J., Zhou, R., Zhang, J., Zhu, T., Li, J., Wang, K., Wang, Z., Chen,
+    Z., Kaleb, K., et al.: Skillcraft: Can llm agents learn to use tools skillfully? arXiv
+    preprint arXiv:2603.00718 (2026) 4
+ 7. Chen, T., Li, Y., Solodko, M., Wang, S., Jiang, N., Cui, T., Hao, J., Ko, J., Abdali,
+    S., Zheng, S., et al.: Cua-skill: Develop skills for computer using agent. arXiv
+    preprint arXiv:2601.21123 (2026) 4
+ 8. Dang, Y., Qian, C., Luo, X., Fan, J., Xie, Z., Shi, R., Chen, W., Yang, C., Che,
+    X., Tian, Y., et al.: Multi-agent collaboration via evolving orchestration. arXiv
+    preprint arXiv:2505.19591 (2025) 4
+ 9. Du, Y., Li, S., Torralba, A., Tenenbaum, J.B., Mordatch, I.: Improving factual-
+    ity and reasoning in language models through multiagent debate. In: Forty-first
+    international conference on machine learning (2024) 3
+18      Z. Nie et al.
+
+10. Feng, L., Zheng, L., He, S., Zhang, F., An, B.: Dr. mas: Stable reinforcement
+    learning for multi-agent llm systems. arXiv preprint arXiv:2602.08847 (2026) 17
+11. Gao, H., Liu, Y., He, Y., Dou, L., Du, C., Deng, Z., Hooi, B., Lin, M.,
+    Pang, T.: Flowreasoner: Reinforcing query-level meta-agents. arXiv preprint
+    arXiv:2504.15257 (2025) 4
+12. Holt, S., Luyten, M.R., van der Schaar, M.: L2mac: Large language model au-
+    tomatic computer for extensive code generation. arXiv preprint arXiv:2310.02003
+    (2023) 3
+13. Hong, S., Zhuge, M., Chen, J., Zheng, X., Cheng, Y., Wang, J., Zhang, C., Wang,
+    Z., Yau, S.K.S., Lin, Z., et al.: Metagpt: Meta programming for a multi-agent
+    collaborative framework. In: The twelfth international conference on learning rep-
+    resentations (2023) 1, 3
+14. Hu, S., Lu, C., Clune, J.: Automated design of agentic systems. arXiv preprint
+    arXiv:2408.08435 (2024) 4
+15. Hu, X., Qian, Y., Yu, J., Liu, J., Tang, P., Ji, X., Xu, C., Liu, J., Yan, X., Yu, X.,
+    et al.: The landscape of medical agents: A survey. Authorea Preprints (2025) 17
+16. Hu, Y., Cai, Y., Du, Y., Zhu, X., Liu, X., Yu, Z., Hou, Y., Tang, S., Chen, S.:
+    Self-evolving multi-agent collaboration networks for software development. arXiv
+    preprint arXiv:2410.16946 (2024) 4
+17. Huang, K., Huang, J.: Audited skill-graph self-improvement for agentic llms via
+    verifiable rewards, experience synthesis, and continual memory. arXiv preprint
+    arXiv:2512.23760 (2025) 4
+18. Jiang, Y., Li, D., Deng, H., Ma, B., Wang, X., Wang, Q., Yu, G.: Sok: Agentic
+    skills–beyond tool use in llm agents. arXiv preprint arXiv:2602.20867 (2026) 4
+19. Ke, Z., Cao, Y., Chen, Z., Yin, Y., He, S., Cheng, Y.: Early warning of cryptocur-
+    rency reversal risks via multi-source data. Finance Research Letters p. 107890
+    (2025) 17
+20. Khattab, O., Singhvi, A., Maheshwari, P., Zhang, Z., Santhanam, K., Haq, S.,
+    Sharma, A., Joshi, T.T., Moazam, H., Miller, H., et al.: Dspy: compiling declarative
+    language model calls into state-of-the-art pipelines. In: The Twelfth International
+    Conference on Learning Representations (2023) 4
+21. Kim, Y., Park, C., Jeong, H., Chan, Y.S., Xu, X., McDuff, D., Lee, H., Ghassemi,
+    M., Breazeal, C., Park, H.W.: Mdagents: An adaptive collaboration of llms for
+    medical decision-making. Advances in Neural Information Processing Systems 37,
+    79410–79452 (2024) 3
+22. Kuroki, S., Nakamura, T., Akiba, T., Tang, Y.: Agent skill acquisition for large
+    language models via cycleqd. arXiv preprint arXiv:2410.14735 (2024) 4
+23. Li, B., Zhang, Y., Guo, D., Zhang, R., Li, F., Zhang, H., Zhang, K., Zhang, P.,
+    Li, Y., Liu, Z., et al.: Llava-onevision: Easy visual task transfer. arXiv preprint
+    arXiv:2408.03326 (2024) 10
+24. Li, G., Hammoud, H., Itani, H., Khizbullin, D., Ghanem, B.: Camel: Communica-
+    tive agents for" mind" exploration of large language model society. Advances in
+    neural information processing systems 36, 51991–52008 (2023) 1, 3
+25. Li, Y., Dou, Y., Shao, J.J., Lyu, Y., Tsang, I., Yin, H.: Skilltracer: Structural
+    failure attribution and refinement of agentic skills in long-horizon web tasks. In:
+    Workshop on Multi-Agent Learning and Its Opportunities in the Era of Generative
+    AI 4
+26. Liang, T., He, Z., Jiao, W., Wang, X., Wang, Y., Wang, R., Yang, Y., Shi, S., Tu,
+    Z.: Encouraging divergent thinking in large language models through multi-agent
+    debate. In: Proceedings of the 2024 conference on empirical methods in natural
+    language processing. pp. 17889–17904 (2024) 3
+                                                                       SkillGraph        19
+
+27. Liang, Y., Zhong, R., Xu, H., Jiang, C., Zhong, Y., Fang, R., Gu, J.C., Deng, S.,
+    Yao, Y., Wang, M., et al.: Skillnet: Create, evaluate, and connect ai skills. arXiv
+    preprint arXiv:2603.04448 (2026) 4
+28. Liu, Y., Duan, H., Zhang, Y., Li, B., Zhang, S., Zhao, W., Yuan, Y., Wang, J., He,
+    C., Liu, Z., et al.: Mmbench: Is your multi-modal model an all-around player? In:
+    European conference on computer vision. pp. 216–233. Springer (2024) 11
+29. Liu, Z., Zhang, Y., Li, P., Liu, Y., Yang, D.: Dynamic llm-agent network: An
+    llm-agent collaboration framework with agent team optimization. arXiv preprint
+    arXiv:2310.02170 (2023) 4
+30. Lu, P., Bansal, H., Xia, T., Liu, J., Li, C., Hajishirzi, H., Cheng, H., Chang, K.W.,
+    Galley, M., Gao, J.: Mathvista: Evaluating mathematical reasoning of foundation
+    models in visual contexts. arXiv preprint arXiv:2310.02255 (2023) 11
+31. Mathew, M., Bagal, V., Tito, R., Karatzas, D., Valveny, E., Jawahar, C.: Info-
+    graphicvqa. In: Proceedings of the IEEE/CVF Winter Conference on Applications
+    of Computer Vision. pp. 1697–1706 (2022) 11
+32. Pan, P., Chen, L., He, Q., Yuan, K., Wang, H., Zhang, W.: Finscra: An llm-
+    powered multi-chain reasoning framework for interpretable node classification on
+    text-attributed graphs (2026) 17
+33. Qian, C., Liu, W., Liu, H., Chen, N., Dang, Y., Li, J., Yang, C., Chen, W., Su,
+    Y., Cong, X., et al.: Chatdev: Communicative agents for software development.
+    In: Proceedings of the 62nd annual meeting of the association for computational
+    linguistics (volume 1: Long papers). pp. 15174–15186 (2024) 3
+34. Qian, C., Xie, Z., Wang, Y., Liu, W., Zhu, K., Xia, H., Dang, Y., Du, Z., Chen,
+    W., Yang, C., et al.: Scaling large language model-based multi-agent collaboration.
+    arXiv preprint arXiv:2406.07155 (2024) 1, 3
+35. Qian, Y., Hu, X., Yu, J., Xin, S., Chen, X., Zhang, J., Jiang, P.T., Liu, J., Li,
+    H.B.: Medmaslab: A unified orchestration framework for benchmarking multimodal
+    medical multi-agent systems. arXiv preprint arXiv:2603.09909 (2026) 17
+36. Wang, G., Xie, Y., Jiang, Y., Mandlekar, A., Xiao, C., Zhu, Y., Fan, L., Anand-
+    kumar, A.: Voyager: An open-ended embodied agent with large language models.
+    arXiv preprint arXiv:2305.16291 (2023) 4
+37. Wang, J., Yan, Q., Wang, Y., Tian, Y., Mishra, S.S., Xu, Z., Gandhi, M., Xu, P.,
+    Cheong, L.L.: Reinforcement learning for self-improving agent with skill library.
+    arXiv preprint arXiv:2512.17102 (2025) 4
+38. Wang, Z.Z., Gandhi, A., Neubig, G., Fried, D.: Inducing programmatic skills for
+    agentic tasks. arXiv preprint arXiv:2504.06821 (2025) 4
+39. Wang, Z.Z., Mao, J., Fried, D., Neubig, G.: Agent workflow memory. arXiv preprint
+    arXiv:2409.07429 (2024) 4
+40. Wu, Q., Bansal, G., Zhang, J., Wu, Y., Li, B., Zhu, E., Jiang, L., Zhang, X.,
+    Zhang, S., Liu, J., et al.: Autogen: Enabling next-gen llm applications via multi-
+    agent conversations. In: First conference on language modeling (2024) 1, 3
+41. Xia, P., Chen, J., Wang, H., Liu, J., Zeng, K., Wang, Y., Han, S., Zhou, Y.,
+    Zhao, X., Chen, H., et al.: Skillrl: Evolving agents via recursive skill-augmented
+    reinforcement learning. arXiv preprint arXiv:2602.08234 (2026) 4
+42. Xue, X., Zhou, Y., Zhang, G., Zhang, Z., Li, Y., Zhang, C., Yin, Z., Torr, P.,
+    Ouyang, W., Bai, L.: Comas: Co-evolving multi-agent systems via interaction re-
+    wards. arXiv preprint arXiv:2510.08529 (2025) 4
+43. Yang, Y., Li, J., Pan, Q., Zhan, B., Cai, Y., Du, L., Zhou, J., Chen, K., Chen, Q.,
+    Li, X., et al.: Autoskill: Experience-driven lifelong learning via skill self-evolution.
+    arXiv preprint arXiv:2603.01145 (2026) 4
+20      Z. Nie et al.
+
+44. Yu, X., Chen, Z., He, Y., Fu, T., Yang, C., Xu, C., Ma, Y., Hu, X., Cao, Z., Xu, J.,
+    et al.: The latent space: Foundation, evolution, mechanism, ability, and outlook.
+    arXiv preprint arXiv:2604.02029 (2026) 17
+45. Yu, X., Xu, C., Chen, Z., Yin, B., Yang, C., He, Y., Hu, Y., Zhang, J., Tan, C.,
+    Hu, X., et al.: Dual latent memory for visual multi-agent system. arXiv preprint
+    arXiv:2602.00471 (2026) 1
+46. Yu, X., Xu, C., Chen, Z., Zhang, Y., Lu, S., Yang, C., Zhang, J., Yan, S., Hu, X.:
+    Visual document understanding and reasoning: A multi-agent collaboration frame-
+    work with agent-wise adaptive test-time scaling. arXiv preprint arXiv:2508.03404
+    (2025) 3
+47. Yu, X., Xu, C., Zhang, G., Chen, Z., Zhang, Y., He, Y., Jiang, P.T., Zhang, J., Hu,
+    X., Yan, S.: Vismem: Latent vision memory unlocks potential of vision-language
+    models. arXiv preprint arXiv:2511.11007 (2025) 17
+48. Yu, X., Xu, C., Zhang, G., He, Y., Chen, Z., Xue, Z., Zhang, J., Liao, Y., Hu, X.,
+    Jiang, Y.G., et al.: Visual multi-agent system: Mitigating hallucination snowballing
+    via visual flow. arXiv preprint arXiv:2509.21789 (2025) 1
+49. Zabounidis, R., Wu, Y., Stepputtis, S., Mitchell, T., Li, Y., Sycara, K.P.: Scalar:
+    Self-supervised composition and learning of skills with llm planning and rl. In:
+    NeurIPS 2025 Workshop on Bridging Language, Agent, and World Models for
+    Reasoning and Planning 4
+50. Zhang, G., Yue, Y., Sun, X., Wan, G., Yu, M., Fang, J., Wang, K., Chen, T., Cheng,
+    D.: G-designer: Architecting multi-agent communication topologies via graph neu-
+    ral networks. arXiv preprint arXiv:2410.11782 (2024) 2, 3
+51. Zhang, H., Long, Q., Bao, J., Feng, T., Zhang, W., Yue, H., Wang, W.: Mem-
+    skill: Learning and evolving memory skills for self-evolving agents. arXiv preprint
+    arXiv:2602.02474 (2026) 4
+52. Zhang, J., Xiang, J., Yu, Z., Teng, F., Chen, X., Chen, J., Zhuge, M., Cheng, X.,
+    Hong, S., Wang, J., et al.: Aflow: Automating agentic workflow generation. arXiv
+    preprint arXiv:2410.10762 (2024) 4
+53. Zhao, A., Huang, D., Xu, Q., Lin, M., Liu, Y.J., Huang, G.: Expel: Llm agents
+    are experiential learners. In: Proceedings of the AAAI Conference on Artificial
+    Intelligence. vol. 38, pp. 19632–19642 (2024) 4
+54. Zheng, Y., Zhang, Z., Ma, C., Yu, Y., Zhu, J., Dong, B., Zhu, H.: Skill-
+    router: Retrieve-and-rerank skill selection for llm agents at scale. arXiv preprint
+    arXiv:2603.22455 (2026) 4
+55. Zhou, H., Wan, X., Sun, R., Palangi, H., Iqbal, S., Vulić, I., Korhonen, A., Arık,
+    S.Ö.: Multi-agent design: Optimizing agents with better prompts and topologies.
+    arXiv preprint arXiv:2502.02533 (2025) 3
+56. Zhou, S., Xu, F.F., Zhu, H., Zhou, X., Lo, R., Sridhar, A., Cheng, X., Ou, T.,
+    Bisk, Y., Fried, D., et al.: Webarena: A realistic web environment for building
+    autonomous agents. arXiv preprint arXiv:2307.13854 (2023) 4
+57. Zhu, J., Wang, W., Chen, Z., Liu, Z., Ye, S., Gu, L., Tian, H., Duan, Y., Su, W.,
+    Shao, J., et al.: Internvl3: Exploring advanced training and test-time recipes for
+    open-source multimodal models. arXiv preprint arXiv:2504.10479 (2025) 10
+58. Zhuge, M., Wang, W., Kirsch, L., Faccio, F., Khizbullin, D., Schmidhuber, J.:
+    Gptswarm: Language agents as optimizable graphs. In: Forty-first International
+    Conference on Machine Learning (2024) 2, 3
+

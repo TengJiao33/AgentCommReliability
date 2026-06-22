@@ -1,0 +1,46 @@
+{
+  "benchmark": "hsa",
+  "paired_rows": 9,
+  "no_compiler_rows": 9,
+  "compiled_rows": 9,
+  "missing_no_compiler": [],
+  "missing_compiled": [],
+  "metrics": {
+    "strict": {
+      "paired_values": 9,
+      "structured_no_compiler_mean": 0.5555555555555556,
+      "compiled_mean": 0.8888888888888888,
+      "delta_mean": 0.3333333333333333,
+      "improved_rows": 4,
+      "worsened_rows": 1,
+      "tied_rows": 4
+    },
+    "slot_recall": {
+      "paired_values": 9,
+      "structured_no_compiler_mean": 0.9166666666666666,
+      "compiled_mean": 0.8148148148148148,
+      "delta_mean": -0.10185185185185186,
+      "improved_rows": 0,
+      "worsened_rows": 4,
+      "tied_rows": 5
+    },
+    "extra_final_card_count": {
+      "paired_values": 9,
+      "structured_no_compiler_mean": 1.3333333333333333,
+      "compiled_mean": 1.3333333333333333,
+      "delta_mean": 0.0,
+      "improved_rows": 0,
+      "worsened_rows": 0,
+      "tied_rows": 9
+    },
+    "forced_commitment_detected": {
+      "paired_values": 9,
+      "structured_no_compiler_mean": 0.2222222222222222,
+      "compiled_mean": 0.5555555555555556,
+      "delta_mean": 0.3333333333333333,
+      "improved_rows": 3,
+      "worsened_rows": 0,
+      "tied_rows": 6
+    }
+  }
+}

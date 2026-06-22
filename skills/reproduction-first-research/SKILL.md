@@ -1,6 +1,6 @@
 ---
 name: reproduction-first-research
-description: Project-level posture for open-ended reproduction of papers and open-source baselines without forcing premature research questions, usefulness claims, or idea funnels. Use when this project reads, runs, records, repairs, publicly searches, incubates live research handles, coordinates with the ArXiv_Daily_Digest radar, or reflects on a multi-agent communication baseline.
+description: Project-level posture for open-ended reproduction of papers and open-source baselines without forcing premature research questions, usefulness claims, or idea funnels, plus rules for handing off from open exploration to paper-facing mechanism work. Use when this project reads, runs, records, repairs, publicly searches, incubates live research handles, coordinates with the ArXiv_Daily_Digest radar, reflects on a multi-agent communication baseline, or decides whether a new run belongs to contact mode or the active paper-facing baseline matrix.
 ---
 
 # Reproduction-First Research
@@ -17,11 +17,18 @@ This skill is a posture, not a checklist. Do not run every section on every turn
 - outside-check mode: when a local observation, suspected mechanism, or new paper candidate may already have public names, code, benchmarks, or nearby work;
 - pressure mode: when external papers can challenge or reorganize what the reproduction has shown;
 - incubation mode: when repeated observations point to a live handle that is not yet a paper story;
-- synthesis mode: when several reproduced systems expose a common tension worth naming.
+- synthesis mode: when several reproduced systems expose a common tension worth naming;
+- paper-facing mode: when the active research map has frozen an `Ours`,
+  baseline ladder, benchmark slice, or main-table metric.
 
 The skill should prevent premature ideas, not prevent ideas altogether.
 When contact has earned it, let the next move be large, strange, or exposed
 enough to teach something that another safe local tweak could not.
+
+In paper-facing mode, openness no longer means "try another nearby variant."
+New runs should either fill the active paper-facing comparison or deliberately
+change the story route. Use `research-story-synthesis` for the story judgment
+and `research-experiment-gate` before spending GPU.
 
 Small outside-the-box nudge, for when the work starts looping:
 

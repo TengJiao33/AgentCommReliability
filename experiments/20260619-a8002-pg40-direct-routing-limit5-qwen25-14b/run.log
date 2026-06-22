@@ -1,0 +1,19 @@
+[pg40-direct] run_id=20260619-a8002-pg40-direct-routing-limit5-qwen25-14b
+[pg40-direct] workspace=/data/xuhaoming/yfy/research_workspace
+[pg40-direct] model=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct served=qwen2.5-14b-pg40-direct-routing gpu=7 port=8079
+[pg40-direct] packet=/data/xuhaoming/yfy/research_workspace/experiments/20260618-local-perspectivegap-tight-budget-v0/tight_budget_rotated20.jsonl
+[pg40-direct] packet_run=/data/xuhaoming/yfy/research_workspace/experiments/20260619-a8002-pg40-direct-routing-limit5-qwen25-14b/packet_limit5.jsonl
+[pg40-direct] limit=5 max_model_len=8192 max_tokens=2048 gpu_memory_utilization=0.75 run_timeout=1800
+[pg40-direct] gpu before:
+0, NVIDIA A800-SXM4-80GB, 10617, 70536, 45
+1, NVIDIA A800-SXM4-80GB, 69595, 11557, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+[pg40-direct] server_pid=818423
+[pg40-direct] vLLM ready after 24 checks
+[pg40-direct] running prompts -> /data/xuhaoming/yfy/research_workspace/experiments/20260619-a8002-pg40-direct-routing-limit5-qwen25-14b/predictions_direct.jsonl
+[pg40-direct] runner_status=0

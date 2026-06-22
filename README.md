@@ -43,6 +43,10 @@ MAD-MM, DAR, MOC, RuleArena, and future baselines are objects on the table, not 
 
 ## Core Files
 
+- `active/README.md`: current physical entry point for active routes.
+- `docs/current_evidence_ledger.md`: current evidence status, result grade, and next pressure point.
+- `docs/remote_sync_manifest.md`: local-to-A800_2 sync checklist before any remote run.
+- `docs/project_physical_management.md`: directory roles, run-record rules, and archive policy.
 - `skills/reproduction-first-research/SKILL.md`: top-level posture and reproduction practice.
 - `skills/research-story-synthesis/SKILL.md`: solid/novel story judgment, root-cause motivation, and motivation-method-experiment coupling after evidence exists.
 - `skills/repro-friction-memory/SKILL.md`: reusable memory for solved operational reproduction blockers.

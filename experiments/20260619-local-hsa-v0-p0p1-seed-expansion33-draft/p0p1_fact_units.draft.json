@@ -1,0 +1,2128 @@
+[
+  {
+    "sketch_id": "hiddenbench_evacuation_east_town",
+    "draft_status": "local_extraction_draft_not_packet",
+    "source_ref": {
+      "source_family": "hiddenbench",
+      "source_path": "data\\external\\hiddenbench\\benchmark.json",
+      "task_id": 3,
+      "name": "evacuation_east_town"
+    },
+    "prompt_visibility_policy": {
+      "allowed": [
+        "task_description",
+        "possible_answers",
+        "source_facts",
+        "source_scope",
+        "role_names"
+      ],
+      "forbidden": [
+        "correct_answer",
+        "oracle_admission_units",
+        "oracle_rejections",
+        "downstream_scoring_obligations",
+        "verdict"
+      ]
+    },
+    "evaluator_metadata": {
+      "possible_answers": [
+        "West City",
+        "East Town",
+        "North Hill"
+      ],
+      "correct_answer": "East Town",
+      "metadata_visibility": "evaluator_only_never_prompt"
+    },
+    "roles": [
+      "route_checker",
+      "shelter_checker",
+      "final_decider"
+    ],
+    "source_facts": [
+      {
+        "fact_id": "hb03_shared_0",
+        "channel": "shared",
+        "text": "The local government announced that hotels in West City are prepared to accommodate evacuees. These hotels are fully stocked with food and medical supplies.",
+        "candidate_recipients": [
+          "shelter_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb03_shared_1",
+        "channel": "shared",
+        "text": "The mayor of East Town has offered accommodations for any evacuees. However, she has expressed concern about a possible shortage of volunteers to assist them.",
+        "candidate_recipients": [
+          "shelter_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_enabler",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb03_shared_2",
+        "channel": "shared",
+        "text": "The school at North Hill can serve as a temporary evacuation center, providing a two-week supply of essentials and sleeping space in the gym.",
+        "candidate_recipients": [
+          "shelter_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb03_shared_3",
+        "channel": "shared",
+        "text": "The supply truck was supposed to come from East Town.",
+        "candidate_recipients": [
+          "route_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_with_caveat",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb03_hidden_0",
+        "channel": "hidden",
+        "text": "The river level is just below the bridge to West City.",
+        "candidate_recipients": [
+          "route_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb03_hidden_1",
+        "channel": "hidden",
+        "text": "The dam upstream will release water in a minute.",
+        "candidate_recipients": [
+          "route_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb03_hidden_2",
+        "channel": "hidden",
+        "text": "The walking trails have been closed since last weekend due to fallen trees.",
+        "candidate_recipients": [
+          "route_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb03_hidden_3",
+        "channel": "hidden",
+        "text": "A mudslide just occurred, covering the driveway to North Hill.",
+        "candidate_recipients": [
+          "route_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      }
+    ],
+    "oracle_admission_units": [
+      {
+        "unit_id": "hb03_unit_west_city_flood_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "West City",
+        "required_fact_ids": [
+          "hb03_hidden_0",
+          "hb03_hidden_1"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "final_decider",
+          "route_checker"
+        ],
+        "rationale": "West City depends on a bridge threatened by imminent upstream water release."
+      },
+      {
+        "unit_id": "hb03_unit_north_hill_access_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "North Hill",
+        "required_fact_ids": [
+          "hb03_hidden_2",
+          "hb03_hidden_3"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "final_decider",
+          "route_checker"
+        ],
+        "rationale": "North Hill has both walking trail and driveway access blocked."
+      },
+      {
+        "unit_id": "hb03_unit_east_town_shelter_enabled",
+        "unit_type": "option_enabler",
+        "target_option": "East Town",
+        "required_fact_ids": [
+          "hb03_shared_1"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "final_decider"
+        ],
+        "rationale": "East Town has offered accommodations despite a volunteer caveat."
+      }
+    ],
+    "oracle_rejections": [
+      {
+        "rejection_id": "hb03_reject_west_hotels",
+        "source_fact_ids": [
+          "hb03_shared_0"
+        ],
+        "reason": "recommendation_leakage_reject",
+        "rationale": "West City hotel capacity should not override bridge flood risk."
+      },
+      {
+        "rejection_id": "hb03_reject_north_school",
+        "source_fact_ids": [
+          "hb03_shared_2"
+        ],
+        "reason": "recommendation_leakage_reject",
+        "rationale": "North Hill supplies should not override blocked access."
+      }
+    ],
+    "downstream_scoring_obligations": [
+      "must name the West City bridge flood risk",
+      "must name both North Hill access blockers",
+      "must keep East Town viable from admitted facts"
+    ],
+    "draft_caveat": "P0/P1 seed expansion draft; requires transparent controls before model execution."
+  },
+  {
+    "sketch_id": "hiddenbench_emergency_supply_drop",
+    "draft_status": "local_extraction_draft_not_packet",
+    "source_ref": {
+      "source_family": "hiddenbench",
+      "source_path": "data/external/hiddenbench/benchmark.json",
+      "task_id": 10,
+      "name": "emergency_supply_drop"
+    },
+    "prompt_visibility_policy": {
+      "allowed": [
+        "task_description",
+        "possible_answers",
+        "source_facts",
+        "source_scope",
+        "role_names"
+      ],
+      "forbidden": [
+        "correct_answer",
+        "oracle_admission_units",
+        "oracle_rejections",
+        "downstream_scoring_obligations",
+        "verdict"
+      ]
+    },
+    "evaluator_metadata": {
+      "possible_answers": [
+        "Warehouse A",
+        "Warehouse B",
+        "Warehouse C"
+      ],
+      "correct_answer": "Warehouse C",
+      "metadata_visibility": "evaluator_only_never_prompt"
+    },
+    "roles": [
+      "logistics_planner",
+      "hazard_checker",
+      "final_decider"
+    ],
+    "source_facts": [
+      {
+        "fact_id": "hb10_shared_0",
+        "channel": "shared",
+        "text": "Warehouse B has recently received upgrades to access roads, making it the fastest to reach from the airstrip, and past flights have favored this site.",
+        "candidate_recipients": [
+          "logistics_planner",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "tempts Warehouse B without resolving hazard safety"
+      },
+      {
+        "fact_id": "hb10_shared_1",
+        "channel": "shared",
+        "text": "Warehouse A and Warehouse C both have large paved landing zones, but only Warehouse B is adjacent to an emergency response center.",
+        "candidate_recipients": [
+          "logistics_planner",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "keeps all options plausible and adds another Warehouse B attraction"
+      },
+      {
+        "fact_id": "hb10_shared_2",
+        "channel": "shared",
+        "text": "Flood maps show that the chemical plant near Warehouse B has not reported any issues yet, and the weather is currently clear.",
+        "candidate_recipients": [
+          "hazard_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "stale_or_overridden_context",
+        "pressure": "conflicts with later hidden sensor evidence"
+      },
+      {
+        "fact_id": "hb10_hidden_0",
+        "channel": "hidden",
+        "text": "The bridge near Warehouse A has completely collapsed in the flooding, making it impossible for trucks to move supplies out from there.",
+        "candidate_recipients": [
+          "logistics_planner",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "blocks Warehouse A distribution"
+      },
+      {
+        "fact_id": "hb10_hidden_1",
+        "channel": "hidden",
+        "text": "Helicopter pilots report seeing standing water and large debris still blocking the main approach to Warehouse A, making landing physically possible but resupply distribution impossible.",
+        "candidate_recipients": [
+          "logistics_planner",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "supports Warehouse A distribution blocker"
+      },
+      {
+        "fact_id": "hb10_hidden_2",
+        "channel": "hidden",
+        "text": "Although Warehouse C is farthest from the airstrip, elevated service roads leading to the temporary shelters have just been confirmed as open by emergency agencies.",
+        "candidate_recipients": [
+          "logistics_planner",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_enabler",
+        "pressure": "enables Warehouse C distribution despite travel distance"
+      },
+      {
+        "fact_id": "hb10_hidden_3",
+        "channel": "hidden",
+        "text": "Warehouse B has had minor chemical leaks in the past, and after the flood, sensors are detecting rising levels of noxious gases (risk of poisoning for those unloading/unpacking the plane).",
+        "candidate_recipients": [
+          "hazard_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "blocks Warehouse B safety despite shared logistics appeal"
+      }
+    ],
+    "oracle_admission_units": [
+      {
+        "unit_id": "hb10_unit_a_distribution_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Warehouse A",
+        "required_fact_ids": [
+          "hb10_hidden_0"
+        ],
+        "supporting_fact_ids": [
+          "hb10_hidden_1"
+        ],
+        "admit_to": [
+          "logistics_planner",
+          "final_decider"
+        ],
+        "rationale": "Warehouse A can be landed at but cannot distribute supplies."
+      },
+      {
+        "unit_id": "hb10_unit_b_hazard_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Warehouse B",
+        "required_fact_ids": [
+          "hb10_hidden_3"
+        ],
+        "conflicting_context_fact_ids": [
+          "hb10_shared_0",
+          "hb10_shared_2"
+        ],
+        "admit_to": [
+          "hazard_checker",
+          "final_decider"
+        ],
+        "rationale": "Warehouse B is logistically tempting but unsafe for unloading."
+      },
+      {
+        "unit_id": "hb10_unit_c_distribution_enabled",
+        "unit_type": "option_enabler",
+        "target_option": "Warehouse C",
+        "required_fact_ids": [
+          "hb10_hidden_2"
+        ],
+        "admit_to": [
+          "logistics_planner",
+          "final_decider"
+        ],
+        "rationale": "Warehouse C remains viable because elevated service roads to shelters are open."
+      }
+    ],
+    "oracle_rejections": [
+      {
+        "rejection_id": "hb10_reject_b_as_recommendation",
+        "source_fact_ids": [
+          "hb10_shared_0",
+          "hb10_shared_1"
+        ],
+        "reason": "recommendation_leakage_reject",
+        "rationale": "Shared speed and emergency-center facts can be context but should not become an admitted recommendation for Warehouse B."
+      }
+    ],
+    "downstream_scoring_obligations": [
+      "must name a Warehouse A distribution blocker",
+      "must name a Warehouse B hazard blocker",
+      "must name a Warehouse C distribution enabler",
+      "must not treat Warehouse B speed as sufficient recommendation"
+    ],
+    "draft_caveat": "This row still needs source/scope perturbation and fair shared-context/CICL baselines before packet materialization."
+  },
+  {
+    "sketch_id": "hiddenbench_conference_relocation",
+    "draft_status": "local_extraction_draft_not_packet",
+    "source_ref": {
+      "source_family": "hiddenbench",
+      "source_path": "data/external/hiddenbench/benchmark.json",
+      "task_id": 11,
+      "name": "emergency_conference_relocation"
+    },
+    "prompt_visibility_policy": {
+      "allowed": [
+        "task_description",
+        "possible_answers",
+        "source_facts",
+        "source_scope",
+        "role_names"
+      ],
+      "forbidden": [
+        "correct_answer",
+        "oracle_admission_units",
+        "oracle_rejections",
+        "downstream_scoring_obligations",
+        "verdict"
+      ]
+    },
+    "evaluator_metadata": {
+      "possible_answers": [
+        "City Library",
+        "Community Center",
+        "School Gym"
+      ],
+      "correct_answer": "School Gym",
+      "metadata_visibility": "evaluator_only_never_prompt"
+    },
+    "roles": [
+      "facilities_checker",
+      "recovery_checker",
+      "final_decider"
+    ],
+    "source_facts": [
+      {
+        "fact_id": "hb11_shared_0",
+        "channel": "shared",
+        "text": "The City Library has a large conference room and claims to be ready; it also has a known backup generator for power.",
+        "candidate_recipients": [
+          "facilities_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "tempts City Library before fuel constraint is admitted"
+      },
+      {
+        "fact_id": "hb11_shared_1",
+        "channel": "shared",
+        "text": "The Community Center is slightly smaller but centrally located; the staff report it's fully accessible and already evacuated in advance of the heat wave.",
+        "candidate_recipients": [
+          "facilities_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "keeps Community Center plausible before chemical-leak blocker"
+      },
+      {
+        "fact_id": "hb11_shared_2",
+        "channel": "shared",
+        "text": "The School Gym has air conditioning, but it's older; the office says there may be issues with the restrooms. A city maintenance team is on its way but hasn't arrived yet.",
+        "candidate_recipients": [
+          "recovery_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_with_repairable_blocker",
+        "pressure": "makes School Gym questionable until restoration fact is admitted"
+      },
+      {
+        "fact_id": "hb11_shared_3",
+        "channel": "shared",
+        "text": "Temperatures are expected to exceed 37°C (99°F) in the afternoon. Organizers worry about heat stress if backup power fails.",
+        "candidate_recipients": [
+          "facilities_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "constraint_context",
+        "pressure": "makes generator duration relevant for day-long safety"
+      },
+      {
+        "fact_id": "hb11_hidden_0",
+        "channel": "hidden",
+        "text": "Library staff admit privately that their backup generator only has enough fuel for 2 hours and cannot be refueled due to a citywide gasoline shortage.",
+        "candidate_recipients": [
+          "facilities_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "blocks City Library for full-day event under heat risk"
+      },
+      {
+        "fact_id": "hb11_hidden_1",
+        "channel": "hidden",
+        "text": "The School Gym's restrooms are being restored right now. The on-site janitor confirms that at least two working restrooms (with ventilation and water) will be available within an hour.",
+        "candidate_recipients": [
+          "recovery_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_enabler",
+        "pressure": "repairs the shared restroom concern for School Gym"
+      },
+      {
+        "fact_id": "hb11_hidden_2",
+        "channel": "hidden",
+        "text": "The Community Center basement has had a chemical leak that was just discovered today; the evacuation was for this, and it's only safe for short visits, not day-long events.",
+        "candidate_recipients": [
+          "facilities_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "blocks Community Center for day-long venue use"
+      },
+      {
+        "fact_id": "hb11_hidden_3",
+        "channel": "hidden",
+        "text": "The main conference hall at College Hall flooded this morning and is closed for at least a week, so it's not available.",
+        "candidate_recipients": [
+          "facilities_checker"
+        ],
+        "expected_treatment": "reject_or_inert_context",
+        "pressure": "off-option fact should not create a gold obligation"
+      }
+    ],
+    "oracle_admission_units": [
+      {
+        "unit_id": "hb11_unit_library_fuel_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "City Library",
+        "required_fact_ids": [
+          "hb11_hidden_0",
+          "hb11_shared_3"
+        ],
+        "conflicting_context_fact_ids": [
+          "hb11_shared_0"
+        ],
+        "admit_to": [
+          "facilities_checker",
+          "final_decider"
+        ],
+        "rationale": "The library's apparent readiness fails because backup power cannot last through the heat-risk event."
+      },
+      {
+        "unit_id": "hb11_unit_center_chemical_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Community Center",
+        "required_fact_ids": [
+          "hb11_hidden_2"
+        ],
+        "conflicting_context_fact_ids": [
+          "hb11_shared_1"
+        ],
+        "admit_to": [
+          "facilities_checker",
+          "final_decider"
+        ],
+        "rationale": "The Community Center is accessible but unsafe for day-long occupancy."
+      },
+      {
+        "unit_id": "hb11_unit_school_restrooms_enabled",
+        "unit_type": "option_enabler",
+        "target_option": "School Gym",
+        "required_fact_ids": [
+          "hb11_hidden_1"
+        ],
+        "conflicting_context_fact_ids": [
+          "hb11_shared_2"
+        ],
+        "admit_to": [
+          "recovery_checker",
+          "final_decider"
+        ],
+        "rationale": "The restroom restoration fact resolves the main shared concern about the School Gym."
+      }
+    ],
+    "oracle_rejections": [
+      {
+        "rejection_id": "hb11_reject_college_hall_obligation",
+        "source_fact_ids": [
+          "hb11_hidden_3"
+        ],
+        "reason": "off_option_reject_or_inert",
+        "rationale": "College Hall is not among possible answers, so the fact can be ignored or recorded as inert context without becoming a required admission unit."
+      },
+      {
+        "rejection_id": "hb11_reject_library_as_recommendation",
+        "source_fact_ids": [
+          "hb11_shared_0"
+        ],
+        "reason": "recommendation_leakage_reject",
+        "rationale": "Library readiness can be context but should not override the fuel-duration blocker."
+      }
+    ],
+    "downstream_scoring_obligations": [
+      "must name a City Library fuel-duration blocker",
+      "must name a Community Center chemical-leak blocker",
+      "must name a School Gym restroom-restoration enabler",
+      "must not count College Hall as a required answer option"
+    ],
+    "draft_caveat": "This row still needs source/scope perturbation and fair shared-context/CICL baselines before packet materialization."
+  },
+  {
+    "sketch_id": "hiddenbench_evacuate_park_dilemma",
+    "draft_status": "local_extraction_draft_not_packet",
+    "source_ref": {
+      "source_family": "hiddenbench",
+      "source_path": "data/external/hiddenbench/benchmark.json",
+      "task_id": 12,
+      "name": "evacuate_park_dilemma"
+    },
+    "prompt_visibility_policy": {
+      "allowed": [
+        "task_description",
+        "possible_answers",
+        "source_facts",
+        "source_scope",
+        "role_names"
+      ],
+      "forbidden": [
+        "correct_answer",
+        "oracle_admission_units",
+        "oracle_rejections",
+        "downstream_scoring_obligations",
+        "verdict"
+      ]
+    },
+    "evaluator_metadata": {
+      "possible_answers": [
+        "Blueberry Ridge",
+        "Green Valley",
+        "Red Lake"
+      ],
+      "correct_answer": "Green Valley",
+      "metadata_visibility": "evaluator_only_never_prompt"
+    },
+    "roles": [
+      "route_checker",
+      "safety_checker",
+      "final_decider"
+    ],
+    "source_facts": [
+      {
+        "fact_id": "hb12_shared_0",
+        "channel": "shared",
+        "text": "Roads leading to all three evacuation sites were inspected this morning and declared passable by local highway patrols.",
+        "candidate_recipients": [
+          "route_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "stale_or_overridden_context",
+        "pressure": "makes every route initially look available before later route blockers"
+      },
+      {
+        "fact_id": "hb12_shared_1",
+        "channel": "shared",
+        "text": "Blueberry Ridge lodge has emergency power generators and a medical station; the lodge has started preparing rooms for potential evacuees.",
+        "candidate_recipients": [
+          "safety_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "tempts Blueberry Ridge before power and bridge blockers are admitted"
+      },
+      {
+        "fact_id": "hb12_shared_2",
+        "channel": "shared",
+        "text": "Red Lake community hall has hosted large groups before and reportedly received bulk food supplies earlier today.",
+        "candidate_recipients": [
+          "route_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "tempts Red Lake before route closure is admitted"
+      },
+      {
+        "fact_id": "hb12_shared_3",
+        "channel": "shared",
+        "text": "The Green Valley campground recently had a pest outbreak and local authorities posted warning signs; the main building is preparing cots and handing out blankets for arrivals.",
+        "candidate_recipients": [
+          "safety_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_with_caveat",
+        "pressure": "keeps Green Valley plausible but requires emergency-use clarification"
+      },
+      {
+        "fact_id": "hb12_hidden_0",
+        "channel": "hidden",
+        "text": "Green Valley pest outbreak closure only applies to tourists; local officials have confirmed it remains open for emergency evacuations, with extra staff sent in.",
+        "candidate_recipients": [
+          "safety_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_enabler",
+        "pressure": "resolves the Green Valley pest caveat for emergency evacuation"
+      },
+      {
+        "fact_id": "hb12_hidden_1",
+        "channel": "hidden",
+        "text": "An emergency text alert just announced that a sinkhole appeared across the only road to Red Lake, and law enforcement has closed the route.",
+        "candidate_recipients": [
+          "route_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "blocks Red Lake despite shared food and capacity"
+      },
+      {
+        "fact_id": "hb12_hidden_2",
+        "channel": "hidden",
+        "text": "All power at Blueberry Ridge went out midday, including backups. Emergency medical equipment is unusable and the location is only accepting those who can walk miles to reach it.",
+        "candidate_recipients": [
+          "safety_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "blocks Blueberry Ridge safety and medical readiness"
+      },
+      {
+        "fact_id": "hb12_hidden_3",
+        "channel": "hidden",
+        "text": "The bridge over Pine Creek, a key access point to Blueberry Ridge, collapsed in today's storm, cutting off vehicle access to the lodge.",
+        "candidate_recipients": [
+          "route_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "blocks Blueberry Ridge vehicle access"
+      }
+    ],
+    "oracle_admission_units": [
+      {
+        "unit_id": "hb12_unit_red_lake_route_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Red Lake",
+        "required_fact_ids": [
+          "hb12_hidden_1"
+        ],
+        "conflicting_context_fact_ids": [
+          "hb12_shared_2"
+        ],
+        "admit_to": [
+          "route_checker",
+          "final_decider"
+        ],
+        "rationale": "Red Lake has food and capacity, but the only road is closed by a sinkhole."
+      },
+      {
+        "unit_id": "hb12_unit_blueberry_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Blueberry Ridge",
+        "required_fact_ids": [
+          "hb12_hidden_2",
+          "hb12_hidden_3"
+        ],
+        "conflicting_context_fact_ids": [
+          "hb12_shared_1"
+        ],
+        "admit_to": [
+          "route_checker",
+          "safety_checker",
+          "final_decider"
+        ],
+        "rationale": "Blueberry Ridge is unsafe and vehicle access is cut off."
+      },
+      {
+        "unit_id": "hb12_unit_green_valley_enabled",
+        "unit_type": "option_enabler",
+        "target_option": "Green Valley",
+        "required_fact_ids": [
+          "hb12_hidden_0"
+        ],
+        "supporting_fact_ids": [
+          "hb12_shared_3"
+        ],
+        "admit_to": [
+          "safety_checker",
+          "final_decider"
+        ],
+        "rationale": "Green Valley is still open for emergency evacuations and is preparing cots and blankets."
+      }
+    ],
+    "oracle_rejections": [
+      {
+        "rejection_id": "hb12_reject_blueberry_as_recommendation",
+        "source_fact_ids": [
+          "hb12_shared_1"
+        ],
+        "reason": "recommendation_leakage_reject",
+        "rationale": "Blueberry shared readiness should not override the power and bridge blockers."
+      },
+      {
+        "rejection_id": "hb12_reject_red_lake_as_recommendation",
+        "source_fact_ids": [
+          "hb12_shared_2"
+        ],
+        "reason": "recommendation_leakage_reject",
+        "rationale": "Red Lake food and capacity should not override the closed route."
+      }
+    ],
+    "downstream_scoring_obligations": [
+      "must name Red Lake route closure",
+      "must name both Blueberry Ridge safety and access blockers",
+      "must name Green Valley emergency-opening clarification",
+      "must not treat Blueberry Ridge rooms or Red Lake food as sufficient recommendations"
+    ],
+    "draft_caveat": "This row is a P0 expansion draft and needs transparent controls before model execution."
+  },
+  {
+    "sketch_id": "hiddenbench_emergency_transportation_decision",
+    "draft_status": "local_extraction_draft_not_packet",
+    "source_ref": {
+      "source_family": "hiddenbench",
+      "source_path": "data\\external\\hiddenbench\\benchmark.json",
+      "task_id": 21,
+      "name": "emergency_transportation_decision"
+    },
+    "prompt_visibility_policy": {
+      "allowed": [
+        "task_description",
+        "possible_answers",
+        "source_facts",
+        "source_scope",
+        "role_names"
+      ],
+      "forbidden": [
+        "correct_answer",
+        "oracle_admission_units",
+        "oracle_rejections",
+        "downstream_scoring_obligations",
+        "verdict"
+      ]
+    },
+    "evaluator_metadata": {
+      "possible_answers": [
+        "Aurora Train Station",
+        "Borealis Bus Terminal",
+        "Celestia Airstrip"
+      ],
+      "correct_answer": "Celestia Airstrip",
+      "metadata_visibility": "evaluator_only_never_prompt"
+    },
+    "roles": [
+      "access_checker",
+      "readiness_checker",
+      "final_decider"
+    ],
+    "source_facts": [
+      {
+        "fact_id": "hb21_shared_0",
+        "channel": "shared",
+        "text": "Recent track safety improvements make the train to Aurora statistically the safest and most reliable route in such storms.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb21_shared_1",
+        "channel": "shared",
+        "text": "The main bus line to Borealis has not reported any delays yet this season.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb21_shared_2",
+        "channel": "shared",
+        "text": "The Celestia Airstrip lacks permanent shelters, and recent reports questioned whether it could handle larger groups in poor weather.",
+        "candidate_recipients": [
+          "readiness_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "stale_or_overridden_context",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb21_hidden_0",
+        "channel": "hidden",
+        "text": "Local authorities just suspended all trains to Aurora after a landslide covered the main track last night.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb21_hidden_1",
+        "channel": "hidden",
+        "text": "A wildlife alert just closed the main access road to Aurora for emergency protection. No vehicle is permitted through until the alert is lifted.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb21_hidden_2",
+        "channel": "hidden",
+        "text": "The bus route to Borealis has been rerouted due to a bridge closure, with all arrivals delayed until the next day.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb21_hidden_3",
+        "channel": "hidden",
+        "text": "Celestia Airstrip completed emergency upgrades this week: it’s now able to service large groups and deliver supplies quickly. A mobile shelter and food stocks are on site.",
+        "candidate_recipients": [
+          "readiness_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_enabler",
+        "pressure": "role-scoped evidence required for final admission"
+      }
+    ],
+    "oracle_admission_units": [
+      {
+        "unit_id": "hb21_unit_aurora_access_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Aurora Train Station",
+        "required_fact_ids": [
+          "hb21_hidden_0",
+          "hb21_hidden_1"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "access_checker",
+          "final_decider"
+        ],
+        "rationale": "Aurora is unreachable by train and road."
+      },
+      {
+        "unit_id": "hb21_unit_borealis_delay_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Borealis Bus Terminal",
+        "required_fact_ids": [
+          "hb21_hidden_2"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "access_checker",
+          "final_decider"
+        ],
+        "rationale": "Borealis cannot arrive in time because the bus route is delayed until the next day."
+      },
+      {
+        "unit_id": "hb21_unit_celestia_ready_enabled",
+        "unit_type": "option_enabler",
+        "target_option": "Celestia Airstrip",
+        "required_fact_ids": [
+          "hb21_hidden_3"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "final_decider",
+          "readiness_checker"
+        ],
+        "rationale": "Celestia has emergency upgrades, supplies, and mobile shelter."
+      }
+    ],
+    "oracle_rejections": [
+      {
+        "rejection_id": "hb21_reject_aurora_safety",
+        "source_fact_ids": [
+          "hb21_shared_0"
+        ],
+        "reason": "recommendation_leakage_reject",
+        "rationale": "Aurora track safety should not override current route closures."
+      }
+    ],
+    "downstream_scoring_obligations": [
+      "must name Aurora train and road closures",
+      "must name Borealis next-day delay",
+      "must name Celestia emergency upgrades"
+    ],
+    "draft_caveat": "P0/P1 seed expansion draft; requires transparent controls before model execution."
+  },
+  {
+    "sketch_id": "hiddenbench_research_station_site_selection",
+    "draft_status": "local_extraction_draft_not_packet",
+    "source_ref": {
+      "source_family": "hiddenbench",
+      "source_path": "data\\external\\hiddenbench\\benchmark.json",
+      "task_id": 27,
+      "name": "research_station_site_selection"
+    },
+    "prompt_visibility_policy": {
+      "allowed": [
+        "task_description",
+        "possible_answers",
+        "source_facts",
+        "source_scope",
+        "role_names"
+      ],
+      "forbidden": [
+        "correct_answer",
+        "oracle_admission_units",
+        "oracle_rejections",
+        "downstream_scoring_obligations",
+        "verdict"
+      ]
+    },
+    "evaluator_metadata": {
+      "possible_answers": [
+        "Maple Valley",
+        "Copper Lake",
+        "Pine Ridge"
+      ],
+      "correct_answer": "Pine Ridge",
+      "metadata_visibility": "evaluator_only_never_prompt"
+    },
+    "roles": [
+      "access_checker",
+      "stability_checker",
+      "final_decider"
+    ],
+    "source_facts": [
+      {
+        "fact_id": "hb27_shared_0",
+        "channel": "shared",
+        "text": "Maple Valley has flat, cleared land with existing road access. Local towns have offered logistical support for construction crews. Basic infrastructure can be connected quickly.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "stale_or_overridden_context",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb27_shared_1",
+        "channel": "shared",
+        "text": "Copper Lake is 15km from the nearest paved road, requires some land clearing, but enjoys pristine water sources and is sheltered from wind.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb27_shared_2",
+        "channel": "shared",
+        "text": "Pine Ridge is the most remote, accessible only by an old logging track, but has no record of flooding or landslides.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_with_caveat",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb27_hidden_0",
+        "channel": "hidden",
+        "text": "The only reliable access road to Pine Ridge has been repaired and upgraded recently for forestry vehicles, making it usable year-round for trucks as long as landslides are monitored.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_enabler",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb27_hidden_1",
+        "channel": "hidden",
+        "text": "Copper Lake's soil cannot support buildings taller than 1 story or heavy equipment without major reinforcement, due to deep unstable clay layers.",
+        "candidate_recipients": [
+          "stability_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb27_hidden_2",
+        "channel": "hidden",
+        "text": "The geological survey revealed that Maple Valley sits directly atop a recently discovered major earthquake fault line, with significant tremors expected in the next decade.",
+        "candidate_recipients": [
+          "stability_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb27_hidden_3",
+        "channel": "hidden",
+        "text": "A newly released government study says that the local community near Maple Valley is organizing protests against any new large-scale construction, as the valley is a designated cultural heritage landscape.",
+        "candidate_recipients": [
+          "stability_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      }
+    ],
+    "oracle_admission_units": [
+      {
+        "unit_id": "hb27_unit_maple_valley_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Maple Valley",
+        "required_fact_ids": [
+          "hb27_hidden_2",
+          "hb27_hidden_3"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "final_decider",
+          "stability_checker"
+        ],
+        "rationale": "Maple Valley has both geological and community risk for a long-term station."
+      },
+      {
+        "unit_id": "hb27_unit_copper_lake_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Copper Lake",
+        "required_fact_ids": [
+          "hb27_hidden_1"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "final_decider",
+          "stability_checker"
+        ],
+        "rationale": "Copper Lake cannot support heavy infrastructure."
+      },
+      {
+        "unit_id": "hb27_unit_pine_ridge_access_enabled",
+        "unit_type": "option_enabler",
+        "target_option": "Pine Ridge",
+        "required_fact_ids": [
+          "hb27_hidden_0"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "access_checker",
+          "final_decider"
+        ],
+        "rationale": "Pine Ridge has a repaired access road usable by trucks."
+      }
+    ],
+    "oracle_rejections": [
+      {
+        "rejection_id": "hb27_reject_maple_infrastructure",
+        "source_fact_ids": [
+          "hb27_shared_0"
+        ],
+        "reason": "recommendation_leakage_reject",
+        "rationale": "Maple Valley infrastructure should not override fault-line and protest risks."
+      }
+    ],
+    "downstream_scoring_obligations": [
+      "must name Maple Valley fault or construction-risk evidence",
+      "must name Copper Lake soil blocker",
+      "must name Pine Ridge repaired road"
+    ],
+    "draft_caveat": "P0/P1 seed expansion draft; requires transparent controls before model execution."
+  },
+  {
+    "sketch_id": "hiddenbench_weather_sensor_deployment",
+    "draft_status": "local_extraction_draft_not_packet",
+    "source_ref": {
+      "source_family": "hiddenbench",
+      "source_path": "data/external/hiddenbench/benchmark.json",
+      "task_id": 31,
+      "name": "weather_sensor_deployment"
+    },
+    "prompt_visibility_policy": {
+      "allowed": [
+        "task_description",
+        "possible_answers",
+        "source_facts",
+        "source_scope",
+        "role_names"
+      ],
+      "forbidden": [
+        "correct_answer",
+        "oracle_admission_units",
+        "oracle_rejections",
+        "downstream_scoring_obligations",
+        "verdict"
+      ]
+    },
+    "evaluator_metadata": {
+      "possible_answers": [
+        "Alpha Ridge",
+        "Beta Valley",
+        "Gamma Lake"
+      ],
+      "correct_answer": "Gamma Lake",
+      "metadata_visibility": "evaluator_only_never_prompt"
+    },
+    "roles": [
+      "access_checker",
+      "stability_checker",
+      "final_decider"
+    ],
+    "source_facts": [
+      {
+        "fact_id": "hb31_shared_0",
+        "channel": "shared",
+        "text": "Alpha Ridge is the highest elevation, with a flat summit suitable for equipment installation. Local forecasts predict intense atmospheric activity nearby.",
+        "candidate_recipients": [
+          "stability_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "tempts Alpha Ridge before wind and stability blockers"
+      },
+      {
+        "fact_id": "hb31_shared_1",
+        "channel": "shared",
+        "text": "Beta Valley is lower-lying and more sheltered, but there are reports of significant rainfall causing possible flooding.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "tempts Beta Valley as sheltered but does not establish access"
+      },
+      {
+        "fact_id": "hb31_shared_2",
+        "channel": "shared",
+        "text": "Gamma Lake is accessible by road until the last 2 km, after which the only known trail becomes muddy and flooded during rainstorms.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_with_access_gap",
+        "pressure": "makes Gamma Lake require an access workaround"
+      },
+      {
+        "fact_id": "hb31_hidden_0",
+        "channel": "hidden",
+        "text": "A radio transmission indicates the bridge to Beta Valley has just collapsed due to floodwaters; all vehicles and personnel must avoid this route until repaired.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "blocks Beta Valley access"
+      },
+      {
+        "fact_id": "hb31_hidden_1",
+        "channel": "hidden",
+        "text": "A recent geologist note found on a desk says Alpha Ridge's summit is unstable after last month's landslide, and hauling heavy equipment up could risk collapse. The note is unsigned and not yet included in central updates.",
+        "candidate_recipients": [
+          "stability_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "reject_unverified_blocker",
+        "pressure": "looks like an Alpha Ridge blocker but should not support final decision while unverified"
+      },
+      {
+        "fact_id": "hb31_hidden_2",
+        "channel": "hidden",
+        "text": "An old cache of equipment logs reveals a small boat is moored at the southern shore of Gamma Lake, which can be used to cross the flooded trail and access the intended installation point, but only if known in advance.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_enabler",
+        "pressure": "enables Gamma Lake access despite the flooded trail"
+      },
+      {
+        "fact_id": "hb31_hidden_3",
+        "channel": "hidden",
+        "text": "An urgent message states that sudden gale-force winds will hit Alpha Ridge in the next few hours, making sensor deployment and equipment stability impossible for at least two days.",
+        "candidate_recipients": [
+          "stability_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "blocks Alpha Ridge deployment stability"
+      }
+    ],
+    "oracle_admission_units": [
+      {
+        "unit_id": "hb31_unit_beta_bridge_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Beta Valley",
+        "required_fact_ids": [
+          "hb31_hidden_0"
+        ],
+        "conflicting_context_fact_ids": [
+          "hb31_shared_1"
+        ],
+        "admit_to": [
+          "access_checker",
+          "final_decider"
+        ],
+        "rationale": "Beta Valley is sheltered but cannot be reached because the bridge collapsed."
+      },
+      {
+        "unit_id": "hb31_unit_alpha_wind_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Alpha Ridge",
+        "required_fact_ids": [
+          "hb31_hidden_3"
+        ],
+        "conflicting_context_fact_ids": [
+          "hb31_shared_0"
+        ],
+        "admit_to": [
+          "stability_checker",
+          "final_decider"
+        ],
+        "rationale": "Alpha Ridge is attractive but imminent gale-force winds prevent stable deployment."
+      },
+      {
+        "unit_id": "hb31_unit_gamma_boat_enabled",
+        "unit_type": "option_enabler",
+        "target_option": "Gamma Lake",
+        "required_fact_ids": [
+          "hb31_hidden_2"
+        ],
+        "supporting_fact_ids": [
+          "hb31_shared_2"
+        ],
+        "admit_to": [
+          "access_checker",
+          "final_decider"
+        ],
+        "rationale": "Gamma Lake's flooded trail can be crossed because a boat is available if known in advance."
+      }
+    ],
+    "oracle_rejections": [
+      {
+        "rejection_id": "hb31_reject_alpha_unsigned_note",
+        "source_fact_ids": [
+          "hb31_hidden_1"
+        ],
+        "reason": "verification_reject",
+        "rationale": "The unsigned geology note can be recorded as a concern but should not become a verified blocker."
+      },
+      {
+        "rejection_id": "hb31_reject_alpha_as_recommendation",
+        "source_fact_ids": [
+          "hb31_shared_0"
+        ],
+        "reason": "recommendation_leakage_reject",
+        "rationale": "Alpha Ridge's elevation and flat summit should not override the wind blocker."
+      }
+    ],
+    "downstream_scoring_obligations": [
+      "must name Beta Valley bridge collapse",
+      "must name Alpha Ridge gale-force wind blocker",
+      "must name Gamma Lake boat access workaround",
+      "must not use the unsigned geology note as verified evidence"
+    ],
+    "draft_caveat": "This row is a P0 expansion draft and needs transparent controls before model execution."
+  },
+  {
+    "sketch_id": "hiddenbench_choosing_the_safe_offsite_venue",
+    "draft_status": "local_extraction_draft_not_packet",
+    "source_ref": {
+      "source_family": "hiddenbench",
+      "source_path": "data\\external\\hiddenbench\\benchmark.json",
+      "task_id": 44,
+      "name": "Choosing the Safe Offsite Venue"
+    },
+    "prompt_visibility_policy": {
+      "allowed": [
+        "task_description",
+        "possible_answers",
+        "source_facts",
+        "source_scope",
+        "role_names"
+      ],
+      "forbidden": [
+        "correct_answer",
+        "oracle_admission_units",
+        "oracle_rejections",
+        "downstream_scoring_obligations",
+        "verdict"
+      ]
+    },
+    "evaluator_metadata": {
+      "possible_answers": [
+        "Downtown Hotel",
+        "Riverside Conference Center",
+        "Hilltop Retreat"
+      ],
+      "correct_answer": "Hilltop Retreat",
+      "metadata_visibility": "evaluator_only_never_prompt"
+    },
+    "roles": [
+      "access_checker",
+      "service_checker",
+      "final_decider"
+    ],
+    "source_facts": [
+      {
+        "fact_id": "hb44_shared_0",
+        "channel": "shared",
+        "text": "Downtown Hotel is on the main metro line with many taxis queued up nearby.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "stale_or_overridden_context",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb44_shared_1",
+        "channel": "shared",
+        "text": "The Riverside Conference Center has backup power and is outside of the most congested traffic zones.",
+        "candidate_recipients": [
+          "service_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb44_shared_2",
+        "channel": "shared",
+        "text": "Hilltop Retreat is accessible by two highways and has plenty of parking, though it lacks standard public transport connections.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_with_caveat",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb44_shared_3",
+        "channel": "shared",
+        "text": "All venues currently have food for 100 attendees and backup generators.",
+        "candidate_recipients": [
+          "service_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb44_hidden_0",
+        "channel": "hidden",
+        "text": "The city power company advises that the Downtown Hotel's generator needs immediate refueling, and with traffic at a standstill, fuel can't reach it in time. The hotel risks blackouts if the outage lasts more than an hour.",
+        "candidate_recipients": [
+          "service_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb44_hidden_1",
+        "channel": "hidden",
+        "text": "The main bridge to Riverside Conference Center has just been shut for emergency repairs due to a crack found after an aftershock earlier today.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb44_hidden_2",
+        "channel": "hidden",
+        "text": "An urgent news report says that flooding has started at key subway stations serving Downtown Hotel, and authorities expect the metro line to close soon.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb44_hidden_3",
+        "channel": "hidden",
+        "text": "The alternate highway to Hilltop Retreat is partially blocked by fallen trees: only the main highway remains open, and it is slow, but passable with caution.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_enabler",
+        "pressure": "role-scoped evidence required for final admission"
+      }
+    ],
+    "oracle_admission_units": [
+      {
+        "unit_id": "hb44_unit_downtown_hotel_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Downtown Hotel",
+        "required_fact_ids": [
+          "hb44_hidden_0",
+          "hb44_hidden_2"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "access_checker",
+          "final_decider",
+          "service_checker"
+        ],
+        "rationale": "Downtown Hotel has both power and transit access risks."
+      },
+      {
+        "unit_id": "hb44_unit_riverside_bridge_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Riverside Conference Center",
+        "required_fact_ids": [
+          "hb44_hidden_1"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "access_checker",
+          "final_decider"
+        ],
+        "rationale": "Riverside Conference Center's main bridge is closed."
+      },
+      {
+        "unit_id": "hb44_unit_hilltop_access_enabled",
+        "unit_type": "option_enabler",
+        "target_option": "Hilltop Retreat",
+        "required_fact_ids": [
+          "hb44_hidden_3"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "access_checker",
+          "final_decider"
+        ],
+        "rationale": "Hilltop remains reachable because the main highway is still passable."
+      }
+    ],
+    "oracle_rejections": [
+      {
+        "rejection_id": "hb44_reject_riverside_backup_power",
+        "source_fact_ids": [
+          "hb44_shared_1"
+        ],
+        "reason": "recommendation_leakage_reject",
+        "rationale": "Riverside backup power should not override bridge closure."
+      }
+    ],
+    "downstream_scoring_obligations": [
+      "must name Downtown power or subway blocker",
+      "must name Riverside bridge closure",
+      "must name Hilltop remaining passable highway"
+    ],
+    "draft_caveat": "P0/P1 seed expansion draft; requires transparent controls before model execution."
+  },
+  {
+    "sketch_id": "hiddenbench_emergency_supply_distribution",
+    "draft_status": "local_extraction_draft_not_packet",
+    "source_ref": {
+      "source_family": "hiddenbench",
+      "source_path": "data\\external\\hiddenbench\\benchmark.json",
+      "task_id": 51,
+      "name": "emergency_supply_distribution"
+    },
+    "prompt_visibility_policy": {
+      "allowed": [
+        "task_description",
+        "possible_answers",
+        "source_facts",
+        "source_scope",
+        "role_names"
+      ],
+      "forbidden": [
+        "correct_answer",
+        "oracle_admission_units",
+        "oracle_rejections",
+        "downstream_scoring_obligations",
+        "verdict"
+      ]
+    },
+    "evaluator_metadata": {
+      "possible_answers": [
+        "Alpha Storage",
+        "Bravo Storage",
+        "Charlie Storage"
+      ],
+      "correct_answer": "Charlie Storage",
+      "metadata_visibility": "evaluator_only_never_prompt"
+    },
+    "roles": [
+      "supply_quality_checker",
+      "access_checker",
+      "final_decider"
+    ],
+    "source_facts": [
+      {
+        "fact_id": "hb51_shared_0",
+        "channel": "shared",
+        "text": "Alpha Storage is the closest and is known to have backup generators for refrigeration; it is also reported to contain both food and medical supplies.",
+        "candidate_recipients": [
+          "supply_quality_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "stale_or_overridden_context",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb51_shared_1",
+        "channel": "shared",
+        "text": "Bravo Storage is about 10km away, and only accessible via a steep road; it mostly stores canned food and dry goods.",
+        "candidate_recipients": [
+          "supply_quality_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb51_shared_2",
+        "channel": "shared",
+        "text": "Charlie Storage is furthest away and sits behind a rail crossing where the barrier arms sometimes get stuck during storms, causing delays.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_with_access_gap",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb51_shared_3",
+        "channel": "shared",
+        "text": "Reports after the storm say that all three facilities experienced brief power outages, but the status of their backup systems was unconfirmed as of yesterday.",
+        "candidate_recipients": [
+          "supply_quality_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_with_caveat",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb51_hidden_0",
+        "channel": "hidden",
+        "text": "Bravo Storage's power is still out, but it only contains canned/dry goods (which are not urgently needed for the hospital or shelters), and neither food needing refrigeration nor medicine.",
+        "candidate_recipients": [
+          "supply_quality_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb51_hidden_1",
+        "channel": "hidden",
+        "text": "The temperature at Alpha Storage rose above safe refrigeration levels overnight; most perishable food there has begun to spoil.",
+        "candidate_recipients": [
+          "supply_quality_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb51_hidden_2",
+        "channel": "hidden",
+        "text": "The road to Charlie Storage is passable after a city technician manually raised the crossing arms this morning; no delays are currently reported.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_enabler",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb51_hidden_3",
+        "channel": "hidden",
+        "text": "Alpha Storage's backup generator failed during the last refueling attempt and cannot be restarted without parts from out of town.",
+        "candidate_recipients": [
+          "supply_quality_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      }
+    ],
+    "oracle_admission_units": [
+      {
+        "unit_id": "hb51_unit_alpha_storage_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Alpha Storage",
+        "required_fact_ids": [
+          "hb51_hidden_1",
+          "hb51_hidden_3"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "final_decider",
+          "supply_quality_checker"
+        ],
+        "rationale": "Alpha has spoiled perishables and failed refrigeration backup."
+      },
+      {
+        "unit_id": "hb51_unit_bravo_storage_not_needed_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Bravo Storage",
+        "required_fact_ids": [
+          "hb51_hidden_0"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "final_decider",
+          "supply_quality_checker"
+        ],
+        "rationale": "Bravo lacks urgent hospital and shelter supplies."
+      },
+      {
+        "unit_id": "hb51_unit_charlie_access_enabled",
+        "unit_type": "option_enabler",
+        "target_option": "Charlie Storage",
+        "required_fact_ids": [
+          "hb51_hidden_2"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "access_checker",
+          "final_decider"
+        ],
+        "rationale": "Charlie access delay has been cleared."
+      }
+    ],
+    "oracle_rejections": [
+      {
+        "rejection_id": "hb51_reject_alpha_closest",
+        "source_fact_ids": [
+          "hb51_shared_0"
+        ],
+        "reason": "recommendation_leakage_reject",
+        "rationale": "Alpha proximity should not override spoilage and generator failure."
+      }
+    ],
+    "downstream_scoring_obligations": [
+      "must name Alpha spoilage and generator failure",
+      "must name Bravo inventory mismatch",
+      "must name Charlie access clearance"
+    ],
+    "draft_caveat": "P0/P1 seed expansion draft; requires transparent controls before model execution."
+  },
+  {
+    "sketch_id": "hiddenbench_island_research_base_choice",
+    "draft_status": "local_extraction_draft_not_packet",
+    "source_ref": {
+      "source_family": "hiddenbench",
+      "source_path": "data\\external\\hiddenbench\\benchmark.json",
+      "task_id": 54,
+      "name": "island_research_base_choice"
+    },
+    "prompt_visibility_policy": {
+      "allowed": [
+        "task_description",
+        "possible_answers",
+        "source_facts",
+        "source_scope",
+        "role_names"
+      ],
+      "forbidden": [
+        "correct_answer",
+        "oracle_admission_units",
+        "oracle_rejections",
+        "downstream_scoring_obligations",
+        "verdict"
+      ]
+    },
+    "evaluator_metadata": {
+      "possible_answers": [
+        "Site A",
+        "Site B",
+        "Site C"
+      ],
+      "correct_answer": "Site C",
+      "metadata_visibility": "evaluator_only_never_prompt"
+    },
+    "roles": [
+      "site_safety_checker",
+      "communications_checker",
+      "final_decider"
+    ],
+    "source_facts": [
+      {
+        "fact_id": "hb54_shared_0",
+        "channel": "shared",
+        "text": "Site A is close to the harbor and supply routes, with newly built infrastructure reportedly up to seismic standards.",
+        "candidate_recipients": [
+          "site_safety_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "stale_or_overridden_context",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb54_shared_1",
+        "channel": "shared",
+        "text": "Site B is located on high ground, safe from flooding, but farther from the harbor and supply routes; existing buildings are old but considered stable.",
+        "candidate_recipients": [
+          "site_safety_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb54_shared_2",
+        "channel": "shared",
+        "text": "Site C is located in a valley near the center of the island, has limited road access, and is known to have patchy radio communications after storms.",
+        "candidate_recipients": [
+          "communications_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_with_caveat",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb54_shared_3",
+        "channel": "shared",
+        "text": "Preliminary drone footage after the earthquake showed no major visible damage at any of the sites.",
+        "candidate_recipients": [
+          "site_safety_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb54_hidden_0",
+        "channel": "hidden",
+        "text": "Significant flooding and water contamination have been detected at Site B; heavy equipment cannot access the site and health risks are high.",
+        "candidate_recipients": [
+          "site_safety_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb54_hidden_1",
+        "channel": "hidden",
+        "text": "The radio blackout at Site C is being caused by damaged antennas, not by terrain or long-term technical barriers—portable equipment can restore communications within hours.",
+        "candidate_recipients": [
+          "communications_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_enabler",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb54_hidden_2",
+        "channel": "hidden",
+        "text": "A gas leak and flammable vapor have been detected near Site A that could create a serious explosion risk under certain weather conditions.",
+        "candidate_recipients": [
+          "site_safety_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb54_hidden_3",
+        "channel": "hidden",
+        "text": "Unusual ground instability measurements have been found at Site A, suggesting a risk of sinkholes forming after the earthquake.",
+        "candidate_recipients": [
+          "site_safety_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      }
+    ],
+    "oracle_admission_units": [
+      {
+        "unit_id": "hb54_unit_site_a_hazard_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Site A",
+        "required_fact_ids": [
+          "hb54_hidden_2",
+          "hb54_hidden_3"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "final_decider",
+          "site_safety_checker"
+        ],
+        "rationale": "Site A has gas and ground instability hazards."
+      },
+      {
+        "unit_id": "hb54_unit_site_b_flood_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "Site B",
+        "required_fact_ids": [
+          "hb54_hidden_0"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "final_decider",
+          "site_safety_checker"
+        ],
+        "rationale": "Site B has flooding, contamination, and equipment access risk."
+      },
+      {
+        "unit_id": "hb54_unit_site_c_comms_enabled",
+        "unit_type": "option_enabler",
+        "target_option": "Site C",
+        "required_fact_ids": [
+          "hb54_hidden_1"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "communications_checker",
+          "final_decider"
+        ],
+        "rationale": "Site C communications can be restored with portable equipment."
+      }
+    ],
+    "oracle_rejections": [
+      {
+        "rejection_id": "hb54_reject_site_a_harbor",
+        "source_fact_ids": [
+          "hb54_shared_0"
+        ],
+        "reason": "recommendation_leakage_reject",
+        "rationale": "Site A harbor access should not override gas and sinkhole risk."
+      }
+    ],
+    "downstream_scoring_obligations": [
+      "must name Site A gas or ground hazard",
+      "must name Site B flooding and contamination",
+      "must name Site C communications workaround"
+    ],
+    "draft_caveat": "P0/P1 seed expansion draft; requires transparent controls before model execution."
+  },
+  {
+    "sketch_id": "hiddenbench_secure_the_masterpiece",
+    "draft_status": "local_extraction_draft_not_packet",
+    "source_ref": {
+      "source_family": "hiddenbench",
+      "source_path": "data\\external\\hiddenbench\\benchmark.json",
+      "task_id": 56,
+      "name": "Secure the Masterpiece"
+    },
+    "prompt_visibility_policy": {
+      "allowed": [
+        "task_description",
+        "possible_answers",
+        "source_facts",
+        "source_scope",
+        "role_names"
+      ],
+      "forbidden": [
+        "correct_answer",
+        "oracle_admission_units",
+        "oracle_rejections",
+        "downstream_scoring_obligations",
+        "verdict"
+      ]
+    },
+    "evaluator_metadata": {
+      "possible_answers": [
+        "The Government Records Vault",
+        "The City Art Museum's Disaster-Proof Storage",
+        "The University Science Building's Secure Lab"
+      ],
+      "correct_answer": "The Government Records Vault",
+      "metadata_visibility": "evaluator_only_never_prompt"
+    },
+    "roles": [
+      "environment_checker",
+      "access_checker",
+      "final_decider"
+    ],
+    "source_facts": [
+      {
+        "fact_id": "hb56_shared_0",
+        "channel": "shared",
+        "text": "The chemical leak is expected to spread with the wind to several nearby blocks within 30 minutes.",
+        "candidate_recipients": [
+          "environment_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_with_hazard",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb56_shared_1",
+        "channel": "shared",
+        "text": "The City Art Museum's Disaster-Proof Storage is specifically designed to withstand emergencies such as fires, flooding, and vandalism, and it is unoccupied today.",
+        "candidate_recipients": [
+          "environment_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "stale_or_overridden_context",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb56_shared_2",
+        "channel": "shared",
+        "text": "The University Science Building's Secure Lab has the highest level of security clearance, and its filtration system can typically handle chemical contaminants.",
+        "candidate_recipients": [
+          "environment_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_not_recommendation",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb56_shared_3",
+        "channel": "shared",
+        "text": "The Government Records Vault is the farthest from the plant, but it is rarely used and requires special Keycard X for entry.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_with_access_gap",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb56_shared_4",
+        "channel": "shared",
+        "text": "The painting must be kept in a controlled environment, free from chemical vapors or temperature fluctuations.",
+        "candidate_recipients": [
+          "environment_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "context_with_requirement",
+        "pressure": "shared context that can tempt an unsupported option"
+      },
+      {
+        "fact_id": "hb56_hidden_0",
+        "channel": "hidden",
+        "text": "The main generator for the University Science Building is scheduled for maintenance today; backup power is sufficient for lights but not the laboratory's HVAC system.",
+        "candidate_recipients": [
+          "environment_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb56_hidden_1",
+        "channel": "hidden",
+        "text": "A protest is occurring on the street that provides access to the Government Records Vault, delaying vehicle access by roughly 10 minutes.",
+        "candidate_recipients": [
+          "access_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_enabler",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb56_hidden_2",
+        "channel": "hidden",
+        "text": "A wind change is forecast shortly, which will direct the chemical leak directly toward the Art Museum's block within 20 minutes.",
+        "candidate_recipients": [
+          "environment_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      },
+      {
+        "fact_id": "hb56_hidden_3",
+        "channel": "hidden",
+        "text": "A security alert just went out: lab technicians in the science building are all being evacuated as a precaution by university order.",
+        "candidate_recipients": [
+          "environment_checker",
+          "final_decider"
+        ],
+        "expected_treatment": "admit_blocker",
+        "pressure": "role-scoped evidence required for final admission"
+      }
+    ],
+    "oracle_admission_units": [
+      {
+        "unit_id": "hb56_unit_art_museum_chemical_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "The City Art Museum's Disaster-Proof Storage",
+        "required_fact_ids": [
+          "hb56_hidden_2"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "environment_checker",
+          "final_decider"
+        ],
+        "rationale": "The chemical leak will move directly toward the art museum block."
+      },
+      {
+        "unit_id": "hb56_unit_science_lab_environment_blocked",
+        "unit_type": "option_blocker",
+        "target_option": "The University Science Building's Secure Lab",
+        "required_fact_ids": [
+          "hb56_hidden_0",
+          "hb56_hidden_3"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "environment_checker",
+          "final_decider"
+        ],
+        "rationale": "The science building lacks HVAC backup and is being evacuated."
+      },
+      {
+        "unit_id": "hb56_unit_records_vault_access_enabled",
+        "unit_type": "option_enabler",
+        "target_option": "The Government Records Vault",
+        "required_fact_ids": [
+          "hb56_hidden_1"
+        ],
+        "supporting_fact_ids": [],
+        "admit_to": [
+          "access_checker",
+          "final_decider"
+        ],
+        "rationale": "The records vault access issue is a bounded delay rather than a safety blocker."
+      }
+    ],
+    "oracle_rejections": [
+      {
+        "rejection_id": "hb56_reject_art_museum_disaster_proof",
+        "source_fact_ids": [
+          "hb56_shared_1"
+        ],
+        "reason": "recommendation_leakage_reject",
+        "rationale": "General disaster-proof storage should not override direct chemical-leak exposure."
+      }
+    ],
+    "downstream_scoring_obligations": [
+      "must name chemical leak risk to the art museum",
+      "must name science building HVAC or evacuation blocker",
+      "must keep the records vault viable despite bounded access delay"
+    ],
+    "draft_caveat": "P0/P1 seed expansion draft; requires transparent controls before model execution."
+  }
+]

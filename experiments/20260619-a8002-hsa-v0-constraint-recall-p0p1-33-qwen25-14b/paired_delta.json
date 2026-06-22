@@ -1,0 +1,46 @@
+{
+  "benchmark": "hsa",
+  "paired_rows": 33,
+  "no_compiler_rows": 33,
+  "compiled_rows": 33,
+  "missing_no_compiler": [],
+  "missing_compiled": [],
+  "metrics": {
+    "strict": {
+      "paired_values": 33,
+      "structured_no_compiler_mean": 0.45454545454545453,
+      "compiled_mean": 0.9696969696969697,
+      "delta_mean": 0.5151515151515151,
+      "improved_rows": 18,
+      "worsened_rows": 1,
+      "tied_rows": 14
+    },
+    "slot_recall": {
+      "paired_values": 33,
+      "structured_no_compiler_mean": 0.959090909090909,
+      "compiled_mean": 0.8272727272727273,
+      "delta_mean": -0.1318181818181818,
+      "improved_rows": 0,
+      "worsened_rows": 18,
+      "tied_rows": 15
+    },
+    "extra_final_card_count": {
+      "paired_values": 33,
+      "structured_no_compiler_mean": 1.2121212121212122,
+      "compiled_mean": 1.121212121212121,
+      "delta_mean": -0.09090909090909091,
+      "improved_rows": 0,
+      "worsened_rows": 3,
+      "tied_rows": 30
+    },
+    "forced_commitment_detected": {
+      "paired_values": 33,
+      "structured_no_compiler_mean": 0.09090909090909091,
+      "compiled_mean": 0.5454545454545454,
+      "delta_mean": 0.45454545454545453,
+      "improved_rows": 15,
+      "worsened_rows": 0,
+      "tied_rows": 18
+    }
+  }
+}

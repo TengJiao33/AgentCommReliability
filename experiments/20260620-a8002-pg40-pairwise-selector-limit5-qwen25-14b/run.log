@@ -1,0 +1,69 @@
+[pg40-pairwise] run_id=20260620-a8002-pg40-pairwise-selector-limit5-qwen25-14b
+[pg40-pairwise] workspace=/data/xuhaoming/yfy/research_workspace
+[pg40-pairwise] model=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct served=qwen2.5-14b-pg40-pairwise-selector gpu=7 port=8081
+[pg40-pairwise] packet=/data/xuhaoming/yfy/research_workspace/experiments/20260618-local-sseac-v0-pg40-adapter/sseac_pg40_packet.jsonl
+[pg40-pairwise] packet_run=/data/xuhaoming/yfy/research_workspace/experiments/20260620-a8002-pg40-pairwise-selector-limit5-qwen25-14b/packet_limit5.jsonl
+[pg40-pairwise] pg_packet=/data/xuhaoming/yfy/research_workspace/experiments/20260618-local-perspectivegap-tight-budget-v0/tight_budget_rotated20.jsonl
+[pg40-pairwise] limit=5 max_model_len=8192 max_tokens=3072 gpu_memory_utilization=0.75 run_timeout=2400
+[pg40-pairwise] max_content_chars=700 confidence_threshold=0.50 cost_penalty=1.0
+[pg40-pairwise] gpu before:
+0, NVIDIA A800-SXM4-80GB, 10615, 70538, 46
+1, NVIDIA A800-SXM4-80GB, 69595, 11557, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+[pg40-pairwise] server_pid=2749877
+[pg40-pairwise] vLLM ready after 29 checks
+[pg40-pairwise] running prompts -> /data/xuhaoming/yfy/research_workspace/experiments/20260620-a8002-pg40-pairwise-selector-limit5-qwen25-14b/predictions_pairwise.jsonl
+[pg40-pairwise] runner_status=0
+[pg40-pairwise] predictions=5
+[pg40-pairwise] model_only summary:
+evaluations: 5
+strict_pass: 0.0000 (0/5)
+required_coverage: 0.0000
+boundary_precision: 0.0000
+distractor_leakage: 0.0000
+budget_pass: 1.0000
+budget_overrun: 0.0000
+source_accuracy_on_tp: 0.0000
+visibility_accuracy_on_tp: 0.0000
+reject_recall: 0.0000
+needed_rejected: 0.0000
+utility_ratio: 0.0000
+raw_utility_ratio: 0.0000
+exact_target_role_rate: 0.0000
+budget_feasible_role_rate: 1.0000
+oracle_utility: 233
+feasible_predicted_utility: 0
+raw_predicted_utility: 0
+[pg40-pairwise] compiler summary:
+evaluations: 5
+strict_pass: 0.0000 (0/5)
+required_coverage: 0.0000
+boundary_precision: 0.0000
+distractor_leakage: 0.0000
+budget_pass: 1.0000
+budget_overrun: 0.0000
+source_accuracy_on_tp: 0.0000
+visibility_accuracy_on_tp: 0.0000
+reject_recall: 0.0000
+needed_rejected: 1.8000
+utility_ratio: 0.0000
+raw_utility_ratio: 0.0000
+exact_target_role_rate: 0.0000
+budget_feasible_role_rate: 1.0000
+oracle_utility: 233
+feasible_predicted_utility: 0
+raw_predicted_utility: 0
+[pg40-pairwise] gpu after runner before cleanup:
+0, NVIDIA A800-SXM4-80GB, 10615, 70538, 45
+1, NVIDIA A800-SXM4-80GB, 69595, 11557, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 59773, 21379, 50

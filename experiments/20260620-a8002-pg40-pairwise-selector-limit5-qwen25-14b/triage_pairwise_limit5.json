@@ -1,0 +1,416 @@
+{
+  "rows": 5,
+  "parse_ok_rows": 5,
+  "prompt_leak_rows": 0,
+  "total_raw_assignments": 22,
+  "total_admitted_units": 0,
+  "total_scope_violations_prevented": 14,
+  "total_satisfied_slots": 0,
+  "rows_detail": [
+    {
+      "packet_id": "pg_000__seed_1__source_rotated_scope_v0__tightbf55_rank_scope_v0",
+      "raw_assignments": [
+        [
+          "coder",
+          "f1"
+        ],
+        [
+          "coder",
+          "f6"
+        ],
+        [
+          "coder",
+          "f7"
+        ],
+        [
+          "reviewer",
+          "f3"
+        ],
+        [
+          "reviewer",
+          "f4"
+        ]
+      ],
+      "candidate_units": 4,
+      "scope_violations_prevented": 4,
+      "admitted_units": [],
+      "rejected_units": [
+        {
+          "recipient": "coder",
+          "card_ids": [
+            "f1"
+          ],
+          "reason": "hard_constraint_reject",
+          "details": [
+            "out_of_scope:f1"
+          ]
+        },
+        {
+          "recipient": "coder",
+          "card_ids": [
+            "f6"
+          ],
+          "reason": "hard_constraint_reject",
+          "details": [
+            "out_of_scope:f6"
+          ]
+        },
+        {
+          "recipient": "reviewer",
+          "card_ids": [
+            "f3"
+          ],
+          "reason": "hard_constraint_reject",
+          "details": [
+            "out_of_scope:f3"
+          ]
+        },
+        {
+          "recipient": "coder",
+          "card_ids": [
+            "f7"
+          ],
+          "reason": "hard_constraint_reject",
+          "details": [
+            "out_of_scope:f7"
+          ]
+        }
+      ],
+      "satisfied_slots": [],
+      "expected_slots": [
+        "coder::f3",
+        "coder::f5",
+        "reviewer::f1",
+        "reviewer::f5"
+      ],
+      "metrics": {
+        "strict_pass": 0.0,
+        "net_match_score": 0.0,
+        "required_coverage": 0.0,
+        "boundary_precision": 0.0,
+        "distractor_leakage": 0.0,
+        "budget_overrun": 0.0,
+        "budget_pass": 1.0,
+        "source_accuracy_on_tp": 0.0,
+        "visibility_accuracy_on_tp": 0.0,
+        "reject_recall": 0.0,
+        "needed_rejected": 2.0,
+        "utility_ratio": 0.0,
+        "raw_utility_ratio": 0.0,
+        "exact_target_role_rate": 0.0,
+        "budget_feasible_role_rate": 1.0
+      }
+    },
+    {
+      "packet_id": "pg_000__seed_42__source_rotated_scope_v0__tightbf55_rank_scope_v0",
+      "raw_assignments": [
+        [
+          "coder",
+          "f1"
+        ],
+        [
+          "coder",
+          "f3"
+        ],
+        [
+          "reviewer",
+          "f7"
+        ]
+      ],
+      "candidate_units": 3,
+      "scope_violations_prevented": 3,
+      "admitted_units": [],
+      "rejected_units": [
+        {
+          "recipient": "coder",
+          "card_ids": [
+            "f3"
+          ],
+          "reason": "hard_constraint_reject",
+          "details": [
+            "out_of_scope:f3"
+          ]
+        },
+        {
+          "recipient": "reviewer",
+          "card_ids": [
+            "f7"
+          ],
+          "reason": "hard_constraint_reject",
+          "details": [
+            "out_of_scope:f7"
+          ]
+        },
+        {
+          "recipient": "coder",
+          "card_ids": [
+            "f1"
+          ],
+          "reason": "hard_constraint_reject",
+          "details": [
+            "out_of_scope:f1"
+          ]
+        }
+      ],
+      "satisfied_slots": [],
+      "expected_slots": [
+        "coder::f6",
+        "coder::f7",
+        "reviewer::f2",
+        "reviewer::f3"
+      ],
+      "metrics": {
+        "strict_pass": 0.0,
+        "net_match_score": 0.0,
+        "required_coverage": 0.0,
+        "boundary_precision": 0.0,
+        "distractor_leakage": 0.0,
+        "budget_overrun": 0.0,
+        "budget_pass": 1.0,
+        "source_accuracy_on_tp": 0.0,
+        "visibility_accuracy_on_tp": 0.0,
+        "reject_recall": 0.0,
+        "needed_rejected": 2.0,
+        "utility_ratio": 0.0,
+        "raw_utility_ratio": 0.0,
+        "exact_target_role_rate": 0.0,
+        "budget_feasible_role_rate": 1.0
+      }
+    },
+    {
+      "packet_id": "pg_002__seed_1__source_rotated_scope_v0__tightbf55_rank_scope_v0",
+      "raw_assignments": [
+        [
+          "dispatcher",
+          "f1"
+        ],
+        [
+          "coder",
+          "f7"
+        ],
+        [
+          "reviewer",
+          "f4"
+        ],
+        [
+          "reviewer",
+          "f6"
+        ]
+      ],
+      "candidate_units": 2,
+      "scope_violations_prevented": 2,
+      "admitted_units": [],
+      "rejected_units": [
+        {
+          "recipient": "coder",
+          "card_ids": [
+            "f7"
+          ],
+          "reason": "hard_constraint_reject",
+          "details": [
+            "out_of_scope:f7"
+          ]
+        },
+        {
+          "recipient": "dispatcher",
+          "card_ids": [
+            "f1"
+          ],
+          "reason": "hard_constraint_reject",
+          "details": [
+            "out_of_scope:f1"
+          ]
+        }
+      ],
+      "satisfied_slots": [],
+      "expected_slots": [
+        "dispatcher::f3",
+        "dispatcher::f5",
+        "dispatcher::f6",
+        "coder::f1",
+        "reviewer::f3",
+        "reviewer::f5"
+      ],
+      "metrics": {
+        "strict_pass": 0.0,
+        "net_match_score": 0.0,
+        "required_coverage": 0.0,
+        "boundary_precision": 0.0,
+        "distractor_leakage": 0.0,
+        "budget_overrun": 0.0,
+        "budget_pass": 1.0,
+        "source_accuracy_on_tp": 0.0,
+        "visibility_accuracy_on_tp": 0.0,
+        "reject_recall": 0.0,
+        "needed_rejected": 1.0,
+        "utility_ratio": 0.0,
+        "raw_utility_ratio": 0.0,
+        "exact_target_role_rate": 0.0,
+        "budget_feasible_role_rate": 1.0
+      }
+    },
+    {
+      "packet_id": "pg_002__seed_42__source_rotated_scope_v0__tightbf55_rank_scope_v0",
+      "raw_assignments": [
+        [
+          "dispatcher",
+          "f2"
+        ],
+        [
+          "reviewer",
+          "f3"
+        ],
+        [
+          "reviewer",
+          "f4"
+        ],
+        [
+          "coder",
+          "f1"
+        ]
+      ],
+      "candidate_units": 2,
+      "scope_violations_prevented": 2,
+      "admitted_units": [],
+      "rejected_units": [
+        {
+          "recipient": "coder",
+          "card_ids": [
+            "f1"
+          ],
+          "reason": "hard_constraint_reject",
+          "details": [
+            "out_of_scope:f1"
+          ]
+        },
+        {
+          "recipient": "dispatcher",
+          "card_ids": [
+            "f2"
+          ],
+          "reason": "hard_constraint_reject",
+          "details": [
+            "out_of_scope:f2"
+          ]
+        }
+      ],
+      "satisfied_slots": [],
+      "expected_slots": [
+        "dispatcher::f3",
+        "dispatcher::f6",
+        "dispatcher::f7",
+        "coder::f2",
+        "reviewer::f6",
+        "reviewer::f7"
+      ],
+      "metrics": {
+        "strict_pass": 0.0,
+        "net_match_score": 0.0,
+        "required_coverage": 0.0,
+        "boundary_precision": 0.0,
+        "distractor_leakage": 0.0,
+        "budget_overrun": 0.0,
+        "budget_pass": 1.0,
+        "source_accuracy_on_tp": 0.0,
+        "visibility_accuracy_on_tp": 0.0,
+        "reject_recall": 0.0,
+        "needed_rejected": 1.0,
+        "utility_ratio": 0.0,
+        "raw_utility_ratio": 0.0,
+        "exact_target_role_rate": 0.0,
+        "budget_feasible_role_rate": 1.0
+      }
+    },
+    {
+      "packet_id": "pg_003__seed_1__source_rotated_scope_v0__tightbf55_rank_scope_v0",
+      "raw_assignments": [
+        [
+          "dispatcher",
+          "f2"
+        ],
+        [
+          "dispatcher",
+          "f5"
+        ],
+        [
+          "coder",
+          "f3"
+        ],
+        [
+          "reviewer",
+          "f4"
+        ],
+        [
+          "reviewer",
+          "f8"
+        ],
+        [
+          "reviewer",
+          "f9"
+        ]
+      ],
+      "candidate_units": 3,
+      "scope_violations_prevented": 3,
+      "admitted_units": [],
+      "rejected_units": [
+        {
+          "recipient": "coder",
+          "card_ids": [
+            "f3"
+          ],
+          "reason": "hard_constraint_reject",
+          "details": [
+            "out_of_scope:f3"
+          ]
+        },
+        {
+          "recipient": "dispatcher",
+          "card_ids": [
+            "f2"
+          ],
+          "reason": "hard_constraint_reject",
+          "details": [
+            "out_of_scope:f2"
+          ]
+        },
+        {
+          "recipient": "reviewer",
+          "card_ids": [
+            "f4"
+          ],
+          "reason": "hard_constraint_reject",
+          "details": [
+            "out_of_scope:f4"
+          ]
+        }
+      ],
+      "satisfied_slots": [],
+      "expected_slots": [
+        "dispatcher::f1",
+        "dispatcher::f4",
+        "dispatcher::f6",
+        "coder::f2",
+        "reviewer::f1",
+        "reviewer::f3",
+        "reviewer::f6"
+      ],
+      "metrics": {
+        "strict_pass": 0.0,
+        "net_match_score": 0.0,
+        "required_coverage": 0.0,
+        "boundary_precision": 0.0,
+        "distractor_leakage": 0.0,
+        "budget_overrun": 0.0,
+        "budget_pass": 1.0,
+        "source_accuracy_on_tp": 0.0,
+        "visibility_accuracy_on_tp": 0.0,
+        "reject_recall": 0.0,
+        "needed_rejected": 3.0,
+        "utility_ratio": 0.0,
+        "raw_utility_ratio": 0.0,
+        "exact_target_role_rate": 0.0,
+        "budget_feasible_role_rate": 1.0
+      }
+    }
+  ]
+}

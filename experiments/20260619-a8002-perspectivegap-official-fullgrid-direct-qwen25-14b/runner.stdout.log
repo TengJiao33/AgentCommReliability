@@ -1,0 +1,885 @@
+provider=openai-compatible
+model=qwen2.5-14b-perspectivegap-official-fullgrid
+evaluations=440
+tasks=role_assignment,prompt_writing
+completed_requests=0
+[1/440] role_assignment pg_000__seed_1__task_role_assignment
+[1/440] wrote role_assignment pg_000__seed_1__task_role_assignment
+[2/440] prompt_writing pg_000__seed_1__task_prompt_writing
+[2/440] wrote prompt_writing pg_000__seed_1__task_prompt_writing
+[3/440] role_assignment pg_000__seed_42__task_role_assignment
+[3/440] wrote role_assignment pg_000__seed_42__task_role_assignment
+[4/440] prompt_writing pg_000__seed_42__task_prompt_writing
+[4/440] wrote prompt_writing pg_000__seed_42__task_prompt_writing
+[5/440] role_assignment pg_001__seed_1__task_role_assignment
+[5/440] wrote role_assignment pg_001__seed_1__task_role_assignment
+[6/440] prompt_writing pg_001__seed_1__task_prompt_writing
+[6/440] wrote prompt_writing pg_001__seed_1__task_prompt_writing
+[7/440] role_assignment pg_001__seed_42__task_role_assignment
+[7/440] wrote role_assignment pg_001__seed_42__task_role_assignment
+[8/440] prompt_writing pg_001__seed_42__task_prompt_writing
+[8/440] wrote prompt_writing pg_001__seed_42__task_prompt_writing
+[9/440] role_assignment pg_002__seed_1__task_role_assignment
+[9/440] wrote role_assignment pg_002__seed_1__task_role_assignment
+[10/440] prompt_writing pg_002__seed_1__task_prompt_writing
+[10/440] wrote prompt_writing pg_002__seed_1__task_prompt_writing
+[11/440] role_assignment pg_002__seed_42__task_role_assignment
+[11/440] wrote role_assignment pg_002__seed_42__task_role_assignment
+[12/440] prompt_writing pg_002__seed_42__task_prompt_writing
+[12/440] wrote prompt_writing pg_002__seed_42__task_prompt_writing
+[13/440] role_assignment pg_003__seed_1__task_role_assignment
+[13/440] wrote role_assignment pg_003__seed_1__task_role_assignment
+[14/440] prompt_writing pg_003__seed_1__task_prompt_writing
+[14/440] wrote prompt_writing pg_003__seed_1__task_prompt_writing
+[15/440] role_assignment pg_003__seed_42__task_role_assignment
+[15/440] wrote role_assignment pg_003__seed_42__task_role_assignment
+[16/440] prompt_writing pg_003__seed_42__task_prompt_writing
+[16/440] wrote prompt_writing pg_003__seed_42__task_prompt_writing
+[17/440] role_assignment pg_004__seed_1__task_role_assignment
+[17/440] wrote role_assignment pg_004__seed_1__task_role_assignment
+[18/440] prompt_writing pg_004__seed_1__task_prompt_writing
+[18/440] wrote prompt_writing pg_004__seed_1__task_prompt_writing
+[19/440] role_assignment pg_004__seed_42__task_role_assignment
+[19/440] wrote role_assignment pg_004__seed_42__task_role_assignment
+[20/440] prompt_writing pg_004__seed_42__task_prompt_writing
+[20/440] wrote prompt_writing pg_004__seed_42__task_prompt_writing
+[21/440] role_assignment pg_005__seed_1__task_role_assignment
+[21/440] wrote role_assignment pg_005__seed_1__task_role_assignment
+[22/440] prompt_writing pg_005__seed_1__task_prompt_writing
+[22/440] wrote prompt_writing pg_005__seed_1__task_prompt_writing
+[23/440] role_assignment pg_005__seed_42__task_role_assignment
+[23/440] wrote role_assignment pg_005__seed_42__task_role_assignment
+[24/440] prompt_writing pg_005__seed_42__task_prompt_writing
+[24/440] wrote prompt_writing pg_005__seed_42__task_prompt_writing
+[25/440] role_assignment pg_006__seed_1__task_role_assignment
+[25/440] wrote role_assignment pg_006__seed_1__task_role_assignment
+[26/440] prompt_writing pg_006__seed_1__task_prompt_writing
+[26/440] wrote prompt_writing pg_006__seed_1__task_prompt_writing
+[27/440] role_assignment pg_006__seed_42__task_role_assignment
+[27/440] wrote role_assignment pg_006__seed_42__task_role_assignment
+[28/440] prompt_writing pg_006__seed_42__task_prompt_writing
+[28/440] wrote prompt_writing pg_006__seed_42__task_prompt_writing
+[29/440] role_assignment pg_007__seed_1__task_role_assignment
+[29/440] wrote role_assignment pg_007__seed_1__task_role_assignment
+[30/440] prompt_writing pg_007__seed_1__task_prompt_writing
+[30/440] wrote prompt_writing pg_007__seed_1__task_prompt_writing
+[31/440] role_assignment pg_007__seed_42__task_role_assignment
+[31/440] wrote role_assignment pg_007__seed_42__task_role_assignment
+[32/440] prompt_writing pg_007__seed_42__task_prompt_writing
+[32/440] wrote prompt_writing pg_007__seed_42__task_prompt_writing
+[33/440] role_assignment pg_008__seed_1__task_role_assignment
+[33/440] wrote role_assignment pg_008__seed_1__task_role_assignment
+[34/440] prompt_writing pg_008__seed_1__task_prompt_writing
+[34/440] wrote prompt_writing pg_008__seed_1__task_prompt_writing
+[35/440] role_assignment pg_008__seed_42__task_role_assignment
+[35/440] wrote role_assignment pg_008__seed_42__task_role_assignment
+[36/440] prompt_writing pg_008__seed_42__task_prompt_writing
+[36/440] wrote prompt_writing pg_008__seed_42__task_prompt_writing
+[37/440] role_assignment pg_009__seed_1__task_role_assignment
+[37/440] wrote role_assignment pg_009__seed_1__task_role_assignment
+[38/440] prompt_writing pg_009__seed_1__task_prompt_writing
+[38/440] wrote prompt_writing pg_009__seed_1__task_prompt_writing
+[39/440] role_assignment pg_009__seed_42__task_role_assignment
+[39/440] wrote role_assignment pg_009__seed_42__task_role_assignment
+[40/440] prompt_writing pg_009__seed_42__task_prompt_writing
+[40/440] wrote prompt_writing pg_009__seed_42__task_prompt_writing
+[41/440] role_assignment pg_010__seed_1__task_role_assignment
+[41/440] wrote role_assignment pg_010__seed_1__task_role_assignment
+[42/440] prompt_writing pg_010__seed_1__task_prompt_writing
+[42/440] wrote prompt_writing pg_010__seed_1__task_prompt_writing
+[43/440] role_assignment pg_010__seed_42__task_role_assignment
+[43/440] wrote role_assignment pg_010__seed_42__task_role_assignment
+[44/440] prompt_writing pg_010__seed_42__task_prompt_writing
+[44/440] wrote prompt_writing pg_010__seed_42__task_prompt_writing
+[45/440] role_assignment pg_011__seed_1__task_role_assignment
+[45/440] wrote role_assignment pg_011__seed_1__task_role_assignment
+[46/440] prompt_writing pg_011__seed_1__task_prompt_writing
+[46/440] wrote prompt_writing pg_011__seed_1__task_prompt_writing
+[47/440] role_assignment pg_011__seed_42__task_role_assignment
+[47/440] wrote role_assignment pg_011__seed_42__task_role_assignment
+[48/440] prompt_writing pg_011__seed_42__task_prompt_writing
+[48/440] wrote prompt_writing pg_011__seed_42__task_prompt_writing
+[49/440] role_assignment pg_012__seed_1__task_role_assignment
+[49/440] wrote role_assignment pg_012__seed_1__task_role_assignment
+[50/440] prompt_writing pg_012__seed_1__task_prompt_writing
+[50/440] wrote prompt_writing pg_012__seed_1__task_prompt_writing
+[51/440] role_assignment pg_012__seed_42__task_role_assignment
+[51/440] wrote role_assignment pg_012__seed_42__task_role_assignment
+[52/440] prompt_writing pg_012__seed_42__task_prompt_writing
+[52/440] wrote prompt_writing pg_012__seed_42__task_prompt_writing
+[53/440] role_assignment pg_013__seed_1__task_role_assignment
+[53/440] wrote role_assignment pg_013__seed_1__task_role_assignment
+[54/440] prompt_writing pg_013__seed_1__task_prompt_writing
+[54/440] wrote prompt_writing pg_013__seed_1__task_prompt_writing
+[55/440] role_assignment pg_013__seed_42__task_role_assignment
+[55/440] wrote role_assignment pg_013__seed_42__task_role_assignment
+[56/440] prompt_writing pg_013__seed_42__task_prompt_writing
+[56/440] wrote prompt_writing pg_013__seed_42__task_prompt_writing
+[57/440] role_assignment pg_014__seed_1__task_role_assignment
+[57/440] wrote role_assignment pg_014__seed_1__task_role_assignment
+[58/440] prompt_writing pg_014__seed_1__task_prompt_writing
+[58/440] wrote prompt_writing pg_014__seed_1__task_prompt_writing
+[59/440] role_assignment pg_014__seed_42__task_role_assignment
+[59/440] wrote role_assignment pg_014__seed_42__task_role_assignment
+[60/440] prompt_writing pg_014__seed_42__task_prompt_writing
+[60/440] wrote prompt_writing pg_014__seed_42__task_prompt_writing
+[61/440] role_assignment pg_015__seed_1__task_role_assignment
+[61/440] wrote role_assignment pg_015__seed_1__task_role_assignment
+[62/440] prompt_writing pg_015__seed_1__task_prompt_writing
+[62/440] wrote prompt_writing pg_015__seed_1__task_prompt_writing
+[63/440] role_assignment pg_015__seed_42__task_role_assignment
+[63/440] wrote role_assignment pg_015__seed_42__task_role_assignment
+[64/440] prompt_writing pg_015__seed_42__task_prompt_writing
+[64/440] wrote prompt_writing pg_015__seed_42__task_prompt_writing
+[65/440] role_assignment pg_016__seed_1__task_role_assignment
+[65/440] wrote role_assignment pg_016__seed_1__task_role_assignment
+[66/440] prompt_writing pg_016__seed_1__task_prompt_writing
+[66/440] wrote prompt_writing pg_016__seed_1__task_prompt_writing
+[67/440] role_assignment pg_016__seed_42__task_role_assignment
+[67/440] wrote role_assignment pg_016__seed_42__task_role_assignment
+[68/440] prompt_writing pg_016__seed_42__task_prompt_writing
+[68/440] wrote prompt_writing pg_016__seed_42__task_prompt_writing
+[69/440] role_assignment pg_017__seed_1__task_role_assignment
+[69/440] wrote role_assignment pg_017__seed_1__task_role_assignment
+[70/440] prompt_writing pg_017__seed_1__task_prompt_writing
+[70/440] wrote prompt_writing pg_017__seed_1__task_prompt_writing
+[71/440] role_assignment pg_017__seed_42__task_role_assignment
+[71/440] wrote role_assignment pg_017__seed_42__task_role_assignment
+[72/440] prompt_writing pg_017__seed_42__task_prompt_writing
+[72/440] wrote prompt_writing pg_017__seed_42__task_prompt_writing
+[73/440] role_assignment pg_018__seed_1__task_role_assignment
+[73/440] wrote role_assignment pg_018__seed_1__task_role_assignment
+[74/440] prompt_writing pg_018__seed_1__task_prompt_writing
+[74/440] wrote prompt_writing pg_018__seed_1__task_prompt_writing
+[75/440] role_assignment pg_018__seed_42__task_role_assignment
+[75/440] wrote role_assignment pg_018__seed_42__task_role_assignment
+[76/440] prompt_writing pg_018__seed_42__task_prompt_writing
+[76/440] wrote prompt_writing pg_018__seed_42__task_prompt_writing
+[77/440] role_assignment pg_019__seed_1__task_role_assignment
+[77/440] wrote role_assignment pg_019__seed_1__task_role_assignment
+[78/440] prompt_writing pg_019__seed_1__task_prompt_writing
+[78/440] wrote prompt_writing pg_019__seed_1__task_prompt_writing
+[79/440] role_assignment pg_019__seed_42__task_role_assignment
+[79/440] wrote role_assignment pg_019__seed_42__task_role_assignment
+[80/440] prompt_writing pg_019__seed_42__task_prompt_writing
+[80/440] wrote prompt_writing pg_019__seed_42__task_prompt_writing
+[81/440] role_assignment pg_020__seed_1__task_role_assignment
+[81/440] wrote role_assignment pg_020__seed_1__task_role_assignment
+[82/440] prompt_writing pg_020__seed_1__task_prompt_writing
+[82/440] wrote prompt_writing pg_020__seed_1__task_prompt_writing
+[83/440] role_assignment pg_020__seed_42__task_role_assignment
+[83/440] wrote role_assignment pg_020__seed_42__task_role_assignment
+[84/440] prompt_writing pg_020__seed_42__task_prompt_writing
+[84/440] wrote prompt_writing pg_020__seed_42__task_prompt_writing
+[85/440] role_assignment pg_021__seed_1__task_role_assignment
+[85/440] wrote role_assignment pg_021__seed_1__task_role_assignment
+[86/440] prompt_writing pg_021__seed_1__task_prompt_writing
+[86/440] wrote prompt_writing pg_021__seed_1__task_prompt_writing
+[87/440] role_assignment pg_021__seed_42__task_role_assignment
+[87/440] wrote role_assignment pg_021__seed_42__task_role_assignment
+[88/440] prompt_writing pg_021__seed_42__task_prompt_writing
+[88/440] wrote prompt_writing pg_021__seed_42__task_prompt_writing
+[89/440] role_assignment pg_022__seed_1__task_role_assignment
+[89/440] wrote role_assignment pg_022__seed_1__task_role_assignment
+[90/440] prompt_writing pg_022__seed_1__task_prompt_writing
+[90/440] wrote prompt_writing pg_022__seed_1__task_prompt_writing
+[91/440] role_assignment pg_022__seed_42__task_role_assignment
+[91/440] wrote role_assignment pg_022__seed_42__task_role_assignment
+[92/440] prompt_writing pg_022__seed_42__task_prompt_writing
+[92/440] wrote prompt_writing pg_022__seed_42__task_prompt_writing
+[93/440] role_assignment pg_023__seed_1__task_role_assignment
+[93/440] wrote role_assignment pg_023__seed_1__task_role_assignment
+[94/440] prompt_writing pg_023__seed_1__task_prompt_writing
+[94/440] wrote prompt_writing pg_023__seed_1__task_prompt_writing
+[95/440] role_assignment pg_023__seed_42__task_role_assignment
+[95/440] wrote role_assignment pg_023__seed_42__task_role_assignment
+[96/440] prompt_writing pg_023__seed_42__task_prompt_writing
+[96/440] wrote prompt_writing pg_023__seed_42__task_prompt_writing
+[97/440] role_assignment pg_024__seed_1__task_role_assignment
+[97/440] wrote role_assignment pg_024__seed_1__task_role_assignment
+[98/440] prompt_writing pg_024__seed_1__task_prompt_writing
+[98/440] wrote prompt_writing pg_024__seed_1__task_prompt_writing
+[99/440] role_assignment pg_024__seed_42__task_role_assignment
+[99/440] wrote role_assignment pg_024__seed_42__task_role_assignment
+[100/440] prompt_writing pg_024__seed_42__task_prompt_writing
+[100/440] wrote prompt_writing pg_024__seed_42__task_prompt_writing
+[101/440] role_assignment pg_025__seed_1__task_role_assignment
+[101/440] wrote role_assignment pg_025__seed_1__task_role_assignment
+[102/440] prompt_writing pg_025__seed_1__task_prompt_writing
+[102/440] wrote prompt_writing pg_025__seed_1__task_prompt_writing
+[103/440] role_assignment pg_025__seed_42__task_role_assignment
+[103/440] wrote role_assignment pg_025__seed_42__task_role_assignment
+[104/440] prompt_writing pg_025__seed_42__task_prompt_writing
+[104/440] wrote prompt_writing pg_025__seed_42__task_prompt_writing
+[105/440] role_assignment pg_026__seed_1__task_role_assignment
+[105/440] wrote role_assignment pg_026__seed_1__task_role_assignment
+[106/440] prompt_writing pg_026__seed_1__task_prompt_writing
+[106/440] wrote prompt_writing pg_026__seed_1__task_prompt_writing
+[107/440] role_assignment pg_026__seed_42__task_role_assignment
+[107/440] wrote role_assignment pg_026__seed_42__task_role_assignment
+[108/440] prompt_writing pg_026__seed_42__task_prompt_writing
+[108/440] wrote prompt_writing pg_026__seed_42__task_prompt_writing
+[109/440] role_assignment pg_027__seed_1__task_role_assignment
+[109/440] wrote role_assignment pg_027__seed_1__task_role_assignment
+[110/440] prompt_writing pg_027__seed_1__task_prompt_writing
+[110/440] wrote prompt_writing pg_027__seed_1__task_prompt_writing
+[111/440] role_assignment pg_027__seed_42__task_role_assignment
+[111/440] wrote role_assignment pg_027__seed_42__task_role_assignment
+[112/440] prompt_writing pg_027__seed_42__task_prompt_writing
+[112/440] wrote prompt_writing pg_027__seed_42__task_prompt_writing
+[113/440] role_assignment pg_028__seed_1__task_role_assignment
+[113/440] wrote role_assignment pg_028__seed_1__task_role_assignment
+[114/440] prompt_writing pg_028__seed_1__task_prompt_writing
+[114/440] wrote prompt_writing pg_028__seed_1__task_prompt_writing
+[115/440] role_assignment pg_028__seed_42__task_role_assignment
+[115/440] wrote role_assignment pg_028__seed_42__task_role_assignment
+[116/440] prompt_writing pg_028__seed_42__task_prompt_writing
+[116/440] wrote prompt_writing pg_028__seed_42__task_prompt_writing
+[117/440] role_assignment pg_029__seed_1__task_role_assignment
+[117/440] wrote role_assignment pg_029__seed_1__task_role_assignment
+[118/440] prompt_writing pg_029__seed_1__task_prompt_writing
+[118/440] wrote prompt_writing pg_029__seed_1__task_prompt_writing
+[119/440] role_assignment pg_029__seed_42__task_role_assignment
+[119/440] wrote role_assignment pg_029__seed_42__task_role_assignment
+[120/440] prompt_writing pg_029__seed_42__task_prompt_writing
+[120/440] wrote prompt_writing pg_029__seed_42__task_prompt_writing
+[121/440] role_assignment pg_030__seed_1__task_role_assignment
+[121/440] wrote role_assignment pg_030__seed_1__task_role_assignment
+[122/440] prompt_writing pg_030__seed_1__task_prompt_writing
+[122/440] wrote prompt_writing pg_030__seed_1__task_prompt_writing
+[123/440] role_assignment pg_030__seed_42__task_role_assignment
+[123/440] wrote role_assignment pg_030__seed_42__task_role_assignment
+[124/440] prompt_writing pg_030__seed_42__task_prompt_writing
+[124/440] wrote prompt_writing pg_030__seed_42__task_prompt_writing
+[125/440] role_assignment pg_031__seed_1__task_role_assignment
+[125/440] wrote role_assignment pg_031__seed_1__task_role_assignment
+[126/440] prompt_writing pg_031__seed_1__task_prompt_writing
+[126/440] wrote prompt_writing pg_031__seed_1__task_prompt_writing
+[127/440] role_assignment pg_031__seed_42__task_role_assignment
+[127/440] wrote role_assignment pg_031__seed_42__task_role_assignment
+[128/440] prompt_writing pg_031__seed_42__task_prompt_writing
+[128/440] wrote prompt_writing pg_031__seed_42__task_prompt_writing
+[129/440] role_assignment pg_032__seed_1__task_role_assignment
+[129/440] wrote role_assignment pg_032__seed_1__task_role_assignment
+[130/440] prompt_writing pg_032__seed_1__task_prompt_writing
+[130/440] wrote prompt_writing pg_032__seed_1__task_prompt_writing
+[131/440] role_assignment pg_032__seed_42__task_role_assignment
+[131/440] wrote role_assignment pg_032__seed_42__task_role_assignment
+[132/440] prompt_writing pg_032__seed_42__task_prompt_writing
+[132/440] wrote prompt_writing pg_032__seed_42__task_prompt_writing
+[133/440] role_assignment pg_033__seed_1__task_role_assignment
+[133/440] wrote role_assignment pg_033__seed_1__task_role_assignment
+[134/440] prompt_writing pg_033__seed_1__task_prompt_writing
+[134/440] wrote prompt_writing pg_033__seed_1__task_prompt_writing
+[135/440] role_assignment pg_033__seed_42__task_role_assignment
+[135/440] wrote role_assignment pg_033__seed_42__task_role_assignment
+[136/440] prompt_writing pg_033__seed_42__task_prompt_writing
+[136/440] wrote prompt_writing pg_033__seed_42__task_prompt_writing
+[137/440] role_assignment pg_034__seed_1__task_role_assignment
+[137/440] wrote role_assignment pg_034__seed_1__task_role_assignment
+[138/440] prompt_writing pg_034__seed_1__task_prompt_writing
+[138/440] wrote prompt_writing pg_034__seed_1__task_prompt_writing
+[139/440] role_assignment pg_034__seed_42__task_role_assignment
+[139/440] wrote role_assignment pg_034__seed_42__task_role_assignment
+[140/440] prompt_writing pg_034__seed_42__task_prompt_writing
+[140/440] wrote prompt_writing pg_034__seed_42__task_prompt_writing
+[141/440] role_assignment pg_035__seed_1__task_role_assignment
+[141/440] wrote role_assignment pg_035__seed_1__task_role_assignment
+[142/440] prompt_writing pg_035__seed_1__task_prompt_writing
+[142/440] wrote prompt_writing pg_035__seed_1__task_prompt_writing
+[143/440] role_assignment pg_035__seed_42__task_role_assignment
+[143/440] wrote role_assignment pg_035__seed_42__task_role_assignment
+[144/440] prompt_writing pg_035__seed_42__task_prompt_writing
+[144/440] wrote prompt_writing pg_035__seed_42__task_prompt_writing
+[145/440] role_assignment pg_036__seed_1__task_role_assignment
+[145/440] wrote role_assignment pg_036__seed_1__task_role_assignment
+[146/440] prompt_writing pg_036__seed_1__task_prompt_writing
+[146/440] wrote prompt_writing pg_036__seed_1__task_prompt_writing
+[147/440] role_assignment pg_036__seed_42__task_role_assignment
+[147/440] wrote role_assignment pg_036__seed_42__task_role_assignment
+[148/440] prompt_writing pg_036__seed_42__task_prompt_writing
+[148/440] wrote prompt_writing pg_036__seed_42__task_prompt_writing
+[149/440] role_assignment pg_037__seed_1__task_role_assignment
+[149/440] wrote role_assignment pg_037__seed_1__task_role_assignment
+[150/440] prompt_writing pg_037__seed_1__task_prompt_writing
+[150/440] wrote prompt_writing pg_037__seed_1__task_prompt_writing
+[151/440] role_assignment pg_037__seed_42__task_role_assignment
+[151/440] wrote role_assignment pg_037__seed_42__task_role_assignment
+[152/440] prompt_writing pg_037__seed_42__task_prompt_writing
+[152/440] wrote prompt_writing pg_037__seed_42__task_prompt_writing
+[153/440] role_assignment pg_038__seed_1__task_role_assignment
+[153/440] wrote role_assignment pg_038__seed_1__task_role_assignment
+[154/440] prompt_writing pg_038__seed_1__task_prompt_writing
+[154/440] wrote prompt_writing pg_038__seed_1__task_prompt_writing
+[155/440] role_assignment pg_038__seed_42__task_role_assignment
+[155/440] wrote role_assignment pg_038__seed_42__task_role_assignment
+[156/440] prompt_writing pg_038__seed_42__task_prompt_writing
+[156/440] wrote prompt_writing pg_038__seed_42__task_prompt_writing
+[157/440] role_assignment pg_039__seed_1__task_role_assignment
+[157/440] wrote role_assignment pg_039__seed_1__task_role_assignment
+[158/440] prompt_writing pg_039__seed_1__task_prompt_writing
+[158/440] wrote prompt_writing pg_039__seed_1__task_prompt_writing
+[159/440] role_assignment pg_039__seed_42__task_role_assignment
+[159/440] wrote role_assignment pg_039__seed_42__task_role_assignment
+[160/440] prompt_writing pg_039__seed_42__task_prompt_writing
+[160/440] wrote prompt_writing pg_039__seed_42__task_prompt_writing
+[161/440] role_assignment pg_040__seed_1__task_role_assignment
+[161/440] wrote role_assignment pg_040__seed_1__task_role_assignment
+[162/440] prompt_writing pg_040__seed_1__task_prompt_writing
+[162/440] wrote prompt_writing pg_040__seed_1__task_prompt_writing
+[163/440] role_assignment pg_040__seed_42__task_role_assignment
+[163/440] wrote role_assignment pg_040__seed_42__task_role_assignment
+[164/440] prompt_writing pg_040__seed_42__task_prompt_writing
+[164/440] wrote prompt_writing pg_040__seed_42__task_prompt_writing
+[165/440] role_assignment pg_041__seed_1__task_role_assignment
+[165/440] wrote role_assignment pg_041__seed_1__task_role_assignment
+[166/440] prompt_writing pg_041__seed_1__task_prompt_writing
+[166/440] wrote prompt_writing pg_041__seed_1__task_prompt_writing
+[167/440] role_assignment pg_041__seed_42__task_role_assignment
+[167/440] wrote role_assignment pg_041__seed_42__task_role_assignment
+[168/440] prompt_writing pg_041__seed_42__task_prompt_writing
+[168/440] wrote prompt_writing pg_041__seed_42__task_prompt_writing
+[169/440] role_assignment pg_042__seed_1__task_role_assignment
+[169/440] wrote role_assignment pg_042__seed_1__task_role_assignment
+[170/440] prompt_writing pg_042__seed_1__task_prompt_writing
+[170/440] wrote prompt_writing pg_042__seed_1__task_prompt_writing
+[171/440] role_assignment pg_042__seed_42__task_role_assignment
+[171/440] wrote role_assignment pg_042__seed_42__task_role_assignment
+[172/440] prompt_writing pg_042__seed_42__task_prompt_writing
+[172/440] wrote prompt_writing pg_042__seed_42__task_prompt_writing
+[173/440] role_assignment pg_043__seed_1__task_role_assignment
+[173/440] wrote role_assignment pg_043__seed_1__task_role_assignment
+[174/440] prompt_writing pg_043__seed_1__task_prompt_writing
+[174/440] wrote prompt_writing pg_043__seed_1__task_prompt_writing
+[175/440] role_assignment pg_043__seed_42__task_role_assignment
+[175/440] wrote role_assignment pg_043__seed_42__task_role_assignment
+[176/440] prompt_writing pg_043__seed_42__task_prompt_writing
+[176/440] wrote prompt_writing pg_043__seed_42__task_prompt_writing
+[177/440] role_assignment pg_044__seed_1__task_role_assignment
+[177/440] wrote role_assignment pg_044__seed_1__task_role_assignment
+[178/440] prompt_writing pg_044__seed_1__task_prompt_writing
+[178/440] wrote prompt_writing pg_044__seed_1__task_prompt_writing
+[179/440] role_assignment pg_044__seed_42__task_role_assignment
+[179/440] wrote role_assignment pg_044__seed_42__task_role_assignment
+[180/440] prompt_writing pg_044__seed_42__task_prompt_writing
+[180/440] wrote prompt_writing pg_044__seed_42__task_prompt_writing
+[181/440] role_assignment pg_045__seed_1__task_role_assignment
+[181/440] wrote role_assignment pg_045__seed_1__task_role_assignment
+[182/440] prompt_writing pg_045__seed_1__task_prompt_writing
+[182/440] wrote prompt_writing pg_045__seed_1__task_prompt_writing
+[183/440] role_assignment pg_045__seed_42__task_role_assignment
+[183/440] wrote role_assignment pg_045__seed_42__task_role_assignment
+[184/440] prompt_writing pg_045__seed_42__task_prompt_writing
+[184/440] wrote prompt_writing pg_045__seed_42__task_prompt_writing
+[185/440] role_assignment pg_046__seed_1__task_role_assignment
+[185/440] wrote role_assignment pg_046__seed_1__task_role_assignment
+[186/440] prompt_writing pg_046__seed_1__task_prompt_writing
+[186/440] wrote prompt_writing pg_046__seed_1__task_prompt_writing
+[187/440] role_assignment pg_046__seed_42__task_role_assignment
+[187/440] wrote role_assignment pg_046__seed_42__task_role_assignment
+[188/440] prompt_writing pg_046__seed_42__task_prompt_writing
+[188/440] wrote prompt_writing pg_046__seed_42__task_prompt_writing
+[189/440] role_assignment pg_047__seed_1__task_role_assignment
+[189/440] wrote role_assignment pg_047__seed_1__task_role_assignment
+[190/440] prompt_writing pg_047__seed_1__task_prompt_writing
+[190/440] wrote prompt_writing pg_047__seed_1__task_prompt_writing
+[191/440] role_assignment pg_047__seed_42__task_role_assignment
+[191/440] wrote role_assignment pg_047__seed_42__task_role_assignment
+[192/440] prompt_writing pg_047__seed_42__task_prompt_writing
+[192/440] wrote prompt_writing pg_047__seed_42__task_prompt_writing
+[193/440] role_assignment pg_048__seed_1__task_role_assignment
+[193/440] wrote role_assignment pg_048__seed_1__task_role_assignment
+[194/440] prompt_writing pg_048__seed_1__task_prompt_writing
+[194/440] wrote prompt_writing pg_048__seed_1__task_prompt_writing
+[195/440] role_assignment pg_048__seed_42__task_role_assignment
+[195/440] wrote role_assignment pg_048__seed_42__task_role_assignment
+[196/440] prompt_writing pg_048__seed_42__task_prompt_writing
+[196/440] wrote prompt_writing pg_048__seed_42__task_prompt_writing
+[197/440] role_assignment pg_049__seed_1__task_role_assignment
+[197/440] wrote role_assignment pg_049__seed_1__task_role_assignment
+[198/440] prompt_writing pg_049__seed_1__task_prompt_writing
+[198/440] wrote prompt_writing pg_049__seed_1__task_prompt_writing
+[199/440] role_assignment pg_049__seed_42__task_role_assignment
+[199/440] wrote role_assignment pg_049__seed_42__task_role_assignment
+[200/440] prompt_writing pg_049__seed_42__task_prompt_writing
+[200/440] wrote prompt_writing pg_049__seed_42__task_prompt_writing
+[201/440] role_assignment pg_050__seed_1__task_role_assignment
+[201/440] wrote role_assignment pg_050__seed_1__task_role_assignment
+[202/440] prompt_writing pg_050__seed_1__task_prompt_writing
+[202/440] wrote prompt_writing pg_050__seed_1__task_prompt_writing
+[203/440] role_assignment pg_050__seed_42__task_role_assignment
+[203/440] wrote role_assignment pg_050__seed_42__task_role_assignment
+[204/440] prompt_writing pg_050__seed_42__task_prompt_writing
+[204/440] wrote prompt_writing pg_050__seed_42__task_prompt_writing
+[205/440] role_assignment pg_051__seed_1__task_role_assignment
+[205/440] wrote role_assignment pg_051__seed_1__task_role_assignment
+[206/440] prompt_writing pg_051__seed_1__task_prompt_writing
+[206/440] wrote prompt_writing pg_051__seed_1__task_prompt_writing
+[207/440] role_assignment pg_051__seed_42__task_role_assignment
+[207/440] wrote role_assignment pg_051__seed_42__task_role_assignment
+[208/440] prompt_writing pg_051__seed_42__task_prompt_writing
+[208/440] wrote prompt_writing pg_051__seed_42__task_prompt_writing
+[209/440] role_assignment pg_052__seed_1__task_role_assignment
+[209/440] wrote role_assignment pg_052__seed_1__task_role_assignment
+[210/440] prompt_writing pg_052__seed_1__task_prompt_writing
+[210/440] wrote prompt_writing pg_052__seed_1__task_prompt_writing
+[211/440] role_assignment pg_052__seed_42__task_role_assignment
+[211/440] wrote role_assignment pg_052__seed_42__task_role_assignment
+[212/440] prompt_writing pg_052__seed_42__task_prompt_writing
+[212/440] wrote prompt_writing pg_052__seed_42__task_prompt_writing
+[213/440] role_assignment pg_053__seed_1__task_role_assignment
+[213/440] wrote role_assignment pg_053__seed_1__task_role_assignment
+[214/440] prompt_writing pg_053__seed_1__task_prompt_writing
+[214/440] wrote prompt_writing pg_053__seed_1__task_prompt_writing
+[215/440] role_assignment pg_053__seed_42__task_role_assignment
+[215/440] wrote role_assignment pg_053__seed_42__task_role_assignment
+[216/440] prompt_writing pg_053__seed_42__task_prompt_writing
+[216/440] wrote prompt_writing pg_053__seed_42__task_prompt_writing
+[217/440] role_assignment pg_054__seed_1__task_role_assignment
+[217/440] wrote role_assignment pg_054__seed_1__task_role_assignment
+[218/440] prompt_writing pg_054__seed_1__task_prompt_writing
+[218/440] wrote prompt_writing pg_054__seed_1__task_prompt_writing
+[219/440] role_assignment pg_054__seed_42__task_role_assignment
+[219/440] wrote role_assignment pg_054__seed_42__task_role_assignment
+[220/440] prompt_writing pg_054__seed_42__task_prompt_writing
+[220/440] wrote prompt_writing pg_054__seed_42__task_prompt_writing
+[221/440] role_assignment pg_055__seed_1__task_role_assignment
+[221/440] wrote role_assignment pg_055__seed_1__task_role_assignment
+[222/440] prompt_writing pg_055__seed_1__task_prompt_writing
+[222/440] wrote prompt_writing pg_055__seed_1__task_prompt_writing
+[223/440] role_assignment pg_055__seed_42__task_role_assignment
+[223/440] wrote role_assignment pg_055__seed_42__task_role_assignment
+[224/440] prompt_writing pg_055__seed_42__task_prompt_writing
+[224/440] wrote prompt_writing pg_055__seed_42__task_prompt_writing
+[225/440] role_assignment pg_056__seed_1__task_role_assignment
+[225/440] wrote role_assignment pg_056__seed_1__task_role_assignment
+[226/440] prompt_writing pg_056__seed_1__task_prompt_writing
+[226/440] wrote prompt_writing pg_056__seed_1__task_prompt_writing
+[227/440] role_assignment pg_056__seed_42__task_role_assignment
+[227/440] wrote role_assignment pg_056__seed_42__task_role_assignment
+[228/440] prompt_writing pg_056__seed_42__task_prompt_writing
+[228/440] wrote prompt_writing pg_056__seed_42__task_prompt_writing
+[229/440] role_assignment pg_057__seed_1__task_role_assignment
+[229/440] wrote role_assignment pg_057__seed_1__task_role_assignment
+[230/440] prompt_writing pg_057__seed_1__task_prompt_writing
+[230/440] wrote prompt_writing pg_057__seed_1__task_prompt_writing
+[231/440] role_assignment pg_057__seed_42__task_role_assignment
+[231/440] wrote role_assignment pg_057__seed_42__task_role_assignment
+[232/440] prompt_writing pg_057__seed_42__task_prompt_writing
+[232/440] wrote prompt_writing pg_057__seed_42__task_prompt_writing
+[233/440] role_assignment pg_058__seed_1__task_role_assignment
+[233/440] wrote role_assignment pg_058__seed_1__task_role_assignment
+[234/440] prompt_writing pg_058__seed_1__task_prompt_writing
+[234/440] wrote prompt_writing pg_058__seed_1__task_prompt_writing
+[235/440] role_assignment pg_058__seed_42__task_role_assignment
+[235/440] wrote role_assignment pg_058__seed_42__task_role_assignment
+[236/440] prompt_writing pg_058__seed_42__task_prompt_writing
+[236/440] wrote prompt_writing pg_058__seed_42__task_prompt_writing
+[237/440] role_assignment pg_059__seed_1__task_role_assignment
+[237/440] wrote role_assignment pg_059__seed_1__task_role_assignment
+[238/440] prompt_writing pg_059__seed_1__task_prompt_writing
+[238/440] wrote prompt_writing pg_059__seed_1__task_prompt_writing
+[239/440] role_assignment pg_059__seed_42__task_role_assignment
+[239/440] wrote role_assignment pg_059__seed_42__task_role_assignment
+[240/440] prompt_writing pg_059__seed_42__task_prompt_writing
+[240/440] wrote prompt_writing pg_059__seed_42__task_prompt_writing
+[241/440] role_assignment pg_060__seed_1__task_role_assignment
+[241/440] wrote role_assignment pg_060__seed_1__task_role_assignment
+[242/440] prompt_writing pg_060__seed_1__task_prompt_writing
+[242/440] wrote prompt_writing pg_060__seed_1__task_prompt_writing
+[243/440] role_assignment pg_060__seed_42__task_role_assignment
+[243/440] wrote role_assignment pg_060__seed_42__task_role_assignment
+[244/440] prompt_writing pg_060__seed_42__task_prompt_writing
+[244/440] wrote prompt_writing pg_060__seed_42__task_prompt_writing
+[245/440] role_assignment pg_061__seed_1__task_role_assignment
+[245/440] wrote role_assignment pg_061__seed_1__task_role_assignment
+[246/440] prompt_writing pg_061__seed_1__task_prompt_writing
+[246/440] wrote prompt_writing pg_061__seed_1__task_prompt_writing
+[247/440] role_assignment pg_061__seed_42__task_role_assignment
+[247/440] wrote role_assignment pg_061__seed_42__task_role_assignment
+[248/440] prompt_writing pg_061__seed_42__task_prompt_writing
+[248/440] wrote prompt_writing pg_061__seed_42__task_prompt_writing
+[249/440] role_assignment pg_062__seed_1__task_role_assignment
+[249/440] wrote role_assignment pg_062__seed_1__task_role_assignment
+[250/440] prompt_writing pg_062__seed_1__task_prompt_writing
+[250/440] wrote prompt_writing pg_062__seed_1__task_prompt_writing
+[251/440] role_assignment pg_062__seed_42__task_role_assignment
+[251/440] wrote role_assignment pg_062__seed_42__task_role_assignment
+[252/440] prompt_writing pg_062__seed_42__task_prompt_writing
+[252/440] wrote prompt_writing pg_062__seed_42__task_prompt_writing
+[253/440] role_assignment pg_063__seed_1__task_role_assignment
+[253/440] wrote role_assignment pg_063__seed_1__task_role_assignment
+[254/440] prompt_writing pg_063__seed_1__task_prompt_writing
+[254/440] wrote prompt_writing pg_063__seed_1__task_prompt_writing
+[255/440] role_assignment pg_063__seed_42__task_role_assignment
+[255/440] wrote role_assignment pg_063__seed_42__task_role_assignment
+[256/440] prompt_writing pg_063__seed_42__task_prompt_writing
+[256/440] wrote prompt_writing pg_063__seed_42__task_prompt_writing
+[257/440] role_assignment pg_064__seed_1__task_role_assignment
+[257/440] wrote role_assignment pg_064__seed_1__task_role_assignment
+[258/440] prompt_writing pg_064__seed_1__task_prompt_writing
+[258/440] wrote prompt_writing pg_064__seed_1__task_prompt_writing
+[259/440] role_assignment pg_064__seed_42__task_role_assignment
+[259/440] wrote role_assignment pg_064__seed_42__task_role_assignment
+[260/440] prompt_writing pg_064__seed_42__task_prompt_writing
+[260/440] wrote prompt_writing pg_064__seed_42__task_prompt_writing
+[261/440] role_assignment pg_065__seed_1__task_role_assignment
+[261/440] wrote role_assignment pg_065__seed_1__task_role_assignment
+[262/440] prompt_writing pg_065__seed_1__task_prompt_writing
+[262/440] wrote prompt_writing pg_065__seed_1__task_prompt_writing
+[263/440] role_assignment pg_065__seed_42__task_role_assignment
+[263/440] wrote role_assignment pg_065__seed_42__task_role_assignment
+[264/440] prompt_writing pg_065__seed_42__task_prompt_writing
+[264/440] wrote prompt_writing pg_065__seed_42__task_prompt_writing
+[265/440] role_assignment pg_066__seed_1__task_role_assignment
+[265/440] wrote role_assignment pg_066__seed_1__task_role_assignment
+[266/440] prompt_writing pg_066__seed_1__task_prompt_writing
+[266/440] wrote prompt_writing pg_066__seed_1__task_prompt_writing
+[267/440] role_assignment pg_066__seed_42__task_role_assignment
+[267/440] wrote role_assignment pg_066__seed_42__task_role_assignment
+[268/440] prompt_writing pg_066__seed_42__task_prompt_writing
+[268/440] wrote prompt_writing pg_066__seed_42__task_prompt_writing
+[269/440] role_assignment pg_067__seed_1__task_role_assignment
+[269/440] wrote role_assignment pg_067__seed_1__task_role_assignment
+[270/440] prompt_writing pg_067__seed_1__task_prompt_writing
+[270/440] wrote prompt_writing pg_067__seed_1__task_prompt_writing
+[271/440] role_assignment pg_067__seed_42__task_role_assignment
+[271/440] wrote role_assignment pg_067__seed_42__task_role_assignment
+[272/440] prompt_writing pg_067__seed_42__task_prompt_writing
+[272/440] wrote prompt_writing pg_067__seed_42__task_prompt_writing
+[273/440] role_assignment pg_068__seed_1__task_role_assignment
+[273/440] wrote role_assignment pg_068__seed_1__task_role_assignment
+[274/440] prompt_writing pg_068__seed_1__task_prompt_writing
+[274/440] wrote prompt_writing pg_068__seed_1__task_prompt_writing
+[275/440] role_assignment pg_068__seed_42__task_role_assignment
+[275/440] wrote role_assignment pg_068__seed_42__task_role_assignment
+[276/440] prompt_writing pg_068__seed_42__task_prompt_writing
+[276/440] wrote prompt_writing pg_068__seed_42__task_prompt_writing
+[277/440] role_assignment pg_069__seed_1__task_role_assignment
+[277/440] wrote role_assignment pg_069__seed_1__task_role_assignment
+[278/440] prompt_writing pg_069__seed_1__task_prompt_writing
+[278/440] wrote prompt_writing pg_069__seed_1__task_prompt_writing
+[279/440] role_assignment pg_069__seed_42__task_role_assignment
+[279/440] wrote role_assignment pg_069__seed_42__task_role_assignment
+[280/440] prompt_writing pg_069__seed_42__task_prompt_writing
+[280/440] wrote prompt_writing pg_069__seed_42__task_prompt_writing
+[281/440] role_assignment pg_070__seed_1__task_role_assignment
+[281/440] wrote role_assignment pg_070__seed_1__task_role_assignment
+[282/440] prompt_writing pg_070__seed_1__task_prompt_writing
+[282/440] wrote prompt_writing pg_070__seed_1__task_prompt_writing
+[283/440] role_assignment pg_070__seed_42__task_role_assignment
+[283/440] wrote role_assignment pg_070__seed_42__task_role_assignment
+[284/440] prompt_writing pg_070__seed_42__task_prompt_writing
+[284/440] wrote prompt_writing pg_070__seed_42__task_prompt_writing
+[285/440] role_assignment pg_071__seed_1__task_role_assignment
+[285/440] wrote role_assignment pg_071__seed_1__task_role_assignment
+[286/440] prompt_writing pg_071__seed_1__task_prompt_writing
+[286/440] wrote prompt_writing pg_071__seed_1__task_prompt_writing
+[287/440] role_assignment pg_071__seed_42__task_role_assignment
+[287/440] wrote role_assignment pg_071__seed_42__task_role_assignment
+[288/440] prompt_writing pg_071__seed_42__task_prompt_writing
+[288/440] wrote prompt_writing pg_071__seed_42__task_prompt_writing
+[289/440] role_assignment pg_072__seed_1__task_role_assignment
+[289/440] wrote role_assignment pg_072__seed_1__task_role_assignment
+[290/440] prompt_writing pg_072__seed_1__task_prompt_writing
+[290/440] wrote prompt_writing pg_072__seed_1__task_prompt_writing
+[291/440] role_assignment pg_072__seed_42__task_role_assignment
+[291/440] wrote role_assignment pg_072__seed_42__task_role_assignment
+[292/440] prompt_writing pg_072__seed_42__task_prompt_writing
+[292/440] wrote prompt_writing pg_072__seed_42__task_prompt_writing
+[293/440] role_assignment pg_073__seed_1__task_role_assignment
+[293/440] wrote role_assignment pg_073__seed_1__task_role_assignment
+[294/440] prompt_writing pg_073__seed_1__task_prompt_writing
+[294/440] wrote prompt_writing pg_073__seed_1__task_prompt_writing
+[295/440] role_assignment pg_073__seed_42__task_role_assignment
+[295/440] wrote role_assignment pg_073__seed_42__task_role_assignment
+[296/440] prompt_writing pg_073__seed_42__task_prompt_writing
+[296/440] wrote prompt_writing pg_073__seed_42__task_prompt_writing
+[297/440] role_assignment pg_074__seed_1__task_role_assignment
+[297/440] wrote role_assignment pg_074__seed_1__task_role_assignment
+[298/440] prompt_writing pg_074__seed_1__task_prompt_writing
+[298/440] wrote prompt_writing pg_074__seed_1__task_prompt_writing
+[299/440] role_assignment pg_074__seed_42__task_role_assignment
+[299/440] wrote role_assignment pg_074__seed_42__task_role_assignment
+[300/440] prompt_writing pg_074__seed_42__task_prompt_writing
+[300/440] wrote prompt_writing pg_074__seed_42__task_prompt_writing
+[301/440] role_assignment pg_075__seed_1__task_role_assignment
+[301/440] wrote role_assignment pg_075__seed_1__task_role_assignment
+[302/440] prompt_writing pg_075__seed_1__task_prompt_writing
+[302/440] wrote prompt_writing pg_075__seed_1__task_prompt_writing
+[303/440] role_assignment pg_075__seed_42__task_role_assignment
+[303/440] wrote role_assignment pg_075__seed_42__task_role_assignment
+[304/440] prompt_writing pg_075__seed_42__task_prompt_writing
+[304/440] wrote prompt_writing pg_075__seed_42__task_prompt_writing
+[305/440] role_assignment pg_076__seed_1__task_role_assignment
+[305/440] wrote role_assignment pg_076__seed_1__task_role_assignment
+[306/440] prompt_writing pg_076__seed_1__task_prompt_writing
+[306/440] wrote prompt_writing pg_076__seed_1__task_prompt_writing
+[307/440] role_assignment pg_076__seed_42__task_role_assignment
+[307/440] wrote role_assignment pg_076__seed_42__task_role_assignment
+[308/440] prompt_writing pg_076__seed_42__task_prompt_writing
+[308/440] wrote prompt_writing pg_076__seed_42__task_prompt_writing
+[309/440] role_assignment pg_077__seed_1__task_role_assignment
+[309/440] wrote role_assignment pg_077__seed_1__task_role_assignment
+[310/440] prompt_writing pg_077__seed_1__task_prompt_writing
+[310/440] wrote prompt_writing pg_077__seed_1__task_prompt_writing
+[311/440] role_assignment pg_077__seed_42__task_role_assignment
+[311/440] wrote role_assignment pg_077__seed_42__task_role_assignment
+[312/440] prompt_writing pg_077__seed_42__task_prompt_writing
+[312/440] wrote prompt_writing pg_077__seed_42__task_prompt_writing
+[313/440] role_assignment pg_078__seed_1__task_role_assignment
+[313/440] wrote role_assignment pg_078__seed_1__task_role_assignment
+[314/440] prompt_writing pg_078__seed_1__task_prompt_writing
+[314/440] wrote prompt_writing pg_078__seed_1__task_prompt_writing
+[315/440] role_assignment pg_078__seed_42__task_role_assignment
+[315/440] wrote role_assignment pg_078__seed_42__task_role_assignment
+[316/440] prompt_writing pg_078__seed_42__task_prompt_writing
+[316/440] wrote prompt_writing pg_078__seed_42__task_prompt_writing
+[317/440] role_assignment pg_079__seed_1__task_role_assignment
+[317/440] wrote role_assignment pg_079__seed_1__task_role_assignment
+[318/440] prompt_writing pg_079__seed_1__task_prompt_writing
+[318/440] wrote prompt_writing pg_079__seed_1__task_prompt_writing
+[319/440] role_assignment pg_079__seed_42__task_role_assignment
+[319/440] wrote role_assignment pg_079__seed_42__task_role_assignment
+[320/440] prompt_writing pg_079__seed_42__task_prompt_writing
+[320/440] wrote prompt_writing pg_079__seed_42__task_prompt_writing
+[321/440] role_assignment pg_080__seed_1__task_role_assignment
+[321/440] wrote role_assignment pg_080__seed_1__task_role_assignment
+[322/440] prompt_writing pg_080__seed_1__task_prompt_writing
+[322/440] wrote prompt_writing pg_080__seed_1__task_prompt_writing
+[323/440] role_assignment pg_080__seed_42__task_role_assignment
+[323/440] wrote role_assignment pg_080__seed_42__task_role_assignment
+[324/440] prompt_writing pg_080__seed_42__task_prompt_writing
+[324/440] wrote prompt_writing pg_080__seed_42__task_prompt_writing
+[325/440] role_assignment pg_081__seed_1__task_role_assignment
+[325/440] wrote role_assignment pg_081__seed_1__task_role_assignment
+[326/440] prompt_writing pg_081__seed_1__task_prompt_writing
+[326/440] wrote prompt_writing pg_081__seed_1__task_prompt_writing
+[327/440] role_assignment pg_081__seed_42__task_role_assignment
+[327/440] wrote role_assignment pg_081__seed_42__task_role_assignment
+[328/440] prompt_writing pg_081__seed_42__task_prompt_writing
+[328/440] wrote prompt_writing pg_081__seed_42__task_prompt_writing
+[329/440] role_assignment pg_082__seed_1__task_role_assignment
+[329/440] wrote role_assignment pg_082__seed_1__task_role_assignment
+[330/440] prompt_writing pg_082__seed_1__task_prompt_writing
+[330/440] wrote prompt_writing pg_082__seed_1__task_prompt_writing
+[331/440] role_assignment pg_082__seed_42__task_role_assignment
+[331/440] wrote role_assignment pg_082__seed_42__task_role_assignment
+[332/440] prompt_writing pg_082__seed_42__task_prompt_writing
+[332/440] wrote prompt_writing pg_082__seed_42__task_prompt_writing
+[333/440] role_assignment pg_083__seed_1__task_role_assignment
+[333/440] wrote role_assignment pg_083__seed_1__task_role_assignment
+[334/440] prompt_writing pg_083__seed_1__task_prompt_writing
+[334/440] wrote prompt_writing pg_083__seed_1__task_prompt_writing
+[335/440] role_assignment pg_083__seed_42__task_role_assignment
+[335/440] wrote role_assignment pg_083__seed_42__task_role_assignment
+[336/440] prompt_writing pg_083__seed_42__task_prompt_writing
+[336/440] wrote prompt_writing pg_083__seed_42__task_prompt_writing
+[337/440] role_assignment pg_084__seed_1__task_role_assignment
+[337/440] wrote role_assignment pg_084__seed_1__task_role_assignment
+[338/440] prompt_writing pg_084__seed_1__task_prompt_writing
+[338/440] wrote prompt_writing pg_084__seed_1__task_prompt_writing
+[339/440] role_assignment pg_084__seed_42__task_role_assignment
+[339/440] wrote role_assignment pg_084__seed_42__task_role_assignment
+[340/440] prompt_writing pg_084__seed_42__task_prompt_writing
+[340/440] wrote prompt_writing pg_084__seed_42__task_prompt_writing
+[341/440] role_assignment pg_085__seed_1__task_role_assignment
+[341/440] wrote role_assignment pg_085__seed_1__task_role_assignment
+[342/440] prompt_writing pg_085__seed_1__task_prompt_writing
+[342/440] wrote prompt_writing pg_085__seed_1__task_prompt_writing
+[343/440] role_assignment pg_085__seed_42__task_role_assignment
+[343/440] wrote role_assignment pg_085__seed_42__task_role_assignment
+[344/440] prompt_writing pg_085__seed_42__task_prompt_writing
+[344/440] wrote prompt_writing pg_085__seed_42__task_prompt_writing
+[345/440] role_assignment pg_086__seed_1__task_role_assignment
+[345/440] wrote role_assignment pg_086__seed_1__task_role_assignment
+[346/440] prompt_writing pg_086__seed_1__task_prompt_writing
+[346/440] wrote prompt_writing pg_086__seed_1__task_prompt_writing
+[347/440] role_assignment pg_086__seed_42__task_role_assignment
+[347/440] wrote role_assignment pg_086__seed_42__task_role_assignment
+[348/440] prompt_writing pg_086__seed_42__task_prompt_writing
+[348/440] wrote prompt_writing pg_086__seed_42__task_prompt_writing
+[349/440] role_assignment pg_087__seed_1__task_role_assignment
+[349/440] wrote role_assignment pg_087__seed_1__task_role_assignment
+[350/440] prompt_writing pg_087__seed_1__task_prompt_writing
+[350/440] wrote prompt_writing pg_087__seed_1__task_prompt_writing
+[351/440] role_assignment pg_087__seed_42__task_role_assignment
+[351/440] wrote role_assignment pg_087__seed_42__task_role_assignment
+[352/440] prompt_writing pg_087__seed_42__task_prompt_writing
+[352/440] wrote prompt_writing pg_087__seed_42__task_prompt_writing
+[353/440] role_assignment pg_088__seed_1__task_role_assignment
+[353/440] wrote role_assignment pg_088__seed_1__task_role_assignment
+[354/440] prompt_writing pg_088__seed_1__task_prompt_writing
+[354/440] wrote prompt_writing pg_088__seed_1__task_prompt_writing
+[355/440] role_assignment pg_088__seed_42__task_role_assignment
+[355/440] wrote role_assignment pg_088__seed_42__task_role_assignment
+[356/440] prompt_writing pg_088__seed_42__task_prompt_writing
+[356/440] wrote prompt_writing pg_088__seed_42__task_prompt_writing
+[357/440] role_assignment pg_089__seed_1__task_role_assignment
+[357/440] wrote role_assignment pg_089__seed_1__task_role_assignment
+[358/440] prompt_writing pg_089__seed_1__task_prompt_writing
+[358/440] wrote prompt_writing pg_089__seed_1__task_prompt_writing
+[359/440] role_assignment pg_089__seed_42__task_role_assignment
+[359/440] wrote role_assignment pg_089__seed_42__task_role_assignment
+[360/440] prompt_writing pg_089__seed_42__task_prompt_writing
+[360/440] wrote prompt_writing pg_089__seed_42__task_prompt_writing
+[361/440] role_assignment pg_090__seed_1__task_role_assignment
+[361/440] wrote role_assignment pg_090__seed_1__task_role_assignment
+[362/440] prompt_writing pg_090__seed_1__task_prompt_writing
+[362/440] wrote prompt_writing pg_090__seed_1__task_prompt_writing
+[363/440] role_assignment pg_090__seed_42__task_role_assignment
+[363/440] wrote role_assignment pg_090__seed_42__task_role_assignment
+[364/440] prompt_writing pg_090__seed_42__task_prompt_writing
+[364/440] wrote prompt_writing pg_090__seed_42__task_prompt_writing
+[365/440] role_assignment pg_091__seed_1__task_role_assignment
+[365/440] wrote role_assignment pg_091__seed_1__task_role_assignment
+[366/440] prompt_writing pg_091__seed_1__task_prompt_writing
+[366/440] wrote prompt_writing pg_091__seed_1__task_prompt_writing
+[367/440] role_assignment pg_091__seed_42__task_role_assignment
+[367/440] wrote role_assignment pg_091__seed_42__task_role_assignment
+[368/440] prompt_writing pg_091__seed_42__task_prompt_writing
+[368/440] wrote prompt_writing pg_091__seed_42__task_prompt_writing
+[369/440] role_assignment pg_092__seed_1__task_role_assignment
+[369/440] wrote role_assignment pg_092__seed_1__task_role_assignment
+[370/440] prompt_writing pg_092__seed_1__task_prompt_writing
+[370/440] wrote prompt_writing pg_092__seed_1__task_prompt_writing
+[371/440] role_assignment pg_092__seed_42__task_role_assignment
+[371/440] wrote role_assignment pg_092__seed_42__task_role_assignment
+[372/440] prompt_writing pg_092__seed_42__task_prompt_writing
+[372/440] wrote prompt_writing pg_092__seed_42__task_prompt_writing
+[373/440] role_assignment pg_093__seed_1__task_role_assignment
+[373/440] wrote role_assignment pg_093__seed_1__task_role_assignment
+[374/440] prompt_writing pg_093__seed_1__task_prompt_writing
+[374/440] wrote prompt_writing pg_093__seed_1__task_prompt_writing
+[375/440] role_assignment pg_093__seed_42__task_role_assignment
+[375/440] wrote role_assignment pg_093__seed_42__task_role_assignment
+[376/440] prompt_writing pg_093__seed_42__task_prompt_writing
+[376/440] wrote prompt_writing pg_093__seed_42__task_prompt_writing
+[377/440] role_assignment pg_094__seed_1__task_role_assignment
+[377/440] wrote role_assignment pg_094__seed_1__task_role_assignment
+[378/440] prompt_writing pg_094__seed_1__task_prompt_writing
+[378/440] wrote prompt_writing pg_094__seed_1__task_prompt_writing
+[379/440] role_assignment pg_094__seed_42__task_role_assignment
+[379/440] wrote role_assignment pg_094__seed_42__task_role_assignment
+[380/440] prompt_writing pg_094__seed_42__task_prompt_writing
+[380/440] wrote prompt_writing pg_094__seed_42__task_prompt_writing
+[381/440] role_assignment pg_095__seed_1__task_role_assignment
+[381/440] wrote role_assignment pg_095__seed_1__task_role_assignment
+[382/440] prompt_writing pg_095__seed_1__task_prompt_writing
+[382/440] wrote prompt_writing pg_095__seed_1__task_prompt_writing
+[383/440] role_assignment pg_095__seed_42__task_role_assignment
+[383/440] wrote role_assignment pg_095__seed_42__task_role_assignment
+[384/440] prompt_writing pg_095__seed_42__task_prompt_writing
+[384/440] wrote prompt_writing pg_095__seed_42__task_prompt_writing
+[385/440] role_assignment pg_096__seed_1__task_role_assignment
+[385/440] wrote role_assignment pg_096__seed_1__task_role_assignment
+[386/440] prompt_writing pg_096__seed_1__task_prompt_writing
+[386/440] wrote prompt_writing pg_096__seed_1__task_prompt_writing
+[387/440] role_assignment pg_096__seed_42__task_role_assignment
+[387/440] wrote role_assignment pg_096__seed_42__task_role_assignment
+[388/440] prompt_writing pg_096__seed_42__task_prompt_writing
+[388/440] wrote prompt_writing pg_096__seed_42__task_prompt_writing
+[389/440] role_assignment pg_097__seed_1__task_role_assignment
+[389/440] wrote role_assignment pg_097__seed_1__task_role_assignment
+[390/440] prompt_writing pg_097__seed_1__task_prompt_writing
+[390/440] wrote prompt_writing pg_097__seed_1__task_prompt_writing
+[391/440] role_assignment pg_097__seed_42__task_role_assignment
+[391/440] wrote role_assignment pg_097__seed_42__task_role_assignment
+[392/440] prompt_writing pg_097__seed_42__task_prompt_writing
+[392/440] wrote prompt_writing pg_097__seed_42__task_prompt_writing
+[393/440] role_assignment pg_098__seed_1__task_role_assignment
+[393/440] wrote role_assignment pg_098__seed_1__task_role_assignment
+[394/440] prompt_writing pg_098__seed_1__task_prompt_writing
+[394/440] wrote prompt_writing pg_098__seed_1__task_prompt_writing
+[395/440] role_assignment pg_098__seed_42__task_role_assignment
+[395/440] wrote role_assignment pg_098__seed_42__task_role_assignment
+[396/440] prompt_writing pg_098__seed_42__task_prompt_writing
+[396/440] wrote prompt_writing pg_098__seed_42__task_prompt_writing
+[397/440] role_assignment pg_099__seed_1__task_role_assignment
+[397/440] wrote role_assignment pg_099__seed_1__task_role_assignment
+[398/440] prompt_writing pg_099__seed_1__task_prompt_writing
+[398/440] wrote prompt_writing pg_099__seed_1__task_prompt_writing
+[399/440] role_assignment pg_099__seed_42__task_role_assignment
+[399/440] wrote role_assignment pg_099__seed_42__task_role_assignment
+[400/440] prompt_writing pg_099__seed_42__task_prompt_writing
+[400/440] wrote prompt_writing pg_099__seed_42__task_prompt_writing
+[401/440] role_assignment pg_100__seed_1__task_role_assignment
+[401/440] wrote role_assignment pg_100__seed_1__task_role_assignment
+[402/440] prompt_writing pg_100__seed_1__task_prompt_writing
+[402/440] wrote prompt_writing pg_100__seed_1__task_prompt_writing
+[403/440] role_assignment pg_100__seed_42__task_role_assignment
+[403/440] wrote role_assignment pg_100__seed_42__task_role_assignment
+[404/440] prompt_writing pg_100__seed_42__task_prompt_writing
+[404/440] wrote prompt_writing pg_100__seed_42__task_prompt_writing
+[405/440] role_assignment pg_101__seed_1__task_role_assignment
+[405/440] wrote role_assignment pg_101__seed_1__task_role_assignment
+[406/440] prompt_writing pg_101__seed_1__task_prompt_writing
+[406/440] wrote prompt_writing pg_101__seed_1__task_prompt_writing
+[407/440] role_assignment pg_101__seed_42__task_role_assignment
+[407/440] wrote role_assignment pg_101__seed_42__task_role_assignment
+[408/440] prompt_writing pg_101__seed_42__task_prompt_writing
+[408/440] wrote prompt_writing pg_101__seed_42__task_prompt_writing
+[409/440] role_assignment pg_102__seed_1__task_role_assignment
+[409/440] wrote role_assignment pg_102__seed_1__task_role_assignment
+[410/440] prompt_writing pg_102__seed_1__task_prompt_writing
+[410/440] wrote prompt_writing pg_102__seed_1__task_prompt_writing
+[411/440] role_assignment pg_102__seed_42__task_role_assignment
+[411/440] wrote role_assignment pg_102__seed_42__task_role_assignment
+[412/440] prompt_writing pg_102__seed_42__task_prompt_writing
+[412/440] wrote prompt_writing pg_102__seed_42__task_prompt_writing
+[413/440] role_assignment pg_103__seed_1__task_role_assignment
+[413/440] wrote role_assignment pg_103__seed_1__task_role_assignment
+[414/440] prompt_writing pg_103__seed_1__task_prompt_writing
+[414/440] wrote prompt_writing pg_103__seed_1__task_prompt_writing
+[415/440] role_assignment pg_103__seed_42__task_role_assignment
+[415/440] wrote role_assignment pg_103__seed_42__task_role_assignment
+[416/440] prompt_writing pg_103__seed_42__task_prompt_writing
+[416/440] wrote prompt_writing pg_103__seed_42__task_prompt_writing
+[417/440] role_assignment pg_104__seed_1__task_role_assignment
+[417/440] wrote role_assignment pg_104__seed_1__task_role_assignment
+[418/440] prompt_writing pg_104__seed_1__task_prompt_writing
+[418/440] wrote prompt_writing pg_104__seed_1__task_prompt_writing
+[419/440] role_assignment pg_104__seed_42__task_role_assignment
+[419/440] wrote role_assignment pg_104__seed_42__task_role_assignment
+[420/440] prompt_writing pg_104__seed_42__task_prompt_writing
+[420/440] wrote prompt_writing pg_104__seed_42__task_prompt_writing
+[421/440] role_assignment pg_105__seed_1__task_role_assignment
+[421/440] wrote role_assignment pg_105__seed_1__task_role_assignment
+[422/440] prompt_writing pg_105__seed_1__task_prompt_writing
+[422/440] wrote prompt_writing pg_105__seed_1__task_prompt_writing
+[423/440] role_assignment pg_105__seed_42__task_role_assignment
+[423/440] wrote role_assignment pg_105__seed_42__task_role_assignment
+[424/440] prompt_writing pg_105__seed_42__task_prompt_writing
+[424/440] wrote prompt_writing pg_105__seed_42__task_prompt_writing
+[425/440] role_assignment pg_106__seed_1__task_role_assignment
+[425/440] wrote role_assignment pg_106__seed_1__task_role_assignment
+[426/440] prompt_writing pg_106__seed_1__task_prompt_writing
+[426/440] wrote prompt_writing pg_106__seed_1__task_prompt_writing
+[427/440] role_assignment pg_106__seed_42__task_role_assignment
+[427/440] wrote role_assignment pg_106__seed_42__task_role_assignment
+[428/440] prompt_writing pg_106__seed_42__task_prompt_writing
+[428/440] wrote prompt_writing pg_106__seed_42__task_prompt_writing
+[429/440] role_assignment pg_107__seed_1__task_role_assignment
+[429/440] wrote role_assignment pg_107__seed_1__task_role_assignment
+[430/440] prompt_writing pg_107__seed_1__task_prompt_writing
+[430/440] wrote prompt_writing pg_107__seed_1__task_prompt_writing
+[431/440] role_assignment pg_107__seed_42__task_role_assignment
+[431/440] wrote role_assignment pg_107__seed_42__task_role_assignment
+[432/440] prompt_writing pg_107__seed_42__task_prompt_writing
+[432/440] wrote prompt_writing pg_107__seed_42__task_prompt_writing
+[433/440] role_assignment pg_108__seed_1__task_role_assignment
+[433/440] wrote role_assignment pg_108__seed_1__task_role_assignment
+[434/440] prompt_writing pg_108__seed_1__task_prompt_writing
+[434/440] wrote prompt_writing pg_108__seed_1__task_prompt_writing
+[435/440] role_assignment pg_108__seed_42__task_role_assignment
+[435/440] wrote role_assignment pg_108__seed_42__task_role_assignment
+[436/440] prompt_writing pg_108__seed_42__task_prompt_writing
+[436/440] wrote prompt_writing pg_108__seed_42__task_prompt_writing
+[437/440] role_assignment pg_109__seed_1__task_role_assignment
+[437/440] wrote role_assignment pg_109__seed_1__task_role_assignment
+[438/440] prompt_writing pg_109__seed_1__task_prompt_writing
+[438/440] wrote prompt_writing pg_109__seed_1__task_prompt_writing
+[439/440] role_assignment pg_109__seed_42__task_role_assignment
+[439/440] wrote role_assignment pg_109__seed_42__task_role_assignment
+[440/440] prompt_writing pg_109__seed_42__task_prompt_writing
+[440/440] wrote prompt_writing pg_109__seed_42__task_prompt_writing

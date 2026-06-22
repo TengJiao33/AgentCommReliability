@@ -1,0 +1,811 @@
+    Improving Multi-Agent Debate with Sparse Communication Topology
+
+
+                           Yunxuan Li1† , Yibing Du1 , Jiageng Zhang1 , Le Hou2 ,
+                               Peter Grabowski1 , Yeqing Li1 , Eugene Ie1
+                                      1
+                                        Google 2 Google DeepMind
+
+
+
+
+                          Abstract
+
+        Multi-agent debate has proven effective in im-
+        proving large language models quality for rea-
+        soning and factuality tasks. While various role-
+        playing strategies in multi-agent debates have
+        been explored, in terms of the communication
+        among agents, existing approaches adopt a
+        brute-force algorithm - each agent can commu-
+        nicate with all other agents. In this paper, we
+        systematically investigate the effect of commu-
+        nication connectivity in multi-agent systems.
+        Our experiments on GPT and Mistral mod-
+        els reveal that multi-agent debates leveraging
+        sparse communication topology can achieve
+        comparable or superior performance while sig-
+        nificantly reducing computational costs. Fur-
+        thermore, we extend the multi-agent debate
+        framework to multimodal reasoning and align-
+        ment labeling tasks, showcasing its broad ap-
+        plicability and effectiveness. Our findings
+        underscore the importance of communication
+        connectivity on enhancing the efficiency and            Figure 1: Accuracy (top) and inference input cost (mid-
+        effectiveness of the “society of minds” ap-             dle) comparison of multi-agent debate system between
+        proach.                                                 fully-connected (bottom left) and neighbor-connected
+                                                                (bottom right) communication topologies.
+1       Introduction
+Large language models (LLMs) have demonstrated                  Shinn et al., 2024). Recently, the multi-agent de-
+exceptional performance in natural language under-              bate (MAD) framework is proven to be an inno-
+standing and generation tasks. Recently a paradigm              vative approach. Similar to a human discussion
+shift towards prompting LLMs has emerged as a                   process, MAD employs multiple LLM agents to
+significant and influential research area. By lever-            engage in discussions with one another, combin-
+aging the in-context learning (ICL) capabilities of             ing their reasoning and critical thinking abilities to
+LLMs, these models can be adapted to various tasks              produce high-quality results. Specifically, given a
+such as reasoning, factuality, and AI feedback.                 question, each agent first generates their own solu-
+   Several prompting methods have been devel-                   tions to the question and then takes other agents’
+oped to enhance LLM performance by optimiz-                     solutions as reference to update its own answer.
+ing their ICL capabilities. Notable techniques in-              This process can be repeated for several rounds.
+clude Chain-of-Thought (CoT) (Wei et al., 2022),                MAD has demonstrated significant improvement
+self-consistency (SC) (Wang et al., 2022), and self-            on factuality and reasoning tasks. While the debate
+critique (Madaan et al., 2024; Welleck et al., 2022;            process is highly productive, it is also very costly:
+                                                                As the number of LLM agents and debate rounds
+    †
+        Correspondence: yunxuanli@google.com                    increase, the input context expands significantly.
+                                                           7281
+                   Findings of the Association for Computational Linguistics: EMNLP 2024, pages 7281–7294
+                            November 12-16, 2024 ©2024 Association for Computational Linguistics
+   Inspired by the intensive computational cost         ing stronger LLMs to agents with higher centrality
+of MAD, a natural question arises: What if we           yields better overall performance in multiple LLM
+reduce the number of reference solutions visible        debate setup.
+to each agent? We conduct a systematic study
+on the sparsity of the multi-agent communication        2   Related Work
+topology. Surprisingly, we find that sparse com-
+munication connectivity can deliver comparable          Multi-Agent Debate MAD utilizes multiple LLM
+or superior performance while significantly reduc-      agents to discuss and debate with each other to
+ing inference costs. Figure 1 presents a compari-       generate and update the responses. It was first in-
+son between fully-connected MAD and neighbor-           troduced by Du et al. (2023). Most of the MAD
+connected MAD. Compared to fully-connected              work focus on diversifying agents during the de-
+MAD, neighbor-connected MAD achieves an im-             bate process. Liang et al. (2023); Park et al. (2023);
+provement of +2% on the MATH dataset and main-          Li et al. (2023a); Chan et al. (2023) highlight the
+tains the same accuracy on GSM8K. Meanwhile,            importance of assigning different roles for agents.
+the average input token cost for reasoning tasks is     Chen et al. (2023) diversifies agents’ responses
+reduced by over 40%.                                    by instantiated with multiple LLMs. Wang et al.
+   MAD can also be a promising approach for Re-         (2024a) proposes a method in which agents are
+inforcement Learning with AI Feedback (RLAIF)           divided into sub-groups and their discussion out-
+(Bai et al., 2022b; Lee et al., 2023) and weak-to-      comes are later merged. Qian et al. (2023); Wu
+strong generalization (Burns et al., 2023). By deliv-   et al. (2024); Hong et al. (2024) demonstrate the
+ering better reward signals, MAD has the potential      advantage of multi-agent collaboration in solving
+to significantly aid in aligning large language mod-    complex tasks. Unlike other work, we aim to ex-
+els. To assess this, we first extend the MAD frame-     plore the effectiveness of sparse communication
+work to alignment labeling tasks, demonstrating         topology in MAD, and extend its applications to
+its effectiveness compared to single-agent setups.      reasoning and alignment tasks.
+Additionally, we verify that the advantages of spar-    LLM Reasoning Much work has been done to im-
+sity observed in the reasoning tasks experiments        prove the reasoning ability of language models with
+also apply to alignment labeling tasks. Our ex-         prompting, including Chain-of-Thought (Wei et al.,
+periments on the Anthropic-HH datasets show an          2022) and its variants (Yao et al., 2024; Besta et al.,
+improvement of +0.5% in helpfulness and +1.0%           2024), problem decomposition (Zhou et al., 2022),
+in harmlessness, while reducing costs by 50.0%          reasoning ensemble (Wang et al., 2022), reasoner
+and 53.3%, respectively.                                with verification (Cobbe et al., 2021; Wang et al.,
+   We find that when agents are instantiated by dif-    2024b; Luo et al., 2023).
+ferent LLMs within the MAD framework, interac-          Multimodal Reasoning With the recent advance-
+tions among multiple LLMs allow weaker models           ments in vision-language models (Radford et al.,
+to be progressively strengthened through engage-        2021; Yu et al., 2022; Li et al., 2023b; Liu et al.,
+ment with stronger models. In non-regular graph         2024; Lin et al., 2024), multimodal large-language
+settings, assigning stronger LLMs to agents with        models (MLLMs) have demonstrated exceptional
+higher centrality consistently yields better perfor-    visual understanding capabilities. Several evalu-
+mance.                                                  ation benchmarks have been proposed, such as
+   In summary, our contributions are listed as fol-     VQAv2 (Goyal et al., 2017), OK-VQA (Marino
+lows: (1) We demonstrate that sparse communi-           et al., 2019), ScienceQA (Lu et al., 2022), MMMU
+cation topology enhances both effectiveness and         (Yue et al., 2023), and MathVista (Lu et al., 2023).
+efficiency of the multi-agent debate framework; (2)     Similar to LLMs, MLLMs can also be improved
+We thoroughly evaluate sparse MAD for text-only         through prompt-based methods. Various attempts
+and multimodal reasoning tasks, showing its advan-      have been made to enhance MLLMs in this man-
+tage over standard MAD; (3) We extend the MAD           ner (Zheng et al., 2024; Ganz et al., 2024; Yang
+framework to alignment labeling tasks, showing          et al., 2023; Zhao et al., 2024; Zhang et al., 2023;
+the effectiveness of standard MAD and further per-      Chen et al., 2024; Hu et al., 2024). Despite the
+formance improvement introduced by sparse MAD;          effectiveness of these methods, they are often com-
+(4) We provide insights that explain the effective-     plex to design and implement. In this paper, we
+ness of sparsity in MAD; (5) We find that assign-       focus on improving multimodal reasoning using a
+                                                    7282
+multi-agent approach.
+AI Feedback Bai et al. (2022b) first introduces
+the idea of RLAIF, in which LLM is used to an-
+notate harmlessness preference. Lee et al. (2023)
+compares various AI annotation methods. Recent           Figure 2: Communication topology of 6 agents with
+work (Guo et al., 2024) also explores using AI           various sparsity. From left to right, the densities are 1
+feedback for online reinforcement learning, demon-       (fully-connected), 45 , 53 , and 25 (neighbor-connected).
+strating the advantage of AI feedback for alignment
+research.                                                Typically a random decoding strategy is applied to
+                                                         diversify the solutions generated by agents.
+3   Method                                               (2) Multi-agent Debate: Starting round 2, each
+3.1 Communication Topology                               agent incorporates the responses of its connected
+                                                         peers from the previous round to critique or re-
+Communication topology of MAD refers to the con-         fine its own response. We utilize the standard
+nectivity structure among agents during the debate       Simultaneous-Talk communication strategy (Chan
+process. Communication topology can be repre-            et al., 2023) to facilitate asynchronous computa-
+sented as a graph G = (V, E), where V is a set           tion. This debating process can occur over multiple
+of agents and E is a set of communication chan-          rounds.
+nel. Presence of of any (ei , ej ) in E indicates that   (3) Reaching Consensus: After the debate pro-
+agent i can access agent j’s previous round solu-        cess, agents may still have differing solutions. In
+tions during the debate process, and vice versa. We      such cases, a majority vote is conducted among all
+focus on static graphs in this work, while we also       agents to determine a consensus solution.
+did exploratory experiments with dynamic graphs
+(Appendix E).                                            4     Experiments Setup
+   We quantify the density of these graphs using
+the ratio of the number of edges to the maximum          4.1    Tasks
+possible number of edges                                 We aim to validate the effectiveness and efficiency
+                                                         of sparse MAD on reasoning and alignment label-
+                           2|E|                          ing tasks. For reasoning tasks, we consider two
+                D=
+                       |V|(|V| − 1)                      text-only reasoning tasks and one multimodal rea-
+                                                         soning task: (1) MATH (Hendrycks et al., 2021):
+   A lower value of D indicates a sparser graph.         an arithmetic reasoning task containing challeng-
+In the standard MAD framework, agents are fully          ing competition mathematics problems. We only
+connected with each other, resulting in D = 1. In        use the algebra linear 1d composed sub-task for
+contrast, a neighbor-connected MAD has |E| = |V|,        simplicity. (2) GSM8K (Cobbe et al., 2021): a high
+                    2
+yielding D = |V|−1     , which is a sparse graph.        quality grade school math reasoning task. (3) Math-
+While the findings of this paper can be generalized      Vista (Lu et al., 2023): a benchmark designed to
+to communication topology with an arbitrary num-         combine challenges from diverse mathematical and
+ber of agents, we focus on regular graphs where          visual tasks. We only choose from free_form ques-
+all agents have same degrees and are permutation         tion type for consistency. For alignment labeling
+invariant, with |V| = 6 (Figure 2). This choice is       tasks, we consider Anthropic-HH dataset (Bai et al.,
+due to the limited spectrum of sparsity in scenar-       2022a): human preference data on helpfulness and
+ios with fewer agents and the significantly higher       harmlessness.
+computational costs associated with analyzing sce-
+narios with more agents. Additional experiment           4.2    Models
+results with |V| = 4 is shown in Appendix D.             Our experiments utilize three publicly available
+                                                         models: GPT-3.5 (OpenAI, 2022), GPT-4 (Ope-
+3.2 Multi-Agent Debate Process
+                                                         nAI, 2023), and Mistral 7B (Jiang et al., 2023).
+A typical MAD framework includes three steps:            Specifically, we employ GPT-3.5 for text-only rea-
+(1) Individual Response Generation: In round 1,          soning tasks and GPT-4 for multimodal reasoning
+agents are initialized with LLMs, and then inde-         tasks. For alignment labeling tasks, we use both
+pendently generate solutions to a given question.        GPT-3.5 and Mistral 7B. We refrain from using
+                                                     7283
+GPT-4 for other tasks due to its significantly higher    the signal-to-noise ratio is low and each experimen-
+cost, which is approximately 10 times that of GPT-       tal run is computationally expensive. To address
+3.5. Additionally, we do not employ Mistral 7B           this, we employ two methods to reduce experimen-
+for other tasks because of its inferior zero-shot per-   tal variance and enhance the sensitivity of MAD
+formance on arithmetic reasoning. We randomly            with respect to the changes in communication topol-
+select 100 examples for each experiments involv-         ogy: (1) As used by Wang et al. (2024a), we reduce
+ing GPT, and 500 examples for experiments with           the temperature during language model decoding
+Mistral 7B.                                              to stabilize performance. While we use the default
+                                                         temperature settings in API calls for most tasks, we
+4.3 Baselines                                            lower the temperature to 0.25 for text arithmetic
+Our MAD setup employs 6 agents and engages               reasoning tasks to ensure robustness. (2) We em-
+them in debate for 5 rounds. We compare sparse           ploy conditional variance reduction (Ross, 2002).
+MAD against the following baselines:                     Observing that most of the variance arises from the
+   (1) Chain-of-Thought (CoT): CoT prompting             first round of individual responses, we first gener-
+improves reasoning capabilities of LLMs with ex-         ate a set of initial agent responses and then fix them
+plicit intermediate reasoning steps.                     in all subsequent debate processes across various
+   (2) Self-consistency (SC): SC margins out in-         communication topology designs. This approach
+termediate reasoning paths by sampling diverse           effectively minimizes variance and improves the
+reasoning paths and selecting the most consistent        reliability of our experimental results.
+answer. We sampled 6 responses for SC, where
+each agent generates one response and we deter-          5     Experiments: MAD with Single LLM
+mine the final output by majority voting.
+                                                         5.1    MAD on Text Reasoning Tasks
+   (3) Existing MAD (MAD (D = 1)): the stan-
+dard approach for multi-agent debate, in which           We build on existing work on MAD, exemplified
+agents can communicate with all other agents with        by reasoning tasks, by showing the advantages of
+simultaneous-talk strategy. We also denote it as         sparse MAD on top of the proven advantage of
+fully-connected MAD.                                     fully-connected MAD. Sparse MAD significantly
+                                                         saves computational cost while preserving compa-
+4.4 Evaluation Metrics                                   rable or better performance.
+For reasoning tasks, we use the accuracy with re-           Sparse MAD has similar or higher accu-
+spect to the ground truth answer to measure the          racy with significant cost saving on reasoning
+quality of MAD. For alignment labeling tasks, we         tasks: For both the MATH and GSM8K tasks, we
+use AI Labeler Alignment (Lee et al., 2023) to mea-      demonstrate that sparse MAD produces compara-
+sure the accuracy of MAD labeling with respect to        ble or better accuracy than fully-connected MAD,
+the human annotation.                                    while significantly cutting down inference costs.
+   Cost refers to the input inference cost of LLMs,      Both fully-connected and sparse MAD setups out-
+which typically involves handling the autoregres-        perform Chain-of-Thought and self-consistency
+sive decoding mechanism and computational re-            methods. Specifically, in the MATH task, fully-
+sources. Considering that advanced LLMs use a            connected MAD shows a +4.0% quality gain
+pay-per-token pricing model, we measure the in-          over self-consistency, while sparse MAD config-
+ference cost by the number of input tokens. No-          urations achieve accuracy improvements ranging
+tably, while the input token cost is influenced by       from +3.0% to +7.5% (Table 1). Similarly, in
+the topology design, the output token cost remains       the GSM8K task, fully-connected MAD demon-
+unaffected by it. As a result, we focus exclusively      strates a +4.5% quality gain over self-consistency,
+on reporting input cost savings in our results.          whereas sparse MAD achieves accuracy improve-
+                                                         ments between +3.5% and +6.5% (Table 2). Fur-
+4.5 Variance Reduction                                   thermore, sparse MAD setups reduce costs by up
+Evaluating the significance of new communication         to −41.5% and −43.5%, respectively. It is im-
+topology compared to existing one typically in-          portant to note that we exclusively use the GPT-
+volves running multiple random experiments to            3.5 model because Mistral 7B performs poorly on
+estimate the mean and variance of performance.           these challenging tasks in a zero-shot setting. More
+However, this approach becomes impractical when          experiments on text-reasoning tasks are shown in
+                                                     7284
+  Method               Accuracy     Cost Saving           Method              Accuracy      Cost Saving
+  CoT                  58.0 ± 2.0        -                CoT                 52.4 ± 2.6         -
+  SC                      60.0           -                SC                     53.0            -
+  MAD (D = 1)          64.0 ± 1.4    baseline             MAD (D = 1)         58.2 ± 1.5      baseline
+  MAD (D = 4/5)        67.5 ± 2.0    −14.6%               MAD (D = 4/5)       57.8 ± 1.9      −9.1%
+  MAD (D = 3/5)        63.0 ± 1.8    −29.2%                                                  (−11.5%)
+  MAD (D = 2/5)        66.0 ± 2.3    −41.5%               MAD (D = 3/5)       55.4 ± 0.9      −20.0%
+                                                                                             (−24.7%)
+Table 1: Comparison of accuracy and cost savings of       MAD (D = 2/5)       59.4 ± 0.6      −33.1%
+MAD against baseline methods on the MATH dataset.
+                                                                                             (−40.6%)
+All experiments were conducted using the GPT-3.5
+model.                                                 Table 3: Comparison of accuracy and cost savings
+                                                       of MAD against baseline methods on the MathVista
+  Method               Accuracy     Cost Saving        dataset. All experiments were conducted using the
+  CoT                  77.5 ± 4.2        -             GPT-4o model with the default temperature T = 1.
+  SC                      80.0           -             The cost saving percentages in parenthesis are com-
+  MAD (D = 1)          84.5 ± 1.5    baseline          puted without multimodal inputs.
+  MAD (D = 4/5)        83.5 ± 0.5    −12.7%
+  MAD (D = 3/5)        86.5 ± 1.5    −29.1%
+                                                       textual inputs (e.g., in GPT-4o, each image costs
+  MAD (D = 2/5)        84.5 ± 0.8    −43.6%
+                                                       at least 225 tokens and can grow to 400+, 600+,
+Table 2: Comparison of accuracy and cost savings of    or more tokens), we observe a total reduction of
+MAD against baseline methods on the GSM8K dataset.     40.6% in token usage, excluding the input image
+All experiments were conducted using the GPT-3.5       tokens.
+model.
+                                                       5.3   MAD on Alignment Labeling Tasks
+Appendix B.                                            Alignment labeling tasks involve annotating pref-
+                                                       erences between pairs of responses generated for a
+5.2 MAD on Multimodal Reasoning Task                   given question. Our prompt consists of three parts:
+MAD on multimodal reasoning tasks also demon-          (1) a system prompt that informs the LLM of its
+strates notable improvements compared to Chain-        role as a rater and specifies the required answer
+of-Thought and self-consistency approaches. This       formatting; (2) a question description providing the
+suggests that MLLMs like GPT-4o can effectively        context of the question; and (3) an ending instruc-
+integrate step-by-step reasoning with visual content   tion that constrains the answer length and reiterates
+to enhance final answers. Similar to text reason-      the formatting requirements. During the debate,
+ing experiments, we examine various sparse MAD         reference solutions are included before the ending
+configurations and report their performance.           instruction. See A for more details.
+   Sparse MAD retains performance while in-               We use AI Labeler Alignment (Lee et al., 2023)
+troducing significant cost savings on multi-           to measure the accuracy of MAD labeling with re-
+modal reasoning tasks. For the MathVista task,         spect to the human annotation. To prevent potential
+we evaluate different MAD configurations, com-         position bias, we randomly assign the chosen re-
+paring them to each other as well as to Chain-of-      sponse to either the (A) or (B) option. We report
+Thought (CoT) and self-consistency methods (Ta-        the accuracy and inference cost of MAD with vari-
+ble 3). We find that sparse MAD achieves simi-         ous level of sparsity in Table 4 for helpfulness and
+lar or slightly better accuracy compared to fully-     Table 5 for harmlessness.
+connected MAD, with both outperforming CoT                MAD outperforms single-agent on alignment
+and self-consistency. The best sparse MAD config-      labeling tasks: We find that MAD consistently out-
+uration achieves a +1.2% improvement over fully-       performs single-agent methods, including CoT and
+connected MAD and a +6.4% improvement over             self-consistency. On the helpfulness task, fully-
+self-consistency. Additionally, sparse MAD pro-        connected MAD achieves a +1.5% and +2.9% im-
+vides substantial cost savings, reducing the total     provement over self-consistency for GPT-3.5 and
+number of tokens used by up to 33.1%. Given that       Mistral 7B models, respectively. On the harmless-
+multimodal inputs are typically much larger than       ness task, fully-connected MAD achieves a +0.5%
+                                                   7285
+               Method                       GPT-3.5                      Mistral 7B
+                                    Accuracy Cost Saving          Accuracy Cost Saving
+               CoT                  56.5 ± 3.1      -             60.8 ± 1.2        -
+               Self-Consistency        57.0         -                62.6           -
+               MAD (D = 1)          58.5 ± 1.7   baseline         65.5 ± 0.6     baseline
+               MAD (D = 4/5)        59.0 ± 1.8   −17.5%           65.6 ± 0.9     −18.3%
+               MAD (D = 3/5)        57.0 ± 1.6   −32.5%           64.6 ± 0.6     −35.2%
+               MAD (D = 2/5)        59.0 ± 1.4   −50.0%           66.6 ± 0.5     −53.5%
+
+Table 4: AI labeler alignment accuracy and cost savings of MAD compared with baselines on the helpfulness
+dataset for GPT-3.5 and Mistral 7B models.
+
+               Method                       GPT-3.5                      Mistral 7B
+                                    Accuracy Cost Saving          Accuracy Cost Saving
+               CoT                  66.0 ± 4.8      -             58.2 ± 2.0        -
+               Self-Consistency        67.0         -                60.0           -
+               MAD (D = 1)          67.5 ± 0.6   baseline         60.7 ± 0.3     baseline
+               MAD (D = 4/5)        67.0 ± 0.8   −17.3%           62.2 ± 0.2     −17.9%
+               MAD (D = 3/5)        67.5 ± 1.0   −34.7%           60.4 ± 0.4     −34.3%
+               MAD (D = 2/5)        68.5 ± 0.7   −53.3%           61.7 ± 0.2     −52.2%
+
+Table 5: AI labeler alignment accuracy and cost savings of MAD compared with baselines on the harmlessness
+dataset for GPT-3.5 and Mistral 7B models.
+
+
+and +0.7% improvement over self-consistency             5.4   Why Does Sparse MAD Work?
+for GPT-3.5 and Mistral 7B models, respectively.        The common explanation for the effectiveness of
+These results suggest that the additional debate pro-   MAD against single-agent setups is that agents can
+cess in MAD, followed by majority voting, allows        consider different perspectives before arriving at an
+agents to incorporate perspectives from others and      answer. However, our experiment on the effective-
+refine their opinions toward the correct answers        ness of sparse MAD seems challenge this intuition.
+during the debate process.                              In this section, we aim to explain why sparse MAD
+   Sparse MAD can perform better with lower             can achieve comparable or even superior perfor-
+inference costs: Most sparse MAD configura-             mance.
+tions perform as well as or better than the fully-         Impact of incorrect reference solutions: In a
+connected MAD, with at least one sparse topology        MAD framework, we define Q(n, p) as the proba-
+outperforming the fully-connected MAD. Depend-          bility that a single agent delivers correct answers
+ing on the task, sparse MAD with GPT-3.5 can            given n reference solutions, where p percentage of
+enhance performance by approximately +0.5% to           these are correct. This probability, Q(n, p), can be
++1.0%, and sparse MAD with Mistral 7B can im-           estimated using Monte Carlo sampling with con-
+prove performance by about +1.1% to +1.5%. Ad-          structed in-context reference solutions. As a case
+ditionally, sparse MAD can reduce costs by up to        study, we selected three questions from the GSM8K
+−53.3% and −53.5%, respectively.                        dataset and estimated Q(n, p) for n ∈ {2, 3, 4, 5}
+                                                        and p ∈ {0%, 25%, 50%, 75%, 100%}. Here, the
+   We observed that GPT-3.5 exhibits lower align-       choice of n corresponds to the single-agent sce-
+ment accuracy compared to Mistral 7B on the help-       narios in MAD with D = 25 , 35 , 54 , 1. Results
+fulness task. We attribute this discrepancy to the      shown in Figure 3 indicate that for easier ques-
+differences in pre-training and post-training cor-      tions, where most reference solutions are correct,
+pora between the two models, which may lead             an increase in the number of observed reference
+to varying default preferences in a zero-shot set-      solutions (namely MAD becomes denser) improves
+ting. While we hypothesize that few-shot prompt-        the likelihood of the agent arriving at the correct
+ing techniques could mitigate this issue, exploring     answer. Conversely, for more difficult questions,
+this is beyond the scope of this work.                  where most agents do not provide correct answers,
+                                                    7286
+                                                          Figure 5: Isotropic communication topology with two
+                                                          setups: the stronger LLM has low centrality (left) and
+                                                          high centrality (right).
+
+                                                                 Centrality            Accuracy
+                                                                                 SC     Isotropic MAD
+                                                                 High           64.0      67.0 ± 0.8
+                                                                 Low            64.0      65.8 ± 0.5
+
+                                                          Table 6: Comparison of accuracy depending on where
+                                                          a stronger LLM is placed in debate, using the Harmless-
+                                                          ness task as example. In both cases, there are 5 Mistral
+                                                          models and 1 GPT-3.5 Model. Accuracy of Isotropic
+Figure 3: Probability of a single agent generating cor-   MAD is calculated as the average over debate rounds.
+rect answers given n reference solutions, with p repre-
+senting the correctness of these solutions. Monte Carlo
+sampling was performed on three questions, each with      bates before achieving consensus, indicating that
+100 runs.                                                 sparse MAD allows for more extensive deliberation
+                                                          and in-depth discussion by preventing premature
+                                                          convergence and encouraging a broader exploration
+                                                          of potential solutions. We observe there are sim-
+                                                          ilar findings in the Chain-of-Thought prompting
+                                                          (Jin et al., 2024) and MAD (Du et al., 2023) that
+                                                          the increase of reasoning length can significantly
+                                                          improve the performance.
+
+                                                          6   Experiments: MAD with Multiple
+                                                              LLMs
+                                                          Previous sections focus on the MAD with agents
+Figure 4: Effective debate rounds for each topology de-   instantiated by the same LLM. In this section, we
+sign in reasoning and alignment labeling tasks.           explore the scenario when multiple LLMs are avail-
+                                                          able. With agents instantiated by different LLMs,
+                                                          the permutation invariance symmetry is broken,
+an increase in the number of observed reference           and the regular graph may not be optimal. A natu-
+solutions tends to mislead the agent into choosing        ral question is: how to design the communication
+incorrect answers, thereby drastically reducing the       topology given a MAD framework of N agents, in
+likelihood of reaching a correct response.                which M instantiated by the stronger LLM and
+   Sparser MAD allows more rounds of effec-               N − M instantiated by the weaker LLM?
+tive debate: We observe that once all agents con-            Assigning stronger LLMs to agents with
+verge on the same answer, it becomes highly un-           higher centrality yields better performance: We
+likely for any of them to change their decision.          conducted experiments on harmlessness alignment
+Sparser MAD addresses the convergence issue,              labeling task, involving 6 agents, with 1 agent utiliz-
+a primary limitation observed in fully-connected          ing GPT-3.5 (the stronger LLM) and the remaining
+MAD. We define the number of effective debates            5 agents utilizing Mistral 7B (the weaker LLM).
+as the number of rounds before all agents reach           We tested two setups on the isotropic communica-
+the same answer. Figure 4 illustrates the effective       tion topology: one where the stronger LLM had a
+number of debate rounds for various topologies in         degree of 1 (indicating low centrality) and another
+reasoning and alignment labeling tasks. Our results       where it had a degree of 5 (indicating high central-
+show that sparse MAD tends to sustain longer de-          ity), as illustrated in Figure 5. The experimental
+                                                      7287
+                                                        multiple large language models (LLMs), finding
+                                                        that assigning stronger LLMs to more connected
+                                                        agents enhances overall performance.
+                                                           In summary, our work paves the way for more ef-
+                                                        ficient and effective multi-agent systems by leverag-
+                                                        ing sparse communication topologies. Future stud-
+                                                        ies could focus on deepening our understanding of
+                                                        the underlying mechanisms and developing strate-
+                                                        gies for optimal topology design in multi-agent
+                                                        frameworks.
+
+Figure 6: Average accuracy of weaker agents across      8   Ethical Considerations
+different debate rounds.
+                                                        In this work, several ethical considerations were
+                                                        addressed to ensure the integrity and responsible
+results presented in Table 6 show that positioning      use of the system:
+the stronger LLM at a node with higher centrality       Public Datasets: The framework was built using
+(degree of 5) leads to better performance (+3.0%        publicly available datasets that are designed for
+improvement) compared to placing it at a node with      academic research. We strictly adhered to ethical
+lower centrality (degree of 1) which resulted in a      guidelines by not using any personal or confidential
++1.8% improvement.                                      data.
+   The results above underscore the importance of       License: Only public APIs that offer appropriate li-
+information flow in the design of communication         censing were utilized. This ensures that all external
+topology. Figure 6 illustrates the average accuracy     tools are used in a lawful and ethical manner.
+of weaker agents with respect to the number of de-
+                                                        AI assistant: AI tools were employed solely for
+bate rounds. When the stronger agent has a degree
+                                                        polishing writing and correcting grammar. The AI
+of 5, it can effectively disseminate its knowledge to
+                                                        was not used to generate content or ideas, maintain-
+weaker agents in just one debate round, resulting in
+                                                        ing the authenticity and originality of the research
+a sharp increase in the average accuracy of weaker
+                                                        work.
+LLMs. In contrast, when the stronger agent has a
+degree of 1, the process requires two rounds: first,
+                                                        9   Limitations
+the information is transmitted to the central weaker
+agent in the first debate round (round 2), which        While our study provides valuable insights into the
+then shares it with other weaker agents in the next     communication topology analysis of multi-agent
+round (round 3). This two-step process leads to         debate, several limitations must be acknowledged:
+greater information loss.                                  Our analysis is primarily based on static graphs
+                                                        where the communication topology remains un-
+7   Conclusion
+                                                        changed throughout the debate rounds. This con-
+In this paper, we show that sparse communica-           straint simplifies the analysis, but ignores the dy-
+tion topologies can improve the multi-agent de-         namic nature of real-world communication net-
+bate framework significantly. Our results indicate      works. Additionally, our study focuses on prompt
+that sparse MAD configurations achieve compa-           design under a zero-shot setting, utilizing only pub-
+rable or superior performance to standard MADs          licly available GPT and Mistral models. This nar-
+while greatly reducing computational costs. We          row scope may not fully capture the variability and
+also extend the MAD framework to alignment la-          adaptability present in more diverse agent popula-
+beling tasks, demonstrating the benefits of MADs        tions. Furthermore, we confined our analysis to
+over single-agent setups and self-consistency and       regular graphs, which do not encompass the full
+further highlighting the benefits of sparse MADs        spectrum of potential graph configurations. Future
+over fully-connected configurations. We present         work should consider dynamic graphs, a broader
+case-study insights that explain the effectiveness      range of models, and varied graph connectivity to
+of sparse MADs. Additionally, we investigate the        better reflect the evolving and complex nature of
+impact of communication topology design with            multi-agent interactions.
+                                                    7288
+   Our study relies on a subset of academic datasets      Amanda Askell, Jackson Kernion, Andy Jones,
+due to limited data access as well as computational       Anna Chen, Anna Goldie, Azalia Mirhoseini,
+                                                          Cameron McKinnon, et al. 2022b. Constitutional
+constraints. While these datasets provide a valuable
+                                                          ai: Harmlessness from ai feedback. arXiv preprint
+foundation for analyzing communication graph dy-          arXiv:2212.08073.
+namics in multi-agent debates, they may not fully
+represent the diversity and complexity found in        Maciej Besta, Nils Blach, Ales Kubicek, Robert
+                                                        Gerstenberger, Michal Podstawski, Lukas Giani-
+broader real-world data. The restricted scope limits    nazzi, Joanna Gajda, Tomasz Lehmann, Hubert
+our ability to generalize findings across different     Niewiadomski, Piotr Nyczyk, et al. 2024. Graph
+domains and contexts. Future research should aim        of thoughts: Solving elaborate problems with large
+to include a wider range of datasets, potentially       language models. In Proceedings of the AAAI Con-
+                                                        ference on Artificial Intelligence, volume 38, pages
+leveraging more efficient computational resources,      17682–17690.
+to enhance the robustness and applicability of our
+findings.                                              Collin Burns, Pavel Izmailov, Jan Hendrik Kirchner,
+                                                         Bowen Baker, Leo Gao, Leopold Aschenbrenner,
+   We lack a rigorous theoretical proof explaining       Yining Chen, Adrien Ecoffet, Manas Joglekar, Jan
+why sparse connectivity can lead to better perfor-       Leike, et al. 2023. Weak-to-strong generalization:
+mance. This gap in our understanding limits our          Eliciting strong capabilities with weak supervision.
+ability to generalize our findings and apply them        arXiv preprint arXiv:2312.09390.
+with confidence in various settings. Secondly, we      Chi-Min Chan, Weize Chen, Yusheng Su, Jianxuan Yu,
+do not have a definitive method for determining the      Wei Xue, Shanghang Zhang, Jie Fu, and Zhiyuan
+optimal topology design, which is crucial for max-       Liu. 2023. Chateval: Towards better llm-based eval-
+imizing the efficiency and effectiveness of multi-       uators through multi-agent debate. In The Twelfth
+                                                         International Conference on Learning Representa-
+agent systems. Addressing these questions is es-         tions.
+sential for future research. Potential explanations
+might involve theoretical insights, social and psy-    Justin Chih-Yao Chen, Swarnadeep Saha, and Mohit
+                                                          Bansal. 2023. Reconcile: Round-table conference
+chological dynamics, or a combination of these            improves reasoning via consensus among diverse
+factors. Additionally, fine-tuning models could           llms. arXiv preprint arXiv:2309.13007.
+offer further clarity and aid in optimizing commu-
+                                                       Liangyu Chen, Bo Li, Sheng Shen, Jingkang Yang,
+nication topology. Future work should aim to de-         Chunyuan Li, Kurt Keutzer, Trevor Darrell, and Zi-
+velop robust theoretical frameworks and empirical        wei Liu. 2024. Large language models are visual
+strategies to better understand and leverage com-        reasoning coordinators. Advances in Neural Infor-
+munication topology in multi-agent debates.              mation Processing Systems, 36.
+   The multi-agent debate framework holds signifi-     Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian,
+cant potential for various real-world applications.      Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias
+However, it also carries the risk of misuse, includ-     Plappert, Jerry Tworek, Jacob Hilton, Reiichiro
+ing the dissemination of biased information or mis-      Nakano, et al. 2021. Training verifiers to solve
+                                                         math word problems, 2021. URL https://arxiv.
+information. Additionally, the framework requires        org/abs/2110.14168.
+substantial computational resources, which could
+impact energy consumption and environmental sus-       Yilun Du, Shuang Li, Antonio Torralba, Joshua B
+                                                         Tenenbaum, and Igor Mordatch. 2023. Improv-
+tainability. Future research should focus on de-          ing factuality and reasoning in language mod-
+veloping robust, trustworthy, and energy-efficient        els through multiagent debate.   arXiv preprint
+multi-agent systems to mitigate these risks and en-       arXiv:2305.14325.
+sure ethical, reliable, and sustainable outcomes.      Roy Ganz, Yair Kittenplon, Aviad Aberdam, Elad
+                                                         Ben Avraham, Oren Nuriel, Shai Mazor, and Ron
+                                                         Litman. 2024. Question aware vision transformer
+References                                               for multimodal reasoning. In Proceedings of the
+                                                         IEEE/CVF Conference on Computer Vision and Pat-
+Yuntao Bai, Andy Jones, Kamal Ndousse, Amanda            tern Recognition, pages 13861–13871.
+  Askell, Anna Chen, Nova DasSarma, Dawn Drain,
+  Stanislav Fort, Deep Ganguli, Tom Henighan, et al.   Yash Goyal, Tejas Khot, Douglas Summers-Stay,
+  2022a. Training a helpful and harmless assistant       Dhruv Batra, and Devi Parikh. 2017. Making the
+  with reinforcement learning from human feedback.       V in VQA matter: Elevating the role of image under-
+  arXiv preprint arXiv:2204.05862.                       standing in Visual Question Answering. In Confer-
+                                                         ence on Computer Vision and Pattern Recognition
+Yuntao Bai, Saurav Kadavath, Sandipan Kundu,             (CVPR).
+                                                   7289
+Shangmin Guo, Biao Zhang, Tianlin Liu, Tianqi Liu,          for large vision-language models. arXiv preprint
+  Misha Khalman, Felipe Llinares, Alexandre Rame,           arXiv:2401.15947.
+  Thomas Mesnard, Yao Zhao, Bilal Piot, et al. 2024.
+  Direct language model alignment from online ai         Haotian Liu, Chunyuan Li, Yuheng Li, and Yong Jae
+  feedback. arXiv preprint arXiv:2402.04792.               Lee. 2024. Improved baselines with visual instruc-
+                                                           tion tuning. In Proceedings of the IEEE/CVF Con-
+Dan Hendrycks, Collin Burns, Saurav Kadavath, Akul         ference on Computer Vision and Pattern Recogni-
+  Arora, Steven Basart, Eric Tang, Dawn Song, and          tion, pages 26296–26306.
+  Jacob Steinhardt. 2021. Measuring mathematical
+  problem solving with the math dataset. In Thirty-      Pan Lu, Hritik Bansal, Tony Xia, Jiacheng Liu, Chun-
+  fifth Conference on Neural Information Processing        yuan Li, Hannaneh Hajishirzi, Hao Cheng, Kai-
+  Systems Datasets and Benchmarks Track (Round 2).         Wei Chang, Michel Galley, and Jianfeng Gao. 2023.
+                                                           Mathvista: Evaluating mathematical reasoning of
+Sirui Hong, Mingchen Zhuge, Jonathan Chen, Xiawu           foundation models in visual contexts. arXiv preprint
+   Zheng, Yuheng Cheng, Jinlin Wang, Ceyao Zhang,          arXiv:2310.02255.
+   Zili Wang, Steven Ka Shing Yau, Zijuan Lin, Liyang
+   Zhou, Chenyu Ran, Lingfeng Xiao, Chenglin Wu,         Pan Lu, Swaroop Mishra, Tony Xia, Liang Qiu, Kai-
+   and Jürgen Schmidhuber. 2024. MetaGPT: Meta             Wei Chang, Song-Chun Zhu, Oyvind Tafjord, Peter
+   programming for a multi-agent collaborative frame-      Clark, and Ashwin Kalyan. 2022. Learn to explain:
+   work. In The Twelfth International Conference on        Multimodal reasoning via thought chains for science
+   Learning Representations.                               question answering. In The 36th Conference on Neu-
+                                                           ral Information Processing Systems (NeurIPS).
+Yushi Hu, Weijia Shi, Xingyu Fu, Dan Roth, Mari Os-
+                                                         Liangchen Luo, Zi Lin, Yinxiao Liu, Lei Shu, Yun
+  tendorf, Luke Zettlemoyer, Noah A Smith, and Ran-
+                                                           Zhu, Jingbo Shang, and Lei Meng. 2023. Critique
+  jay Krishna. 2024. Visual sketchpad: Sketching as
+                                                           ability of large language models. arXiv preprint
+  a visual chain of thought for multimodal language
+                                                           arXiv:2310.04815.
+  models.
+                                                         Aman Madaan, Niket Tandon, Prakhar Gupta, Skyler
+Albert Q Jiang, Alexandre Sablayrolles, Arthur Men-       Hallinan, Luyu Gao, Sarah Wiegreffe, Uri Alon,
+  sch, Chris Bamford, Devendra Singh Chaplot, Diego       Nouha Dziri, Shrimai Prabhumoye, Yiming Yang,
+  de las Casas, Florian Bressand, Gianna Lengyel,         et al. 2024. Self-refine: Iterative refinement with
+  Guillaume Lample, Lucile Saulnier, et al. 2023.         self-feedback. Advances in Neural Information Pro-
+  Mistral 7b. arXiv preprint arXiv:2310.06825.            cessing Systems, 36.
+Mingyu Jin, Qinkai Yu, Haiyan Zhao, Wenyue Hua,          Kenneth Marino, Mohammad Rastegari, Ali Farhadi,
+  Yanda Meng, Yongfeng Zhang, Mengnan Du, et al.           and Roozbeh Mottaghi. 2019. Ok-vqa: A visual
+  2024. The impact of reasoning step length on large       question answering benchmark requiring external
+  language models. arXiv preprint arXiv:2401.04925.        knowledge. In Conference on Computer Vision and
+Harrison Lee, Samrat Phatale, Hassan Mansoor, Kel-         Pattern Recognition (CVPR).
+  lie Lu, Thomas Mesnard, Colton Bishop, Victor Car-     OpenAI. 2022. Chatgpt.
+  bune, and Abhinav Rastogi. 2023. Rlaif: Scaling
+  reinforcement learning from human feedback with        OpenAI. 2023. Gpt 4 technical report. arXiv preprint
+  ai feedback. arXiv preprint arXiv:2309.00267.            arXiv:2303.08774.
+Guohao Li, Hasan Hammoud, Hani Itani, Dmitrii            Joon Sung Park, Joseph O’Brien, Carrie Jun Cai,
+  Khizbullin, and Bernard Ghanem. 2023a. Camel:            Meredith Ringel Morris, Percy Liang, and Michael S
+  Communicative agents for" mind" exploration of           Bernstein. 2023. Generative agents: Interactive sim-
+  large language model society. Advances in Neural         ulacra of human behavior. In Proceedings of the
+  Information Processing Systems, 36:51991–52008.          36th Annual ACM Symposium on User Interface
+                                                           Software and Technology, pages 1–22.
+Junnan Li, Dongxu Li, Silvio Savarese, and Steven Hoi.
+  2023b. Blip-2: Bootstrapping language-image pre-       Chen Qian, Wei Liu, Hongzhang Liu, Nuo Chen, Yufan
+  training with frozen image encoders and large lan-       Dang, Jiahao Li, Cheng Yang, Weize Chen, Yusheng
+  guage models. In International conference on ma-         Su, Xin Cong, Juyuan Xu, Dahai Li, Zhiyuan Liu,
+  chine learning, pages 19730–19742. PMLR.                 and Maosong Sun. 2023. Chatdev: Communica-
+                                                           tive agents for software development. arXiv preprint
+Tian Liang, Zhiwei He, Wenxiang Jiao, Xing Wang,           arXiv:2307.07924.
+  Yan Wang, Rui Wang, Yujiu Yang, Zhaopeng Tu,
+   and Shuming Shi. 2023. Encouraging divergent          Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya
+   thinking in large language models through multi-        Ramesh, Gabriel Goh, Sandhini Agarwal, Girish
+   agent debate. arXiv preprint arXiv:2305.19118.          Sastry, Amanda Askell, Pamela Mishkin, Jack Clark,
+                                                           et al. 2021. Learning transferable visual models
+Bin Lin, Zhenyu Tang, Yang Ye, Jiaxi Cui, Bin              from natural language supervision. In International
+  Zhu, Peng Jin, Junwu Zhang, Munan Ning, and              conference on machine learning, pages 8748–8763.
+  Li Yuan. 2024. Moe-llava: Mixture of experts             PMLR.
+                                                     7290
+S.M. Ross. 2002. Simulation. Academic Press.                 Mmmu: A massive multi-discipline multimodal un-
+                                                             derstanding and reasoning benchmark for expert agi.
+Noah Shinn, Federico Cassano, Ashwin Gopinath,               arXiv preprint arXiv:2311.16502.
+  Karthik Narasimhan, and Shunyu Yao. 2024. Re-
+  flexion: Language agents with verbal reinforcement     Zhuosheng Zhang, Aston Zhang, Mu Li, Hai Zhao,
+  learning. Advances in Neural Information Process-        George Karypis, and Alex Smola. 2023. Multi-
+  ing Systems, 36.                                         modal chain-of-thought reasoning in language mod-
+                                                           els. arXiv preprint arXiv:2302.00923.
+Qineng Wang, Zihao Wang, Ying Su, Hanghang Tong,
+  and Yangqiu Song. 2024a. Rethinking the bounds of      Xueliang Zhao, Xinting Huang, Tingchen Fu, Qintong
+  llm reasoning: Are multi-agent discussions the key?      Li, Shansan Gong, Lemao Liu, Wei Bi, and Ling-
+  arXiv preprint arXiv:2402.18272.                         peng Kong. 2024. Bba: Bi-modal behavioral align-
+                                                           ment for reasoning with large vision-language mod-
+Xuezhi Wang, Jason Wei, Dale Schuurmans, Quoc V            els. arXiv preprint arXiv:2402.13577.
+  Le, Ed H Chi, Sharan Narang, Aakanksha Chowd-
+  hery, and Denny Zhou. 2022. Self-consistency im-       Changmeng Zheng, Dayong Liang, Wengyu Zhang,
+  proves chain of thought reasoning in language mod-       Xiao-Yong Wei, Tat-Seng Chua, and Qing Li. 2024.
+  els. In The Eleventh International Conference on         A picture is worth a graph: Blueprint debate on
+  Learning Representations.                                graph for multimodal reasoning. arXiv preprint
+                                                           arXiv:2403.14972.
+Zihan Wang, Yunxuan Li, Yuexin Wu, Liangchen Luo,
+  Le Hou, Hongkun Yu, and Jingbo Shang. 2024b.           Denny Zhou, Nathanael Schärli, Le Hou, Jason Wei,
+  Multi-step problem solving through a verifier: An        Nathan Scales, Xuezhi Wang, Dale Schuurmans,
+  empirical analysis on model-induced process super-       Claire Cui, Olivier Bousquet, Quoc V Le, et al. 2022.
+  vision. arXiv preprint arXiv:2402.02658.                 Least-to-most prompting enables complex reasoning
+                                                           in large language models. In The Eleventh Interna-
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten           tional Conference on Learning Representations.
+   Bosma, Fei Xia, Ed Chi, Quoc V Le, Denny Zhou,
+   et al. 2022. Chain-of-thought prompting elicits
+   reasoning in large language models. Advances in       A     Prompt Templates
+   neural information processing systems, 35:24824–
+   24837.                                                A.1    Text Reasoning Tasks
+                                                         System Prompt:
+Sean Welleck, Ximing Lu, Peter West, Faeze Brah-
+  man, Tianxiao Shen, Daniel Khashabi, and Yejin         You are a helpful assistant with expertise in math-
+  Choi. 2022. Generating sequences by learning to        ematics and reasoning. Your task is to assist in
+  self-correct. arXiv preprint arXiv:2211.00053.         solving a math reasoning problem by providing
+                                                         a clear and detailed solution. Limit your output
+Qingyun Wu, Gagan Bansal, Jieyu Zhang, Yiran Wu,
+  Beibin Li, Erkang Zhu, Li Jiang, Xiaoyun Zhang,        within 100 words, and your final answer should be
+  Shaokun Zhang, Jiale Liu, Ahmed Hassan Awadal-         a single numerical number, in the form of {{an-
+  lah, Ryen W White, Doug Burger, and Chi Wang.          swer}}, at the end of your response.
+  2024. Autogen: Enabling next-gen llm applications      Starting Prompt:
+  via multi-agent conversation framework. In COLM.
+                                                         Can you solve the following math problem? {ques-
+Zhengyuan Yang, Linjie Li, Jianfeng Wang, Kevin          tion} Explain your reasoning. Your final answer
+  Lin, Ehsan Azarnasab, Faisal Ahmed, Zicheng Liu,       should be a single numerical number, in the form
+  Ce Liu, Michael Zeng, and Lijuan Wang. 2023. Mm-       of {{answer}}, at the end of your response.
+  react: Prompting chatgpt for multimodal reasoning
+  and action. arXiv preprint arXiv:2303.11381.           Debate Prompt:
+                                                         These are the solutions to the problem from other
+Shunyu Yao, Dian Yu, Jeffrey Zhao, Izhak Shafran,        agents:
+  Tom Griffiths, Yuan Cao, and Karthik Narasimhan.
+  2024. Tree of thoughts: Deliberate problem solving     One agent solution: {reference solution}
+  with large language models. Advances in Neural In-     One agent solution: {reference solution}
+  formation Processing Systems, 36.                      One agent solution: {reference solution}
+                                                         ...
+Jiahui Yu, Zirui Wang, Vijay Vasudevan, Legg Ye-
+   ung, Mojtaba Seyedhosseini, and Yonghui Wu. 2022.     Using the solutions from other agents as additional
+   Coca: Contrastive captioners are image-text founda-   information, can you provide your answer to the
+   tion models. arXiv preprint arXiv:2205.01917.         math problem? The original math problem is {ques-
+Xiang Yue, Yuansheng Ni, Kai Zhang, Tianyu Zheng,
+                                                         tion}. Your final answer should be a single numeri-
+  Ruoqi Liu, Ge Zhang, Samuel Stevens, Dongfu            cal number, in the form of {{answer}}, at the end
+  Jiang, Weiming Ren, Yuxuan Sun, et al. 2023.           of your response.
+                                                     7291
+A.2 Multimodal Reasoning Tasks                           [End of Dialogue A]
+System Prompt: Please answer the question re-
+quiring an integer answer or a floating-point num-       [Start of Dialogue B]
+ber with one decimal place and provide the final         {Dialogue B}
+value, e.g., 1, 2, 3, 1.1, 1.2, 1.3, at the end.         [End of Dialogue B]
+When providing an answer,                                Limit your answer within 100 words, and put your
+    1. Reason through the question step by step.         final answer (either (A) or (B)) at the end of your
+    2. Keep each step concise, ensuring the total rea-   response.
+soning is under 400 words. Conclude with the final       Debate Prompt:
+answer in the format "**FINAL ANSWER:** (X)"             These are the solutions to the problem from other
+where X should be the numerical answer. Note that        agents:
+the answer has to be surrounded by the parenthesis,      One agent solution: {reference solution}
+e.g., **FINAL ANSWER:** (1).                             One agent solution: {reference solution}
+Starting Prompt:                                         One agent solution: {reference solution}
+                                                         ...
+{question}
+                                                         Using the reasoning from other agents as additional
+Debate Prompt:
+                                                         advice, can you provide an updated answer? Exam-
+Below are responses from {number of visible
+                                                         ine your solution and those of other agents step by
+agents} other agents:
+                                                         step. Limit your answer within 100 words, and put
+Response {agent index}: {reference solution}
+                                                         your final answer (either (A) or (B)) at the end of
+Response {agent index}: {reference solution}
+                                                         your response.
+Response {agent index}: {reference solution}
+...                                                      B    Additional Experiments on Text
+These responses contain step-by-step reasoning.               Reasoning Tasks
+Use the insights from all the responses to refine
+and update your answer. When providing an an-            In addition to the two text-reasoning tasks we re-
+swer:                                                    ported, we conducted two additional tasks—an
+    1. Take a close look at the question again.          arithmetic task and a chess move task—to align
+    2. Reason through the question, your previous        with Du et al. (2023). The results presented in Ta-
+response and responses from other agents step by         ble 7 and Table 8, show similar improvements in
+step.                                                    quality and cost savings.
+    3. Keep each step concise, ensuring the total rea-
+                                                             Method            Accuracy      Cost Saving
+soning is under 400 words. Conclude with the final
+                                                             CoT               74.3 ± 2.5         -
+answer in the format "**FINAL ANSWER:** (X)"
+                                                             SC                   84.0            -
+where X should be the numerical answer. Note that
+                                                             MAD (D = 1)       90.0 ± 1.0     baseline
+the answer has to be surrounded by the parenthesis,
+                                                             MAD (D = 4/5)     88.7 ± 0.6      −8.9%
+e.g., **FINAL ANSWER:** (1).
+                                                             MAD (D = 3/5)     88.0 ± 1.0     −22.4%
+A.3 Alignment labeling Tasks                                 MAD (D = 2/5)     90.7 ± 0.5     −34.5%
+System Prompt:                                           Table 7: Comparison of accuracy and cost savings
+You are an expert rater of helpful and honest as-        of MAD against baseline methods on the arithmetic
+sistant responses. The user will give you two di-        task. All experiments were conducted using the GPT-
+alogues, please help user choose the one with the        3.5 model.
+most helpful and honest response. Limit your an-
+swer within 100 words, and put your final answer
+                                                         C    Additional Experiments with Different
+(either (A) or (B)) at the end of your response.
+                                                              Temperature
+Starting Prompt:
+The following are two dialogues. Which one is            For multimodal experiments, we also examined
+more helpful and honest?                                 how different temperatures affect the performance
+                                                         of MAD. We compared the accuracy and cost
+[Start of Dialogue A]                                    savings between the default temperature T = 1
+{Dialogue A}                                             for GPT-4o and a more conservative temperature
+                                                     7292
+    Method                 ∆PS        Cost Saving                  Method     Accuracy       Cost
+    CoT                 52.7 ± 5.3         -                       SC            81.0          -
+    SC                     53.4            -                       D=1        81.7 ± 0.9    baseline
+    MAD (D = 1)         56.5 ± 0.9     baseline                    D = 2/3    82.7 ± 1.2    −25.6%
+    MAD (D = 4/5)       56.6 ± 2.5      −9.5%
+    MAD (D = 3/5)       55.5 ± 2.8     −20.5%             Table 10: Accuracy comparison of MAD against base-
+                                                          line methods on the GSM8K dataset. Experiments
+    MAD (D = 2/5)       56.6 ± 2.7     −32.0%
+                                                          were conducted using the GPT-3.5model.
+Table 8: Comparison of ∆PS and cost savings of MAD
+against baseline methods on the chess move task. All
+experiments were conducted using the GPT-3.5 model.       E     ProbMAD: MAD with Probablistic
+                                                                Topology
+
+T = 0.25, aiming to generate more consistent an-          While we primarily focus on sparse MADs with
+swers. While Table 3 reports performance at T = 1,        fixed communication topology, we also investigate
+we observed almost no difference in accuracy with         ProbMAD where communication is probablistic.
+T = 0.25. However, T = 0.25 resulted in slightly          For any MAD with a given D, the ProbMAD coun-
+greater cost savings, as shown in Table 9.                terpart is a topology where the probability that a
+                                                          given agent sees any reference solution from pre-
+    Method              Accuracy       Cost Saving        vious round is D. In Table 11, we use GPT-3.5
+    MAD (D = 1)         57.8 ± 1.0       baseline         on GSM8K to show that the performance of Prob-
+    MAD (D = 4/5)       57.4 ± 0.6       −11.8%           MAD is comparable to fully-connected MAD and
+                                        (−14.3%)          its cost-saving ability is similar to sparse MAD
+    MAD (D = 3/5)       57.4 ± 3.5       −21.1%           topologies we discuss earlier. More work is to
+                                        (−26.0%)          be done to compare deterministic and probablis-
+    MAD (D = 2/5)       59.0 ± 1.0       −37.6%           tic sparsity and explain the mechanism. In the
+                                        (−46.5%)          meantime, we show that the probablistic way of
+                                                          thinking about communication topology allows our
+Table 9: Comparison of accuracy and cost savings of       approach to be even more generally applicable to
+different MADs on the MathVista dataset. All exper-       any number of agents.
+iments were conducted using the GPT-4o model with
+temperature set to 0.25. The cost saving percentages in       Method                 Accuracy        Cost
+parenthesis are computed without multimodal inputs.
+                                                                                                    Saving
+                                                              CoT                    77.5 ± 4.2       -
+                                                              SC                        80.0          -
+D    Additional Experiments with 4 Agents                     MAD (D = 1)            84.5 ± 1.5    baseline
+                                                              ProbMAD (D = 4/5)      84.5 ± 0.7    −14.3%
+Regular graph with 4 agents only have two configu-            ProbMAD (D = 3/5)      83.5 ± 0.7    −29.6%
+rations (as shown in Figure 7). Our experiments on            ProbMAD (D = 2/5)      84.0 ± 1.7    −47.1%
+GSM8K shows similar pattern in accuracy between
+                                                          Table 11: Comparison of accuracy and cost savings
+these two setup, shown in Table 10.
+                                                          of probabilistic MAD against baseline methods on the
+                                                          GSM8K dataset. All experiments were conducted us-
+                                                          ing the GPT-3.5 model.
+
+
+
+                                                          F     Rounds of Effective Debate for Mistral
+                                                                7B
+
+                                                          Similar to what we observe on GPT-3.5, the rounds
+                                                          of effective debate using Mistral 7B model also
+        Figure 7: Regular graph with 4 agents.            increases on both preference tasks when MAD be-
+                                                          comes sparse (Figure 8).
+                                                      7293
+                                                          Since MAD has a significantly higher token cost
+                                                          than self-consistency, we ensure comparable com-
+                                                          putational cost between SC and MAD by increasing
+                                                          SC agent count. The results for alignment labeling
+                                                          tasks are shown in Table 12. Increasing the number
+                                                          of samplings for SC results in no significant impact
+                                                          on the alignment labeling tasks. This finding is
+                                                          consistent with Table 13 in Lee et al. (2023).
+
+
+
+Figure 8: Effective debate rounds for each topology de-
+sign in alignment labeling tasks using the Mistral 7B
+model.
+
+
+G    Types of Agent Behaviors
+During the multi-agent debate process, we observe
+four common types of agent responses to reference
+solutions (Figure 9). Agents may learn from other
+agents’ reasoning, correct another agent’s mistake,
+act as an arbitrator to evaluate others’ solutions, or
+occasionally be misled by the input of their peers.
+
+
+
+
+Figure 9: Common types (with nicknames) of agent
+behaviors when given reference solutions.
+
+
+H    Comparably budgeted SC and MAD
+
+    Method              Helpful        Harmless
+    SC (6 agents)         57.0           67.0
+    SC (12 agents)        57.0           66.0
+    SC (18 agents)        56.0           67.0
+    SC (24 agents)        56.0           66.0
+    SC (30 agents)        56.0           66.0
+    MAD (D = 1)        58.5 ± 1.7     67.5 ± 0.6
+
+Table 12: Accuracy comparison of MAD against
+budget-increased SC as baseline on the alignment tasks.
+Experiments were conducted using the GPT-3.5model.
+
+                                                      7294
+

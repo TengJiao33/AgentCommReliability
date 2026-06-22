@@ -1,0 +1,1922 @@
+                                                  RARR: Researching and Revising What Language Models Say,
+                                                                  Using Language Models
+                                                      Luyu Gao1⋄∗ Zhuyun Dai2∗ Panupong Pasupat2∗ Anthony Chen3⋄∗
+                                                     Arun Tejasvi Chaganty2∗ Yicheng Fan2∗ Vincent Y. Zhao2 Ni Lao2
+                                                               Hongrae Lee2 Da-Cheng Juan2 Kelvin Guu2∗
+                                                                1
+                                                                    Carnegie Mellon University, 2 Google Research, 3 UC Irvine
+                                                                               luyug@cs.cmu.edu          anthony.chen@uci.edu
+                                                   {zhuyundai,ppasupat,arunchaganty,yichengfan,vzhao,nlao,hrlee,dacheng,kguu}@google.com
+
+
+                                                                 Abstract                                         Text generation model
+
+
+                                             Language models (LMs) now excel at many                          The marathon world record is        Original model
+                                             tasks such as question answering, reasoning,                     2:01:39, set by Eliud Kipchoge
+                                                                                                                                                  output, x
+arXiv:2210.08726v3 [cs.CL] 31 May 2023
+
+
+
+
+                                                                                                              of Kenya in 2018.
+                                             and dialog. However, they sometimes gener-
+                                             ate unsupported or misleading content. A user
+                                             cannot easily determine whether their outputs                            Research                    Document
+                                                                                                                      & Revision                   Corpus
+                                             are trustworthy or not, because most LMs do
+                                             not have any built-in mechanism for attribu-
+                                             tion to external evidence. To enable attribution
+                                                                                                               Revised output, y                  Attribution report, A
+                                             while still preserving all the powerful advan-
+                                                                                                              The marathon world               [npr.org] 2022 ... Kipchoge shaved
+                                             tages of recent generation models, we propose                    record is 2:01:39 2:01:09,       30 seconds … to finish in 2:01:09
+                                             RARR (Retrofit Attribution using Research and                    set by Eliud Kipchoge of         [wikipedia.org] … Kipchoge is a
+                                                                                                              Kenya in 2018 2022.              Kenyan long-distance runner …
+                                             Revision), a system that 1) automatically finds
+                                             attribution for the output of any text genera-
+                                                                                                                          Human / automatic evaluation
+                                             tion model, and 2) post-edits the output to fix
+                                             unsupported content while preserving the origi-
+                                             nal output as much as possible. When applied
+                                             to the output of several state-of-the-art LMs
+                                                                                                                  Attribution score            Preservation score
+                                             on a diverse set of generation tasks, we find                              A→y                          x→y
+                                             that RARR significantly improves attribution
+                                             while otherwise preserving the original input to             Figure 1: The Editing for Attribution task. The input
+                                             a much greater degree than previously explored               x is a text passage produced by a generation model.
+                                             edit models. Furthermore, the implementation                 Our Research & Revision model outputs an attribution
+                                             of RARR requires only a handful of training ex-              report A containing retrieved evidence snippets, along
+                                             amples, a large language model, and standard                 with a revision y whose content can be attributed to the
+                                             web search.1                                                 evidence in A while preserving other properties of x
+                                                                                                          such as style or structure.
+                                         1   Introduction
+                                         Generative language models (LMs) and other text                  or unsupported content, colloquially called “hal-
+                                         generation models are now the backbone of many                   lucinations” (Maynez et al., 2020; Menick et al.,
+                                         AI systems. For example, large language models                   2022). To make LMs more trustworthy, we want
+                                         can perform multi-step reasoning (Nye et al., 2021;              to justify each generation by an attribution report
+                                         Wei et al., 2022), generate plans (Ahn et al., 2022),            (Rashkin et al., 2021; Bohnet et al., 2022) that
+                                         use tools and APIs (Shin et al., 2021; Thoppilan                 contains supporting evidence from trusted sources
+                                         et al., 2022), and answer open-domain questions                  (e.g., encyclopedia or articles) where appropriate.
+                                         (Petroni et al., 2019; Roberts et al., 2020).                      Most existing LMs, such as those based on
+                                            Despite these incredible advances, state-of-the-              sequence-to-sequence architectures, lack a built-
+                                         art LMs still frequently produce biased, misleading,             in mechanism for attribution. Even retrieval-
+                                             ∗
+                                               Lead contributors. Please see Contributions section for    augmented models (Guu et al., 2020; Lewis et al.,
+                                         details. ⋄ Work done during an internship at Google Research.    2020), which retrieve relevant documents and then
+                                            1
+                                              We release open-source implementations of RARR, the
+                                         evaluation pipeline, and the evaluation sets at https://         condition on them to generate text, still do not
+                                         github.com/anthonywchen/RARR.                                    guarantee attribution. Prior work has shown that
+                                                                                                                                                                   Combined fi
+retrieval-augmented models generate text that ei-                                              Query Generation
+ther includes additional information outside the
+                                                                                     q1                              qN
+retrieved documents (Dziri et al., 2022), ignores                            When did Millie                What channel was Millie
+                                                                             Inbetween premiere?            Inbetween on?
+the documents altogether (Krishna et al., 2021),
+or even contradicts the documents (Longpre et al.,                                   Retrieval                      Retrieval
+2021). In fact, occasionally ignoring the retrievals                                                                                          [fandom.com]
+                                                                        {e1,j}                          {eN,j}                                … the first series
+can make the models more robust to bad retrievals                                [fandom.com]
+                                                                                  [fandom.com]                   [comedy.co.uk]
+                                                                                                                  [comedy.co.uk]              premiered on
+                                                                                    thefirst
+                                                                                 ……the  firstseries
+                                                                                              series              MillieInbetween.
+                                                                                                                 Millie  Inbetween.           1 October 2014.
+(Khandelwal et al., 2020), illustrating that end-task                             premieredon
+                                                                                 premiered
+                                                                                 11October
+                                                                                               on
+                                                                                              2014.
+                                                                                                                 CBBC
+                                                                                                                  CBBCsitcom
+                                                                                                                 about
+                                                                                                                          sitcom
+                                                                                    October 2014.                           young……
+                                                                                                                  aboutaayoung                [comedy.co.uk]
+performance and attribution are not always aligned.                                                                                           Millie Inbetween.
+                                                                                                                                              CBBC sitcom
+                                                                                                                                              about a young …
+   Instead of constraining LMs to generate at-                                    Agreement                       Agreement
+tributed text, we propose a model-agnostic ap-                                                                                            Output Attribution
+                                                                                                                                          Report A={e1, .., eM}
+proach to improve the attribution of any existing                                       Edit                        Edit skipped
+
+LM: Retrofit Attribution using Research and Revi-
+sion (RARR). The approach is inspired by works on                    Millie Inbetween                  Millie Inbetween               Millie Inbetween
+                                                                     premiered on 24                   premiered on 1                 premiered on 1
+fact-checking2 where simple research-and-revise                      February 2014                     October 2014                   October 2014
+                                                                     on CBBC.                          on CBBC.                       on CBBC.
+workflows are effective at attributing or correct-
+                                                                     Input Passage x                                                  Output Passage y
+ing unattributed claims made by humans (Thorne
+et al., 2018; Schuster et al., 2021; Thorne and Vla-                Figure 2: An overview of RARR, which improves attri-
+chos, 2021). As shown in Figure 1, after gener-                     bution for a text passage via Research & Revision. Given
+ating text with the LM, RARR does research to                       the input text passage, the research stage uses a query
+retrieve relevant evidence, and then revises the text               generator to raise questions about different aspects of
+to make it consistent with the evidence while pre-                  the text. The retriever then searches for evidence to
+serving qualities like style or structure, enabling                 investigate each query. The revision stage first runs an
+                                                                    agreement model to detect disagreement between the
+the revised text to be seamlessly used in place of
+                                                                    text and the evidence, then runs an edit model to revise
+the original. RARR can be viewed as a retrieval-                    the text if needed. Finally, M evidence snippets are
+augmented model where retrieval happens after                       selected to form an attribution report.
+generation rather than before. This allows RARR
+to stand on the shoulders of giant LMs without
+having to modify them to support attribution.                       2      Task formulation
+   In our effort to expand the scope of Research &
+                                                                    We propose the task of Editing for Attribution as
+Revision models to handle the output of arbitrary
+                                                                    follows. As Figure 1 shows, the input to the system
+LMs, we make the following contributions. First,
+                                                                    is a text passage x produced by a generation model.
+we formalize the Editing for Attribution task and
+                                                                    The output is a revised text passage y along with
+propose new metrics that evaluate revision models
+                                                                    an attribution report A, which contains evidence
+not just on their ability to produce well-attributed
+                                                                    snippets e1 , . . . , eM that support the content in y.
+revisions, but also on their ability to otherwise pre-
+                                                                    Optionally, the attribution report can contain addi-
+serve original properties of the text. Second, we
+                                                                    tional information such as the alignment between
+use these metrics to benchmark how existing re-
+                                                                    evidence snippets and relevant parts in y.
+vision models perform on various types of LM
+                                                                       We propose to measure the quality of the revised
+outputs such as knowledge-intensive statements,
+                                                                    text y and attribution report A along two dimen-
+reasoning chains, and dialog responses. Finally,
+                                                                    sions: (1) attribution: how much of the revised
+we find that existing revision models do not al-
+                                                                    text y can be attributed to the evidence in A, and
+ways generalize across many tasks (and were not
+                                                                    (2) preservation: how much the revised text y
+originally intended to), and therefore propose a new
+                                                                    preserves aspects of the original text x.
+research-and-revise model that leverages the power
+of few-shot prompting in large language models to                   2.1          Measuring attribution
+robustly generalize across domains.
+                                                                    Previously, Rashkin et al. (2021) proposed At-
+   2
+    In this paper, we generally avoid the term “fact-checking”      tributable to Identified Sources (AIS), a human
+other than to reference relevant literature, because we only        evaluation framework which considers a binary no-
+address attribution, and attribution does not entail correctness.
+Even if a claim is attributed to a particular source, it does not   tion of attribution. Roughly speaking, a text pas-
+guarantee that the source is “correct” (Menick et al., 2022).       sage y is attributable to a set A of evidence if a
+generic hearer would affirm the statement “Accord-       and Vlachos, 2021). Different tasks have differ-
+ing to A, y” under the context of y. A system either     ent requirements for what should be preserved.
+receives full credit (1.0) if all content in y can be    Here, we desire a simple metric that can be readily
+attributed to A, and no credit (0.0) otherwise.          computed for many tasks and that generally penal-
+   We propose a more fine-grained, sentence-level        izes unnecessary changes. We thus define a metric
+extension of AIS. We ask annotators to give an AIS       based on the character-level Levenshtein edit dis-
+score for each sentence s of y, and then report the      tance (Levenshtein, 1965) between x and y:
+average AIS score across all sentences:                                                             
+                                                                                       Lev(x, y)
+                                                            PresLev (x, y) = max 1 −              ,0     (3)
+         AttrAIS (y, A) = avg AIS(s, A).          (1)                                  length(x)
+                            s∈y
+                                                         This metric is 1.0 if x and y are the same, and 0.0
+Since the AIS score is binary, this effectively mea-
+                                                         if y completely overwrites all parts of x. PresLev is
+sures the percentage of sentences in y that are fully
+                                                         generally sensitive to any kind of change, but cer-
+attributed to A. When judging each sentence, we
+                                                         tainly does not capture all notions of preservation
+also give annotators access to the surrounding sen-
+                                                         (e.g., preserving rhyme schemes or puns).
+tences and other necessary context, such as the
+                                                            We want the revision to preserve the original
+question that the text passage responded to. We
+                                                         intent while avoiding superfluous edits. To reflect
+also impose the maximum number of evidence
+                                                         this, we finally combine the two metrics as
+snippets in the attribution report A to make it con-
+cise enough for both the annotator and downstream
+                                                          Prescomb (x, y) = Presintent (x, y) · PresLev (x, y).
+users. By manually inspecting 30 examples from
+                                                                                                             (4)
+our benchmarks, we found M = 5 snippets to be
+                                                         which is 0.0 if the revision changes the intent and
+sufficient for full attribution.
+                                                         equal to PresLev (x, y) otherwise. Since Presintent
+   During model development, we define an au-
+                                                         requires human annotation, we use PresLev as an
+tomated metric, auto-AIS (Attrauto ), that approxi-
+                                                         automated metric for model development.
+mates human AIS judgments. We utilize the natural
+language inference (NLI) model from Honovich             2.3    Discussion
+et al. (2022), which correlates well with AIS scores.
+                                                         Optimizing for attribution alone cannot ensure a
+For each sentence s of y, and for each evidence
+                                                         good revision: for example, an adversarial editor
+snippet e in A, let NLI(e, s) be the model probabil-
+                                                         could ensure 100% attribution by simply replacing
+ity of e entailing s. We then define
+                                                         the input x with the text of any arbitrary retrieved
+       Attrauto (y, A) = avg max NLI(e, s).       (2)    document, which is trivially attributable to itself.
+                         s∈y e∈A                         Ideally, we want to maximize both attribution and
+                                                         preservation, while navigating any tradoffs between
+To improve accuracy, we decontextualize (Choi
+                                                         the two. In our experiments, we report both metrics,
+et al., 2021) each sentence based on the entire con-
+                                                         as well as their harmonic mean (F1AP , analogous
+text of y before computing the scores. See Ap-
+                                                         to how recall and precision are combined in F1).
+pendix B for implementation details.
+                                                            We emphasize that this evaluation scheme does
+2.2   Measuring preservation                             not require any “gold” or “reference” edits (unlike
+                                                         many prior evaluations of text revision models),
+To measure preservation, we first ask annotators to
+                                                         which are often only available for specialized do-
+decide if the revision preserves the text’s original
+                                                         mains. This enables us to broaden the scope to a
+intent (completely, somewhat, or not at all — see
+                                                         much wider range of generation tasks.
+Appendix C for exact rubrics). Like AIS evalua-
+tion, we give annotators the necessary surrounding
+                                                         3     Approach
+context. We define the binary metric Presintent (x, y)
+to be 1.0 if the revision completely preserves the       We now present Retrofit Attribution using Research
+original intent, and 0.0 otherwise.                      and Revision (RARR), a simple method for solving
+   However, even if a revision preserves intent, it      the Editing for Attribution task. As illustrated in
+may still make superfluous modifications, such as        Figure 2, given an input passage x, the research
+reordering words, changing textual style, or includ-     stage first generates a set of queries {q1 , ..., qN },
+ing unnecessary additional information (Thorne           each investigating one aspect of x that potentially
+               (a) Query generation x → {q1 , . . . , qN }                    are then ranked based on their relevance to the
+You said: Your nose switches back and forth between nostrils. When you
+sleep, you switch about every 45 minutes. This is to prevent a buildup of     query. For this, we use an existing query-document
+mucus. It’s called the nasal cycle.
+To verify it,
+                                                                              relevance model trained following Ni et al. (2021),
+a) I googled: Does your nose switch between nostrils?                         which computes a relevance score Srelevance (q, e)
+b) I googled: How often does your nostrils switch?
+c) I googled: Why does your nostril switch?                                   between a query q and an evidence snippet e. We
+d) I googled: What is nasal cycle?                                            then keep the top J = 1 evidence for each query.
+                 (b) Agreement model (y, q, e) → {0, 1}
+You said: Your nose switches . . . (same as above). . . nasal cycle.
+                                                                              The final retrieval result is [(q1 , e11 ), . . . , (q1 , e1J ),
+I checked: How often do your nostrils switch?                                 . . . , (qN , eN 1 ), . . . , (qN , eN J )], where eij denotes
+I found this article: Although we don’t usually notice it, during the nasal
+cycle one nostril becomes congested and thus contributes less to airflow,     the j th evidence for the ith query, and N denotes
+while the other becomes decongested. On average, the congestion pattern       the total number of queries from CQGen (which
+switches about every 2 hours, according to a small 2016 study published
+in the journal PLOS One.                                                      can be different for each input x).
+Your nose’s switching time is about every 2 hours, not 45 minutes.
+This disagrees with what you said.
+                     (c) Edit model (y, q, e) → new y                         3.2    Revision stage
+You said: Your nose switches . . . (same as above). . . nasal cycle.
+I checked: How often do your nostrils switch?
+I found this article: Although we . . . (same as above). . . PLOS One.        After retrieving evidence, certain parts of x may
+This suggests 45 minutes switch time in your statement is wrong.
+My fix: Your nose switches back and forth between nostrils. When you          now be properly attributed, but other parts remain
+sleep, you switch about every 2 hours. This is to prevent a buildup of        unattributed and should be revised. As illustrated
+mucus. It’s called the nasal cycle.
+                                                                              in Figure 2, the revision stage initializes the output
+Figure 3: Examples of few-shot examples used to                               y = x. Then for each retrieved (q, e) = (qi , eij ),
+prompt the PaLM model (blue = input; red = output).                           the agreement model checks if the evidence e dis-
+                                                                              agrees with the current output y regarding the issue
+                                                                              in query q. If a disagreement is detected, the edit
+requires attribution. For each query qi , it retrieves                        model edits y to agree with e; otherwise, it does
+web documents and selects the best evidence snip-                             nothing. The process continues until all retrievals
+pets {ei1 , ei2 , . . . }. The revision stage then re-                        are processed.
+vises the original text x using the retrieval results
+{(q1 , e11 ), . . . }, yielding a revised text y.
+                                                                              Agreement model The agreement model takes
+   Most components for RARR are implemented
+                                                                              the partially edited passage y, a query q, and the
+using few-shot prompting (Brown et al., 2020). We
+                                                                              evidence e as input. It then decides whether both
+use PaLM (Chowdhery et al., 2022) as our language
+                                                                              y and e imply the same answer to the question in
+model. Figure 3 shows some few-shot examples
+                                                                              q. This form of question-guided agreement was
+we use, while Appendix D lists the full prompts.
+                                                                              previously explored by Honovich et al. (2021). We
+                                                                              implement this by few-shot prompting PaLM using
+3.1    Research stage
+                                                                              a chain-of-thought style prompt (Wei et al., 2022),
+Query generation We perform comprehensive                                     where we ask the model to explicitly state the im-
+question generation (CQGen) which produces a                                  plied answers for both y and e before producing its
+sequence of questions covering all aspects of the                             judgment about their agreement.
+passage x that need to be verified and attributed.
+A similar strategy has been employed to train text-                           Edit model The edit model is run only if a dis-
+planning models (Narayan et al., 2022). A prompt                              agreement is detected. The model takes y, q and e
+with six human demonstrations was sufficient for                              as input, and outputs a new version of y that aims
+PaLM to adequately learn the task. To increase                                to agree with e while otherwise minimally altering
+diversity and coverage, we sample from our CQ-                                y. We again use few-shot prompting and chain-of-
+Gen model three times and take the union of the                               thought, where we ask the model to first identify a
+resulting queries.                                                            particular span in y that needs to be edited before
+Evidence retrieval For each query from CQGen,                                 generating the revised y. This helps reduce the
+we use Google Search to retrieve K = 5 web pages.                             editor’s deviation from the current y.3
+We extract candidate evidence snippets from each
+                                                                                  3
+web page by running a sliding window of four                                        The editor occasionally produces large edits that bring the
+                                                                              new revision close to e but far from the current y. Since this
+sentences across the page, breaking at document                               is rarely desirable, we reject edits with edit distance above 50
+headings. The evidence snippets for each query                                characters or 0.5 times the original text length.
+3.3    Attribution report                                                 PaLM outputs on NQ (factoid statements)
+                                                              Millie Inbetween is a British comedy television series. It premiered on
+Finally, we select at most M = 5 evidence snippets            24 February 2014 on BBC One. The first series was produced by John
+                                                              Yorke and Phil Clymer.
+to form an attribution report A. Note that during ev-
+                                                                          PaLM outputs on SQA (reasoning chains)
+idence retrieval and revision, we may have encoun-            The highest point of Mount Wycheproof is 70 metres. Edmund Hillary
+tered and used more than M snippets. Our goal is              climbed Mount Everest, which is 8,848 metres. So Mount Wycheproof
+                                                              would be a breeze for Edmund Hillary.
+to find a subset of snippets that maximizes cover-                LaMDA outputs on QReCC (knowledge-intensive dialogs)
+age over the potentially attributable points in the           When was Welsh social reformer Robert Owen born?
+                                                                                                                     
+                                                                                                                     
+                                                              Robert Owen was born on 14 May 1771
+                                                                                                                     
+passage, as represented by the queries q1 , . . . , qN .      ...                                                    
+                                                                                                                         context
+We use the relevance model from Section 3.1 as
+                                                                                                                     
+                                                              Did he have another job?
+                                                              In 1810 he moved to Manchester and established a draper’s shop.
+a proxy for measuring how much an evidence e
+covers the point raised by a query q. Then, we ex-            Figure 4: Examples of input passages. For QReCC,
+haustively search for A ⊆ {e11 , . . . , eN J } of size       prior dialog turns are also given as the context.
+at most M that maximizes
+                         N
+                         X                                    the output text (Bohnet et al., 2022; Kryscinski
+    Cover(A, q1:N ) :=         max Srelevance (qi , e). (5)
+                               e∈A                            et al., 2020; Goyal and Durrett, 2021). A common
+                         i=1
+                                                              alternative is to evaluate whether the output text
+4     Related work                                            contains the same factual information as the ev-
+                                                              idence; e.g., by checking if both yield the same
+Fact-checking Our research builds upon works
+                                                              answer to the same question (Wang et al., 2020).
+to identify whether a claim is supported or refuted
+                                                              We use this notion of attribution in RARR’s agree-
+by the given evidence (Thorne et al., 2018; Wang,
+                                                              ment model rather than for evaluation.
+2017; Karadzhov et al., 2017; Augenstein et al.,
+2019; Wadden et al., 2020). In real-world scenar-
+                                                              Retrieval-augmented models Models with a re-
+ios such as the one which RARR operates in, rele-
+                                                              trieval component have seen successes in ques-
+vant evidence may not be provided, necessitating
+                                                              tion answering (Chen et al., 2017; Lee et al.,
+retrieval (Fan et al., 2020; Piktus et al., 2021).
+                                                              2019; Nakano et al., 2021), machine translation
+Post-hoc editing for factuality Recent work has               (Zhang et al., 2018), code generation (Hayati
+gone beyond checking the validity of a claim to               et al., 2018), language modeling (Khandelwal et al.,
+correcting a piece of text to be factually consistent         2020), and other knowledge-intensive tasks (Lewis
+with a set of evidence via post-hoc editing (Shah             et al., 2020). Their retrievals are not necessarily at-
+et al., 2020; Thorne and Vlachos, 2021; Schuster              tributions (Dziri et al., 2022; Longpre et al., 2021)
+et al., 2021; Balachandran et al., 2022; Cao et al.,          and typically are not used to revise an existing out-
+2020; Iso et al., 2020). FRUIT (Logan IV et al.,              put. An exception is LaMDA (Thoppilan et al.,
+2022) and PEER (Schick et al., 2022) both im-                 2022), a language model for dialog that performs
+plement an editor that is fine-tuned on Wikipedia             revision by training on human annotations.
+edit history with the goal of updating outdated in-
+formation and collaborative writing respectively.             5     Experiments
+Evidence-based Factual Error Correction (EFEC;
+Thorne and Vlachos, 2021) also implements a full              5.1     Evaluation setups
+research-and-revise workflow trained on Wikipedia
+                                                              RARR aspires to be a general-purpose method for
+passages (Thorne et al., 2018). A key differentia-
+                                                              improving the attribution of any text generation
+tor of RARR is its ability to edit the output of any
+                                                              model in any text domain. We thus construct eval-
+generation model without being restricted by the
+                                                              uation benchmarks by taking the task input from
+domain, task, or the need for training data.
+                                                              three diverse datasets, and prompting different gen-
+Measuring attribution A key part of improving                 eration models to produce long-form outputs which
+attribution is being able to quantify it. Apart from          may contain “hallucinations,” as demonstrated in
+human evaluation (Rashkin et al., 2021), several              Figure 4. These long-form outputs serve as input
+automated evaluation methods have been proposed.              text passages to RARR. We generate 150 develop-
+Our work uses an entailment-based metric, which               ment and 150 test passages for each combination
+measures whether the referenced evidence entails              of generation model and source dataset.
+Factoid statements We prompt PaLM 540B and                                 Attribution        Preservation
+GPT-3 text-davinci-002 to generate long-form an-         Model      auto-AIS         AIS   intent   Lev   comb   F1AP
+swers to questions from the Natural Questions dev                      PaLM outputs on NQ
+set (NQ; Kwiatkowski et al., 2019). The result-          EFEC  45.6 → 64.3 35.4 → 48.3 16.0 39.1 10.4            17.1
+ing passages are mostly coherent but often contain       LaMDA 39.5 → 49.9 18.3 → 30.4 26.0 39.6 21.1            24.9
+                                                         RARR 45.6 → 54.9 35.4 → 43.4 90.0 89.6 83.1             57.0
+factual errors. This setup examines the ability to
+                                                                       PaLM outputs on SQA
+attribute a diverse range of factoid knowledge.
+                                                         EFEC  37.8 → 58.6 24.5 → 51.7 6.0 31.0 3.8               7.1
+Reasoning chains Language models can gener-              LaMDA 32.7 → 43.2 15.8 → 27.0 40.0 46.4 33.7            30.0
+                                                         RARR 37.6 → 45.1 24.5 → 31.5 92.6 89.9 84.6             45.9
+ate reasoning chains to answer complex questions
+                                                                     LaMDA outputs on QReCC
+(Wei et al., 2022). We use PaLM and GPT-3 to gen-        EFEC  19.1 → 47.4 13.2 → 48.7 39.7 39.4 23.7            31.9
+erate reasoning chains for the StrategyQA train set      LaMDA 16.4 → 36.2 16.0 → 27.1 21.3 24.8 12.0            16.6
+(SQA; Geva et al., 2021). This setup tests whether       RARR 18.8 → 29.4 13.2 → 28.3 95.6 80.2 78.1             41.5
+the revision model can provide better attribution for
+intermediate steps of reasoning, while preserving       Table 1: Evaluation results. For attribution, we report
+                                                        the AIS scores of the texts both before and after editing
+the overall reasoning process.
+                                                        (before → after). For preservation, we report intent
+Knowledge-intensive dialogs We consider the             preservation Presintent , Levenshtein similarity PresLev ,
+conversational QA task from the QReCC dev set           and the combined Prescomb . We summarize AttrAIS and
+                                                        Prescomb using their harmonic mean (F1AP ).
+(Anantha et al., 2021). Given the previous dia-
+log turns, which are rounds of questions and an-
+swers (Q1 , A1 , Q2 , A2 , . . . , Qk ), we use LaMDA    To apply LaMDA on a given text x, we simply set
+and GPT-3 to answer to the final question Qk condi-      the base response in step 1 to x, and then run steps
+tioned on the dialog history. The answer tends to be     2 and 3 (we call these latter two stages “LaMDA
+context-dependent, featuring pronouns and implicit       Research”). LaMDA was trained as a dialog sys-
+references. All dialog turns are given alongside the     tem, and always expects a dialog context where
+answer as inputs to the revision model.                  the user speaks first. So, for non-dialog tasks, we
+                                                         insert an artificial user utterance as dialog history:
+5.2   Models
+                                                        “Tell me something interesting.” For the attribution
+We compare RARR to several systems that have a           report, we take all evidence documents retrieved
+research-and-revise workflow.                            by LaMDA during its research process.
+EFEC We consider EFEC (Thorne and Vlachos,
+                                                        RARR Our model uses few-shot prompting on
+2021) as a representative fine-tuned editor. EFEC
+                                                        PaLM 540B for query generation, the agreement
+fine-tunes a T5-based model to revise text condi-
+                                                        model, and the edit model. We use the same
+tioned on multiple evidence snippets using both
+                                                        prompts for all tasks except when the context
+semi-supervised and fully-supervised approaches.
+                                                        comes from a dialog, where we slightly modify the
+We compare against their fully-supervised ap-
+                                                        prompts to use the dialog context (e.g., CQGen now
+proach, which performed best in their experiments.
+                                                        maps dialog context + x to queries). The query-
+EFEC uses a neural retrieval model (Karpukhin
+                                                        evidence relevance model Srelevance is a pretrained
+et al., 2020) to retrieve from Wikipedia; however,
+                                                        T5-large model (Raffel et al., 2020) fine-tuned fol-
+not all passages in our experiments are supported
+                                                        lowing Ni et al. (2021) on MS MARCO (Nguyen
+by Wikipedia articles. To more fairly compare the
+                                                        et al., 2016). See Appendix D for the few-shot
+editing capabilities of EFEC, we instead use the
+                                                        prompting strategies and more modeling details.
+evidence retrieved by our research stages (CQGen
+and web search). Note that the EFEC editor condi-        5.3     Results
+tions on multiple pieces of evidence at once, while
+                                                        For the main experiments, we report results on pas-
+our editor iteratively conditions on one at a time.
+                                                        sages generated by PaLM and LaMDA. Results on
+LaMDA LaMDA (Thoppilan et al., 2022) gener-             GPT-3 passages show similar trends (Appendix A).
+ates responses in three steps: 1) generate a “base      Table 1 and Figure 5 show attribution and preser-
+response”; 2) generate search queries from the base     vation results for each model and dataset. We also
+response; 3) generate a “revised response” condi-       report F1AP , the harmonic mean of the two metrics,
+tioned on the base response and retrieved evidence.     which is shown as level curves in Figure 5.
+                              PaLM outputs on NQ      PaLM outputs on SQA   LaMDA outputs on QReCC
+                    100                                                                                    x: Justice Ashok Kumar Mathur headed the 7th central pay com-
+                                  EFEC
+                    80            LaMDA                                                                       mission in India. It was created in 2014 and submitted its
+Attribution (AIS)
+
+
+                                  RARR                                                                        report in 2016.
+                    60
+                                                                                                              Attribution: 50%                Preservation: 100%
+                    40
+                                                                                                       EFEC: The 7th central pay commission in India was created in 2014.
+                    20                                                                                       Attribution: 100%                Preservation: 0%
+                     0
+                          0     25   50    75 100 0       25 50 75 100 0        25   50    75 100    LaMDA: I heard the 7th CPC made recommendations for increasing the
+                                                      Preservation (Prescomb)                               minimum salary pay from Rs 7066 to 18k per month for new
+                                                                                                            central government employees.
+      Figure 5: Attribution and preservation scores.                                                        Attribution: 0%                Preservation: 0%
+      Dashed lines indicate the highest attribution score ob-                                         RARR: Justice Ashok Kumar Mathur headed the 7th central pay com-
+      tained by any of the models before editing: points above                                              mission in India. It was created in 2014 and submitted its
+                                                                                                            report in 2015.
+      the line have better attribution after revision. The con-                                             Attribution: 100%               Preservation: 100%
+      tours are F1AP level curves: points along a contour have                                       evidence: The 7th Central Pay Commission (Chair: Justice A. K.
+      equivalent F1AP . Different models make very different                                                   Mathur) submitted its report on November 19, 2015. The
+      trade-offs between attribution and preservation. Only                                                    Commission had been appointed in February 2014, to look
+                                                                                                               at remuneration for central government employees. . . .
+      RARR has a robust F1AP across all tasks.
+                                                                                                     Figure 6: Example model outputs and human judg-
+                                                                                                     ment of their attribution and preservation scores.
+     RARR significantly improves attribution while                                                   EFEC reduces the passage x into a single sentence.
+  preserving most of the original text. In terms of                                                  LaMDA changes the writing style. RARR preserves
+  F1AP , RARR is the only method that performs ro-                                                   the structure of the input passage. We show one evi-
+  bustly across all three datasets, and significantly                                                dence retrieved by RARR to help explain the example.
+  outperforms prior methods on NQ and SQA.
+     We found that RARR is the only method that pre-
+  serves the original intent of x over 90% of the time                                               Analyzing the baselines As exemplified in Fig-
+  — EFEC and LaMDA only manage to preserve the                                                       ure 6, EFEC frequently attempts to summarize the
+  original intent 6–40% of the time. We also see that                                                entire passage into one sentence, or drops later
+  editing is crucial to improve attribution: if we only                                              sentences. This is likely due to EFEC’s training
+  retrieve evidence to support the original response                                                 data, which was limited to single sentences. This
+  x without editing, attribution ranges from the low                                                 behavior generally increases the attribution score,
+  10s to mid 30s. After editing, RARR can increase                                                   because it is usually easier to make one sentence
+  attribution by up to 13% absolute, while changing                                                  fully attributable than many sentences. However,
+  only 10–20% of the text.                                                                           in datasets where the claim contains multiple sen-
+     As noted in Section 2, one can sacrifice preserva-                                              tences (NQ and SQA), such a behavior yields low
+  tion for higher attribution. EFEC is able to obtain                                                preservation scores, and also results in outputs that
+  strong F1AP on QReCC by making larger changes                                                      are less informative. We expect that EFEC could
+  to the text in exchange for a higher attribution                                                   perform much better if its training data were aug-
+  score. However, it occupies a very different point                                                 mented to include multiple sentences. LaMDA Re-
+  from RARR on the attribution-preservation trade-                                                   search achieves similar attribution scores to RARR.
+  off curve, as visualized in Figure 5.                                                              But as mentioned in Section 5.2, the intent and
+                                                                                                     linguistic style of the output tend to deviate from
+      6                   Analysis                                                                   the input, resulting in lower preservation scores
+                                                                                                     (Figure 6). We emphasize that this is not a purely
+      6.1                     Qualitative analysis                                                   apples-to-apples comparison since LaMDA was
+      Human oracle To understand the remaining                                                       not optimized for preservation. Overall, these ex-
+      headroom in our task, we ask: what is the minimal                                              periments are mainly meant to illustrate that prior
+      amount of editing needed to make a text passage                                                models were simply not designed for the task of
+      fully attributed? The answer would depend on the                                               Editing for Attribution, rather than to mark RARR
+      quality of the LM that generated the text as well as                                           as the best method.
+      the task difficulty. As an approximation, we man-
+      ually edited 30 examples in our NQ benchmark                                                   Analyzing RARR For the research stage, the
+      until we judged them to be 100% attributable. We                                               question generation model had comprehensive cov-
+      achieved a preservation score of 88%, which (when                                              erage: a manual inspection of 40 examples shows
+      combined with 100% attribution) translates to 93.6                                             > 80% with questions that fully cover all aspects
+      F1AP , indicating a significant headroom.                                                      of the input text. The retriever was strongest at re-
+                        (a) Correctly revising an entity                               cessfully revised an incorrect claim, but did not
+ y: If She Knew What She Wants was written by Henry Roth.
+ e: [en.wikipedia.org] “If She Knew What She Wants” is a song written by               revise subsequent reasoning steps that depend on
+      American singer-songwriter Jules Shear and introduced on . . .
+y ′ : If She Knew What She Wants was written by Jules Shear.                           the earlier claim (Figure 7e). In this case, further
+                        (b) Correctly revising a number                                editing to improve logical coherence could help.
+ y: God Save the Queen became the British national anthem in 1745. . . .
+ e: [www.britannica.com] The oldest national anthem is Great Britain’s “God
+      Save the Queen,” which was described as a national anthem in 1825, . . .         6.2   Ablations
+y ′ : God Save the Queen became the British national anthem in 1825. . . .
+      (The year 1745 was when the song was first performed.)                           Ablating query generation RARR uses gener-
+                     (c) Performing a necessary larger revision
+ y: “It’s My Party” is a song written and composed by American singer-                 ated questions as search queries for evidence re-
+      songwriter and producer Walter Gold. The song was published in 1962              trieval. We consider two natural alternatives: using
+      and first recorded by American singer-songwriter, producer and arranger
+      Lesley Gore.                                                                     the entire input passage as a single search query,
+ e: [secondhandsongs.com] Song: It’s My Party written by John Gluck, Wally
+      Gold, Seymour Gottlieb, Herbert Weiner. . .                                      or using each sentence as a search query. For the
+y ′ : “It’s My Party” is a song written and composed by John Gluck, Wally Gold,
+      Seymour Gottlieb and Herb Weiner. The song was published in 1963 and             former, we retrieve J = 3 evidence snippets to
+      first recorded by American singer Lesley Gore.
+                                                                                       make the amount a closer match to other methods.
+                        (d) Confused by misleading evidence
+ y: In the Heat of the Night is a police procedural crime drama TV series produced        The results are in Table 2. Using the entire input
+      by MGM Television. It aired on NBC from September 8, 1988 to May 3,
+      1992. . . .                                                                      passage as the query gives poor results, as the re-
+ e: [metv.com] Watch In the Heat of the Night on MeTV.
+y ′ : In the Heat of the Night is a police procedural crime drama TV series produced
+                                                                                       trieved evidence tends to not focus on potentially
+      by MGM Television. It aired on MeTV from September 8, 1988 to May 3,             unattributed parts in the passage. Using sentences
+      1992. . . .
+      (The show did actually air on NBC in the 1980s, but the model fails to realize   as queries gives results closer to the full CQGen,
+      that MeTV is a re-run much later in time.)
+       (e) Improved attribution, but reasoning doesn’t adapt to new info
+                                                                                       but a closer analysis reveals two caveats.
+      (Q: Does Homer Simpson need two hands worth of fingers to count to 5?)              First, sentences-as-queries are more effective
+ y: Homer Simpson has 5 fingers and 2 hands. Therefore, he does not need two
+      hands worth of fingers to count to 5. He only need one hand to count to 5.       when such sentences “mimic” content on the Web,
+ e: [refinery29.com] Other iconic animated characters, such as Homer Simpson
+      and his brood, . . . only have four fingers, too.                                and are less effective otherwise. In Table 3, we test
+y ′ : Homer Simpson has 4 fingers and 2 hands. Therefore, he does not need two
+      hands worth of fingers to count to 5. He only need one hand to count to 5.
+                                                                                       this by excluding all of Wikipedia from web search
+      (Having only 4 fingers per hand, he does need two hands to count to 5.)          results (since many PaLM outputs for NQ have
+                                                                                       a Wikipedia style). The attribution performance
+Figure 7: Example revisions from RARR, both good
+                                                                                       of sentences-as-queries drops significantly, while
+and bad. y = partially edited passage; e = evidence; y ′
+= passage after editing with e.                                                        CQGen is more robust.
+                                                                                          Second, sentence-as-queries tends to retrieve
+                                                                                       passages that may encourage confirmation bias.
+searching content involving distinct entities (e.g., a                                 Consider the example “Georgia is called the Peach
+movie, a major event, or a person). In contrast, we                                    State, but California actually produces the most
+found significant headroom for better attribution                                      peaches.” Retrieval using sentences-as-queries
+of statements involving generic objects and more                                       found an article echoing that California produces
+abstract claims (e.g. “Video games require elec-                                       the most peaches, while CQGen generated the more
+tricity.”— since this is obvious to most humans, re-                                   impartial query “Which state produces the most
+trieved articles from the web tend to address related                                  peaches?” and found a newer article saying that
+but different topics). We suspect that a significant                                   South Carolina replaced California as the top peach
+amount of attribution headroom on our benchmarks                                       producer. In this case, RARR using CQGen needs
+would benefit from a better research stage.                                            to sacrifice more preservation score to edit the text,
+   For the revision stage, RARR was able to revise                                     leading to a lower F1AP score. This underscores
+many unattributed claims, especially those involv-                                     that attribution alone cannot measure “correctness”
+ing entities and numbers (Figures 7a and 7b). It can                                   since not all evidence is up-to-date or reliable.
+also perform larger revisions when necessary (Fig-
+                                                                                       Ablating agreement model We try removing
+ure 7c). Moreover, RARR abstains from editing
+                                                                                       the agreement model, which effectively forces the
+when the claim is already well-attributed: on NQ,
+                                                                                       model to revise the passage based on every re-
+among the inputs with near-perfect attribution (pre-
+                                                                                       trieved evidence. The results are shown in Table 2.
+edit AttrAIS > 0.9), RARR does not make an edit
+                                                                                       As expected, more revision leads to less preserva-
+in 90% of the cases. However, the system also has
+                                                                                       tion score and spurious changes to the text passage,
+several shortcomings. Some erroneous edits arise
+                                                                                       as demonstrated in Figure 8.
+from misleading irrelevant evidence (Figure 7d).
+We also observed an interesting challenge when                                         Impact on downstream task performance We
+revising reasoning chains, where the model suc-                                        have measured preservation using the metric de-
+                                      PaLM outputs on NQ                       PaLM outputs on SQA           LaMDA outputs on QReCC
+   Model                            Attrauto        PresLev      F1AP          Attrauto     PresLev   F1AP     Attrauto    PresLev   F1AP
+   Full RARR                     45.6 → 54.9          89.6       68.1     37.6 → 45.1        89.9     60.0   18.8 → 29.4    80.2     43.1
+   no agreement model            45.6 → 50.6          82.6       62.8     37.8 → 46.9        83.4     60.0   18.8 → 28.8    72.0     41.2
+   query = input                 45.4 → 47.2          98.4       63.8     39.4 → 30.3        98.8     46.4   19.7 → 20.6    96.3     34.0
+   query = sentence              49.1 → 52.1          97.0       67.8     43.7 → 44.3        98.8     61.2   19.0 → 19.6    97.0     32.6
+
+Table 2: Ablation results. We report the automatic metrics: Attrauto , PresLev , and harmonic mean between the two
+(F1AP ). We show auto-AIS scores both before and after editing (before → edit), with respect to the attribution report
+A produced by the model. Even though sentence-as-queries may achieve similar F1AP as RARR, it is less robust to
+corpus shifts and tends to retrieve passages that may encourage confirmation bias.
+
+
+                                NQ F1AP               SQA F1AP                    that RARR not only preserves the short answer
+   Model                     orig     no wiki       orig      no wiki             accuracy but actually improves it by roughly 5%.
+   Full RARR                68.1        64.3        60.0        57.6                  For SQA, each original text is a reasoning chain
+   query = sentence         67.8        60.3        61.2        56.7              that helps to answer a yes/no question. We feed the
+                                                                                  SQA question and y back into PaLM and prompt
+Table 3: The impact of excluding Wikipedia from the
+retrieval corpus. CQGen (full RARR) is more robust to
+                                                                                  it to output a yes/no answer, and evaluate answer
+Wikipedia’s absence, while using sentences-as-queries                             accuracy. Here, we find that increasing attribution
+suffers a bigger drop in performance.                                             comes at a slight cost in downstream task perfor-
+                                                                                  mance: answer accuracy drops modestly for all
+x: The Crown-of-thorns starfish is native to the Great Barrier Reef. . . The      revision models (up to 2.6%). We suspect that this
+   starfish was introduced to the Great-Barrier-Reef by ocean currents.
+e: [invasivespeciesinfo.gov] Ballast water is one of the major pathways for       may be due to noisy retrievals, which sometimes
+   the introduction of nonindigenous marine species. . .                          provide misleading evidence (exemplified in Fig-
+y: The Crown-of-thorns starfish is native to the Great Barrier Reef. . . The
+   starfish was introduced to the Great-Barrier-Reef by ballast water.            ure 7d). Furthermore, even though revisions can
+                                                                                  address factoid errors in the passage (e.g., “Homer
+Figure 8: Disabling the agreement model leads to                                  Simpson has 5 fingers” from Figure 7e), RARR
+over-edits. Here, the evidence e does not explicitly dis-
+                                                                                  currently does not try to modify subsequent reason-
+agree with x, but without an agreement model to detect
+this, the edit model makes an unsupported change.                                 ing steps which may no longer be logically entailed
+                                                                                  (e.g., “He only needs one hand to count to 5”).
+
+
+                                                                                  7       Conclusion
+
+                                                                                  Language models have developed increasingly
+                                                                                  good “procedural” knowledge of what should be
+                                                                                  discussed and how it should be presented, but often
+Figure 9: Downstream task performance on NQ and                                   struggle to memorize “factoid” knowledge and pro-
+SQA. RARR’s revisions lead to better answer accuracy
+                                                                                  duce unsubstantiated claims. We proposed RARR,
+on NQ. No models improved answer accuracy on SQA.
+                                                                                  a framework for revising such claims to make them
+                                                                                  attributable to the researched evidence. From ex-
+fined in Section 2.2. However, another measure                                    periments on text passages generated by different
+of preservation is whether the revised text can still                             models on various domains, we showed that RARR
+be used to perform the task that it was originally                                can revise the passages to improve attribution while
+generated for. Following EFEC, we quantitatively                                  preserving other desirable properties such as writ-
+evaluate this on short answer tasks NQ and SQA,                                   ing style or structure. Furthermore, RARR sits on
+and we summarize the result in Figure 9.                                          top of existing generation models without needing
+   For NQ, each original text x is a long-form re-                                to re-design or re-train LMs.
+sponse to a factoid question. To determine whether                                  Major headroom still remains, as discussed in
+the revised text y still serves this purpose, we feed                             Section 6 and the Limitations section. We hope our
+the factoid question and y back into PaLM and                                     analysis of RARR would help with developing new
+prompt it to extract a short answer from y. We find                               approaches for integrating attribution to LMs.
+ 8   Limitations                                           than delete claims that it cannot attribute. Some of
+                                                           these claims genuinely do not require attribution,
+ Limitations of our task definition Depending              but others are hallucination and should be removed.
+ on the application, attribution and preservation may      Judging whether a claim requires attribution can be
+ not deserve equal weight. For instance, if there are      subjective and challenging. Finally, our model is
+ multiple acceptable options for the output, such as       computationally costly, since it is based on prompt-
+ in a dialog system, we might trade-off preservation       ing a large language model. One potential solu-
+ for attribution, similar to how LaMDA behaves in          tion is to leverage recent synthetic data generation
+ our experiments.                                          recipes to train a smaller model (Lee et al., 2021;
+     Our evaluation metrics also do not measure all        Schick et al., 2022).
+ aspects of attribution. For instance, some sentences
+ are self-evident and do not require attribution (e.g.,    9   Ethical considerations
+“I agree.”) but would be penalized in our evaluation.
+ It is also necessary to note that linguistic assertions   Partial attribution When RARR is not 100%
+ have varying scope: for example, there is a differ-       successful in making text consistent with retrieved
+ ence between “Frozen is a scary movie” and “I             evidence, the revised text will be partially at-
+ got scared watching Frozen” — while expressing a          tributed. One could identify unattributed parts us-
+ similar sentiment, the former makes a more general        ing either the automated attribution score (AttrAIS )
+ statement that many would disagree with, while the        or the relevance scores used to generate the attribu-
+ latter is scoped to the speaker’s own experience.         tion report (Section 3.3). Such information should
+ In some applications, one could even argue that           be presented to avoid misleading readers into think-
+ the latter case does not require attribution, since       ing that the entire revision is attributed.
+ the speaker is their own source-of-truth. In addi-
+ tion to varying scope, utterances can also make           Evidence trustworthiness RARR seeks to im-
+ assertions with varying levels of directness. For         prove attribution for the output of any generative
+ example, according to standard linguistics, “John         model. However, even if RARR can attribute con-
+ ate some of the cookies” yields the implicature that      tent to a particular source, the user must still con-
+ John did not eat all of the cookies, even though          sider whether the source itself is trustworthy. Even
+ it is not logically entailed. This raises the ques-       for sources that are traditionally considered “au-
+ tion of which implicatures or implied assertions          thoritative” (such as an encyclopedia), there may
+ should be detected and attributed, which should be        still be factual inaccuracies or biases. This work
+ explored in future work. For more nuances, we             does not address the question of whether a source
+ refer to Rashkin et al. (2021).                           is trustworthy, or the related topic of misinforma-
+     For preservation, we wish to explore other prop-      tion. While we do not provide a means for judging
+ erties that should be preserved, such as discourse        trustworthiness, the design of RARR does allow for
+ or logical coherence. Additionally, if the input text     the research stage to restrict its search over a user-
+ passage is completely misguided or flawed, it can         specified corpus, based on what the user deems
+ be difficult to revise the text without significant       trustworthy.
+ changes, which would be heavily penalized by the
+ current metrics.                                          Conflicting evidence There is also the possibility
+                                                           that some content may be simultaneously supported
+ Limitations of our model While we aspire to               by certain sources, while contradicted by others.
+ improve attribution for arbitrary text, it is clear       This can easily occur for content involving subjec-
+ that RARR is not yet fully general. For example,          tive or imprecise claims. The current implementa-
+ the current implementation of RARR would not              tion and evaluation for RARR does not explicitly
+ be well-prepared to edit poetry (where preserving         address this issue — we adopted a “permissive”
+ rhyme matters) or long documents, primarily be-           definition of attribution, where we consider content
+ cause we do not provide examples of such inputs           to be attributed if there exists any source that sup-
+ in our few-shot LLM prompts. However, we do be-           ports it. For some applications, a more restrictive
+ lieve that future developers may be able to quickly       definition that requires both existence of support-
+ adapt RARR to such tasks by simply changing the           ing sources and absence of contradicting sources
+ prompts. Second, RARR tends to preserve rather            would be needed.
+Acknowledgments                                        Kelvin Guu). Advised on model design and con-
+                                                       tributed many parts of the writing.
+We wish to thank Raphael Hoffmann, Slav Petrov,           Yicheng Fan: Worked with Kelvin Guu to de-
+Dipanjan Das, Michael Collins, Iftekhar Naim,          velop the first prototype of RARR. Proposed multi-
+Kristina Toutanova, William Cohen, Sundeep Tiru-       ple retrieval strategies and implemented the EFEC
+malareddy, Samer Hassan, Quoc Le and Heng-Tze          baseline.
+Cheng for their research mentorship, feedback and         Vincent Zhao: Co-hosted and mentored Luyu
+support. We are grateful to Hao Zhou and Petr          Gao (student researcher) in prototyping RARR. En-
+Pilar for helping us experiment with LaMDA and         abled bulk inference for PaLM. Proposed the down-
+motivating our dialog experiments. We also wish        stream task evaluation.
+to thank Tal Schuster for pointing us to relevant
+                                                          Ni Lao: Research mentorship, advising and con-
+work in the fact checking literature, and helping
+                                                       tributed many parts of the writing.
+us reproduce it. We thank Vitaly Nikolaev, David
+                                                          Hongrae Lee: Research mentorship and advis-
+Reitter and Roee Aharoni for helping us use AIS
+                                                       ing. Helped integrate RARR with Google Search
+and auto-AIS. We also wish to thank Jianmo Ni and
+                                                       and evaluate LaMDA.
+Honglei Zhuang for developing the query-evidence
+relevance model we use, Daniel Andor for develop-         Da-Cheng Juan: Research mentorship and early
+ing the sentence decontextualization model we use,     design discussions.
+and Ran Tian for the initial prototype of CQGen.          Kelvin Guu: Proposed the original research-and-
+Finally, we thank Kathy Meier-Hellstern, Philip        revise concept, implemented the first prototype, ini-
+Parham and Diane Korngiebel for their thoughtful       tiated the project and involved all collaborators. Im-
+feedback on ethical considerations.                    plemented baselines (together with Yicheng Fan).
+                                                       Research mentorship, oversaw project coordination
+Contributions                                          and paper writing.
+
+Luyu Gao: Designed RARR’s few-shot prompting
+strategies and implemented the first PaLM-based        References
+prototype. Analyzed results, and advised on the        Michael Ahn et al. 2022. Do as I can, not as I say:
+design of human and automatic evaluation.                Grounding language in robotic affordances. ArXiv,
+   Zhuyun Dai: Proposed the evaluation setup of          abs/2204.01691.
+editing long-form generations from PaLM/LaMDA
+                                                       Raviteja Anantha, Svitlana Vakulenko, Zhucheng Tu,
+on various QA datasets. Hosted and mentored Luyu
+                                                         Shayne Longpre, Stephen G. Pulman, and Srini-
+Gao (student researcher) in prototyping RARR. Im-        vas Chappidi. 2021. Open-domain question answer-
+plemented the final models, designed overall exper-      ing goes conversational via question rewriting. In
+iments, and obtained main results and ablations (to-     NAACL.
+gether with Ice Pasupat). Contributed many parts
+                                                       Isabelle Augenstein, Christina Lioma, Dongsheng
+of the writing.
+                                                          Wang, Lucas Chaves Lima, Casper Hansen, Chris-
+   Ice Pasupat: Implemented the final models, de-         tian Hansen, and Jakob Grue Simonsen. 2019. Mul-
+signed overall experiments, and obtained main re-         tiFC: A real-world multi-domain dataset for evidence-
+sults and ablations (together with Zhuyun Dai). Au-       based fact checking of claims. In EMNLP.
+tomated experimental infrastructure, conducted er-
+                                                       Vidhisha Balachandran, Hannaneh Hajishirzi, William
+ror analyses, and oversaw many parts of the paper        Cohen, and Yulia Tsvetkov. 2022. Correcting diverse
+writing.                                                 factual errors in abstractive summarization via post-
+   Anthony Chen: Developed the automatic evalu-          editing and language model infilling. In EMNLP.
+ation for attribution and preservation and worked
+                                                       Bernd Bohnet, Vinh Quang Tran, Pat Verga, Roee Aha-
+with Arun Chaganty to design human evaluation.
+                                                         roni, Daniel Andor, Livio Baldini Soares, Jacob
+Developed the open-source implementation (GPT-           Eisenstein, Kuzman Ganchev, Jonathan Herzig, Kai
+3 RARR), made improvements to prompts, and               Hui, Tom Kwiatkowski, Ji Ma, Jianmo Ni, Tal Schus-
+helped with writing.                                     ter, William W. Cohen, Michael Collins, Dipanjan
+                                                         Das, Donald Metzler, Slav Petrov, and Kellie Webster.
+   Arun Chaganty: Led and implemented all hu-            2022. Attributed question answering: Evaluation
+man evaluation. Proposed the two-dimensional             and modeling for attributed large language models.
+attribution + preservation metric (together with         ArXiv.
+Samuel R. Bowman, Gabor Angeli, Christopher Potts,        Shirley Anugrah Hayati, Raphaël Olivier, Pravalika Av-
+  and Christopher D. Manning. 2015. A large anno-           varu, Pengcheng Yin, Anthony Tomasic, and Graham
+  tated corpus for learning natural language inference.     Neubig. 2018. Retrieval-based neural code genera-
+  In EMNLP.                                                 tion. In EMNLP.
+
+Tom B. Brown, Benjamin Mann, Nick Ryder, Melanie          Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou,
+  Subbiah, Jared Kaplan, Prafulla Dhariwal, Arvind          Mantas Mazeika, Dawn Song, and Jacob Steinhardt.
+  Neelakantan, Pranav Shyam, Girish Sastry, Amanda          2021. Measuring massive multitask language under-
+  Askell, Sandhini Agarwal, Ariel Herbert-Voss,             standing. In ICLR.
+  Gretchen Krueger, T. J. Henighan, Rewon Child,
+  Aditya Ramesh, Daniel M. Ziegler, Jeff Wu, Clemens      Or Honovich, Roee Aharoni, Jonathan Herzig, Hagai
+  Winter, Christopher Hesse, Mark Chen, Eric Sigler,        Taitelbaum, Doron Kukliansy, Vered Cohen, Thomas
+  Mateusz Litwin, Scott Gray, Benjamin Chess, Jack          Scialom, Idan Szpektor, Avinatan Hassidim, and
+  Clark, Christopher Berner, Sam McCandlish, Alec           Y. Matias. 2022. TRUE: Re-evaluating factual con-
+  Radford, Ilya Sutskever, and Dario Amodei. 2020.          sistency evaluation. In Workshop on Document-
+  Language models are few-shot learners. In NeurIPS.        grounded Dialogue and Conversational Question An-
+                                                            swering.
+Mengyao Cao, Yue Dong, Jiapeng Wu, and Jackie
+                                                          Or Honovich, Leshem Choshen, Roee Aharoni, Ella
+ Chi Kit Cheung. 2020. Factual error correction for
+                                                            Neeman, Idan Szpektor, and Omri Abend. 2021.
+ abstractive summarization models. In EMNLP.
+                                                            Q2 : Evaluating factual consistency in knowledge-
+Danqi Chen, Adam Fisch, Jason Weston, and Antoine           grounded dialogues via question generation and ques-
+  Bordes. 2017. Reading Wikipedia to answer open-           tion answering. In EMNLP.
+  domain questions. In ACL.                               Hayate Iso, Chao Qiao, and Hang Li. 2020. Fact-based
+                                                            text editing. In ACL.
+Eunsol Choi, Jennimaria Palomaki, Matthew Lamm,
+  Tom Kwiatkowski, Dipanjan Das, and Michael              Georgi Karadzhov, Preslav Nakov, Lluís Màrquez, Al-
+  Collins. 2021. Decontextualization: Making sen-           berto Barrón-Cedeño, and Ivan Koychev. 2017. Fully
+  tences stand-alone. TACL, 9:447–461.                      automated fact checking using external sources. In
+                                                            RANLP.
+Aakanksha Chowdhery et al. 2022. PaLM: Scal-
+  ing language modeling with pathways. ArXiv,             Vladimir Karpukhin, Barlas Oğuz, Sewon Min, Patrick
+  abs/2204.02311.                                           Lewis, Ledell Yu Wu, Sergey Edunov, Danqi Chen,
+                                                            and Wen tau Yih. 2020. Dense passage retrieval for
+Nouha Dziri, Sivan Milton, Mo Yu, Osmar Zaiane, and         open-domain question answering. In EMNLP.
+  Siva Reddy. 2022. On the origin of hallucinations
+  in conversational models: Is it the datasets or the     Urvashi Khandelwal, Omer Levy, Dan Jurafsky, Luke
+  models? In NAACL.                                         Zettlemoyer, and Mike Lewis. 2020. Generalization
+                                                            through memorization: Nearest neighbor language
+Alexander R. Fabbri, Wojciech Kryscinski, Bryan Mc-         models. In ICLR.
+  Cann, Richard Socher, and Dragomir Radev. 2021.
+  SummEval: Re-evaluating summarization evaluation.       Tushar Khot, Ashish Sabharwal, and Peter Clark. 2018.
+  TACL, 9:391–409.                                          SciTaiL: A textual entailment dataset from science
+                                                            question answering. In AAAI.
+Angela Fan, Yacine Jernite, Ethan Perez, David Grang-
+  ier, Jason Weston, and Michael Auli. 2019. ELI5:        Kalpesh Krishna, Aurko Roy, and Mohit Iyyer. 2021.
+  Long form question answering. In ACL.                     Hurdles to progress in long-form question answering.
+                                                            In NAACL.
+Angela Fan, Aleksandra Piktus, Fabio Petroni, Guil-       Wojciech Kryscinski, Bryan McCann, Caiming Xiong,
+  laume Wenzek, Marzieh Saeidi, Andreas Vlachos,           and Richard Socher. 2020. Evaluating the factual
+  Antoine Bordes, and Sebastian Riedel. 2020. Gener-       consistency of abstractive text summarization. In
+  ating fact checking briefs. In EMNLP.                    EMNLP.
+Mor Geva, Daniel Khashabi, Elad Segal, Tushar Khot,       Tom Kwiatkowski et al. 2019. Natural Questions: A
+ Dan Roth, and Jonathan Berant. 2021. Did Aristotle         benchmark for question answering research. TACL,
+ use a laptop? a question answering benchmark with          7:453–466.
+ implicit reasoning strategies. TACL, 9:346–361.
+                                                          Kenton Lee, Ming-Wei Chang, and Kristina Toutanova.
+Tanya Goyal and Greg Durrett. 2021. Annotating and          2019. Latent retrieval for weakly supervised open
+  modeling fine-grained factuality in summarization.        domain question answering. In ACL.
+  In NAACL.
+                                                          Kenton Lee, Kelvin Guu, Luheng He, Timothy Dozat,
+Kelvin Guu, Kenton Lee, Zora Tung, Panupong Pasupat,        and Hyung Won Chung. 2021.         Neural data
+  and Ming-Wei Chang. 2020. REALM: Retrieval-               augmentation via example extrapolation. ArXiv,
+  augmented language model pre-training. In ICML.           abs/2102.01335.
+Vladimir I. Levenshtein. 1965. Binary codes capable of      Fabio Petroni, Tim Rocktäschel, Patrick Lewis, An-
+  correcting deletions, insertions, and reversals. Soviet     ton Bakhtin, Yuxiang Wu, Alexander H. Miller, and
+  physics. Doklady, 10:707–710.                               Sebastian Riedel. 2019. Language models as knowl-
+                                                              edge bases? In EMNLP.
+Patrick Lewis, Ethan Perez, Aleksandara Piktus, Fabio
+  Petroni, Vladimir Karpukhin, Naman Goyal, Hein-           Aleksandra Piktus, Fabio Petroni, Vladimir Karpukhin,
+  rich Kuttler, Mike Lewis, Wen tau Yih, Tim Rock-            Dmytro Okhonko, Samuel Broscheit, Gautier Izacard,
+  täschel, Sebastian Riedel, and Douwe Kiela. 2020.           Patrick Lewis, Barlas Ouguz, Edouard Grave, Wen
+  Retrieval-augmented generation for knowledge-               tau Yih, and Sebastian Riedel. 2021. The web is your
+  intensive NLP tasks. In NeurIPS.                            oyster - knowledge-intensive nlp against a very large
+                                                              web corpus. ArXiv, abs/2112.09924.
+Robert L Logan IV, Alexandre Passos, Sameer Singh,
+  and Ming-Wei Chang. 2022. FRUIT: Faithfully re-           Colin Raffel, Noam M. Shazeer, Adam Roberts, Kather-
+  flecting updated information in text. In NAACL.             ine Lee, Sharan Narang, Michael Matena, Yanqi
+                                                              Zhou, Wei Li, and Peter J. Liu. 2020. Exploring the
+Shayne Longpre, Kartik Kumar Perisetla, Anthony               limits of transfer learning with a unified text-to-text
+  Chen, Nikhil Ramesh, Chris DuBois, and Sameer               transformer. JMLR, 21.
+  Singh. 2021. Entity-based knowledge conflicts in          Hannah Rashkin, Vitaly Nikolaev, Matthew Lamm,
+  question answering. In EMNLP.                               Lora Aroyo, Michael Collins, Dipanjan Das, Slav
+                                                              Petrov, Gaurav Singh Tomar, Iulia Turc, and David
+Joshua Maynez, Shashi Narayan, Bernd Bohnet, and              Reitter. 2021. Measuring attribution in natural lan-
+  Ryan T. McDonald. 2020. On faithfulness and factu-          guage generation models. ArXiv, abs/2112.12870.
+  ality in abstractive summarization. In ACL.
+                                                            Adam Roberts, Colin Raffel, and Noam M. Shazeer.
+Jacob Menick, Maja Trebacz, Vladimir Mikulik,                 2020. How much knowledge can you pack into the
+  John Aslanides, Francis Song, Martin Chadwick,              parameters of a language model? In EMNLP.
+   Mia Glaese, Susannah Young, Lucy Campbell-
+   Gillingham, Geoffrey Irving, and Nathan McAleese.        Timo Schick, Jane Dwivedi-Yu, Zhengbao Jiang, Fabio
+   2022. Teaching language models to support answers          Petroni, Patrick Lewis, Gautier Izacard, Qingfei You,
+  with verified quotes. ArXiv, abs/2203.11147.                Christoforos Nalmpantis, Edouard Grave, and Sebas-
+                                                              tian Riedel. 2022. PEER: A collaborative language
+Reiichiro Nakano, Jacob Hilton, S. Arun Balaji, Jeff          model. ArXiv, abs/2208.11663.
+  Wu, Long Ouyang, Christina Kim, Christopher
+  Hesse, Shantanu Jain, Vineet Kosaraju, William            Tal Schuster, Adam Fisch, and Regina Barzilay. 2021.
+  Saunders, Xu Jiang, Karl Cobbe, Tyna Eloundou,              Get your vitamin C! robust fact verification with con-
+  Gretchen Krueger, Kevin Button, Matthew Knight,             trastive evidence. In NAACL.
+  Benjamin Chess, and John Schulman. 2021. We-              Darsh J. Shah, Tal Schuster, and Regina Barzilay. 2020.
+  bGPT: Browser-assisted question-answering with hu-          Automatic fact-guided sentence modification. In
+  man feedback. ArXiv, abs/2112.09332.                        AAAI.
+Shashi Narayan, Joshua Maynez, Reinald Kim Am-              Richard Shin, Christopher H Lin, Sam Thomson,
+  playo, Kuzman Ganchev, Annie Louis, Fantine Huot,           Charles Chen, Subhro Roy, Emmanouil Antonios
+  Dipanjan Das, and Mirella Lapata. 2022. Condi-              Platanios, Adam Pauls, Dan Klein, Jason Eisner, and
+  tional generation with a question-answering blueprint.      Benjamin Van Durme. 2021. Constrained language
+  ArXiv, abs/2207.00397.                                      models yield few-shot semantic parsers. In EMNLP.
+Tri Nguyen, Mir Rosenberg, Xia Song, Jianfeng Gao,          Romal Thoppilan et al. 2022. LaMDA: Language mod-
+   Saurabh Tiwary, Rangan Majumder, and Li Deng.              els for dialog applications. ArXiv, abs/2201.08239.
+   2016. MS MARCO: A human generated machine
+   reading comprehension dataset. In CoCo@NIPS.             James Thorne and Andreas Vlachos. 2021. Evidence-
+                                                              based factual error correction. In ACL.
+Jianmo Ni, Chen Qu, Jing Lu, Zhuyun Dai, Gus-
+                                                            James Thorne,        Andreas Vlachos,         Christos
+   tavo Hernández Ábrego, Ji Ma, Vincent Zhao,
+                                                              Christodoulopoulos, and Arpit Mittal. 2018.
+   Yi Luan, Keith B. Hall, Ming-Wei Chang, and Yinfei
+                                                              FEVER: a large-scale dataset for fact extraction and
+   Yang. 2021. Large dual encoders are generalizable
+                                                              verification. In NAACL.
+   retrievers. ArXiv, abs/2112.07899.
+                                                            David Wadden, Kyle Lo, Lucy Lu Wang, Shanchuan
+Maxwell Nye, Anders Johan Andreassen, Guy Gur-Ari,            Lin, Madeleine van Zuylen, Arman Cohan, and Han-
+ Henryk Michalewski, Jacob Austin, David Bieber,              naneh Hajishirzi. 2020. Fact or fiction: Verifying
+ David Dohan, Aitor Lewkowycz, Maarten Bosma,                 scientific claims. In EMNLP.
+ David Luan, Charles Sutton, and Augustus Odena.
+ 2021. Show your work: Scratchpads for interme-             Alex Wang, Kyunghyun Cho, and Mike Lewis. 2020.
+ diate computation with language models. ArXiv,               Asking and answering questions to evaluate the fac-
+ abs/2112.00114.                                              tual consistency of summaries. In ACL.
+William Yang Wang. 2017. “Liar, liar pants on fire”: A      datasets. We will release this open-source version
+  new benchmark dataset for fake news detection. In         of RARR that uses GPT-3 as the backbone.
+ ACL.
+                                                            Results on GPT-3 passages Table 5 shows au-
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten
+                                                            tomated evaluation results on passages generated
+   Bosma, Ed Chi, Quoc Le, and Denny Zhou. 2022.
+   Chain of thought prompting elicits reasoning in large    by GPT-3. The results follow the same trend as the
+   language models. ArXiv, abs/2201.11903.                  results on PaLM and LaMDA passages.
+Adina Williams, Nikita Nangia, and Samuel R. Bow-           Challenging domains We report results on tasks
+  man. 2018. A broad-coverage challenge corpus              where attribution was particularly hard, and signifi-
+  for sentence understanding through inference. In
+                                                            cant future work is needed.
+  NAACL.
+                                                                 We considered news article summaries produced
+Jingyi Zhang, Masao Utiyama, Eiichiro Sumita, Gra-          by summarization models from SummEval (Fabbri
+   ham Neubig, and Satoshi Nakamura. 2018. Guiding          et al., 2021) (e.g., “John Doe was left homeless
+   neural machine translation with retrieved translation
+   pieces. In NAACL.
+                                                            when the storms hit Staten Island, New York . . . ”).
+                                                            Results are shown in Table 6. First, we note that the
+Yuan Zhang, Jason Baldridge, and Luheng He. 2019.           before-edit auto-AIS scores for all models are low.
+  PAWS: Paraphrase adversaries from word scrambling.        These news article summaries are often about less
+  In NAACL.
+                                                            widely known people and events, which is chal-
+A    Additional experiments and analysis                    lenging for retrievers, leading to low attribution.
+                                                            For example, our query generator may ask “where
+Model variance The main experiments in Sec-                 does John Doe live” but get results for a different
+tion 5 are based on a single run. We ran automated          John Doe. EFEC and LaMDA also face this issue,
+evaluation on 3 random runs of RARR, using PaLM             but instead trade preservation for attribution and
+outputs on NQ as input passages. The standard de-           rewrite the text to a different topic. This result sug-
+viations of Attrauto , PresLev , and F1AP are 1.2, 0.5,     gests that using web search with standard question
+and 1.0 respectively.                                       generation methods may fail to capture important
+                                                            context from the input, and is not sufficient for the
+Impact of the retriever choice We tried using
+                                                            attribution task.
+Microsoft Bing in place of Google Search, with
+                                                                 We also considered long-form explanations gen-
+near identical results (< 1% difference).
+                                                            erated by PaLM for the ELI5 dataset (Fan et al.,
+Impact of model scale Many components in                    2019) (Table 6). ELI5 was collected from online
+RARR work by few-shot prompting PaLM, a large               forums, so many answers tend to have subjective
+540B parameter LM. To assess the benefit of LM              opinions instead of specific entities and facts (e.g.,
+scaling, we replaced PaLM 540B with a smaller              “How do our brains interpret scary music? To me,
+62B parameter PaLM. As shown in Table 4, we                 scary music often sounds a little bit like a person
+found that 540B outperforms 62B by a large mar-             . . . ”), and are thus difficult to attribute. Sometimes
+gin, suggesting that RARR could potentially further         the whole output is based on a false premise and
+improve with even more scaling. We also experi-             needs to be completely rewritten, in which case
+mented with keeping the editor stage at 540B while          RARR cannot satisfactorily edit due to our revision
+shrinking the query generation stage to 64B — this          threshold (Section 3.2).
+yielded a relatively small performance drop, sug-                Finally, we considered technical explanations
+gesting that model scaling is more important for            to questions from the MMLU dataset (Hendrycks
+the editor.                                                 et al., 2021) which covers diverse subjects from
+                                                            social science, humanities, STEM, and others.4 An
+Impact of model type Few-shot prompting has                 example input looks like “Every time you remove
+proven to be effective for many recent large lan-           an edge from a complete graph, you divide it into
+guage models. We try replacing the query genera-            two connected components. So, a complete graph
+tion model, agreement model, and edit model with            with 13 vertices must have 12 connected compo-
+GPT-3 text-davinci-003. The few-shot prompts                nents.” Results are shown in Table 7. RARR im-
+were slightly tuned to fit the GPT-3 model. Table 4            4
+                                                                 MMLU has questions from 57 subjects; we took 10 ran-
+shows the results, which are slightly better than           dom question from each topic and generated answer explana-
+RARR implemented with PaLM 540B on all three                tions by prompting PALM 540B.
+                                     PaLM outputs on NQ                           PaLM outputs on SQA               LaMDA outputs on QReCC
+    Model                           Attrauto           PresLev      F1AP         Attrauto       PresLev    F1AP        Attrauto     PresLev    F1AP
+    Full RARR                 45.6 → 54.9               89.6        68.1      37.6 → 45.1        89.9      60.0     18.8 → 29.4      80.2      43.1
+    qgen 62B, editor 540B     45.9 → 54.6               87.8        67.4      37.0 → 40.5        90.0      55.9     15.8 → 28.4      76.1      41.4
+    qgen 62B, editor 62B      45.9 → 49.9               91.0        64.4      37.0 → 38.3        93.0      54.2     15.8 → 21.9      71.6      33.5
+    GPT-3                     44.3 → 55.0               90.6        68.5      38.6 → 46.6        89.3      61.2     18.3 → 28.6      89.8      43.4
+
+Table 4: Additional ablation results. We report the automatic metrics: Attrauto , PresLev , and harmonic mean
+between the two (F1AP ). We show auto-AIS scores both before and after editing (before → edit), with respect to the
+attribution report A produced by the model.
+
+                            GPT-3 outputs on NQ                              GPT-3 outputs on SQA                  GPT-3 outputs on QReCC
+     Model                Attrauto         PresLev          F1AP            Attrauto        PresLev     F1AP        Attrauto      PresLev     F1AP
+     EFEC               48.3 → 66.8             41.5         51.2         32.6 → 50.6        29.4       37.2      26.4 → 53.1      39.0       44.9
+     LaMDA              36.2 → 61.1             45.9         52.4         22.3 → 27.3        43.3       33.5      19.0 → 33.9      28.3       30.8
+     PaLM RARR          48.3 → 57.2             89.6         69.8         32.6 → 36.3        91.6       52.0      26.4 → 31.1      87.7       45.9
+     GPT-3 RARR         48.0 → 59.3             91.8         72.0         34.7 → 37.0        91.8       52.8      23.2 → 25.3      89.7       39.5
+
+Table 5: Results on passages from GPT-3. We report the automatic metrics: Attrauto , PresLev , and harmonic mean
+between the two (F1AP ). We show auto-AIS scores both before and after editing (before → edit), with respect to the
+attribution report A produced by the model. The results show similar trends as the results on passages from PaLM
+and LaMDA in Table 1.
+
+
+         Model           Attrauto         PresLev           F1AP                   (More recent models gave similar results.) While
+                           SummEval                                                each sentence may contain multiple claims that
+         EFEC          17.9 → 34.6  20.9                    26.0                   could be attributed independently, there is currently
+         LaMDA         10.3 → 28.8  28.1                    28.4
+         RARR          18.3 → 16.9  92.9                    28.6
+                                                                                   no linguistic consensus on what constitutes a claim.
+                                                                                   Instead of depending on a particular definition of
+                             ELI5
+         EFEC          18.2 → 41.2             17.2         24.2                   claims, we use sentences as claims for simplicity
+         LaMDA         19.9 → 40.1             31.2         35.1                   and reproducibility. The same segmentation is also
+         RARR          18.5 → 18.9             97.2         31.7                   used for human evaluation.
+       Table 6: Results on ELI5 and SummEval.                                      Decontextualization We decontextualize each
+                                                                                   sentence in the text passage before computing the
+                                          RARR                                     attribution score. We use the model from Choi
+     MMLU Category            Attrauto       PresLev             F1AP
+                                                                                   et al. (2021), which is a T5 model fine-tuned to
+     Humanities            26.6 → 29.6                6.6          45.0
+     Social Sciences       35.5 → 40.7                7.6          56.5
+                                                                                   map the input “[HEAD] [SEP] context and pas-
+     STEM                  37.8 → 41.5                7.2          57.4            sage [start] sentence [end]” to the output
+     Other                 36.9 → 41.7                7.1          57.6            “[OPCODE] decontextualized sentence”, where the
+                                                                                   OPCODE can be “done” (success), “un” (unneces-
+            Table 7: RARR results on MMLU.
+                                                                                   sary), or “imp” (impossible). We feed the passage’s
+                                                                                   context (questions for NQ and SQA; dialog context
+proves attribution of the explanations on all four                                 for QRECC) along with the passage itself to the
+categories of MMLU, although the increases are                                     input. We use beam search with beam size 8 and
+relatively small. We also found that RARR’s per-                                   discard any result whose number of tokens differ
+formance is low on examples with mathematical                                      by more than 4.
+reasoning, as these are beyond the capability of the
+                                                                                   NLI model We obtained a newer version of
+edit model with our current prompt.
+                                                                                   the end-to-end NLI model from the authors of
+B     Details on automated evaluation                                              Honovich et al. (2022), which was trained on
+                                                                                   MNLI, SNLI, FEVER, PAWS, SciTail and Vita-
+Sentence splitting When computing the attri-                                       minC (Williams et al., 2018; Bowman et al., 2015;
+bution score, we use spaCy en_core_web_sm                                          Thorne et al., 2018; Zhang et al., 2019; Khot et al.,
+v3.0.0a1 to segment the text passage into sentences.                               2018; Schuster et al., 2021). The model is a T5
+                                                             responses during the pilot annotation runs. We had
+                                                             3 annotators rate each example in the pilot phase
+                                                             to measure inter-annotator agreement, and had a
+                                                             single rater annotate each example afterwards.
+
+                                                             C.1    Instructions: Overview
+                                                             In this task you will evaluate the quality of text
+                                                             generated by a system (the “passage”) based on
+                                                             how well it represents information from multiple
+                                                             pieces of “evidence”.
+                                                                We will be using two categories to evaluate the
+Figure 10: Violin plot illustrating the strong correlation   quality of the passage: Attribution and Intent
+between human AIS and auto-AIS labels on our NQ              Similarity. You will evaluate these categories in
+benchmark. Pearson correlation is 0.74 (N=450). y-           succession. In some tasks, you will only evalu-
+axis is auto-AIS score, the two violins correspond to a      ate Attribution. The task interface will guide you
+human label of 0 or 1.                                       through the flow; you can also see the overall task
+                                                             flow in the diagram below.
+model fine-tuned to map the input “premise: evi-                Note: The passage may appear very fluent and
+dence hypothesis: claim sentence” to either “1”              well-formed, but still contain slight inaccuracies
+(entailed) or “0” (not entailed). As suggested by            that are not easy to discern at first glance. Pay close
+the authors, we use the probability of producing “1”         attention to the text. Read it carefully as you would
+as the entailment score.                                     when proofreading.
+
+Comparing human and automated evaluation                     C.2    Instructions: Attribution
+We conducted correlation studies between human               In this step, you will evaluate how much of the
+and automatic metrics and found strong Pearson               passage is attributable to one or more pieces of
+correlation (attribution = 0.74; preservation = 0.62).       evidence (Figure 11).
+We visualize the correlation between human and                  In the interface, the passage of text and the con-
+automated attribution scores on NQ and SQA in                text in which it was generated is shown on the left,
+Figure 10. We found that the AIS scores from                 and each piece of evidence is shown on the right.
+human correlate well with auto-AIS scores, with              You will use all three (context, passage, evidence)
+some bias for non-attributed sentences to be judged          to answer the following question for each sentence
+as attributed by auto-AIS.                                   in the passage: Is all of the information provided by
+                                                             this sentence fully supported by at least one piece
+C    Details on human evaluation                             of evidence?
+To end-goal of RARR is to improve the attribu-               Determining the information provided by the
+tion of generation models through post-editing               sentence. Three points are key when determining
+while preserving the original intent. Attribution            information provided by the sentence:
+and preservation are both subjective properties that
+may change with even small edits. In the main                  1. The context and the other sentences of the
+paper, we present two automatic metrics to conve-                 passage are often critical in understanding the
+niently gauge these properties, but rely on a human               information provided by the sentence.
+evaluation as the gold standard. In this section,
+                                                               2. The context should only be used to understand
+we describe how we conducted the human evalua-
+                                                                  the information provided by the sentence.
+tion and what instructions and examples annotators
+were provided.                                                 3. The evidence should be completely ignored
+                                                                  for this step.
+Rater recruitment and training We engaged
+with a vendor supplier of full-time crowd workers              Consider the following example:
+to recruit human annotators for our task. Anno-
+tators were asked to review the instructions be-                   Context: who plays doug williams in
+low and were provided direct feedback on their                     days of our lives
+Figure 11: Screenshot of interface to annotate attribution at the sentence level. annotators were asked to mark
+sentences as being fully attributable or not fully attributable by clicking each sentence, and rating each piece of
+evidence as being useful or not in helping determine attribution of the passage. Annotators were also presented with
+the context of the generation.
+
+
+
+
+Figure 12: Screenshot of the preservation interface. Annotators are asked to read compare two passages and rate
+how similar the intent conveyed by the two passages is.
+     Passage: In the American daytime                    In general, use your best judgment to determine
+     drama Days of Our Lives, Doug                    the information provided by the passage. If the
+     Williams and Julie Williams are por-             passage is hard to understand and you are unsure
+     trayed by Bill Hayes and Susan Seaforth          what the intended meaning of the passage is, mark
+     Hayes.                                           the sentences as not attributed and enter a comment
+                                                      with an explanation. As one example, take the
+                                                      following:
+  In the above example, the meaning of the pas-
+sage is clear even without seeing the query. But           Context: how many NBA championships
+consider another example:                                  did Michael Jordan win?
+                                                           Passage: it is the best team in the NBA
+     Context: who plays doug williams in
+     days of our lives                                Determining if the information accurately repre-
+     Passage: he is played by Bill Hayes              sents the evidence. Two points are key when de-
+     Passage (interpreted): Doug Williams is          termining whether the information accurately rep-
+     played by Bill Hayes in days of our lives        resents the evidence: When interpreting a piece of
+  In this case the pronoun “he” depends on the        evidence, use only the title and text of that specific
+context, but it is clear that the intended meaning    evidence. Completely ignore the context, passage
+of the passage can be reasonably interpreted as       and all other evidence. Check all the information in
+“Doug Williams is played by Bill Hayes in days of     a sentence. If only some information is supported
+our lives”. This interpretation is the “information   by the evidence, mark the sentence as not fully
+provided by the passage”.                             attributable.
+  Pronouns such as he/she/it/they etc. are one case      Consider the following example:
+where context is needed to figure out the intended         Context: when did reba mcentire record
+meaning of the system response. Here’s another             back to god
+example (given with paraphrases of the information         Passage: Back to God was released by
+highlighted below):                                        McEntire in 2017.
+     Context: when is the last time the us lost            Evidence: “Back to God” is a song per-
+     basketball at the olympics                            formed by American singer, Reba McEn-
+     Passage: The last time they lost was in               tire. It was released as the second sin-
+     2004, when Argentina defeated the US                  gle from her 2017 album, Sing it Now:
+     89–79. Most recently, they won gold in                Songs of Faith & Hope, on January 20,
+     2016.                                                 2017.
+     Passage (interpreted): The last time             In the above example, it is reasonable to conclude
+     the United States lost basketball at the         that the evidence supports all the information in
+     Olympics was in 2004.                            the passage, and we can mark the passage as being
+   The context should only be used to determine       fully attributable. But consider another example:
+the information provided by the passage; at times,
+                                                           Context: who won the womens 2017
+the passage may be about a slightly different topic
+                                                           ncaa basketball tournament
+than the context, for example:
+                                                           Passage: South Carolina Gamecocks
+     Context: the south west wind blows                    won the 2017 NCAA Women’s Division
+     across nigeria between                                I Basketball Tournament.
+     Passage: The Harmattan is a dry and                   Evidence: The South Carolina Game-
+     dusty northeasterly trade wind that blows             cocks defeated the Mississippi State Bull-
+     across West Africa from December to                   dogs, 67–55, to claim their first-ever na-
+     March. It is very dusty because it blows              tional championship.
+     across the Sahara.
+                                                        In this case, while the evidence also mentions the
+  Here, the passage talks about a northeasterly       “South Carolina Gamecocks”, it isn’t clear that the
+wind, while the context asks about a south-west       national championship being mentioned is indeed
+wind, but the passage can be fully understood.        the 2017 NCAA Women’s Division I Basketball
+Tournament. The passage should be marked as not            • More on the concept of “accurate represen-
+attributable.                                                tation”. We take as inspiration the journalist’s
+   Finally, when the passage contains multiple sen-          conception of “accurate representation”. For
+tences, evaluate whether each sentence can be fully          example, take this excerpt on Accuracy in the
+attributed to one or more pieces of evidence—it              NPR Ethics Handbook: “When quoting or
+is possible for one sentence to be attributed while          paraphrasing anyone . . . consider whether the
+another is not. For example:                                 source would agree with the interpretation...”
+                                                             In other words, if you had written the source
+     Context: who won the womens 2017                        document, consider whether you would view
+     ncaa basketball tournament                              the system response as an accurate representa-
+     Passage: South Carolina Gamecocks                       tion of information in that source document.
+     won the 2017 NCAA Women’s Division
+     I Basketball Tournament. The final score           C.3    Instructions: Intent Similarity
+     is 67-55. The championship game was
+                                                        In this step, you will evaluate how much similar
+     held in Dallas, Texas.
+                                                        the passage is to another passage (Figure 12).
+     Evidence 1: The South Carolina Game-
+                                                           In the interface, the passage A and passage B are
+     cocks defeated the Mississippi State Bull-
+                                                        both text generated by a system—given the same
+     dogs, 67–55, to claim their first-ever na-
+                                                        context in which it was generated. You will use
+     tional championship.
+                                                        all three (context, passage A, passage B) to answer
+     Evidence 2: The 2017 NCAA Women’s
+                                                        the following question: How similar is the intent
+     Division I Basketball Tournament was
+                                                        expressed by Passage A and Passage B? Please
+     played from Friday, March 17 to Sun-
+                                                        ignore any differences in details.
+     day, April 2, 2017, with the Final Four
+                                                           Two points are key when determining whether
+     played at the American Airlines Center
+                                                        the two passages convey the same intent:
+     in Dallas, Texas on March 31 and April
+     2.                                                   1. Judge the similarity solely based on the simi-
+                                                             larity in the type and quantity of information
+   The first two sentences cannot be attributed to           provided by each passage.
+either evidence for the same reason as the previous
+example, but the last sentence is fully supported by      2. Ignore any differences in factual details be-
+Evidence 2 and should be marked as attributed.               tween the two passages.
+   In general, you should use your best judgment
+                                                          Consider the following examples:
+in determining whether all of the information pro-
+vided by the passage is “an accurate representation           Context: who pays medical bills in great
+of information in at least one evidence”. See Table           britain where does the money come from
+8 for additional examples.                                    to pay these bills
+   We give the following final notes of guidance:             Passage A: Britain’s National Health
+                                                              Service (NHS) is paid for through gen-
+   • Marking evidence as useful. When review-                 eral taxation and national insurance. In
+     ing each piece of evidence, mark it as useful            2017/18, the NHS budget was £176.5bn.
+     if it helps you judge the attributability of any         Passage B: Britain’s National Health Ser-
+     sentence, and mark it not useful if not. In              vice (NHS) is paid for through general
+     the above example Evidence 1 is not useful               taxation. In 2017/18, the NHS budget
+     because it didn’t contain enough context to              was £118bn.
+     actually help you assess if the passage was              Rating: Very similar. Passage A is about
+     attributable, but Evidence 2 was useful.                 the same topic as Passage B, with a sim-
+                                                              ilar level of detail and style of presenta-
+   • Contradicting evidence. Mark a sentence as               tion. They may differ in factual details.
+     being attributed if any piece of evidence sup-
+     ports it: if two pieces of evidence contradict        The above example should be rated “very similar”
+     each other, but one of them supports the pas-      because both passages include information about
+     sage, mark the sentence as fully attributable.     (1) how the NHS is paid for, and (2) what its budget
+Context + Passage                     Evidences                                                    Notes
+Context: who played morticia in       1/ The Addams Family (1973 TV series): The Addams            While the evidence supports the
+the addams family tv show             Family is an American animated sitcom adaptation of the      show being aired in 1973, it
+The Addams Family is an Amer-         Charles Addams comic. The series was produced in 1973        doesn’t specify the exact date
+ican animated sitcom TV series.       and was rebroadcast the following season.                    (September 24, 1973).
+It was first aired on NBC on          2/ The Addams Family (TV Series 1964–1966): When             Similarly, while the evidence
+September 24, 1973. Carolyn           The Addams Family went off the air in 1966, network          mentions Carolyn Jones as be-
+Jones played the role of Morti-       executives in charge of children’s programming for NBC       ing a voice actor, it doesn’t say
+                                      brought them back in 1973 for their own Saturday Morn-       she played the role of Mortica.
+cia.                                  ing cartoon show featuring the voices of Carolyn Jones
+                                      from the original series.
+  Context: when will the la           1/ Sagrada Família - Wikipedia: The Basílica i Temple Ex-    While Evidence 2 mentions
+sagrada familia be finished           piatori de la Sagrada Família is a church in the Eixample    Gaudi, it isn’t clear this is a ref-
+The La Sagrada Familia is a           district of Barcelona, Catalonia, Spain, and is currently    erence to Antoni Gaudi and fur-
+large Roman Catholic church in        the largest unfinished Roman Catholic church.                ther doesn’t say that he designed
+Barcelona. It is designed by An-      2/ Find Out Sagrada Familia’s Expected Finish Date: Vis-     the church.
+toni Gaudi. It started construc-      iting the breathtaking Sagrada Familia today also means
+tion in 1882, and the construc-       witnessing the slow progress towards the completion of the
+                                      project. Sagrada Familia is now expected to be completed
+tion is still going on. The esti-     in 2026, the centenary of Gaudi’s death. It’s a reasonable
+mated date to finish is 2026.         inference that La Sagrada Familia is the same as Sagrada
+                                      Familia, even though the names differ slightly.
+
+                                    Table 8: Additional examples for annotating attribution.
+
+
+in 2017/18 was, though they differ in their actual                  ident of and (3a) who their vice-president is. In
+answers to these questions.                                         contrast, while Passage B shares information about
+                                                                    (1a), it also includes information about (2b) how
+      Context: who is the owner of reading                          the Reading owner made their fortune, (3b) their
+      football club                                                 company position and how long they held it for and
+      Passage A: Reading’s owner is Yongge                          (4b) what the company also owns.
+      Dai. Yongge Dai is also the president of
+      Chinese company Dai Yongge Real Es-                                  Context: what is the numbers of total
+      tate. Yongge’s son, Dai Xiu Li, is Read-                             elected member of indian parliment in
+      ing’s vice-president.                                                present time
+      Passage B: Reading’s owner is Dai                                    Passage A: The total number of elected
+      Yongge. Yongge’s brother and sister pair                             members of the Lok Sabha is 543.
+      behind the Reading FC takeover—Dai                                   Passage B: The total number of elected
+      Yongge and Dai Xiu Li—has made their                                 members of the Rajya Sabha is 238.
+      fortune through a massive property em-                               Rating: Not at all similar. Passage A is
+      pire. Mr Dai, has been the chairman of                               about a significantly different topic than
+      Renhe Commercial since 1999, which                                   Passage B.
+      is an organisation owned by his sister
+      behind a vast network of underground                              Even though the passages look very similar, the
+      shopping centres in China.                                     above example should be rated “not at all similar”
+      Rating: Somewhat similar. Passage A is                         because the two passages are about significantly
+      about the same topic as Passage B, but                         different topics: “the Lok Sabha” vs “the Rajya
+      differs substantially in level of detail or                    Sabha”.
+      style of presentation. They may differ in
+                                                                     D     Details on the model
+      factual details.
+                                                                     Few-shot prompting with LLMs We imple-
+   The above example should be rated “somewhat                       ment many sub-tasks within RARR using few-
+similar” because both passages are still about the                   shot prompting of LLMs (also known as in-context
+same topic—Reading’s owner— but differ substan-                      learning (Brown et al., 2020)) as follows:
+tially in the information they discuss: Passage A
+includes information about (1a) who Reading’s                            1. For each sub-task, we manually author
+owner is, (2a) which company they are the pres-                             a small number of training examples:
+      (inputj , outputj ) for j = 1, . . . , J, where
+      J ranges between 5 and 10 and where both
+      the input and output are strings.
+
+    2. We form the following prompt: input1 ⋄
+       output1 ⊕input2 ⋄output2 ⊕. . .⊕inputJ ⋄
+       outputJ ⊕ new_input, where ⋄ denotes a
+       newline character and ⊕ denotes a double
+       newline character.
+
+    3. To perform inference on a new input, we con-
+       dition the LLM on the prompt and sample
+       continuations of the prompt up until the next
+       double newline character.
+
+All of our prompts are included in Figures 13, 14,
+and 15. The contextual version used for QReCC
+are in Figures 16, 17, and 18.
+Model statistics We implemented most parts of
+RARR with the PALM model which has 540B pa-
+rameters. We prompted PALM without any train-
+ing or finetuning. We used a TPU v2-128 to run
+inference with PALM.
+   We manually wrote our prompts by eye-balling
+quality on a dozen of examples from a separate
+validation set. We tune our hyperparameters on the
+validation set as well. We used sampling temper-
+ature 0.7 for all generation tasks. For each input
+text, we sample 3 question generations, and for
+each question we retrieve 5 results. For agreement
+gate and editing, we only sample 1 generation. We
+reject an editing if the edit distance is more than
+50 characters or more than half of the original text
+length.
+
+E     Details on the dataset
+As explained in Section 5.1, we generated 150 de-
+velopment and 150 test passages for each of the 6
+combinations of dataset and model: (NQ, PaLM),
+(SQA, PaLM), (QReCC, LaMDA), (NQ, GPT-3),
+(SQA, GPT-3), (QReCC, GPT-3). Figures 19, 20,
+21, and 22 are the few-shot prompts used to gener-
+ate the passages.
+   Following the corresponding datasets, all gener-
+ated passages are in English. The authors have man-
+ually looked through most of the data and found no
+personal identifiers.
+   1   [web] I will check things you said and ask questions.
+   2
+   3   (1) You said: Your nose switches back and forth between nostrils. When you sleep, you switch about every 45 minutes. This
+       is to prevent a buildup of mucus. It’s called the nasal cycle.
+   4   To verify it,
+   5   a) I googled: Does your nose switch between nostrils?
+   6   b) I googled: How often does your nostrils switch?
+   7   c) I googled: Why does your nostril switch?
+   8   d) I googled: What is nasal cycle?
+   9
+  10   (2) You said: The Stanford Prison Experiment was conducted in the basement of Encina Hall, Stanford’s psychology building.
+  11   To verify it,
+  12   a) I googled: Where was Stanford Prison Experiment was conducted?
+  13
+  14   (3) You said: The Havel-Hakimi algorithm is an algorithm for converting the adjacency matrix of a graph into its adjacency
+       list. It is named after Vaclav Havel and Samih Hakimi.
+  15   To verify it,
+  16   a) I googled: What does Havel-Hakimi algorithm do?
+  17   b) I googled: Who are Havel-Hakimi algorithm named after?
+  18
+  19   (4) You said: "Time of My Life" is a song by American singer-songwriter Bill Medley from the soundtrack of the 1987 film
+       Dirty Dancing. The song was produced by Michael Lloyd.
+  20   To verify it,
+  21   a) I googled: Who sings "Time of My Life"?
+  22   b) I googled: Which film is "Time of My Life" from?
+  23   c) I googled: Who produced the song "Time of My Life"?
+  24
+  25   (5) You said: Kelvin Hopins was suspended from the Labor Party due to his membership in the Conservative Party.
+  26   To verify it,
+  27   a) I googled: Why was Kelvin Hopins suspended from Labor Party?
+  28
+  29   (6) You said: Social work is a profession that is based in the philosophical tradition of humanism. It is an intellectual
+       discipline that has its roots in the 1800s.
+  30   To verify it,
+  31   a) I googled: What philosophical tradition is social work based on?
+  32   b) I googled: What year does social work has its root in?
+  33
+  34   (7) You said: {text}
+  35   To verify it,
+  36   _____
+
+
+
+Figure 13: Few-shot prompt for query generation. To increase diversity and coverage, we sample the model three
+times and combine the resulting lists of queries.
+ 1   [web] I will check some things you said.
+ 2
+ 3   (1) You said: Your nose switches back and forth between nostrils. When you sleep, you switch about every 45 minutes. This
+     is to prevent a buildup of mucus. It’s called the nasal cycle.
+ 4   I checked: How often do your nostrils switch?
+ 5   I found this article: Although we don’t usually notice it, during the nasal cycle one nostril becomes congested and thus
+     contributes less to airflow, while the other becomes decongested. On average, the congestion pattern switches about every
+     2 hours, according to a small 2016 study published in the journal PLOS One.
+ 6   Your nose’s switching time is about every 2 hours, not 45 minutes.
+ 7   This disagrees with what you said.
+ 8
+ 9   (2) You said: The Little House books were written by Laura Ingalls Wilder. The books were published by HarperCollins.
+10   I checked: Who published the Little House books?
+11   I found this article: These are the books that started it all – the stories that captured the hearts and imaginations of
+     children and young adults worldwide. Written by Laura Ingalls Wilder and published by HarperCollins, these beloved books
+     remain a favorite to this day.
+12   The Little House books were published by HarperCollins.
+13   This agrees with what you said.
+14
+15   (3) You said: The Stanford Prison Experiment was conducted in the basement of Jordan Hall, Stanford’s psychology building.
+16   I checked: Where was Stanford Prison Experiment conducted?
+17   I found this article: Carried out August 15-21, 1971 in the basement of Jordan Hall, the Stanford Prison Experiment set
+     out to examine the psychological effects of authority and powerlessness in a prison environment.
+18   The Stanford Prison Experiment was conducted in Jordan Hall.
+19   This agrees with what you said.
+20
+21   (4) You said: Social work is a profession that is based in the philosophical tradition of humanism. It is an intellectual
+     discipline that has its roots in the 1800s.
+22   I checked: When did social work have its roots?
+23   I found this article: The Emergence and Growth of the Social work Profession<br><br> Social work’s roots were planted in
+     the 1880s, when charity organization societies (COS) were created to organize municipal voluntary relief associations and
+     settlement houses were established.
+24   Social work has its roots in the 1880s, not 1800s.
+25   This disagrees with what you said.
+26
+27   (5) You said: The Havel-Hakimi algorithm is an algorithm for converting the adjacency matrix of a graph into its adjacency
+     list. It is named after Vaclav Havel and Samih Hakimi.
+28   I checked: What is the Havel-Hakimi algorithm?
+29   I found this article: The Havel-Hakimi algorithm constructs a special solution if a simple graph for the given degree
+     sequence exists, or proves that one cannot find a positive answer. This construction is based on a recursive algorithm.
+     The algorithm was published by Havel (1955), and later by Hakimi (1962).
+30   Havel-Hakimi algorithm is for constructing a special solution if a simple graph for the given degree sequence exists, or
+     proving that one cannot find a positive answer, not converting the adjacency matrix of a graph into its adjacency list.
+31   This disagrees with what you said.
+32
+33   (6) You said: "Time of My Life" is a song by American singer-songwriter Bill Medley from the soundtrack of the 1987 film
+     Dirty Dancing. The song was produced by Michael Lloyd.
+34   I checked: Who was the producer of "(I’ve Had) The Time of My Life"?
+35   I found this article: On September 8, 2010, the original demo of this song, along with a remix by producer Michael Lloyd,
+     was released as digital files in an effort to raise money for the Patrick Swayze Pancreas Cancer Resarch Foundation at
+     Stanford University.
+36   "Time of My Life" was produced by Michael Lloyd.
+37   This agrees with what you said.
+38
+39   (7) You said: Kelvin Hopins was suspended from the Labor Party because he had allegedly sexually harassed and behaved
+     inappropriately towards a Labour Party activist, Ava Etemadzadeh.
+40   I checked: Why was Kelvin Hopins suspeneded from the Labor Party?
+41   I found this article: A former Labour MP has left the party before an inquiry into sexual harassment allegations against
+     him was able to be concluded, the party has confirmed. Kelvin Hopkins was accused in 2017 of inappropriate physical
+     contact and was suspended by the Labour party pending an investigation.This agrees with what you said.
+42   Kelvin Hopins was suspended because he had allegedly sexually harassed and behaved inappropriately towards a Labour Party
+     activist, Ava Etemadzadeh.
+43   This agrees with what you said.
+44
+45   (8) You said: In the battles of Lexington and Concord, the British side was led by General Thomas Smith.
+46   I checked: Who led the British side in the battle of Lexington and Concord?
+47   I found this article: Interesting Facts about the Battles of Lexington and Concord. The British were led by Lieutenant
+     Colonel Francis Smith. There were 700 British regulars.
+48   The British side was led by Lieutenant Colonel Francis Smith, not General Thomas Hall.
+49   This disagrees with what you said.
+50
+51   (9) You said: {text}
+52   I checked: {query}
+53   I found this article: {evidence}
+54   _____
+
+
+
+        Figure 14: Few-shot prompt for the agreement model, which uses chain-of-thought prompting.
+ 1   [web] I will fix some things you said.
+ 2
+ 3   (1) You said: Your nose switches back and forth between nostrils. When you sleep, you switch about every 45 minutes. This
+     is to prevent a buildup of mucus. It’s called the nasal cycle.
+ 4   I checked: How often do your nostrils switch?
+ 5   I found this article: Although we don’t usually notice it, during the nasal cycle one nostril becomes congested and thus
+     contributes less to airflow, while the other becomes decongested. On average, the congestion pattern switches about every
+     2 hours, according to a small 2016 study published in the journal PLOS One.
+ 6   This suggests 45 minutes switch time in your statement is wrong.
+ 7   My fix: Your nose switches back and forth between nostrils. When you sleep, you switch about every 2 hours. This is to
+     prevent a buildup of mucus. It’s called the nasal cycle.
+ 8
+ 9   (2) You said: In the battles of Lexington and Concord, the British side was led by General Thomas Hall.
+10   I checked: who led the British side in the battle of Lexington and Concord?
+11   I found this article: Interesting Facts about the Battles of Lexington and Concord. The British were led by Lieutenant
+     Colonel Francis Smith. There were 700 British regulars.
+12   This suggests General Thomas Hall in your statement is wrong.
+13   My fix: In the battles of Lexington and Concord, the British side was led by Lieutenant Colonel Francis Smith.
+14
+15   (3) You said: The Stanford Prison Experiment was conducted in the basement of Encina Hall, Stanford’s psychology building.
+16   I checked: where was Stanford Prison Experiment conducted.
+17   I found this article: Carried out August 15-21, 1971 in the basement of Jordan Hall, the Stanford Prison Experiment set
+     out to examine the psychological effects of authority and powerlessness in a prison environment.
+18   This suggests Encina Hall in your statement is wrong.
+19   My fix: The Stanford Prison Experiment was conducted in the basement of Jordan Hall, Stanford’s psychology building.
+20
+21   (4) You said: Phoenix Mills Ltd., a diversified business conglomerate, was established in 1854. It has a history of over
+     160 years.
+22   I checked: When was Phoenix Mills Ltd. founded?
+23   I found this article: Phoenix Mills Ltd was incorporated in the year 1905. The company began their operations as a textile
+     manufacturing company on 17.3 acres of land at Lower Parel in Mumbai. In the year 1959 the company was listed in the
+     Bombay Stock Exchange.
+24   This suggests the year of establishment 1854 in your statement is wrong.
+25   My fix: Phoenix Mills Ltd., a diversified business conglomerate, was established in 1905. It has a history of over 160
+     years.
+26
+27   (5) You said: The Havel-Hakimi algorithm is an algorithm for converting the adjacency matrix of a graph into its adjacency
+     list. It is named after Vaclav Havel and Samih Hakimi.
+28   I checked: What is the Havel-Hakimi algorithm?
+29   I found this article: The Havel-Hakimi algorithm constructs a special solution if a simple graph for the given degree
+     sequence exists, or proves that one cannot find a positive answer. This construction is based on a recursive algorithm.
+     The algorithm was published by Havel (1955), and later by Hakimi (1962).
+30   This suggests the Havel-Hakimi algorithm’s functionality in your statement is wrong.
+31   My fix: The Havel-Hakimi algorithm constructs a special solution if a simple graph for the given degree sequence exists,
+     or proves that one cannot find a positive answer. It is named after Vaclav Havel and Samih Hakimi
+32
+33   (6) You said: "Time of My Life" is a song by American singer-songwriter Bill Medley from the soundtrack of the 1987 film
+     Dirty Dancing. The song was produced by Phil Ramone.
+34   I checked: Who was the producer of "(I’ve Had) The Time of My Life"?
+35   I found this article: On September 8, 2010, the original demo of this song, along with a remix by producer Michael Lloyd,
+     was released as digital files in an effort to raise money for the Patrick Swayze Pancreas Cancer Resarch Foundation at
+     Stanford University.
+36   This suggests "Time of My Life" producer name in your statement is wrong.
+37   My fix: "Time of My Life" is a song by American singer-songwriter Bill Medley from the soundtrack of the 1987 film Dirty
+     Dancing. The song was produced by Michael Lloyd.
+38
+39   (7) You said: Phoenix Market City Pune is located on 21 acres of prime property in Pune. It is spread across four levels
+     with approximately 1.4 million square feet of built-up space. The mall is owned and operated by Phoenix Mills Limited.
+40   I checked: What is the area of Phoenix Market City in Pune?
+41   I found this article: Phoenix Market City was opened in January 2013 and has the distinction of being the largest mall
+     in the city of Pune, with the area of 3.4 million square feet. It is located in the Viman Nagar area of Pune.
+42   This suggests the 1.4 million square feet of built-up space in your statment is wrong.
+43   My fix: Phoenix Market City Pune is located on 21 acres of prime property in Pune. It is spread across four levels with
+     approximately 3.4 million square feet of built-up space. The mall is owned and operated by Phoenix Mills Limited.
+44
+45   (8) You said: {text}
+46   I checked: {query}
+47   I found this article: {evidence}
+48   This suggests _____
+
+
+
+         Figure 15: Few-shot prompt for the revision model, which uses chain-of-thought prompting.
+   1   [web] I will read the context and check only the last thing you said by asking questions.
+   2
+   3   (1) Context: Your nose switches back and forth between nostrils. When you sleep, you switch about every 45 minutes.
+   4   You said: This is to prevent a buildup of mucus. It’s called the nasal cycle.
+   5   To verify what you just said,
+   6   a) I googled: Why does your nostril switch during sleep?
+   7   b) I googled: What is nasal cycle?
+   8   c) I googled: What is the nostril switching during sleep called?
+   9
+  10   (2) Context: The Stanford Prison Experiment was conducted in the basement of Encina Hall, Stanford’s psychology building.
+  11   You said: It is a psychological study to observe the behaviors of conflict and violence that happen between inmates and
+       prisoners in real prisons.
+  12   To verify what you just said,
+  13   a) I googled: What type of experiment was the Stanford Prison Experiment?
+  14   b) I googled: What was the objective of the Stanford Prison Experiment?
+  15
+  16   (3) Context: The Havel-Hakimi algorithm is an algorithm for converting the adjacency matrix of a graph into its adjacency
+       list.
+  17   You said: It is named after Vaclav Havel and Samih Hakimi.
+  18   To verify what you just said,
+  19   a) I googled: Who are Havel-Hakimi algorithm named after?
+  20
+  21   (4) Context: "Time of My Life" is a song by American singer-songwriter Bill Medley from the soundtrack of the 1987 film
+       Dirty Dancing.
+  22   You said: The song was produced by Michael Lloyd in the same year.
+  23   To verify what you just said,
+  24   a) I googled: Who produced the song "Time of My Life"?
+  25   b) I googled: When was the song "Time of My Life" by Bill Medley produced?
+  26
+  27   (5) Context: The Late Show with Stephen Colbert is an American late-night talk show hosted by Stephen Colbert, which
+       premiered on September 8, 2015.
+  28   You said: Produced by Spartina Productions and CBS Television Studios, it is the second iteration of CBS’ Late Show
+       franchise.
+  29   To verify what you just said,
+  30   a) I googled: Who produces "The Late Show with Stephen Colbert"?
+  31   b) I googled: What are the iterations of CBS’ Late Show franchise?
+  32
+  33   (6) Context: Super Mario Sunshine was released on GameCube in 2002. In the game, Mario uses a tool strapped to his back
+       called FLUDD, which stands for The Flash Liquidizer Ultra Dousing Device.
+  34   You said: It can be used to spray water at objects or enemies. This allows Mario to change his movements, kill enemies,
+       or clean up hazards on the floor.
+  35   To verify what you just said,
+  36   a) I googled: What is the main function of FLUDD in Super Mario Sunshine?
+  37   b) I googled: What can FLUDD in Super Mario Sunshine be used on?
+  38   c) I googled: In Super Mario Sunshine, can Mario change movement with FLUDD?
+  39   d) I googled: In Super Mario Sunshine, can Mario kill enemies with FLUDD?
+  40   e) I googled: In Super Mario Sunshine, can Mario clean up hazards on the floor with FLUDD?
+  41
+  42   (7) Context: {context}
+  43   You said: {text}
+  44   To verify what you just said,
+  45   _____
+
+
+
+Figure 16: Contextual version of the query generation prompt. The prompt works well for dialog contexts from
+QReCC even though the few-shot examples are not formatted as such.
+ 1   [web] I will check some things you said.
+ 2
+ 3   (1) Context: Your nose switches back and forth between nostrils. It’s called the nasal cycle. This is to prevent a buildup
+     of mucus.
+ 4   You said: When you sleep, you switch about every 45 minutes.
+ 5   I checked: How often do your nostrils switch?
+ 6   I found this article: Although we don’t usually notice it, during the nasal cycle one nostril becomes congested and thus
+     contributes less to airflow, while the other becomes decongested. On average, the congestion pattern switches about every
+     2 hours, according to a small 2016 study published in the journal PLOS One.
+ 7   Your nose’s switching time is about every 2 hours, not 45 minutes.
+ 8   This disagrees with what you said.
+ 9
+10   (2) Context: The Little House books is a series of American children’s novels.
+11   You said: The books were published by HarperCollins.
+12   I checked: Who published the Little House books?
+13   I found this article: These are the books that started it all – the stories that captured the hearts and imaginations of
+     children and young adults worldwide. Written by Laura Ingalls Wilder and published by HarperCollins, these beloved books
+     remain a favorite to this day.
+14   The Little House books were published by HarperCollins.
+15   This agrees with what you said.
+16
+17   (3) Context: The Stanford Prison Experiment is a psychological study to observe the behaviors of conflict and violence
+     that happen between inmates and prisoners in real prisons.
+18   You said: It was conducted in the basement of Jordan Hall, Stanford’s psychology building.
+19   I checked: Where was Stanford Prison Experiment conducted?
+20   I found this article: Carried out August 15-21, 1971 in the basement of Jordan Hall, the Stanford Prison Experiment set
+     out to examine the psychological effects of authority and powerlessness in a prison environment.
+21   The Stanford Prison Experiment was conducted in Jordan Hall.
+22   This agrees with what you said.
+23
+24   (4) Context: Social work is a profession that is based in the philosophical tradition of humanism.
+25   You said: It is an intellectual discipline that has its roots in the 1800s.
+26   I checked: When did social work have its roots?
+27   I found this article: The Emergence and Growth of the Social work Profession<br><br> Social work’s roots were planted in
+     the 1880s, when charity organization societies (COS) were created to organize municipal voluntary relief associations and
+     settlement houses were established.
+28   Social work has its roots in the 1880s, not 1800s.
+29   This disagrees with what you said.
+30
+31   (5) Context: The Havel-Hakimi algorithm is named after Vaclav Havel and Samih Hakimi.
+32   You said: It is an algorithm for converting the adjacency matrix of a graph into its adjacency list.
+33   I checked: What is the Havel-Hakimi algorithm?
+34   I found this article: The Havel-Hakimi algorithm constructs a special solution if a simple graph for the given degree
+     sequence exists, or proves that one cannot find a positive answer. This construction is based on a recursive algorithm.
+     The algorithm was published by Havel (1955), and later by Hakimi (1962).
+35   Havel-Hakimi algorithm is for constructing a special solution if a simple graph for the given degree sequence exists, or
+     proving that one cannot find a positive answer, not converting the adjacency matrix of a graph into its adjacency list.
+36   This disagrees with what you said.
+37
+38   (6) Context: "Time of My Life" is a song by American singer-songwriter Bill Medley from the soundtrack of the 1987 film
+     Dirty Dancing.
+39   You said: The song was produced by Michael Lloyd in the same year.
+40   I checked: Who was the producer of "(I’ve Had) The Time of My Life"?
+41   I found this article: On September 8, 2010, the original demo of this song, along with a remix by producer Michael Lloyd,
+     was released as digital files in an effort to raise money for the Patrick Swayze Pancreas Cancer Resarch Foundation at
+     Stanford University.
+42   The song "Time of My Life" was produced by Michael Lloyd.
+43   This agrees with what you said.
+44
+45   (7) Context: Super Mario Sunshine was released on GameCube in 2002. In the game, Mario uses a tool strapped to his back
+     called FLUDD.
+46   You said: FLUDD stands for Functional Language in a Unified Design Discipline. It can be used to spray water at objects
+     or enemies. This allows Mario to change his movements, kill enemies, or clean up hazards on the floor.
+47   I checked: What does FLUDD stands for in Super Mario Sunshine?
+48   I found this article: The Flash Liquidizer Ultra Dousing Device, abbreviated and better known as FLUDD or F.L.U.D.D.,
+     is a multipurpose water pack from Super Mario Sunshine invented by Professor Elvin Gadd, indicated by the Gadd Science,
+     Incorporated logo at the base of its nozzle exclusively during the cutscene at Pinna Park.
+49   In Super Mario Sunshine, FLUDD stands for the Flash Liquidizer Ultra Dousing Device, not Functional Language in a Unified
+     Design Discipline.
+50   This disagrees with what you said.
+51
+52   (8) Context: {context}
+53   You said: {text}
+54   I checked: {query}
+55   I found this article: {evidence}
+56   _____
+
+
+
+                          Figure 17: Contextual version of the agreement model prompt.
+ 1   [web] I will fix some things you said.
+ 2
+ 3   (1) Context: Your nose switches back and forth between nostrils. It’s called the nasal cycle. This is to prevent a buildup
+     of mucus.
+ 4   You said: When you sleep, you switch about every 45 minutes.
+ 5   I checked: How often do your nostrils switch?
+ 6   I found this article: Although we don’t usually notice it, during the nasal cycle one nostril becomes congested and thus
+     contributes less to airflow, while the other becomes decongested. On average, the congestion pattern switches about every
+     2 hours, according to a small 2016 study published in the journal PLOS One.
+ 7   This suggests 45 minutes switch time in your statement is wrong.
+ 8   My fix: When you sleep, you switch about every 2 hours.
+ 9
+10   (2) Context: The Little House books is a series of American children’s novels.
+11   You said: The books were published by Amberjack Publishing.
+12   I checked: Who published the Little House books?
+13   I found this article: These are the books that started it all – the stories that captured the hearts and imaginations of
+     children and young adults worldwide. Written by Laura Ingalls Wilder and published by HarperCollins, these beloved books
+     remain a favorite to this day.
+14   This suggests Amberjack Publishing in your statement is wrong.
+15   My fix: The books were published by HarperCollins.
+16
+17   (3) Context: The Stanford Prison Experiment is a psychological study to observe the behaviors of conflict and violence
+     that happen between inmates and prisoners in real prisons.
+18   You said: It was conducted in the basement of Encina Hall, Stanford’s psychology building.
+19   I checked: where was Stanford Prison Experiment conducted.
+20   I found this article: Carried out August 15-21, 1971 in the basement of Jordan Hall, the Stanford Prison Experiment set
+     out to examine the psychological effects of authority and powerlessness in a prison environment.
+21   This suggests Encina Hall in your statement is wrong.
+22   My fix: It was conducted in the basement of Jordan Hall, Stanford’s psychology building.
+23
+24   (4) Context: The Havel-Hakimi algorithm is named after Vaclav Havel and Samih Hakimi.
+25   You said: It is an algorithm for converting the adjacency matrix of a graph into its adjacency list.
+26   I checked: What is the Havel-Hakimi algorithm?
+27   I found this article: The Havel-Hakimi algorithm constructs a special solution if a simple graph for the given degree
+     sequence exists, or proves that one cannot find a positive answer. This construction is based on a recursive algorithm.
+     The algorithm was published by Havel (1955), and later by Hakimi (1962).
+28   This suggests the Havel-Hakimi algorithm’s functionality in your statement is wrong.
+29   My fix: It constructs a special solution if a simple graph for the given degree sequence exists, or proves that one cannot
+     find a positive answer.
+30
+31   (5) Context: "Time of My Life" is a song by American singer-songwriter Bill Medley from the soundtrack of the 1987 film
+     Dirty Dancing.
+32   You said: The song was produced by Phil Ramone in the same year.
+33   I checked: Who was the producer of "(I’ve Had) The Time of My Life"?
+34   I found this article: On September 8, 2010, the original demo of this song, along with a remix by producer Michael Lloyd,
+     was released as digital files in an effort to raise money for the Patrick Swayze Pancreas Cancer Resarch Foundation at
+     Stanford University.
+35   This suggests "Time of My Life" producer name in your statement is wrong.
+36   My fix: The song was produced by Michael Lloyd in the same year.
+37
+38   (6) Context: Phoenix Market City Pune is located on 21 acres of prime property in Pune. The mall is owned and operated by
+     Phoenix Mills Limited.
+39   You said: It is spread across four levels with approximately 1.4 million square feet of built-up space.
+40   I checked: What is the area of Phoenix Market City in Pune?
+41   I found this article: Phoenix Market City was opened in January 2013 and has the distinction of being the largest mall
+     in the city of Pune, with the area of 3.4 million square feet. It is located in the Viman Nagar area of Pune.
+42   This suggests the 1.4 million square feet of built-up space in your statment is wrong.
+43   My fix: It is spread across four levels with approximately 3.4 million square feet of built-up space.
+44
+45   (7) Context: {context}
+46   You said: {text}
+47   I checked: {query}
+48   I found this article: {evidence}
+49   This suggests _____
+
+
+
+                            Figure 18: Contextual version of the revision model prompt.
+ 1   [web] I will think step by step and answer your question.
+ 2
+ 3   Question: is growing seedless cucumber good for a gardener with entomophobia
+ 4   Explanation: Entomophobia is a fear of insects. Plants need insects to pollinate them. Seedless fruits such as seedless
+     cucumbers do not require pollination, so seedless fruits do not require insects. This makes good for people with
+     entomophobia.
+ 5   Answer: Yes
+ 6
+ 7   Question: Who was british pm and viceroy during quit india movement?
+ 8   Explanation: The Quit India Movement was launched in 8th August 1942. The british PM at that time was Winston Churchill.
+     The british viceroy during the movement is Victor Hope, usually referred to as Lord Linlithgow.
+ 9   Answer: Winston Churchil and Lord Linlithgow
+10
+11   Question: Which year does game over man come out on netflix?
+12   Explanation: Game Over, Man! is an action-comedy movie released in March 23, 2018, on Netflix. It’s director is Kyle
+     Newacheck. The movie stars Anders Holm, Adam DeVine, and Blake Anderson.
+13   Answer: March 23, 2018
+14
+15   Question: would it be very difficult for Nuno Gomes to dive to the Red Sea’s deepest point?
+16   Explanation: Nuno Gomes’ deepest dive in the Red Sea to date is 317 metres. The Red Sea has a maximum depth of over 3,000
+     metres. So it would be difficult for Nuno Gomes to the deepest point of the Red sea.
+17   Answer: Yes
+18
+19   Question: Are chinchillas cold-blooded?
+20   Explanation: Chinchillas are rodents, which are mammals. All mammals are warm-blooded.
+21   Answer: No
+22
+23   Question: what are the chemo drugs for gastric cancer?
+24   Explanation: Chemotherapy can be given for gastric cancer before or after surgery. Usually you have a combination of 2 or
+     3 drugs. The most common types are: epirubicin, cisplatin and capecitabine (ECX) ; epirubicin, cisplatin and fluorouracil
+     (ECF); or fluorouracil, folinic acid, oxaliplatin and docetaxel (FLOT).
+25   Answer: epirubicin, cisplatin and capecitabine (ECX) ; epirubicin, cisplatin and fluorouracil (ECF); or fluorouracil,
+     folinic acid, oxaliplatin and docetaxel (FLOT)
+26
+27   Question: How many sacks does Clay Matthews have in his career?
+28   Explanation: Clay Matthews III had 383 solo tackles, 136 assists, and 91.5 sacks. His father, Clay Matthews Jr., also
+     palyed in NFL and had 69.5 sacks in his career.
+29   Answer: 91.5 (Clay Matthews III) and 69.5 (Clay Matthews Jr.)
+30
+31   Question: In the U.S., the most deaths are caused by
+32   Explanation: The leading cause of death in the U.S. is heart disease, causing nearly 700,000 deaths annually. The second
+     most common cause of deaths is cancer.
+33   Answer: heart disease
+34
+35   Question: the rank of indian economy in terms of nominal gdp is
+36   Explanation: India’s GDP is economy is $2.94 trillion. It is the fifth-largest in the world. The top GDP contries are
+     United States, China, Japan, Germany and India.
+37   Answer: 5
+38
+39   Question: {question}
+40   Explanation: _____
+
+
+
+       Figure 19: The PaLM prompt for generating long-form answers to questions from NQ and SQA.
+ 1   I will think step by step and answer your question.
+ 2
+ 3   1. Question: Is growing seedless cucumber good for a gardener with entomophobia?
+ 4   2. Explanation: Entomophobia is a fear of insects. Plants need insects to pollinate them. Seedless fruits such as seedless
+     cucumbers do not require pollination so seedless fruits do not require insects. This is good for people with entomophobia.
+ 5   3. Answer: Yes.
+ 6
+ 7   1. Question: Who was British PM and Biceroy during Quit India Movement?
+ 8   2. Explanation: The Quit India Movement was launched in 8th August 1942. The British PM at that time was Winston Churchill.
+     The British Biceroy during the movement was Victor Hope, usually referred to as Lord Linlithgow.
+ 9   3. Answer: Winston Churchil and Lord Linlithgow.
+10
+11   1. Question: Which year does Game Over Man come out on Netflix?
+12   2. Explanation: Game Over, Man! is an action-comedy movie. Its director is Kyle Newacheck. The movie stars Anders Holm,
+     Adam DeVine, and Blake Anderson. The movie was released March 23, 2018 on Netflix.
+13   3. Answer: March 23, 2018.
+14
+15   1. Question: Would it be very difficult for Nuno Gomes to dive to the Red Sea’s deepest point?
+16   2. Explanation: Nuno Gomes’ deepest dive in the Red Sea to date is 317 meters. The Red Sea has a maximum depth of over
+     3,000 meters. So it would be difficult for Nuno Gomes to dive to the deepest point of the Red Sea.
+17   3. Answer: Yes.
+18
+19   1. Question: Are chinchillas cold-blooded?
+20   2. Explanation: Chinchillas are rodents. Rodents are mammals. All mammals are warm-blooded.
+21   3. Answer: No.
+22
+23   1. Question: What are the chemo drugs for gastric cancer?
+24   2. Explanation: Chemotherapy can be given for gastric cancer before or after surgery. Usually you have a combination
+     of 2 or 3 drugs. The most common types are: epirubicin, cisplatin and capecitabine (ECX) ; epirubicin, cisplatin and
+     fluorouracil (ECF); or fluorouracil, folinic acid, oxaliplatin and docetaxel (FLOT).
+25   3. Answer: Epirubicin, cisplatin and capecitabine (ECX) ; epirubicin, cisplatin and fluorouracil (ECF); or fluorouracil,
+     folinic acid, oxaliplatin and docetaxel (FLOT).
+26
+27   1. Question: How many sacks does Clay Matthews have in his career?
+28   2. Explanation: Clay Matthews has been pro linebacker for 11 seasons. Ten of the seasons he played for Green Bay Packers,
+     while his last season was with Los Angeles Rams, dedicated to his hometown. Clay Matthews III had 383 solo tackles, 136
+     assists, and 91.5 sacks. His father, Clay Matthews Jr., also played in NFL and had 69.5 sacks in his career.
+29   3. Answer: 91.5 (Clay Matthews III) and 69.5 (Clay Matthews Jr.).
+30
+31   1. Question: In the U.S., the most deaths are caused by?
+32   2. Explanation: According to the Centers for Disease Control and Prevention, there were 3 million deaths in 2018. The
+     leading cause of death in the U.S. is heart disease, causing nearly 700,000 deaths annually. The second most common cause
+     of deaths is cancer.
+33   3. Answer: Heart disease.
+34
+35   1. Question: The rank of Indian economy in terms of nominal GDP is?
+36   2. Explanation: The top GDP contries are United States, China, Japan, Germany, and India. India’s GDP is economy is $2.94
+     trillion. It is the fifth-largest economy in the world.
+37   3. Answer: 5.
+38
+39   1. Question: Who won season 16 on Dancing with the Stars?
+40   2. Explanation: Dancing with the Stars is an American dance competition television series that premiered on June 1, 2005,
+     on ABC. The 16th season premiered on March 18, 2013. It was won by Kellie Pickler.
+41   3. Answer: Kellie Pickler.
+42
+43   1. Question: {question}
+44   2. Explanation: _____
+
+
+
+      Figure 20: The GPT-3 prompt for generating long-form answers to questions from NQ and SQA.
+   1   Hi, I will think step by step and answer your question.
+   2   Is growing seedless cucumber good for a gardener with entomophobia?
+   3   Yes. Entomophobia is a fear of insects. Plants need insects to pollinate them. Seedless cucumber fruit does not require
+       pollination. So seedless cucumber does not require insects.
+   4   Here is another question. Which year does game over man come out on netflix?
+   5   Game Over, Man! is an American action-comedy movie. It was released on March 23, 2018, on Netflix. It is directed by Kyle
+       Newacheck, written by Anders Holm, and starring himself, Adam DeVine, and Blake Anderson.
+   6   Here is another question. What are the chemo drugs for gastric cancer?
+   7   Chemotherapy can be given for gastric cancer before or after surgery. Usually you have a combination of 2 or 3 drugs. The
+       most common types are: epirubicin, cisplatin and capecitabine (ECX) ; epirubicin, cisplatin and fluorouracil (ECF); or
+       fluorouracil, folinic acid, oxaliplatin and docetaxel (FLOT).
+   8   Here is another question. Was N.W.A a album?
+   9   N.W.A was an American hip hop group from Compton, California.
+  10   Were they successful?
+  11   They has sold over 10 million units in the United States alone.
+  12   How many singles did it have?
+  13   The group NWA released 8 singles.
+  14   Here is another question. {Q1 }
+  15   {A1 }
+  16   ...
+  17   {Qk }
+  18   _____
+
+
+
+Figure 21: The LaMDA prompt for generating answers to questions from QReCC. Each line is a conversation turn.
+The dialog context from QReCC contains rounds of questions and answers (Q1 , A1 , Q2 , A2 , . . . , Qk ).
+
+
+
+
+   1   I will think step by step and answer your question.
+   2
+   3   Is growing seedless cucumber good for a gardener with entomophobia?
+   4   Yes. Entomophobia is a fear of insects. Plants need insects to pollinate them. Seedless cucumber fruit does not require
+       pollination. So seedless cucumber does not require insects.
+   5
+   6   Which year does game over man come out on netflix?
+   7   Game Over, Man! is an American action-comedy movie. It was released on March 23, 2018, on Netflix. It is directed by Kyle
+       Newacheck, written by Anders Holm, and starring himself, Adam DeVine, and Blake Anderson.
+   8
+   9   What are the chemo drugs for gastric cancer?
+  10   Chemotherapy can be given for gastric cancer before or after surgery. Usually you have a combination of 2 or 3 drugs. The
+       most common types are: epirubicin, cisplatin and capecitabine (ECX) ; epirubicin, cisplatin and fluorouracil (ECF); or
+       fluorouracil, folinic acid, oxaliplatin and docetaxel (FLOT).
+  11
+  12   Was N.W.A an album?
+  13   N.W.A was an American hip hop group from Compton, California.
+  14   Were they successful?
+  15   They has sold over 10 million units in the United States alone.
+  16   How many singles did they have?
+  17   N.W.A had eight singles, including "Straight Outta Compton", "Express Yourself", "Gangsta Gangsta", "Dopeman" and "Alwayz
+       Into Somethin’".
+  18
+  19   {Q1 }
+  20   {A1 }
+  21   ...
+  22   {Qk }
+  23   _____
+
+
+
+                  Figure 22: The GPT-3 prompt for generating answers to questions from QReCC.
+

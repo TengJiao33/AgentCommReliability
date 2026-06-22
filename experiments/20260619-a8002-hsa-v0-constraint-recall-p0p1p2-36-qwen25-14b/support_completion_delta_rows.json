@@ -1,0 +1,111 @@
+[
+  {
+    "packet_id": "hiddenbench_evacuation_east_town__hb03_base_verified_role_scoped__hsa_v0",
+    "condition": "base",
+    "variant_id": "hb03_base_verified_role_scoped",
+    "strict_before": 0.0,
+    "strict_after": 1.0,
+    "compiled_before": "insufficient_evidence",
+    "compiled_after": "East Town",
+    "expected": "East Town",
+    "missing_required_before": [
+      "hb03_hidden_2"
+    ],
+    "missing_required_after": [],
+    "slot_recall_before": 0.8,
+    "slot_recall_after": 1.0,
+    "extra_before": 0,
+    "extra_after": 0
+  },
+  {
+    "packet_id": "hiddenbench_evacuation_east_town__hb03_north_mudslide_no_final_scope__hsa_v0",
+    "condition": "perturbation",
+    "variant_id": "hb03_north_mudslide_no_final_scope",
+    "strict_before": 1.0,
+    "strict_after": 1.0,
+    "compiled_before": "insufficient_evidence",
+    "compiled_after": "insufficient_evidence",
+    "expected": "insufficient_evidence",
+    "missing_required_before": [
+      "hb03_hidden_2",
+      "hb03_hidden_3"
+    ],
+    "missing_required_after": [
+      "hb03_hidden_3"
+    ],
+    "slot_recall_before": 0.6,
+    "slot_recall_after": 0.8,
+    "extra_before": 1,
+    "extra_after": 1
+  },
+  {
+    "packet_id": "hiddenbench_baker_2010__hb05_base_verified_profile_scoped__hsa_v0",
+    "condition": "base",
+    "variant_id": "hb05_base_verified_profile_scoped",
+    "strict_before": 0.0,
+    "strict_after": 1.0,
+    "compiled_before": "insufficient_evidence",
+    "compiled_after": "Roberts",
+    "expected": "Roberts",
+    "missing_required_before": [
+      "hb05_hidden_roberts_collaborative",
+      "hb05_hidden_roberts_diversity",
+      "hb05_hidden_roberts_excellent_teacher",
+      "hb05_hidden_roberts_federal_grant",
+      "hb05_hidden_roberts_research_productivity",
+      "hb05_hidden_stevens_no_fundraising"
+    ],
+    "missing_required_after": [],
+    "slot_recall_before": 0.45454545454545453,
+    "slot_recall_after": 1.0,
+    "extra_before": 1,
+    "extra_after": 2
+  },
+  {
+    "packet_id": "hiddenbench_baker_2010__hb05_roberts_grant_unverified__hsa_v0",
+    "condition": "perturbation",
+    "variant_id": "hb05_roberts_grant_unverified",
+    "strict_before": 1.0,
+    "strict_after": 1.0,
+    "compiled_before": "insufficient_evidence",
+    "compiled_after": "insufficient_evidence",
+    "expected": "insufficient_evidence",
+    "missing_required_before": [
+      "hb05_hidden_roberts_federal_grant",
+      "hb05_hidden_stevens_no_fundraising"
+    ],
+    "missing_required_after": [
+      "hb05_hidden_roberts_federal_grant"
+    ],
+    "slot_recall_before": 0.8181818181818182,
+    "slot_recall_after": 0.9090909090909091,
+    "extra_before": 1,
+    "extra_after": 1
+  },
+  {
+    "packet_id": "hiddenbench_baker_2010__hb05_jones_tension_no_final_scope__hsa_v0",
+    "condition": "perturbation",
+    "variant_id": "hb05_jones_tension_no_final_scope",
+    "strict_before": 1.0,
+    "strict_after": 1.0,
+    "compiled_before": "insufficient_evidence",
+    "compiled_after": "insufficient_evidence",
+    "expected": "insufficient_evidence",
+    "missing_required_before": [
+      "hb05_hidden_jones_provost_tension",
+      "hb05_hidden_roberts_collaborative",
+      "hb05_hidden_roberts_diversity",
+      "hb05_hidden_roberts_excellent_teacher",
+      "hb05_hidden_roberts_federal_grant",
+      "hb05_hidden_roberts_research_productivity",
+      "hb05_hidden_stevens_no_fundraising"
+    ],
+    "missing_required_after": [
+      "hb05_hidden_jones_provost_tension"
+    ],
+    "slot_recall_before": 0.36363636363636365,
+    "slot_recall_after": 0.9090909090909091,
+    "extra_before": 1,
+    "extra_after": 2
+  }
+]

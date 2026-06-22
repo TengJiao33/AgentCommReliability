@@ -1,0 +1,68 @@
+[sseac-pg40] run_id=20260619-a8002-sseac-v0-pg40-limit5-gpu7-rerun-qwen25-14b
+[sseac-pg40] workspace=/data/xuhaoming/yfy/research_workspace
+[sseac-pg40] model=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct served=qwen2.5-14b-sseac-v0-pg40 gpu=7 port=8076
+[sseac-pg40] packet=/data/xuhaoming/yfy/research_workspace/experiments/20260618-local-sseac-v0-pg40-adapter/sseac_pg40_packet.jsonl
+[sseac-pg40] packet_run=/data/xuhaoming/yfy/research_workspace/experiments/20260619-a8002-sseac-v0-pg40-limit5-gpu7-rerun-qwen25-14b/packet_limit5.jsonl
+[sseac-pg40] pg_packet=/data/xuhaoming/yfy/research_workspace/experiments/20260618-local-perspectivegap-tight-budget-v0/tight_budget_rotated20.jsonl
+[sseac-pg40] limit=5 max_model_len=8192 max_tokens=2048 gpu_memory_utilization=0.75 run_timeout=1800
+[sseac-pg40] gpu before:
+0, NVIDIA A800-SXM4-80GB, 10325, 70828, 45
+1, NVIDIA A800-SXM4-80GB, 69595, 11557, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 15881, 65271, 75
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+[sseac-pg40] server_pid=4099071
+[sseac-pg40] vLLM ready after 24 checks
+[sseac-pg40] running prompts -> /data/xuhaoming/yfy/research_workspace/experiments/20260619-a8002-sseac-v0-pg40-limit5-gpu7-rerun-qwen25-14b/predictions.jsonl
+[sseac-pg40] runner_status=0
+[sseac-pg40] predictions=5
+[sseac-pg40] model_only summary:
+evaluations: 5
+strict_pass: 0.0000 (0/5)
+required_coverage: 0.7778
+boundary_precision: 0.6562
+distractor_leakage: 0.0000
+budget_pass: 0.0000
+budget_overrun: 8.6000
+source_accuracy_on_tp: 1.0000
+visibility_accuracy_on_tp: 0.7143
+reject_recall: 1.0000
+needed_rejected: 0.0000
+utility_ratio: 0.1803
+raw_utility_ratio: 1.1717
+exact_target_role_rate: 0.2333
+budget_feasible_role_rate: 0.2333
+oracle_utility: 233
+feasible_predicted_utility: 42
+raw_predicted_utility: 273
+[sseac-pg40] compiler summary:
+evaluations: 5
+strict_pass: 0.0000 (0/5)
+required_coverage: 0.3704
+boundary_precision: 0.8333
+distractor_leakage: 0.0000
+budget_pass: 1.0000
+budget_overrun: 0.0000
+source_accuracy_on_tp: 1.0000
+visibility_accuracy_on_tp: 0.7000
+reject_recall: 1.0000
+needed_rejected: 2.0000
+utility_ratio: 0.4635
+raw_utility_ratio: 0.4635
+exact_target_role_rate: 0.3333
+budget_feasible_role_rate: 1.0000
+oracle_utility: 233
+feasible_predicted_utility: 108
+raw_predicted_utility: 108
+[sseac-pg40] gpu after runner before cleanup:
+0, NVIDIA A800-SXM4-80GB, 10325, 70828, 44
+1, NVIDIA A800-SXM4-80GB, 69595, 11557, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 60003, 21149, 0

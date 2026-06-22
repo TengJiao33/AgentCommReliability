@@ -1,0 +1,23 @@
+{
+  "fact_rows": 11,
+  "perturbation_rows": 11,
+  "task_ids": [
+    3,
+    10,
+    11,
+    12,
+    21,
+    27,
+    31,
+    44,
+    51,
+    54,
+    56
+  ],
+  "excluded_recommended_task_ids": [
+    5
+  ],
+  "exclusion_reason": "task 5 is a bulky profile-comparison seed and needs a separate annotation pass",
+  "fact_path": "experiments\\20260619-local-hsa-v0-p0p1-seed-expansion33-draft\\p0p1_fact_units.draft.json",
+  "perturbation_path": "experiments\\20260619-local-hsa-v0-p0p1-seed-expansion33-draft\\p0p1_perturbations.draft.json"
+}

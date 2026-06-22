@@ -1,0 +1,30 @@
+{
+  "rows": 40,
+  "leak_flagged_rows": 0,
+  "max_prompt_chars": 9876,
+  "min_prompt_chars": 3570,
+  "avg_prompt_chars": 7607.7,
+  "max_roles": 6,
+  "min_roles": 2,
+  "max_source_cards": 13,
+  "min_source_cards": 7,
+  "forbidden_terms_scanned": [
+    "recipient_scope",
+    "required_slots",
+    "acceptable_card_ids",
+    "expected_final_decision",
+    "reference_need_sets",
+    "candidate_need_sets",
+    "role_utilities",
+    "needed_by",
+    "eligible_by",
+    "target_needed_by",
+    "utility_by_recipient",
+    "visibility_gold",
+    "source_scope_ledger",
+    "oracle",
+    "gold",
+    "distractor"
+  ],
+  "dry_run_prompts": "experiments\\20260620-local-pg40-pairwise-selector-preflight\\dry_run_prompts_full40.jsonl"
+}

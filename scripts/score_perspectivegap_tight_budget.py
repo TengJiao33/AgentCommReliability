@@ -18,7 +18,14 @@ from score_perspectivegap_hard_routing import (
 )
 
 
-def predicted_fragment_ids(response_text: str | None, role: str) -> tuple[set[str], str | None]:
+def response_to_text(response: Any) -> str | None:
+    if response is None or isinstance(response, str):
+        return response
+    return json.dumps(response, ensure_ascii=False)
+
+
+def predicted_fragment_ids(response_text: Any, role: str) -> tuple[set[str], str | None]:
+    response_text = response_to_text(response_text)
     try:
         parsed = parse_json_object_loose(response_text)
         normalized_roles, _ = normalize_response(parsed)
@@ -179,11 +186,11 @@ def main() -> None:
             )
             if args.legacy_role_assignment and prediction.get("response") is not None:
                 try:
-                    response = legacy_role_assignment_to_cards(row, prediction.get("response"))
+                    response = legacy_role_assignment_to_cards(row, response_to_text(prediction.get("response")))
                 except (json.JSONDecodeError, ValueError):
-                    response = prediction.get("response")
+                    response = response_to_text(prediction.get("response"))
             else:
-                response = prediction.get("response")
+                response = response_to_text(prediction.get("response"))
         scored.append(add_tight_metrics(row, response, score_packet_row(row, response)))
     write_jsonl(args.out, scored)
     summary = summarize_tight(scored)

@@ -1,0 +1,14 @@
+{
+  "rows": 40,
+  "ok_rows": 40,
+  "skipped_rows": 0,
+  "candidate_units_in": 274,
+  "candidate_units_before_prune": 274,
+  "candidate_units_out": 274,
+  "projected_units": 0,
+  "pruned_units": 0,
+  "project_scope": false,
+  "prune_to_budget": true,
+  "cost_penalty": 3.0,
+  "projection_penalty": 0.25
+}

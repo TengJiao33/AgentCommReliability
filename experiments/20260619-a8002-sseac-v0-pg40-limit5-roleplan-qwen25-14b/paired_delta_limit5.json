@@ -1,0 +1,82 @@
+{
+  "benchmark": "pg40",
+  "paired_rows": 5,
+  "no_compiler_rows": 5,
+  "compiled_rows": 5,
+  "missing_no_compiler": [],
+  "missing_compiled": [],
+  "metrics": {
+    "strict_pass": {
+      "paired_values": 5,
+      "structured_no_compiler_mean": 0.0,
+      "compiled_mean": 0.2,
+      "delta_mean": 0.2,
+      "improved_rows": 1,
+      "worsened_rows": 0,
+      "tied_rows": 4
+    },
+    "required_coverage": {
+      "paired_values": 5,
+      "structured_no_compiler_mean": 0.7714285714285715,
+      "compiled_mean": 0.638095238095238,
+      "delta_mean": -0.13333333333333336,
+      "improved_rows": 0,
+      "worsened_rows": 3,
+      "tied_rows": 2
+    },
+    "boundary_precision": {
+      "paired_values": 5,
+      "structured_no_compiler_mean": 0.6533333333333333,
+      "compiled_mean": 0.7833333333333333,
+      "delta_mean": 0.13,
+      "improved_rows": 4,
+      "worsened_rows": 0,
+      "tied_rows": 1
+    },
+    "distractor_leakage": {
+      "paired_values": 5,
+      "structured_no_compiler_mean": 0.0,
+      "compiled_mean": 0.0,
+      "delta_mean": 0.0,
+      "improved_rows": 0,
+      "worsened_rows": 0,
+      "tied_rows": 5
+    },
+    "budget_pass": {
+      "paired_values": 5,
+      "structured_no_compiler_mean": 0.0,
+      "compiled_mean": 1.0,
+      "delta_mean": 1.0,
+      "improved_rows": 5,
+      "worsened_rows": 0,
+      "tied_rows": 0
+    },
+    "budget_overrun": {
+      "paired_values": 5,
+      "structured_no_compiler_mean": 7.2,
+      "compiled_mean": 0.0,
+      "delta_mean": -7.2,
+      "improved_rows": 0,
+      "worsened_rows": 5,
+      "tied_rows": 0
+    },
+    "utility_ratio": {
+      "paired_values": 5,
+      "structured_no_compiler_mean": 0.27447161422708616,
+      "compiled_mean": 0.7761292016806722,
+      "delta_mean": 0.5016575874535861,
+      "improved_rows": 5,
+      "worsened_rows": 0,
+      "tied_rows": 0
+    },
+    "exact_target_role_rate": {
+      "paired_values": 5,
+      "structured_no_compiler_mean": 0.3,
+      "compiled_mean": 0.5,
+      "delta_mean": 0.2,
+      "improved_rows": 2,
+      "worsened_rows": 0,
+      "tied_rows": 3
+    }
+  }
+}

@@ -1,0 +1,948 @@
+[
+  {
+    "sketch_id": "hiddenbench_evacuation_east_town",
+    "draft_status": "local_perturbation_draft_not_packet",
+    "source_fact_draft": "p0p1_fact_units.draft.json",
+    "perturbation_goal": "Check whether each seed obeys verification and final_decider recipient scope.",
+    "base_variant": {
+      "variant_id": "hb03_base_verified_role_scoped",
+      "content_policy": "same_source_facts_as_fact_unit_draft",
+      "source_scope_state": {
+        "hb03_hidden_0": "verified_flood_report:route_checker,final_decider",
+        "hb03_hidden_1": "verified_flood_alert:route_checker,final_decider",
+        "hb03_hidden_2": "verified_route_notice:route_checker,final_decider",
+        "hb03_hidden_3": "verified_route_report:route_checker,final_decider"
+      },
+      "expected_admission_units": [
+        "hb03_unit_west_city_flood_blocked",
+        "hb03_unit_north_hill_access_blocked",
+        "hb03_unit_east_town_shelter_enabled"
+      ],
+      "expected_downstream_state": "decidable_from_admitted_facts"
+    },
+    "perturbation_variants": [
+      {
+        "variant_id": "hb03_west_dam_unverified",
+        "same_text_fact_ids": [
+          "hb03_hidden_1"
+        ],
+        "changed_only": "verification_state",
+        "source_scope_state_overrides": {
+          "hb03_hidden_1": "unverified_flood_alert:route_checker,final_decider"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb03_unit_west_city_flood_blocked"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb03_hidden_1"
+              ],
+              "reason": "verification_reject",
+              "rationale": "This fact should not support final_decider admission under the perturbed source state."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified admission unit.",
+        "baseline_pressure": "A semantic candidate packer may still use the text if it ignores verification or recipient scope."
+      },
+      {
+        "variant_id": "hb03_north_mudslide_no_final_scope",
+        "same_text_fact_ids": [
+          "hb03_hidden_3"
+        ],
+        "changed_only": "recipient_scope",
+        "source_scope_state_overrides": {
+          "hb03_hidden_3": "verified_route_report:route_checker"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb03_unit_north_hill_access_blocked"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb03_hidden_3"
+              ],
+              "reason": "recipient_scope_reject_for_final_decider",
+              "rationale": "This fact should not support final_decider admission under the perturbed source state."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified admission unit.",
+        "baseline_pressure": "A semantic candidate packer may still use the text if it ignores verification or recipient scope."
+      }
+    ],
+    "packet_gate_note": "Do not score this seed only by final option; perturbations must change admitted evidence obligations."
+  },
+  {
+    "sketch_id": "hiddenbench_baker_2010",
+    "draft_status": "local_profile_perturbation_draft_not_packet",
+    "source_fact_draft": "p0p1p2_fact_units.draft.json",
+    "perturbation_goal": "Check whether profile-level evidence obeys verification and final_decider recipient scope.",
+    "base_variant": {
+      "variant_id": "hb05_base_verified_profile_scoped",
+      "content_policy": "profile paragraphs split into candidate-level source cards",
+      "source_scope_state": {
+        "hb05_hidden_stevens_no_fundraising": "verified_reference_profile:advancement_checker,final_decider",
+        "hb05_hidden_stevens_teaches_one_class": "verified_reference_profile:academic_fit_checker,final_decider",
+        "hb05_hidden_stevens_spouse_spanish": "verified_reference_profile:academic_fit_checker,final_decider",
+        "hb05_hidden_stevens_discourages_innovation": "verified_reference_profile:academic_fit_checker,governance_checker,final_decider",
+        "hb05_hidden_stevens_family_atlanta": "verified_reference_profile:governance_checker,final_decider",
+        "hb05_hidden_stevens_married_children": "verified_reference_profile:governance_checker,final_decider",
+        "hb05_hidden_stevens_sports": "verified_reference_profile:governance_checker,final_decider",
+        "hb05_hidden_stevens_fitness": "verified_reference_profile:governance_checker,final_decider",
+        "hb05_hidden_stevens_public_drinking": "verified_reference_profile:governance_checker,final_decider",
+        "hb05_hidden_stevens_consulting": "verified_reference_profile:academic_fit_checker,final_decider",
+        "hb05_hidden_stevens_garden": "verified_reference_profile:governance_checker,final_decider",
+        "hb05_hidden_roberts_contacts": "verified_reference_profile:advancement_checker,final_decider",
+        "hb05_hidden_roberts_nonprofits": "verified_reference_profile:governance_checker,final_decider",
+        "hb05_hidden_roberts_vegetarian": "verified_reference_profile:governance_checker,final_decider",
+        "hb05_hidden_roberts_thoughtful_listener": "verified_reference_profile:governance_checker,final_decider",
+        "hb05_hidden_roberts_collaborative": "verified_reference_profile:governance_checker,final_decider",
+        "hb05_hidden_roberts_golf_tennis": "verified_reference_profile:governance_checker,final_decider",
+        "hb05_hidden_roberts_excellent_teacher": "verified_reference_profile:academic_fit_checker,final_decider",
+        "hb05_hidden_roberts_family": "verified_reference_profile:governance_checker,final_decider",
+        "hb05_hidden_roberts_research_productivity": "verified_reference_profile:academic_fit_checker,final_decider",
+        "hb05_hidden_roberts_diversity": "verified_reference_profile:governance_checker,final_decider",
+        "hb05_hidden_roberts_federal_grant": "verified_reference_profile:advancement_checker,final_decider",
+        "hb05_hidden_jones_lives_area": "verified_workplace_profile:governance_checker,final_decider",
+        "hb05_hidden_jones_married_child": "verified_workplace_profile:governance_checker,final_decider",
+        "hb05_hidden_jones_abrasive_turnover": "verified_workplace_profile:governance_checker,final_decider",
+        "hb05_hidden_jones_pets": "verified_workplace_profile:governance_checker,final_decider",
+        "hb05_hidden_jones_spouse_physician": "verified_workplace_profile:governance_checker,final_decider",
+        "hb05_hidden_jones_bridge": "verified_workplace_profile:governance_checker,final_decider",
+        "hb05_hidden_jones_overseas_travel": "verified_workplace_profile:governance_checker,final_decider",
+        "hb05_hidden_jones_provost_tension": "verified_workplace_profile:governance_checker,final_decider",
+        "hb05_hidden_jones_strategic": "verified_workplace_profile:governance_checker,final_decider",
+        "hb05_hidden_jones_reads": "verified_workplace_profile:governance_checker,final_decider",
+        "hb05_hidden_jones_cooking": "verified_workplace_profile:governance_checker,final_decider"
+      },
+      "expected_admission_units": [
+        "hb05_unit_stevens_profile_blocked",
+        "hb05_unit_jones_governance_blocked",
+        "hb05_unit_roberts_academic_governance_enabled",
+        "hb05_unit_roberts_advancement_diversity_enabled"
+      ],
+      "expected_downstream_state": "decidable_from_admitted_facts"
+    },
+    "perturbation_variants": [
+      {
+        "variant_id": "hb05_roberts_grant_unverified",
+        "same_text_fact_ids": [
+          "hb05_hidden_roberts_federal_grant"
+        ],
+        "changed_only": "verification_state",
+        "source_scope_state_overrides": {
+          "hb05_hidden_roberts_federal_grant": "unverified_grant_claim:advancement_checker,final_decider"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb05_unit_roberts_advancement_diversity_enabled"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb05_hidden_roberts_federal_grant"
+              ],
+              "reason": "verification_reject",
+              "rationale": "The same grant text should not support final_decider admission while unverified."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified Roberts advancement unit.",
+        "baseline_pressure": "A profile summarizer may still use the grant text if it ignores verification state."
+      },
+      {
+        "variant_id": "hb05_jones_tension_no_final_scope",
+        "same_text_fact_ids": [
+          "hb05_hidden_jones_provost_tension"
+        ],
+        "changed_only": "recipient_scope",
+        "source_scope_state_overrides": {
+          "hb05_hidden_jones_provost_tension": "verified_workplace_profile:governance_checker"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb05_unit_jones_governance_blocked"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb05_hidden_jones_provost_tension"
+              ],
+              "reason": "recipient_scope_reject_for_final_decider",
+              "rationale": "This Jones governance blocker should not support final_decider admission without final_decider scope."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified Jones governance blocker.",
+        "baseline_pressure": "A profile summarizer may still use the tension text if it ignores recipient scope."
+      }
+    ],
+    "packet_gate_note": "Do not score this profile seed only by Roberts selection; perturbations must change admitted profile evidence obligations."
+  },
+  {
+    "sketch_id": "hiddenbench_emergency_supply_drop",
+    "draft_status": "local_perturbation_draft_not_packet",
+    "source_fact_draft": "hiddenbench_fact_units.draft.json",
+    "perturbation_goal": "Check whether the same Warehouse evidence changes admission when verification state or recipient scope changes.",
+    "base_variant": {
+      "variant_id": "hb10_base_verified_role_scoped",
+      "content_policy": "same_source_facts_as_fact_unit_draft",
+      "source_scope_state": {
+        "hb10_hidden_0": "verified_observation:logistics_planner,final_decider",
+        "hb10_hidden_1": "verified_observation:logistics_planner,final_decider",
+        "hb10_hidden_2": "verified_observation:logistics_planner,final_decider",
+        "hb10_hidden_3": "verified_sensor:hazard_checker,final_decider"
+      },
+      "expected_admission_units": [
+        "hb10_unit_a_distribution_blocked",
+        "hb10_unit_b_hazard_blocked",
+        "hb10_unit_c_distribution_enabled"
+      ],
+      "expected_downstream_state": "decidable_from_admitted_facts"
+    },
+    "perturbation_variants": [
+      {
+        "variant_id": "hb10_b_hazard_quarantined",
+        "same_text_fact_ids": [
+          "hb10_hidden_3"
+        ],
+        "changed_only": "verification_state",
+        "source_scope_change": "Treat hb10_hidden_3 as quarantined_sensor, not verified_sensor.",
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb10_unit_b_hazard_blocked"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb10_hidden_3"
+              ],
+              "reason": "verification_reject",
+              "rationale": "The same noxious-gas text should not become a blocking admission while quarantined."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence, because Warehouse B cannot be safely blocked from admitted facts.",
+        "baseline_pressure": "A semantic card-packing baseline may still pick the gas fact; admission scoring must penalize that if verification state is ignored."
+      },
+      {
+        "variant_id": "hb10_c_enabler_no_final_scope",
+        "same_text_fact_ids": [
+          "hb10_hidden_2"
+        ],
+        "changed_only": "recipient_scope",
+        "source_scope_change": "Keep hb10_hidden_2 verified, but make it eligible only for logistics_planner and not final_decider.",
+        "expected_admission_delta": {
+          "modify_units": [
+            {
+              "unit_id": "hb10_unit_c_distribution_enabled",
+              "admit_to": [
+                "logistics_planner"
+              ],
+              "not_admit_to": [
+                "final_decider"
+              ],
+              "reason": "recipient_scope_reject_for_final_decider"
+            }
+          ]
+        },
+        "expected_downstream_delta": "Final_decider cannot claim a complete Warehouse C enabler unless a separate allowed report edge is introduced.",
+        "baseline_pressure": "Shared-context and CICL-style packing should be checked for over-sharing this fact to final_decider."
+      }
+    ],
+    "packet_gate_note": "Do not materialize this row until the evaluator can distinguish verification_reject from semantic irrelevance."
+  },
+  {
+    "sketch_id": "hiddenbench_conference_relocation",
+    "draft_status": "local_perturbation_draft_not_packet",
+    "source_fact_draft": "hiddenbench_fact_units.draft.json",
+    "perturbation_goal": "Check whether disabling and enabling venue facts obey verification and recipient scope rather than option salience.",
+    "base_variant": {
+      "variant_id": "hb11_base_verified_role_scoped",
+      "content_policy": "same_source_facts_as_fact_unit_draft",
+      "source_scope_state": {
+        "hb11_hidden_0": "verified_facility_report:facilities_checker,final_decider",
+        "hb11_hidden_1": "verified_recovery_report:recovery_checker,final_decider",
+        "hb11_hidden_2": "verified_facility_report:facilities_checker,final_decider",
+        "hb11_hidden_3": "verified_off_option_report:facilities_checker"
+      },
+      "expected_admission_units": [
+        "hb11_unit_library_fuel_blocked",
+        "hb11_unit_center_chemical_blocked",
+        "hb11_unit_school_restrooms_enabled"
+      ],
+      "expected_downstream_state": "decidable_from_admitted_facts"
+    },
+    "perturbation_variants": [
+      {
+        "variant_id": "hb11_school_repair_quarantined",
+        "same_text_fact_ids": [
+          "hb11_hidden_1"
+        ],
+        "changed_only": "verification_state",
+        "source_scope_change": "Treat hb11_hidden_1 as unverified_repair_claim rather than verified_recovery_report.",
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb11_unit_school_restrooms_enabled"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb11_hidden_1"
+              ],
+              "reason": "verification_reject",
+              "rationale": "The same restroom-restoration text should not enable School Gym until verified."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence, because the main School Gym repair fact is not admissible.",
+        "baseline_pressure": "Option-answer accuracy alone would hide this failure; scoring must require the enabler unit."
+      },
+      {
+        "variant_id": "hb11_library_fuel_no_final_scope",
+        "same_text_fact_ids": [
+          "hb11_hidden_0"
+        ],
+        "changed_only": "recipient_scope",
+        "source_scope_change": "Keep hb11_hidden_0 verified, but make it eligible only for facilities_checker and not final_decider.",
+        "expected_admission_delta": {
+          "modify_units": [
+            {
+              "unit_id": "hb11_unit_library_fuel_blocked",
+              "admit_to": [
+                "facilities_checker"
+              ],
+              "not_admit_to": [
+                "final_decider"
+              ],
+              "reason": "recipient_scope_reject_for_final_decider"
+            }
+          ]
+        },
+        "expected_downstream_delta": "Final_decider should not directly cite the library fuel blocker unless an allowed facilities summary edge is added.",
+        "baseline_pressure": "Shared verified context should become an explicit baseline that may over-admit this blocker."
+      }
+    ],
+    "packet_gate_note": "Do not score this row only by selecting School Gym; the perturbations must change admitted blocker/enabler obligations."
+  },
+  {
+    "sketch_id": "hiddenbench_evacuate_park_dilemma",
+    "draft_status": "local_perturbation_draft_not_packet",
+    "source_fact_draft": "hb12_hb31_fact_units.draft.json",
+    "perturbation_goal": "Check whether route blockers and emergency-opening support obey verification and final_decider scope.",
+    "base_variant": {
+      "variant_id": "hb12_base_verified_role_scoped",
+      "content_policy": "same_source_facts_as_fact_unit_draft",
+      "source_scope_state": {
+        "hb12_hidden_0": "verified_safety_report:safety_checker,final_decider",
+        "hb12_hidden_1": "verified_route_alert:route_checker,final_decider",
+        "hb12_hidden_2": "verified_safety_report:safety_checker,final_decider",
+        "hb12_hidden_3": "verified_route_report:route_checker,final_decider"
+      },
+      "expected_admission_units": [
+        "hb12_unit_red_lake_route_blocked",
+        "hb12_unit_blueberry_blocked",
+        "hb12_unit_green_valley_enabled"
+      ],
+      "expected_downstream_state": "decidable_from_admitted_facts"
+    },
+    "perturbation_variants": [
+      {
+        "variant_id": "hb12_red_lake_sinkhole_unverified",
+        "same_text_fact_ids": [
+          "hb12_hidden_1"
+        ],
+        "changed_only": "verification_state",
+        "source_scope_state_overrides": {
+          "hb12_hidden_1": "unverified_route_alert:route_checker,final_decider"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb12_unit_red_lake_route_blocked"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb12_hidden_1"
+              ],
+              "reason": "verification_reject",
+              "rationale": "The same sinkhole text should not block Red Lake while unverified."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence, because Red Lake cannot be safely ruled out from admitted facts.",
+        "baseline_pressure": "A semantic candidate packer may still use the sinkhole text; admission scoring must penalize that if verification state is ignored."
+      },
+      {
+        "variant_id": "hb12_green_valley_open_no_final_scope",
+        "same_text_fact_ids": [
+          "hb12_hidden_0"
+        ],
+        "changed_only": "recipient_scope",
+        "source_scope_state_overrides": {
+          "hb12_hidden_0": "verified_safety_report:safety_checker"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb12_unit_green_valley_enabled"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb12_hidden_0"
+              ],
+              "reason": "recipient_scope_reject_for_final_decider",
+              "rationale": "The Green Valley emergency-opening fact is verified but not directly available to final_decider."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence, because final_decider lacks the emergency-opening clarification for Green Valley.",
+        "baseline_pressure": "A shared-context baseline may treat the pest caveat as resolved without respecting final_decider scope."
+      }
+    ],
+    "packet_gate_note": "Do not score this seed only by selecting Green Valley; perturbations must change admitted support and blocker obligations."
+  },
+  {
+    "sketch_id": "hiddenbench_emergency_transportation_decision",
+    "draft_status": "local_perturbation_draft_not_packet",
+    "source_fact_draft": "p0p1_fact_units.draft.json",
+    "perturbation_goal": "Check whether each seed obeys verification and final_decider recipient scope.",
+    "base_variant": {
+      "variant_id": "hb21_base_verified_role_scoped",
+      "content_policy": "same_source_facts_as_fact_unit_draft",
+      "source_scope_state": {
+        "hb21_hidden_0": "verified_route_alert:access_checker,final_decider",
+        "hb21_hidden_1": "verified_route_notice:access_checker,final_decider",
+        "hb21_hidden_2": "verified_delay_report:access_checker,final_decider",
+        "hb21_hidden_3": "verified_readiness_report:readiness_checker,final_decider"
+      },
+      "expected_admission_units": [
+        "hb21_unit_aurora_access_blocked",
+        "hb21_unit_borealis_delay_blocked",
+        "hb21_unit_celestia_ready_enabled"
+      ],
+      "expected_downstream_state": "decidable_from_admitted_facts"
+    },
+    "perturbation_variants": [
+      {
+        "variant_id": "hb21_borealis_delay_unverified",
+        "same_text_fact_ids": [
+          "hb21_hidden_2"
+        ],
+        "changed_only": "verification_state",
+        "source_scope_state_overrides": {
+          "hb21_hidden_2": "unverified_delay_report:access_checker,final_decider"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb21_unit_borealis_delay_blocked"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb21_hidden_2"
+              ],
+              "reason": "verification_reject",
+              "rationale": "This fact should not support final_decider admission under the perturbed source state."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified admission unit.",
+        "baseline_pressure": "A semantic candidate packer may still use the text if it ignores verification or recipient scope."
+      },
+      {
+        "variant_id": "hb21_celestia_ready_no_final_scope",
+        "same_text_fact_ids": [
+          "hb21_hidden_3"
+        ],
+        "changed_only": "recipient_scope",
+        "source_scope_state_overrides": {
+          "hb21_hidden_3": "verified_readiness_report:readiness_checker"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb21_unit_celestia_ready_enabled"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb21_hidden_3"
+              ],
+              "reason": "recipient_scope_reject_for_final_decider",
+              "rationale": "This fact should not support final_decider admission under the perturbed source state."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified admission unit.",
+        "baseline_pressure": "A semantic candidate packer may still use the text if it ignores verification or recipient scope."
+      }
+    ],
+    "packet_gate_note": "Do not score this seed only by final option; perturbations must change admitted evidence obligations."
+  },
+  {
+    "sketch_id": "hiddenbench_research_station_site_selection",
+    "draft_status": "local_perturbation_draft_not_packet",
+    "source_fact_draft": "p0p1_fact_units.draft.json",
+    "perturbation_goal": "Check whether each seed obeys verification and final_decider recipient scope.",
+    "base_variant": {
+      "variant_id": "hb27_base_verified_role_scoped",
+      "content_policy": "same_source_facts_as_fact_unit_draft",
+      "source_scope_state": {
+        "hb27_hidden_0": "verified_access_report:access_checker,final_decider",
+        "hb27_hidden_1": "verified_soil_report:stability_checker,final_decider",
+        "hb27_hidden_2": "verified_geology_report:stability_checker,final_decider",
+        "hb27_hidden_3": "verified_community_report:stability_checker,final_decider"
+      },
+      "expected_admission_units": [
+        "hb27_unit_maple_valley_blocked",
+        "hb27_unit_copper_lake_blocked",
+        "hb27_unit_pine_ridge_access_enabled"
+      ],
+      "expected_downstream_state": "decidable_from_admitted_facts"
+    },
+    "perturbation_variants": [
+      {
+        "variant_id": "hb27_copper_soil_unverified",
+        "same_text_fact_ids": [
+          "hb27_hidden_1"
+        ],
+        "changed_only": "verification_state",
+        "source_scope_state_overrides": {
+          "hb27_hidden_1": "unverified_soil_report:stability_checker,final_decider"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb27_unit_copper_lake_blocked"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb27_hidden_1"
+              ],
+              "reason": "verification_reject",
+              "rationale": "This fact should not support final_decider admission under the perturbed source state."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified admission unit.",
+        "baseline_pressure": "A semantic candidate packer may still use the text if it ignores verification or recipient scope."
+      },
+      {
+        "variant_id": "hb27_pine_access_no_final_scope",
+        "same_text_fact_ids": [
+          "hb27_hidden_0"
+        ],
+        "changed_only": "recipient_scope",
+        "source_scope_state_overrides": {
+          "hb27_hidden_0": "verified_access_report:access_checker"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb27_unit_pine_ridge_access_enabled"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb27_hidden_0"
+              ],
+              "reason": "recipient_scope_reject_for_final_decider",
+              "rationale": "This fact should not support final_decider admission under the perturbed source state."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified admission unit.",
+        "baseline_pressure": "A semantic candidate packer may still use the text if it ignores verification or recipient scope."
+      }
+    ],
+    "packet_gate_note": "Do not score this seed only by final option; perturbations must change admitted evidence obligations."
+  },
+  {
+    "sketch_id": "hiddenbench_weather_sensor_deployment",
+    "draft_status": "local_perturbation_draft_not_packet",
+    "source_fact_draft": "hb12_hb31_fact_units.draft.json",
+    "perturbation_goal": "Check whether Gamma access support and Beta route blockers obey scope and verification.",
+    "base_variant": {
+      "variant_id": "hb31_base_verified_role_scoped",
+      "content_policy": "same_source_facts_as_fact_unit_draft",
+      "source_scope_state": {
+        "hb31_hidden_0": "verified_access_report:access_checker,final_decider",
+        "hb31_hidden_1": "unverified_geology_note:stability_checker,final_decider",
+        "hb31_hidden_2": "verified_access_log:access_checker,final_decider",
+        "hb31_hidden_3": "verified_weather_alert:stability_checker,final_decider"
+      },
+      "expected_admission_units": [
+        "hb31_unit_beta_bridge_blocked",
+        "hb31_unit_alpha_wind_blocked",
+        "hb31_unit_gamma_boat_enabled"
+      ],
+      "expected_downstream_state": "decidable_from_admitted_facts"
+    },
+    "perturbation_variants": [
+      {
+        "variant_id": "hb31_gamma_boat_no_final_scope",
+        "same_text_fact_ids": [
+          "hb31_hidden_2"
+        ],
+        "changed_only": "recipient_scope",
+        "source_scope_state_overrides": {
+          "hb31_hidden_2": "verified_access_log:access_checker"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb31_unit_gamma_boat_enabled"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb31_hidden_2"
+              ],
+              "reason": "recipient_scope_reject_for_final_decider",
+              "rationale": "The boat workaround is verified but not available to final_decider."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence, because final_decider cannot establish Gamma Lake access.",
+        "baseline_pressure": "A model may still use the boat fact if it ignores recipient scope."
+      },
+      {
+        "variant_id": "hb31_beta_bridge_unverified",
+        "same_text_fact_ids": [
+          "hb31_hidden_0"
+        ],
+        "changed_only": "verification_state",
+        "source_scope_state_overrides": {
+          "hb31_hidden_0": "unverified_access_report:access_checker,final_decider"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb31_unit_beta_bridge_blocked"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb31_hidden_0"
+              ],
+              "reason": "verification_reject",
+              "rationale": "The bridge-collapse text should not block Beta Valley while unverified."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence, because Beta Valley cannot be safely ruled out from admitted facts.",
+        "baseline_pressure": "A semantic candidate packer may still use the bridge-collapse text despite its verification state."
+      }
+    ],
+    "packet_gate_note": "Do not score this seed only by selecting Gamma Lake; perturbations must pressure support scope and blocker verification."
+  },
+  {
+    "sketch_id": "hiddenbench_choosing_the_safe_offsite_venue",
+    "draft_status": "local_perturbation_draft_not_packet",
+    "source_fact_draft": "p0p1_fact_units.draft.json",
+    "perturbation_goal": "Check whether each seed obeys verification and final_decider recipient scope.",
+    "base_variant": {
+      "variant_id": "hb44_base_verified_role_scoped",
+      "content_policy": "same_source_facts_as_fact_unit_draft",
+      "source_scope_state": {
+        "hb44_hidden_0": "verified_power_report:service_checker,final_decider",
+        "hb44_hidden_1": "verified_bridge_report:access_checker,final_decider",
+        "hb44_hidden_2": "verified_transit_alert:access_checker,final_decider",
+        "hb44_hidden_3": "verified_access_report:access_checker,final_decider"
+      },
+      "expected_admission_units": [
+        "hb44_unit_downtown_hotel_blocked",
+        "hb44_unit_riverside_bridge_blocked",
+        "hb44_unit_hilltop_access_enabled"
+      ],
+      "expected_downstream_state": "decidable_from_admitted_facts"
+    },
+    "perturbation_variants": [
+      {
+        "variant_id": "hb44_riverside_bridge_unverified",
+        "same_text_fact_ids": [
+          "hb44_hidden_1"
+        ],
+        "changed_only": "verification_state",
+        "source_scope_state_overrides": {
+          "hb44_hidden_1": "unverified_bridge_report:access_checker,final_decider"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb44_unit_riverside_bridge_blocked"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb44_hidden_1"
+              ],
+              "reason": "verification_reject",
+              "rationale": "This fact should not support final_decider admission under the perturbed source state."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified admission unit.",
+        "baseline_pressure": "A semantic candidate packer may still use the text if it ignores verification or recipient scope."
+      },
+      {
+        "variant_id": "hb44_hilltop_access_no_final_scope",
+        "same_text_fact_ids": [
+          "hb44_hidden_3"
+        ],
+        "changed_only": "recipient_scope",
+        "source_scope_state_overrides": {
+          "hb44_hidden_3": "verified_access_report:access_checker"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb44_unit_hilltop_access_enabled"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb44_hidden_3"
+              ],
+              "reason": "recipient_scope_reject_for_final_decider",
+              "rationale": "This fact should not support final_decider admission under the perturbed source state."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified admission unit.",
+        "baseline_pressure": "A semantic candidate packer may still use the text if it ignores verification or recipient scope."
+      }
+    ],
+    "packet_gate_note": "Do not score this seed only by final option; perturbations must change admitted evidence obligations."
+  },
+  {
+    "sketch_id": "hiddenbench_emergency_supply_distribution",
+    "draft_status": "local_perturbation_draft_not_packet",
+    "source_fact_draft": "p0p1_fact_units.draft.json",
+    "perturbation_goal": "Check whether each seed obeys verification and final_decider recipient scope.",
+    "base_variant": {
+      "variant_id": "hb51_base_verified_role_scoped",
+      "content_policy": "same_source_facts_as_fact_unit_draft",
+      "source_scope_state": {
+        "hb51_hidden_0": "verified_inventory_report:supply_quality_checker,final_decider",
+        "hb51_hidden_1": "verified_temperature_report:supply_quality_checker,final_decider",
+        "hb51_hidden_2": "verified_access_report:access_checker,final_decider",
+        "hb51_hidden_3": "verified_generator_report:supply_quality_checker,final_decider"
+      },
+      "expected_admission_units": [
+        "hb51_unit_alpha_storage_blocked",
+        "hb51_unit_bravo_storage_not_needed_blocked",
+        "hb51_unit_charlie_access_enabled"
+      ],
+      "expected_downstream_state": "decidable_from_admitted_facts"
+    },
+    "perturbation_variants": [
+      {
+        "variant_id": "hb51_alpha_generator_unverified",
+        "same_text_fact_ids": [
+          "hb51_hidden_3"
+        ],
+        "changed_only": "verification_state",
+        "source_scope_state_overrides": {
+          "hb51_hidden_3": "unverified_generator_report:supply_quality_checker,final_decider"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb51_unit_alpha_storage_blocked"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb51_hidden_3"
+              ],
+              "reason": "verification_reject",
+              "rationale": "This fact should not support final_decider admission under the perturbed source state."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified admission unit.",
+        "baseline_pressure": "A semantic candidate packer may still use the text if it ignores verification or recipient scope."
+      },
+      {
+        "variant_id": "hb51_charlie_access_no_final_scope",
+        "same_text_fact_ids": [
+          "hb51_hidden_2"
+        ],
+        "changed_only": "recipient_scope",
+        "source_scope_state_overrides": {
+          "hb51_hidden_2": "verified_access_report:access_checker"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb51_unit_charlie_access_enabled"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb51_hidden_2"
+              ],
+              "reason": "recipient_scope_reject_for_final_decider",
+              "rationale": "This fact should not support final_decider admission under the perturbed source state."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified admission unit.",
+        "baseline_pressure": "A semantic candidate packer may still use the text if it ignores verification or recipient scope."
+      }
+    ],
+    "packet_gate_note": "Do not score this seed only by final option; perturbations must change admitted evidence obligations."
+  },
+  {
+    "sketch_id": "hiddenbench_island_research_base_choice",
+    "draft_status": "local_perturbation_draft_not_packet",
+    "source_fact_draft": "p0p1_fact_units.draft.json",
+    "perturbation_goal": "Check whether each seed obeys verification and final_decider recipient scope.",
+    "base_variant": {
+      "variant_id": "hb54_base_verified_role_scoped",
+      "content_policy": "same_source_facts_as_fact_unit_draft",
+      "source_scope_state": {
+        "hb54_hidden_0": "verified_flood_report:site_safety_checker,final_decider",
+        "hb54_hidden_1": "verified_comms_report:communications_checker,final_decider",
+        "hb54_hidden_2": "verified_gas_report:site_safety_checker,final_decider",
+        "hb54_hidden_3": "verified_ground_report:site_safety_checker,final_decider"
+      },
+      "expected_admission_units": [
+        "hb54_unit_site_a_hazard_blocked",
+        "hb54_unit_site_b_flood_blocked",
+        "hb54_unit_site_c_comms_enabled"
+      ],
+      "expected_downstream_state": "decidable_from_admitted_facts"
+    },
+    "perturbation_variants": [
+      {
+        "variant_id": "hb54_site_b_flood_unverified",
+        "same_text_fact_ids": [
+          "hb54_hidden_0"
+        ],
+        "changed_only": "verification_state",
+        "source_scope_state_overrides": {
+          "hb54_hidden_0": "unverified_flood_report:site_safety_checker,final_decider"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb54_unit_site_b_flood_blocked"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb54_hidden_0"
+              ],
+              "reason": "verification_reject",
+              "rationale": "This fact should not support final_decider admission under the perturbed source state."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified admission unit.",
+        "baseline_pressure": "A semantic candidate packer may still use the text if it ignores verification or recipient scope."
+      },
+      {
+        "variant_id": "hb54_site_c_comms_no_final_scope",
+        "same_text_fact_ids": [
+          "hb54_hidden_1"
+        ],
+        "changed_only": "recipient_scope",
+        "source_scope_state_overrides": {
+          "hb54_hidden_1": "verified_comms_report:communications_checker"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb54_unit_site_c_comms_enabled"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb54_hidden_1"
+              ],
+              "reason": "recipient_scope_reject_for_final_decider",
+              "rationale": "This fact should not support final_decider admission under the perturbed source state."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified admission unit.",
+        "baseline_pressure": "A semantic candidate packer may still use the text if it ignores verification or recipient scope."
+      }
+    ],
+    "packet_gate_note": "Do not score this seed only by final option; perturbations must change admitted evidence obligations."
+  },
+  {
+    "sketch_id": "hiddenbench_secure_the_masterpiece",
+    "draft_status": "local_perturbation_draft_not_packet",
+    "source_fact_draft": "p0p1_fact_units.draft.json",
+    "perturbation_goal": "Check whether each seed obeys verification and final_decider recipient scope.",
+    "base_variant": {
+      "variant_id": "hb56_base_verified_role_scoped",
+      "content_policy": "same_source_facts_as_fact_unit_draft",
+      "source_scope_state": {
+        "hb56_hidden_0": "verified_power_report:environment_checker,final_decider",
+        "hb56_hidden_1": "verified_access_report:access_checker,final_decider",
+        "hb56_hidden_2": "verified_wind_report:environment_checker,final_decider",
+        "hb56_hidden_3": "verified_evacuation_alert:environment_checker,final_decider"
+      },
+      "expected_admission_units": [
+        "hb56_unit_art_museum_chemical_blocked",
+        "hb56_unit_science_lab_environment_blocked",
+        "hb56_unit_records_vault_access_enabled"
+      ],
+      "expected_downstream_state": "decidable_from_admitted_facts"
+    },
+    "perturbation_variants": [
+      {
+        "variant_id": "hb56_art_museum_wind_unverified",
+        "same_text_fact_ids": [
+          "hb56_hidden_2"
+        ],
+        "changed_only": "verification_state",
+        "source_scope_state_overrides": {
+          "hb56_hidden_2": "unverified_wind_report:environment_checker,final_decider"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb56_unit_art_museum_chemical_blocked"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb56_hidden_2"
+              ],
+              "reason": "verification_reject",
+              "rationale": "This fact should not support final_decider admission under the perturbed source state."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified admission unit.",
+        "baseline_pressure": "A semantic candidate packer may still use the text if it ignores verification or recipient scope."
+      },
+      {
+        "variant_id": "hb56_science_generator_no_final_scope",
+        "same_text_fact_ids": [
+          "hb56_hidden_0"
+        ],
+        "changed_only": "recipient_scope",
+        "source_scope_state_overrides": {
+          "hb56_hidden_0": "verified_power_report:environment_checker"
+        },
+        "expected_admission_delta": {
+          "drop_units": [
+            "hb56_unit_science_lab_environment_blocked"
+          ],
+          "add_rejections": [
+            {
+              "source_fact_ids": [
+                "hb56_hidden_0"
+              ],
+              "reason": "recipient_scope_reject_for_final_decider",
+              "rationale": "This fact should not support final_decider admission under the perturbed source state."
+            }
+          ]
+        },
+        "expected_downstream_delta": "The row should become insufficient_admissible_evidence because final_decider lacks a required verified admission unit.",
+        "baseline_pressure": "A semantic candidate packer may still use the text if it ignores verification or recipient scope."
+      }
+    ],
+    "packet_gate_note": "Do not score this seed only by final option; perturbations must change admitted evidence obligations."
+  }
+]

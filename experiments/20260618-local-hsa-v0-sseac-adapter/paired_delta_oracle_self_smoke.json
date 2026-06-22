@@ -1,0 +1,46 @@
+{
+  "benchmark": "hsa",
+  "paired_rows": 9,
+  "no_compiler_rows": 9,
+  "compiled_rows": 9,
+  "missing_no_compiler": [],
+  "missing_compiled": [],
+  "metrics": {
+    "strict": {
+      "paired_values": 9,
+      "structured_no_compiler_mean": 1.0,
+      "compiled_mean": 1.0,
+      "delta_mean": 0.0,
+      "improved_rows": 0,
+      "worsened_rows": 0,
+      "tied_rows": 9
+    },
+    "slot_recall": {
+      "paired_values": 9,
+      "structured_no_compiler_mean": 0.8333333333333334,
+      "compiled_mean": 0.8333333333333334,
+      "delta_mean": 0.0,
+      "improved_rows": 0,
+      "worsened_rows": 0,
+      "tied_rows": 9
+    },
+    "extra_final_card_count": {
+      "paired_values": 9,
+      "structured_no_compiler_mean": 0.0,
+      "compiled_mean": 0.0,
+      "delta_mean": 0.0,
+      "improved_rows": 0,
+      "worsened_rows": 0,
+      "tied_rows": 9
+    },
+    "forced_commitment_detected": {
+      "paired_values": 9,
+      "structured_no_compiler_mean": 0.0,
+      "compiled_mean": 0.0,
+      "delta_mean": 0.0,
+      "improved_rows": 0,
+      "worsened_rows": 0,
+      "tied_rows": 9
+    }
+  }
+}

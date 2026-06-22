@@ -8,7 +8,7 @@ When writing or revising a substantial report, follow `skills/research-report-wr
 
 ## Current Surface
 
-As of `2026-06-18`, the top-level folder is deliberately kept small. It should show only the reports that still help steer the benchmark-first live story:
+As of `2026-06-20`, the top-level folder is deliberately kept small. It should show only the reports that still help steer the mechanism-improvement live story:
 
 - benchmark-first reset and the retirement boundary for the old MATH / TypeCast main story;
 - HiddenBench communication-necessity evidence and protocol pressure;
@@ -29,6 +29,39 @@ Archived reports remain citable evidence. They are not part of the active readin
 
 ## Active Reports
 
+- `20260618-experiment-signal-audit.md`
+- `20260618-sseac-pal-ablation-interface.md`
+- `20260618-perspectivegap-sota-attack-plan.md`
+- `20260618-hsa-v0-sseac-adapter.md`
+- `20260618-hsa-v0-sseac-launch-gate.md`
+- `20260618-hsa-v0-sseac-runner-preflight.md`
+- `20260618-sseac-v0-pg40-launch-gate.md`
+- `20260618-sseac-v0-pg40-runner-preflight.md`
+- `20260619-pg40-sseac-limit5-gpu7-rerun.md`
+- `20260619-pg40-sseac-cardunit-limit5.md`
+- `20260619-pg40-sseac-roleplan-limit5.md`
+- `20260620-pg40-scope-projection-rerank-preflight.md`
+- `20260620-pg40-no-scope-role-affinity-preflight.md`
+- `20260620-pg40-pairwise-selector-preflight.md`
+- `20260620-pg40-pairwise-selector-limit5.md`
+- `20260619-pg40-direct-routing-preflight.md`
+- `20260619-pg40-direct-routing-limit5.md`
+- `20260619-public-benchmark-report-reset.md`
+- `20260619-public-benchmark-compliance-audit.md`
+- `20260619-perspectivegap-official-fullgrid-direct-baseline.md`
+- `20260619-perspectivegap-fullgrid-score-audit.md`
+- `20260619-hsa-v0-full9-a8002.md`
+- `20260619-hsa-v0-recall-sweep-full9-a8002.md`
+- `20260619-hsa-v0-focused-constraint-full9-a8002.md`
+- `20260619-hsa-v0-constraint-completion-postfilter.md`
+- `20260619-hsa-v0-seed-shortlist-gate.md`
+- `20260619-hsa-v0-hb12-hb31-draft-packet.md`
+- `20260619-hsa-v0-extended15-packet-gate.md`
+- `20260619-hsa-v0-extended15-launch-gate.md`
+- `20260619-hsa-v0-constraint-recall-extended15-a8002.md`
+- `20260619-hsa-v0-p0p1-seed-expansion33-gate.md`
+- `20260619-hsa-v0-constraint-recall-p0p1-33-a8002.md`
+- `20260619-hsa-v0-constraint-recall-p0p1p2-36-a8002.md`
 - `20260618-skill-guided-state-admission-v2-preflight.md`
 - `20260618-state-admission-v2-visible-facts-ablation.md`
 - `20260618-state-admission-v2-abstention-gate-ablation.md`

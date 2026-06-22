@@ -1,0 +1,1534 @@
+                                                                           PAL: Program-aided Language Models
+
+
+                                               Luyu Gao * 1 Aman Madaan * 1 Shuyan Zhou * 1 Uri Alon 1 Pengfei Liu 1 2 Yiming Yang 1 Jamie Callan 1
+                                                                                     Graham Neubig 1 2
+                                                    {luyug,amadaan,shuyanzh,ualon,pliu3,yiming,callan,gneubig}@cs.cmu.edu
+
+
+                                                                   Abstract                                 1. Introduction
+arXiv:2211.10435v2 [cs.CL] 27 Jan 2023
+
+
+
+
+                                                                                                            Until as recently as two years ago, reasoning was considered
+                                                Large language models (LLMs) have recently                  to be one of the most significant challenges that large lan-
+                                                demonstrated an impressive ability to perform               guage models (LLMs) had not yet overcome (Marcus, 2018;
+                                                arithmetic and symbolic reasoning tasks, when               2020; Garcez & Lamb, 2020). Recently, LLMs have shown
+                                                provided with a few examples at test time (“few-            impressive success on a wide range of tasks, including com-
+                                                shot prompting”). Much of this success can be               monsense (Wei et al., 2021; Sanh et al., 2021; Madaan
+                                                attributed to prompting methods such as “chain-             et al., 2022), mathematical (Lewkowycz et al., 2022; Wu
+                                                of-thought”, which employ LLMs for both under-              et al., 2022; Mishra et al., 2022), and symbolic reason-
+                                                standing the problem description by decomposing             ing (Yao et al., 2022; Ahn et al., 2022), using few-shot
+                                                it into steps, as well as solving each step of the          prompting (Brown et al., 2020).
+                                                problem. While LLMs seem to be adept at this
+                                                sort of step-by-step decomposition, LLMs often              This process has been accelerated by methods that require
+                                                make logical and arithmetic mistakes in the solu-           LLMs to generate their explicit reasoning steps, such as
+                                                tion part, even when the problem is decomposed              “chain-of-thought” (Wei et al., 2022), “scratchpads” (Nye
+                                                correctly. In this paper, we present Program-               et al., 2021), and “least-to-most” (Zhou et al., 2022) prompt-
+                                                Aided Language models (PA L): a novel approach              ing. In particular, the widely used chain-of-thought (C OT)
+                                                that uses the LLM to read natural language prob-            method presents the model with the explicit intermediate
+                                                lems and generate programs as the intermediate              steps that are required to reach the final answer. Then, the
+                                                reasoning steps, but offloads the solution step to a        model is expected to apply a similar decomposition to the ac-
+                                                runtime such as a Python interpreter. With PA L,            tual test example, and consecutively reach an accurate final
+                                                decomposing the natural language problem into               answer (Ling et al., 2017; Amini et al., 2019). Nevertheless,
+                                                runnable steps remains the only learning task for           while LLMs can decompose natural language problems into
+                                                the LLM, while solving is delegated to the inter-           steps and perform simple arithmetic operations, their perfor-
+                                                preter. We demonstrate this synergy between a               mance falls dramatically when dealing with complex arith-
+                                                neural LLM and a symbolic interpreter across 13             metic (Hendrycks et al., 2021; Madaan & Yazdanbakhsh,
+                                                mathematical, symbolic, and algorithmic reason-             2022) or large numbers (Nogueira et al., 2021; Qian et al.,
+                                                ing tasks from BIG-Bench Hard and other bench-              2022). In fact, even when fine-tuning a PaLM-based model
+                                                marks. In all these natural language reasoning              on 164B tokens of explicit mathematical content, its two
+                                                tasks, generating code using an LLM and rea-                most common failures are reportedly “incorrect reasoning”
+                                                soning using a Python interpreter leads to more             and “incorrect calculation” (Lewkowycz et al., 2022).
+                                                accurate results than much larger models. For ex-           In this paper, we propose Program-Aided Language
+                                                ample, PA L using C ODEX achieves state-of-the-             model (PA L): a novel method that uses an LLM to read
+                                                art few-shot accuracy on the GSM 8 K benchmark              natural language problems and generate programs as rea-
+                                                of math word problems, surpassing PaLM-540 B                soning steps, but offloads the solution step to a Python inter-
+                                                which uses chain-of-thought by absolute 15% top-            preter, as illustrated in Figure 1. This offloading leverages an
+                                                1. Our code and data are publicly available at              LLM that can decompose a natural language problem into
+                                                http://reasonwithpal.com .                                  programmatic steps, which is fortunately available using
+                                                                                                            contemporary state-of-the-art LLMs that are pre-trained on
+                                                                                                            both natural language and programming languages (Brown
+                                           *
+                                            The first three authors contributed equally. 1 Language Tech-   et al., 2020; Chen et al., 2021a; Chowdhery et al., 2022).
+                                         nologies Institute, Carnegie Mellon University, USA 2 Inspired     While natural language understanding and decomposition
+                                         Cognition, USA.
+                                              PAL: Program-aided Language Models                                                2
+
+
+              Chain-of-Thought (Wei et al., 2022)                     Program-aided Language models (this work)
+      Input                                                            Input
+                                                                   Q: Roger has 5 tennis balls. He buys 2 more cans of
+                                                                   tennis balls. Each can has 3 tennis balls. How many
+  Q: Roger has 5 tennis balls. He buys 2 more cans of              tennis balls does he have now?
+  tennis balls. Each can has 3 tennis balls. How many
+  tennis balls does he have now?                                   A: Roger started with 5 tennis balls.
+                                                                   tennis_balls = 5
+  A: Roger started with 5 tennis balls. 2 cans of 3 tennis         2 cans of 3 tennis balls each is
+  balls each is 6 tennis balls. 5 + 6 = 11. The answer is 11.      bought_balls = 2 * 3
+                                                                   tennis balls. The answer is
+  Q: The bakers at the Beverly Hills Bakery baked 200              answer = tennis_balls + bought_balls
+  loaves of bread on Monday morning. They sold 93 loaves
+  in the morning and 39 loaves in the afternoon. A grocery         Q: The bakers at the Beverly Hills Bakery baked 200
+  store returned 6 unsold loaves. How many loaves of               loaves of bread on Monday morning. They sold 93 loaves
+  bread did they have left?                                        in the morning and 39 loaves in the afternoon. A grocery
+                                                                   store returned 6 unsold loaves. How many loaves of bread
+                                                                   did they have left?
+     Model Output                                                      Model Output
+  A: The bakers started with 200 loaves. They sold 93 in           A: The bakers started with 200 loaves
+  the morning and 39 in the afternoon. So they sold 93 +           loaves_baked = 200
+  39 = 132 loaves. The grocery store returned 6 loaves. So         They sold 93 in the morning and 39 in the afternoon
+  they had 200 - 132 - 6 = 62 loaves left.                         loaves_sold_morning = 93
+  The answer is 62.
+                        ❌
+                                                                   loaves_sold_afternoon = 39
+                                                                   The grocery store returned 6 loaves.
+                                                                   loaves_returned = 6
+                                                                   The answer is
+                                                                   answer = loaves_baked - loaves_sold_morning
+                                                                      - loaves_sold_afternoon + loaves_returned
+
+                                                                   >>> print(answer)
+                                                                   74
+
+
+Figure 1: A diagram illustrating PA L: Given a mathematical reasoning question, Chain-of-thought (left) generates interme-
+diate reasoning steps of free-form text. In contrast, Program-aided Language models (PA L, right) generate intermediate
+steps and Python code. This shifts the role of running the reasoning steps from the language model to the Python interpreter.
+The final answer is obtained by running the generated reasoning chain. Chain-of-thought reasoning is highlighted in blue ;
+PA L steps are highlighted in gray and pink ; the Python interpreter run is highlighted in black and green .
+
+
+require LLMs, solving and reasoning can be done with the         2. Background: Few-shot Prompting
+external solver. This bridges an important gap in chain-of-
+thought-like methods, where reasoning chains can be correct      Few-shot prompting leverages the strength of large-language
+but produce an incorrect answer.                                 models to solve a task with a set of k examples that are pro-
+                                                                 vided as part of the test-time input (Brown et al., 2020;
+We demonstrate the effectiveness of PA L across 13 arith-        Liu et al., 2021; Chowdhery et al., 2022), where k is usu-
+metic and symbolic reasoning tasks. In all these tasks,          ally a number in the low single digits. These input-output
+PA L using Codex (Chen et al., 2021a) outperforms much           examples {(xi , yi )}ki=1 are concatenated in a prompt p
+larger models such as PaLM-540 B using chain-of-thought          ≡ hx1 · y1 i k hx2 · y2 i k . . . k hxk · yk i. where “·” denotes
+prompting. For example, on the popular GSM 8 K bench-            the concatenation of an input and output, and “k” indicate
+mark, PA L achieves state-of-the-art accuracy, surpassing        the concatenation of different examples. During inference,
+PaLM-540 B with chain-of-thought by absolute 15% top-            a test instance xtest is appended to the prompt, and p k xtest
+1 accuracy. When the questions contain large numbers, a          is passed to the model which attempts to complete p k xtest ,
+dataset we call GSM - HARD, PA L outperforms C OT by an ab-      and thereby generate an answer ytest . Note that such few-
+solute 40%. We believe that this seamless synergy between        shot prompting does not modify the underlying LLM.
+a neural LLM and a symbolic interpreter is an essential step
+towards general and robust AI reasoners.
+                                                PAL: Program-aided Language Models                                                   3
+
+Wei et al. (2022) additionally augment each in-context exam-            2 cans of 3 tennis balls each is 6, in PA L we also aug-
+ple with chain of thought (C OT) intermediate steps. Specifi-           ment each such NL step with its corresponding pro-
+cally, each in-context example in the C OT setup is a triplet           grammatic statement such as tennis balls = 5 and
+hxi , ti , yi i, where xi and yi are input-output pair as before,       bought balls = 2 * 3. This way, the model learns
+and ti is a natural language description of the steps that are          to generate a program that will provide the answer for the
+needed to arrive at the output yi from the input xi . See Fig-          test question, instead of relying on LLM to perform the
+ure 1 for an example. With the additional “thoughts” ti , the           calculation correctly.
+prompt is set to p ≡ hx1 ·t1 ·y1 ikhx2 ·t2 ·y2 ik. . .khxk ·tk ·yk i.
+                                                                        We prompt the language model to generate NL intermediate
+During inference, the new question xtest is appended to                 steps using comment syntax (e.g. “# ...” in Python)
+the prompt as before and supplied to the LLM. Crucially,                such they will be ignored by the interpreter. We pass the
+the model is tasked with generating both the thought ttest              generated program ttest to its corresponding solver, we run
+and the final answer ytest . This approach of prompting the             it, and obtain the final run result ytest . In this work we use
+model to first generate a reasoning process ttest improves              a standard Python interpreter, but this can be any solver,
+the accuracy of the answer ytest across a wide range of                 interpreter or a compiler.
+tasks (Wang et al., 2022a; Wei et al., 2022; Zhou et al.,
+2022; Wang et al., 2022b).
+                                                                        Crafting prompts for PA L In our experiments, we lever-
+                                                                        aged the prompts of existing work whenever available, and
+3. Program-aided Language Models                                        otherwise randomly selected the same number (3-6) of ex-
+In a Program-aided Language model, we propose to gen-                   amples as previous work for creating a fixed prompt for
+erate the thoughts t for a given natural language prob-                 every benchmark. In all cases, we augmented the free-form
+lem x as interleaved natural language (NL) and program-                 text prompts into PA L-styled prompts, leveraging program-
+ming language (PL) statements. Since we delegate the                    ming constructs such as for loops and dictionaries when
+solution step to an interpreter, we do not provide the fi-              needed. Generally, writing PA L prompts is easy and quick.
+nal answers to the examples in our prompt. That is, ev-                 We also ensure that variable names in the prompt mean-
+ery in-context example in PA L is a pair hxi , ti i, where              ingfully reflect their roles. For example, a variable that
+tj = [s1 , s2 , . . . , sN ] with each si ∈ NL ∪ PL, a sequence         describes the number of apples in the basket should have a
+of tokens in either NL or PL. The complete prompt is thus p             name such as num apples in basket. This keeps the
+≡ hx1 · t1 i k hx2 · t2 i k . . . k hxk · tk i.                         generated code linked to the entities in the question. In
+Given a test instance xtest , we append it to the prompt,               Section 6 we show that such meaningful variable names are
+and p k xtest is fed to the LM. We let the LM generate a                critical. Notably, it is also possible to incrementally run
+prediction ttest , which contains both the intermediate steps           the PL segments and feed the execution results back to the
+and their corresponding programmatic statements.                        LLM to generate the following blocks. For simplicity, in
+                                                                        our experiments, we used a single, post-hoc, execution.
+                                                                        This work focuses on C OT-style reasoning chain, but in
+   A: Roger started with 5 tennis balls.                                Appendix I we show that PA L also improves Least-to-
+   tennis_balls = 5                                                     Most (Zhou et al., 2022) prompts, which introduce rea-
+   2 cans of 3 tennis balls each is                                     soning chains that decompose a question into sub-questions.
+   bought_balls = 2 * 3
+   tennis balls. The answer is
+   answer = tennis_balls + bought_balls                                 4. Experimental Setup
+                                                                        Data and in-context examples We experiment with three
+                                                                        broad classes of reasoning tasks: (1) mathematical prob-
+Figure 2: A close-up of a single example from                           lems (§4.1) from a wide range of datasets including
+a PA L prompt.        Chain-of-thought reasoning is                     GSM 8 K (Cobbe et al., 2021), SVAMP (Patel et al., 2021),
+highlighted in blue, and PA L programmatic steps                        ASDIV (Miao et al., 2020), and MAWPS (Koncel-Kedziorski
+are highlighted in gray and pink .                                      et al., 2016); (2) symbolic reasoning (§4.2) from BIG-Bench
+                                                                        Hard (Suzgun et al., 2022); (3) and algorithmic problems
+                                                                        (§4.3) from BIG-Bench Hard as well. Details of all datasets
+Example A close-up of the example from Figure 1 is                      are shown in Appendix H. For all of the experiments for
+shown in Figure 2. While chain-of-thought only de-                      which C OT prompts were available, we use the same in-
+composes the solution in the prompt into natural lan-                   context examples as used by previous work. Otherwise, we
+guage steps such as Roger started with 5 tennis balls and               randomly sampled a fixed set of in-context examples, and
+                                          PAL: Program-aided Language Models                                                4
+
+            Q: Olivia has $23. She bought five bagels for $3 each. How much money does she have left?
+                               money_initial = 23
+                               bagels = 5
+                               bagel_cost = 3
+                               money_spent = bagels * bagel_cost
+                               money_left = money_initial - money_spent
+                               answer = money_left
+
+
+             Figure 3: Example prompt for the mathematical reasoning tasks, from the GSM 8 K benchmark.
+
+            Q: On the table, you see a bunch of objects arranged in a row: a purple paperclip, a pink stress ball,
+            a brown keychain, a green scrunchiephone charger, a mauve fidget spinner, and a burgundy pen.
+            What is the color of the object directly to the right of the stress ball?
+                               ...
+                               stress_ball_idx = None
+                               for i, object in enumerate(objects):
+                                   if object[0] == 'stress ball':
+                                       stress_ball_idx = i
+                                       break
+                               # Find the directly right object
+                               direct_right = objects[stress_ball_idx+1]
+                               # Check the directly right object's color
+                               answer = direct_right[1]
+
+Figure 4: An example for a PA L prompt in the C OLORED O BJECTS task. For space considerations, we omit the code that
+creates the list objects.
+
+
+used the same set for PA L and C OT.                             and 8. This raises the question of whether LLMs can gener-
+                                                                 alize to larger and non-integer numbers? We constructed a
+Baselines We consider three prompting strategies: D I -          harder version of GSM 8 K, which we call GSM - HARD, by re-
+RECT prompting – the standard prompting approach us-             placing the numbers in the questions of GSM 8 K with larger
+ing pairs of questions and immediate answers (e.g., 11 ) as      numbers. Specifically, one of the numbers in a question
+in Brown et al. (2020); chain-of-thought (C OT) prompt-          was replaced with a random integer of up to 7 digits. More
+ing (Wei et al., 2022); and our PA L prompting. We per-          details regarding the this new dataset are provided in H.1.
+formed greedy decoding from the language model using
+a temperature of 0. Unless stated otherwise, we used             4.2. Symbolic Reasoning
+C ODEX (code-davinci-002) as our backend LLM for
+both PA L, D IRECT, and C OT. In datasets where results for      We applied PA L to three symbolic reasoning tasks from
+additional base LMs, such as PaLM-540 B, were available          BIG-Bench Hard (Suzgun et al., 2022), which involve rea-
+from previous work, we included them as C OT PaLM-540 B .        soning about objects and concepts: (1) C OLORED O BJECTS
+                                                                 requires answering questions about colored objects on a sur-
+                                                                 face. This task requires keeping track of relative positions,
+4.1. Mathematical Reasoning
+                                                                 absolute positions, and the color of each object. Figure 4
+We evaluate PA L on eight mathematical word problem              shows an example for a question and example PA L prompt.
+datasets. Each question in these tasks is an algebra word        (2) P ENGUINS describes a table of penguins and some ad-
+problem at grade-school level. An example for a question         ditional information in natural language, and the task is to
+and PA L example prompt is shown in Figure 3. We found           answer a question about the attributes of the penguins, for
+that using explicit NL intermediate steps does not further       example, “how many penguins are less than 8 years old?”.
+benefit these math reasoning tasks, hence we kept only the       While both P ENGUINS and C OLORED O BJECT tasks re-
+meaningful variable names in the prompt.                         quire tracking objects, P ENGUINS describes dynamics as
+                                                                 well, since the penguins in the problem can be added or
+GSM - HARD     LLMs can perform simple calculations with         removed. Figure 17 in Appendix J.2 shows an example for
+small numbers. However, Madaan & Yazdanbakhsh (2022)             a question, a chain-of-thought prompt, and PA L prompt.
+found that 50% of the numbers in the popular GSM 8 K             (3) DATE is a date understanding task that involves inferring
+dataset of math reasoning problems are integers between 0        dates from natural language descriptions, performing addi-
+                                            PAL: Program-aided Language Models                                                    5
+
+             Q: I have a chair, two potatoes, a cauliflower, a lettuce head, two tables, a cabbage, two onions, and
+             three fridges. How many vegetables do I have?
+                                 # note: I'm not counting the chair, tables,
+                                     or fridges
+                                 vegetables_to_count = {
+                                     'potato': 2,
+                                     'cauliflower': 1,
+                                     'lettuce head': 1,
+                                     'cabbage': 1,
+                                     'onion': 2
+                                 }
+                                 answer = sum(vegetables_to_count.values())
+
+
+ Figure 5: An example for a PA L prompt in the O BJECT C OUNTING task. The base LM is expected to convert the input into
+ a dictionary where keys are entities and values are their quantities, while filtering out non-vegetable entities. Finally, the
+ answer is the sum of the dictionary values.
+
+                       GSM 8 K    GSM - HARD     SVAMP     ASDIV        SINGLEEQ      SINGLEOP       ADDSUB      MULTIARITH
+
+   D IRECT Codex          19.7            5.0       69.9         74.0         86.8           93.1        90.9              44.0
+   C OT UL2-20B            4.1              -       12.6         16.9            -              -        18.2              10.7
+   C OT LaMDA-137B        17.1              -       39.9         49.0            -              -        52.9              51.8
+   C OT Codex             65.6           23.1       74.8         76.9         89.1           91.9        86.0              95.9
+   C OT PaLM-540 B        56.9              -       79.0         73.9         92.3           94.1        91.9              94.7
+   C OT Minerva 540B      58.8              -          -            -            -              -           -                 -
+   PA L                   72.0           61.2       79.4         79.6         96.1           94.6        92.5              99.2
+
+Table 1: Problem solve rate (%) on mathematical reasoning datasets. The highest number on each task is in bold. The
+results for D IRECT and PaLM-540 B are from Wei et al. (2022), the results for LaMDA and UL2 are from Wang et al.
+(2022b), and the results for Minerva are from Lewkowycz et al. (2022). We ran PA L on each benchmark 3 times and report
+the average; the standard deviation is provided in Table 7.
+
+
+tion and subtraction of relative periods of time, and having        5. Results
+some global knowledge such as “how many days are there
+in February”, and performing the computation accordingly.           5.1. Math Results
+Appendix J.3 shows example prompts.                                 Table 1 shows the following results: across all tasks,
+                                                                    PA L using Codex sets a new few-shot state-of-the-art top-
+ 4.3. Algorithmic Tasks                                             1 decoding across all datasets, outperforming C OTCodex ,
+                                                                    C OT PaLM-540 B , and C OTMinerva 540B which was fine-tuned
+ Finally, we compare PA L and C OT on algorithmic reason-
+                                                                    on explicit mathematical content.
+ ing. These are tasks where a human programmer can write
+ a deterministic program with prior knowledge of the ques-          Interestingly, C OT also benefits from Codex over PaLM-
+ tion. We experiment with two algorithmic tasks: O BJECT            540 B in some of the datasets such as ASDIV, but performs
+ C OUNTING and R EPEAT C OPY. O BJECT C OUNTING in-                 worse than PaLM-540 B in others such as SVAMP. Yet,
+ volves answering questions about the number of objects be-         using PA L further improves the solve rate across all datasets.
+ longing to a certain type. For example, as shown in Figure 5:
+“I have a chair, two potatoes, a cauliflower, a lettuce head,
+ two tables, ... How many vegetables do I have?”). R EPEAT          GSM - HARD      On GSM - HARD (Table 1), the accuracy of
+ C OPY requires generating a sequence of words according            D IRECT drops dramatically from 19.7% to 5.0% (a relative
+ to instructions. For example, as shown in Appendix J.6:            drop of 74%), the accuracy of C OT drops from 65.6% to
+“Repeat the word duck four times, but halfway through also          20.1% (a relative drop of almost 70%), while PA L remains
+ say quack”).                                                       stable at 61.5%, dropping by only 14.3%. The results of
+                                                                    C OT on GSM - HARD did not improve even when we replaced
+                                                                    its prompts with prompts that include large numbers (Ap-
+                                                                    pendix B). This shows how PA L provides not only better
+                                            PAL: Program-aided Language Models                                                    6
+
+                             C OLORED O BJECT        P ENGUINS       DATE         R EPEAT C OPY    O BJECT C OUNTING
+         D IRECT Codex               75.7               71.1           49.9           81.3                  37.6
+         C OT LaMDA-137B              -                  -             26.8            -                     -
+         C OT PaLM-540 B              -                 65.1           65.3            -                     -
+         C OT Codex                  86.3               79.2           64.8           68.8                  73.0
+         PA L Codex                  95.1               93.3           76.2           90.6                  96.7
+
+Table 2: Solve rate on three symbolic reasoning datasets and two algorithmic datasets, In all datasets, PA L achieves a much
+higher accuracy than chain-of-thought. Results with closed models LaMDA-137B and PaLM-540B are included if available
+to public (Wei et al., 2022; Suzgun et al., 2022).
+
+
+results on the standard benchmarks, but is also much more        5.2. Symbolic Reasoning & Algorithmic Tasks Results
+robust. In fact, since PA L offloads the computation to the
+                                                                 Results for symbolic reasoning and algorithmic tasks are
+Python interpreter, any complex computation can be per-
+                                                                 shown in Table 2. In C OLORED O BJECTS, PA L improves
+formed accurately given the correctly generated program.
+                                                                 over the strong C OT by 8.8%, and by 19.4% over the stan-
+                                                                 dard direct prompting. In P ENGUINS, PA L provides a gain
+Large Numbers or Incorrect Reasoning? Are the fail-              of absolute 14.1% over C OT. In DATE, PA L further provides
+ures on GSM - HARD primarily due to the inability of LLMs        11.4% gain over both C OT Codex , PaLM-540 B , and LaMDA-137B .
+to do arithmetic, or do the large numbers in the question        The two rightmost columns of Table 2 show that PA L is
+“confuse” the LM which generates irrational intermediate         close to solving O BJECT C OUNTING, reaching 96.7% and
+steps? To investigate this, we evaluated the outputs gen-        improving over C OT by absolute 23.7%. Similarly, PA L
+erated by C OT for the two versions of the same question         vastly outperforms C OT by absolute 21.8% on R EPEAT
+(with and without large numbers). We find that in 16 out         C OPY. Surprisingly, D IRECT prompting performs better
+of 25 cases we analyzed, C OT generates nearly identical         than C OT on R EPEAT C OPY. Yet, PA L improves over
+natural language “thoughts”, indicating that the primary fail-   D IRECT by 9.3% in R EPEAT C OPY.
+ure mode is the inability to perform arithmetic accurately.
+Sample outputs are provided in the Appendix, Table 11.
+                                                                              1
+                                                                 Accuracy
+
+
+
+
+                                     GSM 8 K                                0.8
+
+                 C OT UL2-20B            7.3
+                 C OT LaMDA-137B        27.7                                            PaL
+                                                                            0.6
+                 C OT Codex             78.0                                            CoT
+                 C OT PaLM-540 B        74.4
+                 C OT Minerva 540B      78.5                                  [0,2] [3,5] [6,8] [9,11 [12,1 [15,1 [18,2 [21,2 [24,2
+                                                                                                     ]     4]    7]    0]    3]     6]
+                 PA L Codex             80.4                                                    Number of Objects
+
+Table 3: Problem solve rate (%) on GSM 8 K using                 Figure 6: The solve rate on C OLORED O BJECTS with re-
+majority@40 (Wang et al., 2022b)                                 spect to the number of objects included in the test question.
+
+
+Multi-sample Generation As found by Wang et al.
+(2022b), chain-of-thought-style methods can be further im-       Is PA L sensitive to the complexity of the question? We
+proved by sampling k > 1 outputs, and selecting the final        examined how the performance of PA L and C OT change as
+answer using majority voting. We thus repeated the greedy-       the complexity of the input question grows, measured as the
+decoding experiments using nucleus sampling (Holtzman            number of objects in the question of C OLORED O BJECTS.
+et al., 2019) with p = 0.95 and k = 40 as in Lewkowycz           As shown in Figure 6, PA L is superior C OT across all input
+et al. (2022) and temperature of 0.7. As shown in Table 3,       lengths. As the number of objects in the question increases,
+this further increases the accuracy of PA L from 72.0% to        C OT’s accuracy is unstable and drops, while PA L remains
+80.4% on GSM 8 K, obtaining 1.9% higher accuracy than            consistently close to 100%. More analysis on the token-level
+Minerva-540B using the same number of samples.                   predictions can be found in Appendix G.
+                                             PAL: Program-aided Language Models                                                  7
+
+             80                                                      80
+                    PA L                         72.0                        C OT         PA L                           69.8
+                                                                                                     65.8         65.3
+                    C OT                                             60
+             60
+                    Relative Improvement            60.1                                      46.9
+Solve rate
+
+
+
+
+             40                 31.8
+                                                                     40
+                                                                           26.5
+                 21.7                26.0
+             20                                                      20
+                    19.1         22.3%             19.8%                          8.6
+                13.6%
+        0                                                             0
+     code-cushman-001 code-davinci-001 code-davinci-002                text-davinci-001 text-davinci-002 text-davinci-003
+Figure 7: PA L with different models on GSM 8 K: though            Figure 8: PA L with NL LMs on GSM 8 K: though
+the absolute accuracies with code-cushman-001                      C OT outperforms PA L with text-davinci-001, once
+and code-davinci-001 are lower than                                the base LM is sufficiently strong, PA L is beneficial
+code-davinci-002, the relative improvement of                      with text-davinci-002 and text-davinci-003
+PA L over C OT is consistent across models.                        as well. That is, PA L is not limited to code-LMs only.
+
+
+6. Analysis                                                        not only from having a better prompt. Additional details
+                                                                   are provided in Appendix B. For additional discussion on
+Does PA L work with weaker LMs? In all our experi-                 the advantages of code-prompts over textual-prompts, see
+ments in Section 5, PA L used the code-davinci-002                 Appendix G.
+model; but can PA L work with weaker models of code? We
+compared PA L with C OT when both prompting approaches             Do variable names matter? In all our experiments, we
+use the same weaker base LMs code-cushman-001                      used meaningful variable names in the PA L prompts, to ease
+and code-davinci-001. As shown in Figure 7, even                   the model’s grounding of variables to the entities they rep-
+though the absolute accuracies of code-cushman-001                 resent. For the Python interpreter, however, variable names
+and code-davinci-001 are lower, the relative improve-              are meaningless. To measure the importance of meaningful
+ment of PA L over C OT remains consistent across models.           variable names, we experimented with two prompts variants:
+This shows that PA L can work with weaker models, while
+its benefit scales elegantly to stronger models as well.
+                                                                     1. PA L−comment – the PA L prompt without intermediate
+                                                                        NL comments.
+Does PA L work with LMs of natural language? We
+also experimented with PA L using the text-davinci                   2. PA L−var
+                                                                            −comment – the PA L prompt without intermediate
+series. Figure 8 shows the following interesting re-                    NL comments and with variable names substituted
+sults: when the base LM’s “code modeling ability” is                    with random characters.
+weak (using text-davinci-001), C OT performs better
+than PA L. However, once the LM’s code modeling abil-              The results are shown in Figure 9. In C OLORED O BJECTED
+ity is sufficiently high (using text-davinci-002 and               and DATE, removing intermediate NL comments but keep-
+text-davinci-003), PA L outperforms C OT, and PA L                 ing meaningful variable names (PA L−comment ) – slightly re-
+text-davinci-003 performs almost as PA L code-davinci-002 .        duces the results compared to the full PA L prompt, but it still
+This shows that PA L is not limited to LMs of code, but it         achieves higher accuracy than the baselines C OT. Remov-
+can work with LMs that were mainly trained for natural             ing variable names as well (PA L−var
+                                                                                                    −comment ) further decreases
+language, if they have a sufficiently high coding ability.         accuracy, and performs worse than C OT. Since variable
+                                                                   names have an important part in code quality (Gellenbeck
+Is PA L better because of the Python prompt or because             & Cook, 1991; Takang et al., 1996), meaningful variable
+of the interpreter? We experimented with generating                names are only expected to ease reasoning for Codex, which
+Python code, while requiring the neural LM to “execute” it         was trained on mostly meaningful names, as was also found
+as well, without using an interpreter, following Nye et al.        by Madaan et al. (2022).
+(2021); Madaan et al. (2022). We created prompts that are
+similar to PA L’s, except that they do include the final answer.   7. Related Work
+This resulted in a 23.2 solve rate on GSM 8 K, much lower
+than PA L (72.0), and only 4.5 points higher than D IRECT.         Prompting Few-shot prompting (Brown et al., 2020) has
+These results reinforce our hypothesis that the main benefit       been shown to be an effective approach for a variety of
+of PA L comes from the synergy with the interpreter, and           tasks (Liu et al., 2021) ranging from text- (Gehrmann et al.,
+                                               PAL: Program-aided Language Models                                                8
+
+
+       100             95.2                 C OT      PA L        PA L−comment          PA L−var
+                                                                                            −comment
+                                                                                                        93.3
+                              91.1                                                                             91.3 91.9
+        90
+                84.4
+                                     79.9                                                        79.2
+        80                                                     76.2
+                                                                       69.1
+        70                                              64.8                  63.4
+        60
+                   Colored Objects                                Date                                  Penguins
+
+Figure 9: Ablation study of PA L prompt formats. We consider the original PA L prompt, it with natural language comments
+removed (PA L−comment ), and further variable names replaced with random character (PA L−var
+                                                                                        −comment ). As a reference, we also
+show the C OT performance (blue).
+
+
+2021; Reif et al., 2021; Wei et al., 2021; Sanh et al., 2021)         model, while PAL achieves 79.4% on the same benchmark
+to code-generation (Chen et al., 2021b). Methods such as              without any specialized pretraining.
+chain-of-thought prompting (C OT) have further unlocked a
+                                                                      Shortly after a preprint of our work was submitted to arXiv,
+variety of reasoning tasks, boosting the performance of mod-
+                                                                      another related work on “program of thought prompting”
+els on a variety of benchmarks. Nevertheless, all previous
+                                                                      (Chen et al., 2022) was also submitted to arXiv. Their
+approaches suffer from inaccuracy in arithmetic calculation
+                                                                      method is conceptually similar to ours, but PoT (1) only
+and incorrect reasoning (Lewkowycz et al., 2022; Hendrycks
+                                                                      demonstrates efficacy on mathematical problems, whereas
+et al., 2021; Madaan & Yazdanbakhsh, 2022). PA L avoids
+                                                                      we demonstrate gains on symbolic and algorithmic bench-
+these problems by offloading the calculation and some of
+                                                                      marks as well, and (2) chose benchmark-specific prompt
+the reasoning to a Python interpreter, which is correct by
+                                                                      examples, while we used the same prompt examples as pre-
+construction, given the right program. Further, not only
+                                                                      vious work, to disentangled the benefit of our approach from
+that PA L can improve the standard chain-of-thought, it can
+                                                                      the benefit of the choice of examples.
+improve least-to-most prompting (Zhou et al., 2022) as well,
+as we show in Appendix I.
+
+
+LMs with external tools Several prior works have
+equipped neural models with specialized modules. For ex-
+ample, Cobbe et al. (2021) employ a calculator for arith-             Semantic parsing Our work can also be seen as a very
+metic operations as a post hoc processing, and Demeter                general form of semantic parsing, where instead of parsing
+& Downey (2020) add specialized modules for generating                into strict domain-specific languages, the model generates
+cities and dates. Unlike these works, PA L generates code             free-form Python code. Some works constrain the decoder
+for a Python interpreter, which is general enough to handle           using a Context-Free Grammar (CFG) to generate a domain-
+both arithmetic calculations and dates, without specialized           specific meaning representation (Shin & Van Durme, 2021)
+modules and ad-hoc fixes. Chowdhery et al. (2022) and Wei             or a canonical utterance, which can be converted to a Lisp-
+et al. (2022) have also experimented with external calcula-           like meaning representation (Shin et al., 2021). In contrast,
+tors; however, the calculator had improved Codex by only              PA L does not require any constraining or domain-specific
+2.3% (absolute) on GSM 8 K and improved PaLM-540 B by                 representations other than Python code. Further, LMs that
+1.7%, while PA L improves Codex by 6.4% on the same                   were pretrained on Python are abundant compared to other
+benchmark (Section 5.1). Similarly to our work, Chowd-                domain-specific languages, making Python code a much
+hery et al. (2022) have also experimented with generating             more preferable representation. Andor et al. (2019) generate
+Python code for solving the GSM 8 K benchmark, but their              task-specific arithmetic operations for reading comprehen-
+experiments resulted in lower accuracy than the standard              sion tasks; Gupta et al. (2019) design neural modules such
+PaLM-540 B that uses chain-of-thought. Pi et al. (2022)               as count to deal with arithmetic operations. PA L gener-
+pretrain the model on execution results of random expres-             alizes these works by generating general Python programs,
+sions on a calculator, instead of using the solver at test time       without the need for defining specialized modules. The clos-
+as well. While their model can hypothetically perform arith-          est work to ours technically may be Binder (Cheng et al.,
+metic better than other pretrained LMs, their results on the          2022), but it addressed mostly answering questions about
+SVAMP benchmark are much lower: 57.4% using a T5-11B                  tables using SQL and SQL-like Python.
+                                           PAL: Program-aided Language Models                                              9
+
+8. Conclusion                                                      C., Tillet, P., Such, F. P., Cummings, D., Plappert, M.,
+                                                                   Chantzis, F., Barnes, E., Herbert-Voss, A., Guss, W. H.,
+We introduce PA L, a new method for natural language rea-          Nichol, A., Paino, A., Tezak, N., Tang, J., Babuschkin,
+soning, using programs as intermediate reasoning steps.            I., Balaji, S., Jain, S., Saunders, W., Hesse, C., Carr,
+Differently from existing LM-based reasoning approaches,           A. N., Leike, J., Achiam, J., Misra, V., Morikawa, E.,
+the main idea is to offload solving and calculating to an          Radford, A., Knight, M., Brundage, M., Murati, M.,
+external Python interpreter, instead of using the LLM for          Mayer, K., Welinder, P., McGrew, B., Amodei, D., Mc-
+both understanding the problem and solving. This results           Candlish, S., Sutskever, I., and Zaremba, W. Evaluating
+in a final answer that is guaranteed to be accurate, given the     Large Language Models Trained on Code. arXiv preprint
+correctly predicted programmatic steps. We demonstrate             arXiv:2107.03374, 2021a.
+this seamless synergy between an LLM and a Python in-
+terpreter across 13 tasks from BIG-Bench Hard and other          Chen, M., Tworek, J., Jun, H., Yuan, Q., Pinto, H. P. d. O.,
+benchmarks. In all these benchmarks, PA L outperforms              Kaplan, J., Edwards, H., Burda, Y., Joseph, N., Brockman,
+larger LLMs such as PaLM-540 B which use the popular               G., et al. Evaluating large language models trained on
+“chain-of-thought” method and sets new state-of-the-art ac-        code. arXiv preprint arXiv:2107.03374, 2021b.
+curacy on all of them. We believe that these results unlock
+exciting directions for future neuro-symbolic AI reasoners.      Chen, W., Ma, X., Wang, X., and Cohen, W. W. Program
+                                                                   of thoughts prompting: Disentangling computation from
+                                                                   reasoning for numerical reasoning tasks. arXiv preprint
+References                                                         arXiv:2211.12588, 2022.
+Ahn, M., Brohan, A., Brown, N., Chebotar, Y., Cortes, O.,        Cheng, Z., Xie, T., Shi, P., Li, C., Nadkarni, R., Hu, Y.,
+  David, B., Finn, C., Fu, C., Gopalakrishnan, K., Hausman,        Xiong, C., Radev, D., Ostendorf, M., Zettlemoyer, L.,
+  K., Herzog, A., Ho, D., Hsu, J., Ibarz, J., Ichter, B.,          Smith, N. A., and Yu, T. Binding language models in
+  Irpan, A., Jang, E., Ruano, R. J., Jeffrey, K., Jesmonth,        symbolic languages. arXiv preprint arXiv:2210.02875,
+  S., Joshi, N. J., Julian, R., Kalashnikov, D., Kuang, Y.,        2022.
+  Lee, K.-H., Levine, S., Lu, Y., Luu, L., Parada, C., Pastor,
+  P., Quiambao, J., Rao, K., Rettinghouse, J., Reyes, D.,        Chowdhery, A., Narang, S., Devlin, J., Bosma, M., Mishra,
+  Sermanet, P., Sievers, N., Tan, C., Toshev, A., Vanhoucke,       G., Roberts, A., Barham, P., Chung, H. W., Sutton,
+ V., Xia, F., Xiao, T., Xu, P., Xu, S., Yan, M., and Zeng,         C., Gehrmann, S., Schuh, P., Shi, K., Tsvyashchenko,
+ A. Do as I Can, not as I Say: Grounding Language in               S., Maynez, J., Rao, A., Barnes, P., Tay, Y., Shazeer,
+  Robotic Affordances. arXiv preprint arXiv:2204.01691,            N., Prabhakaran, V., Reif, E., Du, N., Hutchinson, B.,
+  2022.                                                            Pope, R., Bradbury, J., Austin, J., Isard, M., Gur-Ari,
+                                                                   G., Yin, P., Duke, T., Levskaya, A., Ghemawat, S., Dev,
+Amini, A., Gabriel, S., Lin, S., Koncel-Kedziorski, R., Choi,      S., Michalewski, H., Garcia, X., Misra, V., Robinson,
+ Y., and Hajishirzi, H. MathQA: Towards Interpretable              K., Fedus, L., Zhou, D., Ippolito, D., Luan, D., Lim,
+ Math Word Problem Solving with Operation-Based For-               H., Zoph, B., Spiridonov, A., Sepassi, R., Dohan, D.,
+ malisms. In ACL, 2019.                                            Agrawal, S., Omernick, M., Dai, A. M., Pillai, T. S.,
+                                                                   Pellat, M., Lewkowycz, A., Moreira, E., Child, R., Polo-
+Andor, D., He, L., Lee, K., and Pitler, E. Giving bert a cal-
+                                                                   zov, O., Lee, K., Zhou, Z., Wang, X., Saeta, B., Diaz,
+  culator: Finding operations and arguments with reading
+                                                                   M., Firat, O., Catasta, M., Wei, J., Meier-Hellstern, K.,
+  comprehension. arXiv preprint arXiv:1909.00109, 2019.
+                                                                   Eck, D., Dean, J., Petrov, S., and Fiedel, N. PaLM: Scal-
+Brown, T. B., Mann, B., Ryder, N., Subbiah, M., Kaplan,            ing Language Modeling with Pathways. arXiv preprint
+  J., Dhariwal, P., Neelakantan, A., Shyam, P., Sastry, G.,        arXiv:2204.02311, 2022.
+  Askell, A., Agarwal, S., Herbert-Voss, A., Krueger, G.,
+                                                                 Cobbe, K., Kosaraju, V., Bavarian, M., Hilton, J., Nakano,
+  Henighan, T., Child, R., Ramesh, A., Ziegler, D. M., Wu,
+                                                                   R., Hesse, C., and Schulman, J.          Training Veri-
+  J., Winter, C., Hesse, C., Chen, M., Sigler, E., Litwin, M.,
+                                                                   fiers to Solve Math Word Problems. arXiv preprint
+  Gray, S., Chess, B., Clark, J., Berner, C., McCandlish,
+                                                                   arXiv:2110.14168, 2021.
+  S., Radford, A., Sutskever, I., and Amodei, D. Language
+  Models are Few-Shot Learners. In NeurIPS, 2020.                Demeter, D. and Downey, D. Just add functions: A neural-
+                                                                   symbolic language model. In Proceedings of the AAAI
+Chen, M., Tworek, J., Jun, H., Yuan, Q., Pinto, H. P. d. O.,       Conference on Artificial Intelligence, volume 34, pp.
+  Kaplan, J., Edwards, H., Burda, Y., Joseph, N., Brockman,        7634–7642, 2020.
+  G., Ray, A., Puri, R., Krueger, G., Petrov, M., Khlaaf,
+  H., Sastry, G., Mishkin, P., Chan, B., Gray, S., Ryder, N.,    Garcez, A. d. and Lamb, L. C. Neurosymbolic ai: the 3rd
+  Pavlov, M., Power, A., Kaiser, L., Bavarian, M., Winter,         wave. arXiv preprint arXiv:2012.05876, 2020.
+                                         PAL: Program-aided Language Models                                               10
+
+Gehrmann, S., Adewumi, T., Aggarwal, K., Ammana-               Liu, P., Yuan, W., Fu, J., Jiang, Z., Hayashi, H., and Neubig,
+  manchi, P. S., Anuoluwapo, A., Bosselut, A., Chandu,           G. Pre-train, Prompt, and Predict: A Systematic Survey
+  K. R., Clinciu, M., Das, D., Dhole, K. D., Du, W., Dur-        of Prompting Methods in Natural Language Processing.
+  mus, E., Dušek, O., Emezue, C., Gangal, V., Garbacea,         arXiv preprint arXiv:2107.13586, 2021.
+  C., Hashimoto, T., Hou, Y., Jernite, Y., Jhamtani, H., Ji,
+ Y., Jolly, S., Kale, M., Kumar, D., Ladhak, F., Madaan, A.,   Madaan, A. and Yazdanbakhsh, A. Text and patterns: For
+  Maddela, M., Mahajan, K., Mahamood, S., Majumder,             effective chain of thought, it takes two to tango. arXiv
+  B. P., Martins, P. H., McMillan-Major, A., Mille, S.,         preprint arXiv:2209.07686, 2022.
+  van Miltenburg, E., Nadeem, M., Narayan, S., Niko-           Madaan, A., Zhou, S., Alon, U., Yang, Y., and Neubig, G.
+  laev, V., Niyongabo, R. A., Osei, S., Parikh, A., Perez-      Language models of code are few-shot commonsense
+  Beltrachini, L., Rao, N. R., Raunak, V., Rodriguez, J. D.,    learners. arXiv preprint arXiv:2210.07128, 2022.
+  Santhanam, S., Sedoc, J., Sellam, T., Shaikh, S., Shimo-
+  rina, A., Cabezudo, M. A. S., Strobelt, H., Subramani, N.,   Marcus, G. Deep learning: A critical appraisal. arXiv
+  Xu, W., Yang, D., Yerukola, A., and Zhou, J. The GEM          preprint arXiv:1801.00631, 2018.
+  Benchmark: Natural Language Generation, its Evaluation
+  and Metrics. arXiv preprint arXiv:2102.01672, 2021.          Marcus, G. The next decade in ai: four steps towards robust
+                                                                artificial intelligence. arXiv preprint arXiv:2002.06177,
+Gellenbeck, E. M. and Cook, C. R. An investigation of           2020.
+  procedure and variable names as beacons during program
+                                                               Miao, S.-y., Liang, C.-C., and Su, K.-Y. A diverse cor-
+  comprehension. In Empirical studies of programmers:
+                                                                pus for evaluating and developing English math word
+ Fourth workshop, pp. 65–81. Ablex Publishing, Norwood,
+                                                                problem solvers. In Proceedings of the 58th Annual Meet-
+  NJ, 1991.
+                                                                ing of the Association for Computational Linguistics, pp.
+                                                                975–984, Online, July 2020. Association for Compu-
+Gupta, N., Lin, K., Roth, D., Singh, S., and Gardner, M.
+                                                                tational Linguistics. doi: 10.18653/v1/2020.acl-main.
+  Neural module networks for reasoning over text. arXiv
+                                                                92. URL https://aclanthology.org/2020.
+  preprint arXiv:1912.04971, 2019.
+                                                                acl-main.92.
+Hendrycks, D., Burns, C., Kadavath, S., Arora, A., Basart,     Mishra, S., Finlayson, M., Lu, P., Tang, L., Welleck, S.,
+  S., Tang, E., Song, D., and Steinhardt, J. Measuring          Baral, C., Rajpurohit, T., Tafjord, O., Sabharwal, A.,
+  mathematical problem solving with the MATH dataset,           Clark, P., and Kalyan, A. Lila: A unified benchmark
+  2021. URL https://openreview.net/forum?                       for mathematical reasoning. In Proceedings of the 2022
+  id=7Bywt2mQsCe.                                               Conference on Empirical Methods in Natural Language
+                                                                Processing (EMNLP), 2022.
+Holtzman, A., Buys, J., Du, L., Forbes, M., and Choi, Y.
+ The Curious Case of Neural Text Degeneration. In ICLR,        Nogueira, R., Jiang, Z., and Lin, J. Investigating the limita-
+  2019.                                                          tions of transformers with simple arithmetic tasks. arXiv
+                                                                 preprint arXiv:2102.13019, 2021.
+Koncel-Kedziorski, R., Roy, S., Amini, A., Kushman, N.,
+  and Hajishirzi, H. Mawps: A math word problem reposi-        Nye, M., Andreassen, A. J., Gur-Ari, G., Michalewski, H.,
+  tory. In Proceedings of the 2016 Conference of the North      Austin, J., Bieber, D., Dohan, D., Lewkowycz, A., Bosma,
+ American Chapter of the Association for Computational           M., Luan, D., Sutton, C., and Odena, A. Show your
+  Linguistics: Human Language Technologies, pp. 1152–           Work: Scratchpads for Intermediate Computation with
+ 1157, 2016.                                                     Language Models. arXiv preprint arXiv:2112.00114,
+                                                                 2021.
+Lewkowycz, A., Andreassen, A., Dohan, D., Dyer, E.,
+                                                               Patel, A., Bhattamishra, S., and Goyal, N. Are NLP Models
+  Michalewski, H., Ramasesh, V., Slone, A., Anil, C.,
+                                                                 Really Able to Solve Simple Math Word Problems? arXiv
+  Schlag, I., Gutman-Solo, T., Wu, Y., Neyshabur, B.,
+                                                                 preprint arXiv:2103.07191, 2021.
+  Gur-Ari, G., and Misra, V. Solving quantitative rea-
+  soning problems with language models. arXiv preprint         Pi, X., Liu, Q., Chen, B., Ziyadi, M., Lin, Z., Gao, Y., Fu,
+  arXiv:2206.14858, 2022.                                         Q., Lou, J.-G., and Chen, W. Reasoning like program
+                                                                  executors. arXiv preprint arXiv:2201.11473, 2022.
+Ling, W., Yogatama, D., Dyer, C., and Blunsom, P. Program
+  Induction by Rationale Generation: Learning to Solve         Qian, J., Wang, H., Li, Z., Li, S., and Yan, X. Limitations
+  and Explain Algebraic Word Problems. arXiv preprint            of language models in arithmetic and symbolic induction.
+  arXiv:1705.04146, 2017.                                        arXiv preprint arXiv:2208.05051, 2022.
+                                            PAL: Program-aided Language Models                                                 11
+
+Reif, E., Ippolito, D., Yuan, A., Coenen, A., Callison-            Yao, S., Zhao, J., Yu, D., Du, N., Shafran, I., Narasimhan,
+  Burch, C., and Wei, J. A Recipe for Arbitrary Text Style           K., and Cao, Y. React: Synergizing reasoning and acting
+  Transfer with Large Language Models. arXiv preprint                in language models. arXiv preprint arXiv:2210.03629,
+  arXiv:2109.03910, 2021.                                            2022.
+Sanh, V., Webson, A., Raffel, C., Bach, S. H., Sutawika, L.,       Zhou, D., Schärli, N., Hou, L., Wei, J., Scales, N., Wang, X.,
+  Alyafeai, Z., Chaffin, A., Stiegler, A., Scao, T. L., Raja,        Schuurmans, D., Bousquet, O., Le, Q., and Chi, E. Least-
+  A., Dey, M., Bari, M. S., Xu, C., Thakker, U., Sharma,             to-Most Prompting Enables Complex Reasoning in Large
+  S. S., Szczechla, E., Kim, T., Chhablani, G., Nayak, N.,           Language Models. arXiv preprint arXiv:2205.10625,
+  Datta, D., Chang, J., Jiang, M. T.-J., Wang, H., Manica,           2022.
+  M., Shen, S., Yong, Z. X., Pandey, H., Bawden, R., Wang,
+  T., Neeraj, T., Rozen, J., Sharma, A., Santilli, A., Fevry,
+  T., Fries, J. A., Teehan, R., Biderman, S., Gao, L., Bers, T.,
+  Wolf, T., and Rush, A. M. Multitask Prompted Training
+  Enables Zero-Shot Task Generalization, 2021.
+Shin, R. and Van Durme, B. Few-shot semantic parsing
+  with language models trained on code. arXiv preprint
+  arXiv:2112.08696, 2021.
+Shin, R., Lin, C. H., Thomson, S., Chen, C., Roy, S., Platan-
+  ios, E. A., Pauls, A., Klein, D., Eisner, J., and Van Durme,
+  B. Constrained language models yield few-shot semantic
+  parsers. arXiv preprint arXiv:2104.08768, 2021.
+Suzgun, M., Scales, N., Scharli, N., Gehrmann, S., Tay, Y.,
+  Chung, H. W., Chowdhery, A., Le, Q. V., Chi, E., Zhou,
+  D., and Wei, J. Challenging big-bench tasks and whether
+  chain-of-thought can solve them. ArXiv, abs/2210.09261,
+  2022.
+Takang, A. A., Grubb, P. A., and Macredie, R. D. The
+  effects of comments and identifier names on program
+  comprehensibility: an experimental investigation. J. Prog.
+  Lang., 4(3):143–167, 1996.
+Wang, X., Wei, J., Schuurmans, D., Le, Q., Chi, E., and
+ Zhou, D. Rationale-Augmented Ensembles in Language
+ Models. arXiv preprints arXiv:2207.00747, 2022a.
+Wang, X., Wei, J., Schuurmans, D., Le, Q., Chi, E.,
+ and Zhou, D. Self-Consistency Improves Chain of
+ Thought Reasoning in Language Models. arXiv preprint
+ arXiv:2203.11171, 2022b.
+Wei, J., Bosma, M., Zhao, V. Y., Guu, K., Yu, A. W., Lester,
+ B., Du, N., Dai, A. M., and Le, Q. V. Finetuned Lan-
+ guage Models are Zero-shot Learners. arXiv preprint
+ arXiv:2109.01652, 2021.
+Wei, J., Wang, X., Schuurmans, D., Bosma, M., Chi, E., Le,
+ Q., and Zhou, D. Chain of Thought Prompting Elicits
+ Reasoning in Large Language Models. arXiv preprint
+ arXiv:2201.11903, 2022.
+Wu, Y., Jiang, A. Q., Li, W., Rabe, M. N., Staats, C., Jamnik,
+ M., and Szegedy, C. Autoformalization with Large Lan-
+ guage Models. arXiv preprint arXiv:2205.12615, 2022.
+                                             PAL: Program-aided Language Models                                                       12
+
+Part I
+
+Appendix
+Table of Contents
+   A Alternative Prompts without Meaningful Variable Names                                                                       13
+
+   B Additional analysis on Arithmetic Reasoning                                                                                 13
+
+   C Effect of Using Language Models of Code                                                                                     14
+
+   D Analyzing the Effect of Increasing Number of Samples on PA L                                                                14
+
+   E Standard Deviations Across Multiple Order of Prompts                                                                        17
+
+   F PA L Beyond Benchmarks                                                                                                      17
+
+   G Closer Look into Token-level Behaviors of Different Mechanisms                                                              20
+
+   H Datasets                                                                                                                    20
+         H.1 Creating GSM - HARD       . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   23
+         H.2   GSM - HARD Analysis     . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   23
+
+   I     Generalization of PAL to Least-to-Most Prompting                                                                        24
+
+   J     Prompts                                                                                                                 26
+         J.1   Reasoning about Colored Objects . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       26
+         J.2   Penguins in a Table . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     27
+         J.3   Date Understanding . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      28
+         J.4   Math . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    29
+         J.5   Object Counting . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     31
+         J.6   Repeat Copy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     32
+
+   K Success and Failure Modes in Symbolic Tasks                                                                                 33
+         K.1 Colored Objects . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       33
+         K.2 Penguins in a Table . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       33
+         K.3 Date Understanding . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .        34
+                                          PAL: Program-aided Language Models                                               13
+
+A. Alternative Prompts without Meaningful Variable Names
+
+   a = 23
+   b = 5
+   c = 3
+   d = b * c
+   e = a - d
+   print(e)
+
+                     (a) Structured explanation with uninformative variable names (PA L - var)
+   # Olivia has $23
+   a = 23
+   # number of bagels bought
+   b = 5
+   # price of each bagel
+   c = 3
+   # total price of bagels
+   d = b * c
+   # money left
+   e = a - d
+   print(e)
+
+          (b) Structured explanation with uninformative variable names, but useful comments (PA L - var + comms)
+   money initial = 23
+   bagels = 5
+   bagel cost = 3
+   money spent = bagels * bagel cost
+   money left = money initial - money spent
+   result = money left
+   print(result)
+
+                                                       (c) PA L prompts
+
+Figure 10: Role of text in PA L: three different reasoning steps for the question Olivia has $23. She bought five bagels for
+$3 each. How much money does she have left? Uninformative variable names (left), Uninformative variable names with
+useful comments (left), and PA L. Including text description
+
+
+                             Setting       C OT     PA L - var    PA L - var + comms       PA L
+                             Solve Rate    63.1     59.0          69.0                     71.8
+
+Table 4: Role of text: including text either as informative variable names (PA L) or comments is important (PA L - var +
+comms). Uninformative variable names PA L - var cause a drastic drop in performance, indicating that just structure is not
+sufficient. The corresponding prompts are shown in Figure 10.
+
+For mathematical problems, since our standard prompts do not use much comment, we start by creating alternative prompts
+where the informative variable names are replaced with single-letters (Figure 10). The results in Table 4 shows a considerable
+performance drop: from an average of 71.8% to 59%. Note that the ablation where structured outputs are completely
+removed in favor of purely text explanations is precisely the C OT setting, which achieves a solve rate of 63%. These results
+underscore the importance of text but more importantly show that combining both text and procedural statements leads to
+higher performance gains—either is sub-optimal.
+
+B. Additional analysis on Arithmetic Reasoning
+GSM-hard with hard prompts The GSM - HARD experiments used prompts that were sampled from the GSM 8 K training
+set. Will C OT be helped by using larger numbers in the prompts as well? To investigate this, we create prompts where the
+numbers are changed to larger numbers, matching the distribution of numbers in GSM - HARD. The results in Table 5 shows
+                                          PAL: Program-aided Language Models                                                14
+
+that even with a prompt that matches the numbers, there are only modest gains in performance. These results show that the
+gains achieved by using code-based reasoning chains may not be achieved simply by using better few-shot examples for
+C OT.
+
+                                          Regular Prompt      Prompt with Larger Numbers
+                                  C OT           23.3                      23.8
+
+                   Table 5: GSM-hard results, when the prompts also had examples of larger numbers.
+
+
+Succinct Code The programs used in few-shot examples by PA L are multi-step, and show a step-by-step breakdown of
+the reasoning process. Is this breakdown necessary? Alternatively, can we return a single line expression (see Figure 11b) to
+calculate the result? Results in Table 6 (4th row) shows that is not the case. With single-line expressions, the performance of
+PA L falls to the level of direct prompting.
+
+Generating the answer directly PA L first generates a reasoning chain in the form of a Python program, and passes the
+generated program to a runtime to obtain an answer. Is PA L better only because of the program-style intermediate reasoning
+chains, or are the improvements derived from offloading execution to the Python runtime? To investigate this, we experiment
+with a variant that forces the LLM to generate the answer after generating the reasoning chain (Figure 11e). This setting
+compels the LLM to condition on the generated code-based reasoning to generate an answer, simulating the runtime. The
+results in Table 6 (5th row) show that the solve rate drops to near D IRECT levels. This reinforces our hypothesis that while
+current LLMs can be excellent at specifying a high-level plan to solve a task—they are still incapable of executing them.
+
+                                     Ablation                                 Solve Rate
+                                     D IRECT (no intermediate reasoning)          19.7
+                                     C OT                                         65.6
+                                     PA L                                         72.0
+                                     Succinct Code                                47.8
+                                     LLM Simulating Runtime                       23.2
+
+                                             Table 6: Solve Rates for Ablations
+
+
+C. Effect of Using Language Models of Code
+In our experiments, we focused on evaluating the performance of a language model for code. We aimed to investigate
+whether the additional performance boost observed in our results was due to the use of models like Codex, or whether our
+formulation was useful even for text-based models. To this end, we conducted additional experiments using text-based
+language models. Our findings indicate that the PAL approach is not restricted to working solely with Codex, but can also
+be applied to natural language (NL) models, as long as the model is sufficiently strong. Specifically, our results showed that
+in the text-davinci-001 model, the use of the CoT approach resulted in better performance.
+
+                                                Model              CoT     PaL
+                                                text-davinci-001   26.5     8.6
+                                                text-davinci-002   46.9    65.8
+                                                text-davinci-003   65.3    69.8
+
+
+D. Analyzing the Effect of Increasing Number of Samples on PA L
+In Section 5.1, we show that PA L outperforms strong baselines both for a single sample and by drawing 40 samples and
+using majority voting. Figure 12 illustrates the trends for cases when the number of samples drawn are between 1 and 40,
+and the interpolation estimates demonstrate that PA L remains competitive throughout the number of samples.
+                           PAL: Program-aided Language Models                                   15
+
+
+
+
+def solution():
+"""Shawn has five toys. For Christmas, he got two toys each from his
+ ; mom and dad. How many toys does he have now?"""
+toys_initial = 5
+mom_toys = 2
+dad_toys = 2
+total_received = mom_toys + dad_toys
+total_toys = toys_initial + total_received
+result = total_toys
+return result
+
+                                     (a) Original Example
+def solution():
+return 5 + 2 + 2
+
+                              (b) Succinct Code
+def solution():
+"""Shawn has 10312864 toys. For Christmas, he got 13267894 toys each
+    from his mom and dad. How many toys does he have now?"""
+toys_initial = 10312864
+mom_toys = 13267894
+dad_toys = 13267894
+total_received = mom_toys + dad_toys
+total_toys = toys_initial + total_received
+result = total_toys
+return result
+
+                        (c) Hard Examples in Prompt (PA L)
+Example(
+question="Shawn has 10312864 toys. For Christmas, he got 13267894 toys
+    each from his mom and dad. How many toys does he have now?",
+thought="Shawn started with 10312864 toys. If he got 13267894 toys each
+    from his mom and dad, then that is 26535788 more toys. 10312864 +
+    26535788 = 36848652.",
+answer="36848652",
+),
+
+                        (d) Hard Examples in Prompt (CoT)
+def solution():
+"""Shawn has five toys. For Christmas, he got two toys each from his
+ ; mom and dad. How many toys does he have now?"""
+toys_initial = 5
+mom_toys = 2
+dad_toys = 2
+total_received = mom_toys + dad_toys
+total_toys = toys_initial + total_received
+result = total_toys
+return result
+ans = 9
+
+                                (e) Generating Answers Directly
+
+ Figure 11: Ablations of the original example solution for the few-shot prompting experiment.
+                                               PAL: Program-aided Language Models                                          16
+
+
+
+
+                                      85
+
+
+                                      80
+                     Solve Rate (%)
+
+
+
+
+                                      70
+
+
+
+
+                                      60
+                                                                                             PA L
+                                                                                             C OT
+                                                                                            Minerva
+                                                                                            PaLM
+                                      50
+                                           1    8         15                                     40
+                                               Number of sampled generations for each question
+
+Figure 12: Comparison of solve rates between PA L and baselines as the number of samples increases from 1 to 40. Note that
+the solve rates for the baselines (PaLM, C OT, Minerva) are obtained through logistic interpolation of solve rates at 1 and 40
+                                          PAL: Program-aided Language Models                                                17
+
+E. Standard Deviations Across Multiple Order of Prompts
+For each math reasoning task, we run inference using three random orderings of the prompts. As shown in Table 7, the
+standard deviation between the results obtained from the three different seeds is minimal.
+
+                                                      C OT                                PA L
+                                         Average     Standard Deviation     Average     Standard Deviation
+                  GSM 8 K                  65.6              1.10             72.0              0.16
+                  SVAMP                    74.8              0.19             79.4              0.20
+                  ASDIV                    76.9              0.65             79.6              0.14
+                  GSM - HARD               23.3              0.49             61.2              0.91
+                  MAWPS -SingleEq          89.1              0.54             96.1              0.30
+                  MAWPS -SingleOp          91.9              0.55             94.6              0.36
+                  MAWPS -AddSub            86.0              0.62             92.5              0.34
+                  MAWPS -MultiArith        95.9              0.51             99.2              0.48
+
+                        Table 7: Standard deviations for three runs for the math reasoning datasets.
+
+
+F. PA L Beyond Benchmarks
+We argue that symbolic reasoning is a crucial component in solving a wide range of tasks. In this section, we demonstrate
+examples of tasks that may not initially appear to require using programs as intermediate reasoning steps, but can be
+improved through the use of PA L-style reasoning. We demonstrate these examples using the ChatGPT tool.1 In contrast to
+the in-context-learning methods we used in the main paper, here we instruct ChatGPT to perform program-aided reasoning
+through one of the user utterances.
+In Figure 13, in C OT-style reasoning, while the reasoning chain is correct, the final answer is wrong. In contrast, PA L-style
+reasoning could not only accurately extract the color of objects from the question but also produce the correct lines of code
+to branch to different situations that yield their corresponding correct answers.
+A more intriguing example is letting an LLM count the number of letters in the word “intriguing”. In Figure 14a, while the
+step-by-step explanation appears reasonable by splitting the letters by spaces, ChatGPT does not change the answer after
+this explicit reasoning and insists on the wrong answer. Explicitly instructing the model to perform step-by-step reasoning
+before answering the question still yields the wrong answer. In contrast, PA L-style reasoning only takes a few lines of code,
+and the execution does produce the correct answer, in this case. These examples indicate that PA L can benefit even an
+ostensibly powerful model like ChatGPT.
+
+
+
+
+   1
+       chat.openai.com
+                        PAL: Program-aided Language Models                                      18
+
+
+
+
+(a) In C OT style reasoning, the correct intermediate reasoning chain leads to wrong answers.
+
+
+
+
+           (b) In PA L, the execution of the code will produce the correct answer.
+
+     Figure 13: ChatGPT with PA L and C OT to answer a user-posted question
+                      PAL: Program-aided Language Models                                      19
+
+
+
+
+(a) Step-by-step reasoning struggle on counting the number of letters in the word “intrigu-
+ing” which has ten letters.
+
+
+
+
+(b) Explicitly instructing ChatGPT to reason step-by-step before generating answer still
+leads to the wrong answer.
+
+
+
+
+ (c) PA L takes a few lines of code and the execution could result in the correct answer.
+
+   Figure 14: ChatGPT with PA L and C OT to answer a user-posted question
+                                           PAL: Program-aided Language Models                                                    20
+
+G. Closer Look into Token-level Behaviors of Different Mechanisms
+Beyond empirical results, we make initial attempts to gain a deeper understanding of the behavior of LLMs with different
+reasoning mechanisms by looking into the token-level log-likelihood of reasoning chains produced by C OT and PA L.
+We randomly selected 20 questions from the COLORED OBJECTS dataset, along with their corresponding C OT and PA L
+solutions. We then manually compared the two mechanisms by focusing on tokens with a low log-likelihood.
+Our analysis reveals that C OT often has lower confidence in tokens related to numbers and quantitative information, the
+grounded position of spatial adjectives (e.g., right-most), properties such as the color of objects, and nouns that refer to the
+objects. Specifically, we found that this occurred in seven, six, two, and six examples out of the 20 we examined. In contrast,
+PA L uses list manipulations, such as len(objects), and accesses objects and their associated properties through list
+indexing (e.g., object[3][0]). We found that the LLM is typically confident in producing these programs. Furthermore,
+we observed that while C OT requires different expressions for the same concept in different contexts, PA L almost always
+uses the same expression, which is presumably more robust. For example, when there are five objects, C OT predicts “the
+right-most thing is the fifth item on the list”, and “the right-most thing is the third item on the list” when the number of
+objects is three. Occasionally, C OT also predicts “the right-most thing is last item on the list” which does not provide more
+concrete information. On the contrary, PA L confidently predicts objects[-1] consistently. The more consistent and
+uniform use of expressions in PA L can be attributed to the explicit and defined nature of programming languages, which
+allows for clear and accurate expressions.
+
+H. Datasets
+In the following tables (Table 8,Table 9, Table 10), we presents statistics and examples for the datasets we considered.
+
+   Dataset                               N        Example
+   Reasoning about Colored Objects       2000     On the table, you see a bunch of objects arranged in a row: a purple
+                                                  paperclip, a pink stress ball, a brown keychain, a green scrunchiephone
+                                                  charger, a mauve fidget spinner, and a burgundy pen. What is the color
+                                                  of the object directly to the right of the stress ball?
+   Penguins in a Table                   149      Here is a table where the first line is a header and each subsequent line is
+                                                  a penguin: name, age, height (cm), weight (kg) Louis, 7, 50, 11 Bernard,
+                                                  5, 80, 13 Vincent, 9, 60, 11 Gwen, 8, 70, 15 For example: the age of
+                                                  Louis is 7, the weight of Gwen is 15 kg, the height of Bernard is 80
+                                                  cm. We now add a penguin to the table: James, 12, 90, 12 How many
+                                                  penguins are less than 8 years old?
+   Date Understanding                    369      2015 is coming in 36 hours. What is the date one week from today in
+                                                  MM/DD/YYYY?
+
+                             Table 8: Reasoning datasets about everyday objects and concepts.
+
+
+             Dataset            N        Example
+             Object Counting    1000     I have a chair, two potatoes, a cauliflower, a lettuce head, two tables, a
+                                         cabbage, two onions, and three fridges. How many vegetables do I have?
+             Repeat Copy        32       Repeat the word duck four times, but halfway through also say quack.
+
+                                  Table 9: Reasoning datasets about algorithmic problems.
+                                        PAL: Program-aided Language Models                                                21
+
+
+
+
+   Dataset                                             N    Example
+   GSM 8 K (Cobbe et al., 2021)                     1319    Olivia has $23. She bought five bagels for $3 each. How
+                                                            much money does she have left?
+   SVAMP (Patel et al., 2021)                       1000    Each pack of dvds costs 76 dollars. If there is a discount
+                                                            of 25 dollars on each pack. How much do you have to pay
+                                                            to buy each pack?
+   ASDIV (Miao et al., 2020)                        2096    Ellen has six more balls than Marin. Marin has nine balls.
+                                                            How many balls does Ellen have?
+   SINGLEOP (Koncel-Kedziorski et al., 2016)         562    If there are 7 bottle caps in a box and Linda puts 7 more
+                                                            bottle caps inside, how many bottle caps are in the box?
+   SINGLEEQ (Koncel-Kedziorski et al., 2016)         508    Benny bought a soft drink for 2 dollars and 5 candy bars.
+                                                            He spent a total of 27 dollars. How much did each candy
+                                                            bar cost?
+   ADDSUB (Koncel-Kedziorski et al., 2016)           395    There were 6 roses in the vase. Mary cut some roses from
+                                                            her flower garden. There are now 16 roses in the vase.
+                                                            How many roses did she cut?
+   MULTIARITH (Koncel-Kedziorski et al., 2016)       600    The school cafeteria ordered 42 red apples and 7 green
+                                                            apples for students lunches. But, if only 9 students wanted
+                                                            fruit, how many extra did the cafeteria end up with?
+
+Table 10: Examples from math reasoning datasets used in this work. Table from Wei et al. (2022). Datasets vary in number
+of words per question, with 47 words per question in GSM 8 K, 21 words in SINGLEOP, and ∼30 words in the other datasets.
+                                                PAL: Program-aided Language Models                                                        22
+
+
+
+
+      Question                                  C OT: GSM                              C OT: GSMHard                             Identical?
+      90 single use contacts come in 1 box      90 contacts come in 1 box. Each         90 single use contacts come in 1 box.    Yes
+      and will last Pete 45 days. Each box      box is $100.00. So 90 contacts cost     So 1 box will last Pete 45 days. Each
+      is $100.00 and currently 10% off.         $100.00. If he buys 2 boxes, then       box is $5451440 and currently 10%
+      If he buys 2 boxes of contact, how        he will have 2 x 90 = 180 contacts.     off. So each box is $5451440 * 0.9 =
+      much will each pair of contacts cost?     180 contacts cost 2 x $100.00 =         $4906296. If he buys 2 boxes of con-
+                                                $200.00. So each pair of contacts       tact, he will have 2 * 90 = 180 con-
+                                                costs $200.00 / 180 = $1.11. The        tacts. So each pair of contacts will
+                                                answer is $1.11.                        cost $4906296 / 180 = $2725849.
+                                                                                       The answer is $2725849
+      A chef bought 4 bags of onions.           The chef bought 4 bags of onions.      The chef bought 4 bags of onions.         Yes
+      Each bag weighs 50 pounds. A              Each bag weighs 50 pounds. So the       Each bag weighs 50 pounds. So the
+      pound of onions cost $1.50. How           total weight is 4 * 50 = 200 pounds.    total weight is 4 * 50 = 200 pounds.
+      much did the chef spend?                  A pound of onions cost $1.50. So       A pound of onions cost $409201.
+                                                200 pounds of onions cost 200 *         So 200 pounds of onions cost 200 *
+                                                1.50 = 300 dollars. The answer is      409201 = $81840200. The answer
+                                                300.                                    is $81840200.
+      A bag has a 5% discount. If it is         The discount is 5%. So you will pay    The discount is 5%. So you will           Yes
+      marked $140, how much will you            95% of the price. 95% of 140 is 133.    pay 95% of the price. 95% of
+      pay after the discount?                   The answer is 133.                      $3921772.0722 is $3730654.0682.
+                                                                                       The answer is $3730654.0682
+      A basket of green food costs $25          3 baskets of green food will cost 3    A basket of green food costs              No
+      and a basket of red food costs $18.       * 25 = 75 dollars. 3 baskets of red     9412763 dollars. A basket of red
+      If you buy 3 baskets of green food        food will cost 3 * 18 = 54 dollars.     food costs 18 dollars. If you buy 3
+      and red food, how much will you           But you get $2 off for each basket      baskets of green food and red food,
+      have to pay in total if you get $2 off    of red food. So you get 3 * 2 = 6      you will have to pay 9412763 * 3 +
+      for each basket of red food?              dollars off. So you pay 75 + 54 - 6    18 * 3 = 28238280 dollars. If you get
+                                                = 123 dollars. The answer is 123.       2 dollars off for each basket of red
+                                                                                        food, you will have to pay 28238280
+                                                                                       - 18 * 2 = 28238244 dollars. The an-
+                                                                                        swer is 28238244
+      A bumper car rink has 12 red cars.        There are 12 red cars. There are 2     The rink has 9318738 red cars. They       Yes
+      They have 2 fewer green cars than         fewer green cars than red cars. So      have 2 fewer green cars than red cars.
+      they have red cars. They have 3           there are 12 - 2 = 10 green cars.       So they have 9318738 - 2 = 9318736
+      times the number of blue cars as they     There are 3 times as many blue cars     green cars. They have 3 times
+      have green cars. The rink also has        as green cars. So there are 3 * 10      the number of blue cars as green
+      yellow cars. If the rink has 75 cars in   = 30 blue cars. There are 12 + 10 +     cars. So they have 3 * 9318736
+      total how many yellow cars do they        30 = 52 cars that are not yellow. So    = 27956208 blue cars. The total
+      have?                                     there are 75 - 52 = 23 yellow cars.     number of cars is 75. So the num-
+                                                The answer is 23.                       ber of yellow cars is 75 - 9318738 -
+                                                                                        9318736 - 27956208 = -55,828,829.
+                                                                                       The answer is -55,828,829
+
+Table 11: Analysis of generations from C ODEX. Manual analysis of 25 randomly generated thoughts reveals that 16 out of
+25 thoughts were identical, whereas others were close paraphrases.
+                                          PAL: Program-aided Language Models                                               23
+
+H.1. Creating GSM - HARD
+While replacing numbers in the question is easy using pattern matching, a more challenging aspect is recalculating the correct
+answer. GSM 8 K evaluation set contains 1319 samples, which is prohibitively expensive to perform manual re-calculation.
+Instead, we leverage PA L to assist obtaining the correct answers. For 71% of the examples where PA L is correct on
+GSM 8 K , we utilize the generated program and replace the initial value with the larger values. For example, if we create
+a harder version of the problem in Figure 3 by replacing $23 dollars with $15687 dollars, we correspondingly replace
+money initial=23 to money initial=15678. Running the program could automatically produce the correct
+answer of the harder question. Notably, this annotation process assumes that a program that produces a correct answer to
+a GSM 8 K question indicates the correctness of the program itself. While this is not guaranteed due to possible spurious
+correlations, we manually checked 25 programs and found all of them are correct. For the incorrect 29% of the cases, we
+run PA L again and perform nucleus sampling (Holtzman et al., 2019) with temperature 0.7, and repeat the above process if
+any correct solution is found. Finally, the authors manually annotate the correct answer for 50 remaining cases that PA L was
+not able to solve after 100 iterations.
+
+H.2. GSM - HARD Analysis
+Table 11 shows thoughts generated with C OT on GSM 8 K and GSM - HARD. A manual analysis reveals that a majority of the
+generated thoughts (16/25) were identical for GSM 8 K and GSM - HARD, indicating that larger numbers primarily diminish
+performance due to failure of LLM to do arithmetic..
+                                         PAL: Program-aided Language Models                                              24
+
+I. Generalization of PAL to Least-to-Most Prompting
+
+   Q: Four years ago, Kody was only half as old as Mohamed. If Mohamed is currently
+   ,→  twice 30 years old, how old is Kody?
+   A: To answer the question "How old is Kody?", we need to know: "How old is Mohamed?",
+   ,→  "How old was Mohamed four years ago?", "How old was Kody four years ago?".
+
+                                (a) Least-to-Most Math Reducing Prompt
+   Four years ago, Kody was only half as old as Mohamed. If Mohamed is currently twice
+   ,→  30 years old, how old is Kody?
+
+   Q: How old was Mohamed four years ago?
+   A: We were told that Mohamed is currently twice 30 years old, so he is currently 30 *
+   ,→  2 = 60 years old. That means that four years ago he must have been 60 - 4 = 56
+   ,→  years old. The answer is 56.
+
+   Q: How old is Kody?
+   A: Four years ago, Kody was half as old as Mohamed, so Kody must have been 56 / 2 =
+   ,→  28 years old then. Since Kody was 28 years old four years ago, she must now be 28
+   ,→  + 4 = 32 years old. The answer is 32.
+
+                                (b) Least-to-Most Math Solving Prompt
+   # Four years ago, Kody was only half as old as Mohamed. If Mohamed is currently twice
+       30 years old, how old is Kody?
+
+   # How old was Mohamed four years ago?
+   mohamed_age_current = 30 * 2
+   mohamed_age_4_years_ago = mohamed_age_current - 4
+
+   # Final Question: How old is Kody?
+   kody_age_4_years_ago = mohamed_age_4_years_ago / 2
+   kody_age_current = kody_age_4_years_ago + 4
+   answer = kody_age_current
+
+                                               (c) PA L Math Solving Prompt
+
+                                          Figure 15: Prompts for Math data sets.
+
+Previous experiments focus on the C OT technique. This section examines if PA L generalizes to other prompt types. We
+consider a strong alternative prompting strategy L EAST- TO -M OST (Zhou et al., 2022). L EAST- TO -M OST solves problems
+in two stages, problem-reducing and problem-solving. Problem reducing stage turns the problem into sub-problems, and
+the solving stage solves them sequentially. It keeps two prompts, each for an individual stage. To patch L EAST- TO -M OST
+prompts with PA L, we adopt a simple and straightforward approach: we note that problem reduction requires logically
+thinking in NL while solving requires the precision that PL offers. We therefore keep the original reducing prompts while
+only turning solution segments in the solving scripts in PL. We show an example reducing prompt, original solving prompt,
+and PA L solving prompt in Figure 15. Note that one unique property of PA L solving can naturally use previous questions’
+answers as the symbol values are shared. In comparison, the original solving script needs to explicitly re-cite answers from
+previous answers.
+
+                        Dataset (500 examples)     L EAST- TO -M OST     L EAST- TO -M OST + PA L
+                        GSM 8 K                           67.2                     72.8
+                        SVAMP                             75.2                     78.2
+
+   Table 12: Results on GSM 8 K and SVAMP with L EAST- TO -M OST and L EAST- TO -M OST with PA L solving prompt.
+
+For our analysis, we consider the Math data sets GSM 8 K, and SVAMP as Zhou et al. (2022) found Least-to-Most helps solve
+complex math problems. We patch the GSM 8 K prompt from the Zhou et al. (2022) into PA L. Note that the other tasks in
+                                          PAL: Program-aided Language Models                                                25
+
+Zhou et al. (2022), like “concatenating last letters” from several words, require simple routines and are trivially solvable by
+PA L. We experiment with subsets of 500 examples and record results in Table 12. Here we see PA L can take advantage of
+the problem decomposition offered by the L EAST- TO -M OST reducing and further leverage the arithmetic capability in the
+Python runtime to achieve additional performance gains.
+                                       PAL: Program-aided Language Models                                      26
+
+J. Prompts
+We show here example PA L prompts we used for each data set. We show one example for each of the few-shot prompts.
+The fulls prompt can be found in our released code.
+
+J.1. Reasoning about Colored Objects
+
+   # Q: On the table, you see a bunch of objects arranged in a row: a purple paperclip,
+       a pink stress ball, a brown keychain, a green scrunchiephone charger, a mauve
+       fidget spinner, and a burgundy pen. What is the color of the object directly to
+       the right of the stress ball?
+   # Put objects into a list to record ordering
+   objects = []
+   objects += [('paperclip', 'purple')] * 1
+   objects += [('stress ball', 'pink')] * 1
+   objects += [('keychain', 'brown')] * 1
+   objects += [('scrunchiephone charger', 'green')] * 1
+   objects += [('fidget spinner', 'mauve')] * 1
+   objects += [('pen', 'burgundy')] * 1
+   # Find the index of the stress ball
+   stress_ball_idx = None
+   for i, object in enumerate(objects):
+       if object[0] == 'stress ball':
+           stress_ball_idx = i
+           break
+   # Find the directly right object
+   direct_right = objects[stress_ball_idx+1]
+   # Check the directly right object's color
+   direct_right_color = direct_right[1]
+   answer = direct_right_color
+                               PAL: Program-aided Language Models                          27
+
+J.2. Penguins in a Table
+
+   """Q: Here is a table where the first line is a header and each subsequent line is a
+       penguin: name, age, height (cm), weight (kg) Louis, 7, 50, 11 Bernard, 5, 80, 13
+       Vincent, 9, 60, 11 Gwen, 8, 70, 15 For example: the age of Louis is 7, the weight
+       of Gwen is 15 kg, the height of Bernard is 80 cm. We now add a penguin to the
+       table: James, 12, 90, 12
+   How many penguins are less than 8 years old?
+   """
+   # Put the penguins into a list.
+   penguins = []
+   penguins.append(('Louis', 7, 50, 11))
+   penguins.append(('Bernard', 5, 80, 13))
+   penguins.append(('Vincent', 9, 60, 11))
+   penguins.append(('Gwen', 8, 70, 15))
+   # Add penguin James.
+   penguins.append(('James', 12, 90, 12))
+   # Find penguins under 8 years old.
+   penguins_under_8_years_old = [penguin for penguin in penguins if penguin[1] < 8]
+   # Count number of perguins under 8.
+   num_penguin_under_8 = len(penguins_under_8_years_old)
+   answer = num_penguin_under_8
+
+                                            Figure 17
+                               PAL: Program-aided Language Models                         28
+
+J.3. Date Understanding
+
+   # Q: 2015 is coming in 36 hours. What is the date one week from today in MM/DD/YYYY?
+   # If 2015 is coming in 36 hours, then today is 36 hours before.
+   today = datetime(2015, 1, 1) - relativedelta(hours=36)
+   # One week from today,
+   one_week_from_today = today + relativedelta(weeks=1)
+   # The answer formatted with %m/%d/%Y is
+   one_week_from_today.strftime('%m/%d/%Y')
+                               PAL: Program-aided Language Models                         29
+
+J.4. Math
+
+#Q: Olivia has \$23. She bought five bagels for \$3 each. How much money does she have
+    left?
+money_initial = 23
+bagels = 5
+bagel_cost = 3
+money_spent = bagels * bagel_cost
+money_left = money_initial - money_spent
+print(money_left)
+
+#Q: Michael had 58 golf balls. On tuesday, he lost 23 golf balls. On wednesday, he lost
+    2 more. How many golf balls did he have at the end of wednesday?
+golf_balls_initial = 58
+golf_balls_lost_tuesday = 23
+golf_balls_lost_wednesday = 2
+golf_balls_left = golf_balls_initial - golf_balls_lost_tuesday -
+    golf_balls_lost_wednesday
+print(golf_balls_left)
+
+#Q: There were nine computers in the server room. Five more computers were installed
+    each day, from monday to thursday. How many computers are now in the server room?
+
+computers_initial = 9
+computers_per_day = 5
+num_days = 4 # 4 days between monday and thursday
+computers_added = computers_per_day * num_days
+computers_total = computers_initial + computers_added
+print(computers_total)
+
+
+#Q: If there are 3 cars in the parking lot and 2 more cars arrive, how many cars are in
+    the parking lot?
+cars_initial = 3
+cars_arrived = 2
+total_cars = cars_initial + cars_arrived
+print(total_cars)
+
+#Q: Leah had 32 chocolates and her sister had 42. If they ate 35, how many pieces do
+    they have left in total?
+
+leah_chocolates = 32
+sister_chocolates = 42
+total_chocolates = leah_chocolates + sister_chocolates
+chocolates_eaten = 35
+chocolates_left = total_chocolates - chocolates_eaten
+print(chocolates_left)
+
+
+                       Figure 19: Prompt used for mathematical reasoning (1/2)
+                               PAL: Program-aided Language Models                         30
+
+
+
+
+#Q: Jason had 20 lollipops. He gave Denny some lollipops. Now Jason has 12 lollipops.
+    How many lollipops did Jason give to Denny?
+jason_lollipops_initial = 20
+jason_lollipops_after = 12
+denny_lollipops = jason_lollipops_initial - jason_lollipops_after
+print(denny_lollipops)
+
+
+
+#Q: There are 15 trees in the grove. Grove workers will plant trees in the grove today.
+    After they are done, there will be 21 trees. How many trees did the grove workers
+    plant today?
+trees_initial = 15
+trees_after = 21
+trees_added = trees_after - trees_initial
+print(trees_added)
+
+
+#Q: Shawn has five toys. For Christmas, he got two toys each from his mom and dad. How
+    many toys does he have now?
+
+toys_initial = 5
+mom_toys = 2
+dad_toys = 2
+total_received = mom_toys + dad_toys
+total_toys = toys_initial + total_received
+print(total_toys)
+
+
+                       Figure 20: Prompt used for mathematical reasoning (2/2)
+                               PAL: Program-aided Language Models                    31
+
+J.5. Object Counting
+
+   # Q: I have a chair, two potatoes, a cauliflower, a lettuce head, two tables, a
+       cabbage, two onions, and three fridges. How many vegetables do I have?
+
+   # note: I'm not counting the chair, tables, or fridges
+   vegetables_to_count = {
+       'potato': 2,
+       'cauliflower': 1,
+       'lettuce head': 1,
+       'cabbage': 1,
+       'onion': 2
+   }
+   print(sum(vegetables_to_count.values()))
+
+
+   # Q: I have a drum, a flute, a clarinet, a violin, four accordions, a piano, a
+       trombone, and a trumpet. How many musical instruments do I have?
+
+   musical_instruments_to_count = {
+       'drum': 1,
+       'flute': 1,
+       'clarinet': 1,
+       'violin': 1,
+       'accordion': 4,
+       'piano': 1,
+       'trombone': 1,
+       'trumpet': 1
+   }
+   print(sum(musical_instruments_to_count.values()))
+
+
+
+
+   # Q: I have a chair, two ovens, and three tables. How many objects do I have?
+
+   objects_to_count = {
+       'chair': 1,
+       'oven': 2,
+       'table': 3
+   }
+   print(sum(objects_to_count.values()))
+
+
+                           Figure 21: Prompt used for O BJECT C OUNTING.
+                              PAL: Program-aided Language Models                          32
+
+J.6. Repeat Copy
+
+  # Q: Repeat the word duck four times, but halfway through also say quack
+
+  result = []
+  for i in range(1, 5):
+      result.append("duck")
+      if i == 2:
+          result.append("quack")
+  print(" ".join(result))
+
+
+  # Q: Print boolean eleven times, but after the 3rd and 8th also say correct
+
+  result = []
+  for i in range(1, 12):
+      result.append("boolean")
+      if i == 3 or i == 8:
+          result.append("correct")
+  print(" ".join(result))
+
+  # Q: say java twice and data once, and then repeat all of this three times.
+
+  result = []
+  tmp = ["java", "java", "data"]
+  for i in range(3):
+      result.extend(tmp)
+  print(" ".join(result))
+
+
+  # Q: ask a group of insects in what family? four times. after the fourth time say The
+      happy family
+
+  result = []
+  tmp = []
+  for i in range(1, 5):
+      tmp.append("a group of insects in what family?")
+  tmp.append("The happy family")
+  result.extend(tmp)
+  print(" ".join(result))
+
+
+                            Figure 22: Prompt used for R EPEAT C OPY.
+                                           PAL: Program-aided Language Models                                                 33
+
+K. Success and Failure Modes in Symbolic Tasks
+K.1. Colored Objects
+
+   # Find non-gold items to the right of the pencil
+   non_gold = [object for object in objects[i+1:] if object[1] != 'gold']
+
+                               (a) Snippet of PA L doing a filter operation.
+   # Remove all pink objects
+   non_pink = [object for object in objects if object[1] != 'pink']
+
+   # Count number of crayons
+   crayons = [object for object in non_pink if object[0] == 'crayon']
+   answer = len(crayons)
+
+                                        (b) Snippet of PA L composing multiple operations.
+
+                     Figure 23: Example model generation snippets on Reasoning about Color Object.
+
+By manually examining the the model outputs, we observe that PA L often performs better on questions that involve counting
+objects that satisfy one or several conditions. For example, C OT fails in the following example: “On the desk, you see a
+bunch of items arranged in a row: a gold textbook, a purple puzzle, a teal necklace, and a silver pencil. How many non-gold
+items do you see to the right of the pencil?”. With pure NL reasoning, a LLM can easily lose track of the objects and output
+the wrong answer of “The number of non-gold items to the right of the pencil is two. So the answer is two.”
+In comparison, PA L is able to accurately construct the object lists with correct order and attributes. Further, it can precisely
+leverage the simple yet complete PL syntax: it composes routines with functional operators from elementary builtin
+operation/operators. Figure 4 lists the last a few lines of the solution to the question described above generated by PA L,
+which perform filtering over objects. PA L can further compose such operations across multiple reasoning steps as shown in
+Figure 23b, where it first filters out all pink objects and then scans the remaining to count crayons. Other reasoning such as
+“how many objects are left after filtering” can be easily tackled precisely with an runtime.
+
+K.2. Penguins in a Table
+
+   ...This question focuses on age. We know the following: Louis is 7 years old, Bernard
+   ,→  is 5 years old, Vincent is 9 years old, and Gwen is 8 years old.Now, we add James
+   ,→  to this table: James is 12 years old. We then delete the penguin named Bernard
+   ,→  from the table.The penguins that are less than 8 years old are Louis and Bernard.
+   ,→  There are 2 penguins less than 8 years old. So the answer is 2.
+   ...
+   # Delete penguin Bernard.
+   penguins = [penguin for penguin in penguins if penguin[0] != 'Bernard']
+   # Find penguins under 8 years old.
+   penguins_under_8_years_old = [penguin for penguin in penguins if penguin[1] < 8]
+   # Count number of perguins under 8.
+   num_penguin_under_8 = len(penguins_under_8_years_old)
+   answer = num_penguin_under_8
+
+Figure 24: Generated Snippets for one question (...We then delete the penguin named Bernard from the table. How many
+penguins are less than 8 years old?) in Penguins in a Table
+                                                            .
+
+In this task, we found a typical failure mode of the language is its inability to stably tracks states in its past generation.
+Figure 24 lists the generations of C OT and PA L to the question that contains the removal of a penguin (“...We then delete
+the penguin named Bernard from the table. How many penguins are less than 8 years old?”). Although C OT picks up the
+critical information that “penguins that are less then 8 years old are Louis and Bernard”, and that “Bernard is deleted”. It
+still fails to aggregate the information properly and infer that there is one penguin less then 8 left in the end. In comparison,
+PA L expresses this dynamic through manipulating a penguins list by filtering out the penguin whose name is “Bernard”,
+                                        PAL: Program-aided Language Models                                            34
+
+and maintaining a penguins under 8 years old list. It offloads tracking exact the values (in this case, the length of
+the list) to the deterministic Python runtime.
+
+K.3. Date Understanding
+
+   Q: Jane was born on the last day of Feburary in 2001. Today is her 16-year-old
+   ,→  birthday. What is the date 24 hours later in MM/DD/YYYY?
+
+   A: The last day of February is the 28th, so Jane was born on 02/28/2001. Today is her
+   ,→  16-year old birthday, so today is 02/28/2017. So 24 hours later is 02/29/2017. So
+   ,→  the answer is 02/29/2017.
+
+   # Q: Jane was born on the last day of Feburary in 2001. Today is her 16-year-old
+       birthday. What is the date 24 hours later in MM/DD/YYYY?
+   # If Jane was born on the last day of Feburary in 2001 and today is her 16-year-old
+       birthday, then today is 16 years later.
+   today = datetime(2001, 2, 28) + relativedelta(years=16)
+   # 24 hours later,
+   later = today + relativedelta(hours=24)
+   # The answer formatted with %m/%d/%Y is
+   later.strftime('%m/%d/%Y')
+
+                             Figure 25: Example model generation on Date Understanding.
+
+We found this especially common when the time deltas are across the month boundary. We show an example in Figure 25.
+Here with C OT prompting, the LLM expresses the knowledge of the 28-day-long February, yet it still outputs 02/29/2017 as
+the final answer. With PA L, the actual calendar is accurate as a program handles the operation.
+

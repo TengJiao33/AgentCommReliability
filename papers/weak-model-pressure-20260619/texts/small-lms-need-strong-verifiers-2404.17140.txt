@@ -1,0 +1,1115 @@
+                                         Small Language Models Need Strong Verifiers to Self-Correct Reasoning
+
+
+                                                     Yunxiang Zhangα * Muhammad Khalifaα Lajanugen Logeswaranβ
+                                                        Jaekyeom Kimβ Moontae Leeβγ Honglak Leeαβ Lu Wangα
+                                                   University of Michiganα LG AI Researchβ University of Illinois at Chicagoγ
+
+
+
+
+                                                                  Abstract                           are effective at self-correction are of very large
+                                                                                                     sizes, and many of them are proprietary and ac-
+                                                Self-correction has emerged as a promising so-
+                                                                                                     cessible only via APIs. In this work, we focus on
+                                                lution to boost the reasoning performance of
+                                                large language models (LLMs), where LLMs             the self-correction abilities of small, open-source
+arXiv:2404.17140v2 [cs.CL] 6 Jun 2024
+
+
+
+
+                                                refine their solutions using self-generated cri-     language models (LMs).2 Previous studies have
+                                                tiques that pinpoint the errors. This work ex-       shown that these smaller models can learn self-
+                                                plores whether small (≤ 13B) language models         correction in reasoning through distillation from
+                                                (LMs) have the ability of self-correction on rea-    stronger LMs (Yu et al., 2023b; An et al., 2023;
+                                                soning tasks with minimal inputs from stronger       Han et al., 2024). Yet this poses security risks for
+                                                LMs. We propose a novel pipeline that prompts        high-stakes domains and hinders the scientific un-
+                                                smaller LMs to collect self-correction data that
+                                                                                                     derstanding of enhancing LMs’ ability to correct
+                                                supports the training of self-refinement abil-
+                                                ities. First, we leverage correct solutions to       errors. We thus ask the question: To which degree
+                                                guide the model in critiquing their incorrect        do small LMs require guidance from strong LMs to
+                                                responses. Second, the generated critiques, af-      learn self-correction for reasoning?
+                                                ter filtering, are used for supervised fine-tuning      We study this question by leveraging the small
+                                                of the self-correcting reasoner through solu-        model itself to generate supervised training data
+                                                tion refinement. Our experimental results show
+                                                                                                     to enhance its self-correction ability, instead of re-
+                                                improved self-correction abilities of two mod-
+                                                els on five datasets spanning math and com-          sorting to stronger LMs. To this end, we draw
+                                                monsense reasoning, with notable performance         inspiration from the rejection sampling fine-tuning
+                                                gains when paired with a strong GPT-4-based          (RFT) (Touvron et al., 2023; Yuan et al., 2023)
+                                                verifier, though limitations are identified when     method where LLM’s reasoning skills are boot-
+                                                using a weak self-verifier for determining when      strapped via diverse chain-of-thought sampling and
+                                                to correct.1                                         supervised fine-tuning on the correct reasoning
+                                                                                                     chains. We propose SCORE—an approach to
+                                        1       Introduction
+                                                                                                     bootstrap small LMs’ Self-COrrection ability in
+                                        Recent research shows that large language mod-               REasoning tasks. Concretely, we devise a pipeline
+                                        els (LLMs) (OpenAI, 2023) can self-correct their             for accumulating high-quality critique-correction
+                                        responses to meet diverse user requirements, rang-           data from small LMs, which are used for super-
+                                        ing from diminishing harmful content to including            vised fine-tuning of self-correcting reasoners. First,
+                                        specific keywords and to debugging code (Madaan              we leverage correct solutions as hints for the base
+                                        et al., 2023; Chen et al., 2023b). Self-correction           LMs to critique incorrect answers. By reverse-
+                                        is typically accomplished by first generating a cri-         engineering from the correct answer, the models
+                                        tique that identifies the shortcomings of the initial        generate more effective critiques. Second, we filter
+                                        response, followed by revising it according to the           these critiques for correctness, well-formedness,
+                                        self-critique—a process that can be iterated.                and clarity using simple rule-based and prompting
+                                           Self-correction has emerged as an intriguing              methods. Finally, we fine-tune the same LMs to be-
+                                        paradigm for rectifying the flaws in LLM’s out-
+                                                                                                         2
+                                        puts (Pan et al., 2023). However, models that                      While the distinction between small vs. large LMs is often
+                                                                                                     context-dependent (Saunders et al., 2022; Yu et al., 2023b),
+                                            *Correspondence to yunxiang@umich.edu                    in this work, we interchangeably use “small” or “weak” LMs
+                                            1
+                                            Our implementation can be accessed at https://github.    to refer to open models with a few billion parameters (e.g.,
+                                        com/yunx-z/SCORE.                                            LLaMA-7/13B (Touvron et al., 2023)).
+come self-refining models using this curated data.        2   Problem Formulation of
+By avoiding the use of supervision from stronger              Self-Correction
+LMs, we ensure that our method enables a small
+LM to bootstrap its self-correction capabilities.         Self-Correct := (S ELF -)V ERIFY + S ELF -
+   We evaluate our SCORE fine-tuned refiner un-           R EFINE. We decompose the task of self-
+der both extrinsic and intrinsic self-correction set-     correction into two phases: (S ELF -)V ERIFY and
+tings (Huang et al., 2023b). The primary difference       S ELF -R EFINE. The LM first generates an initial
+between these two settings is whether the refiner is      solution for a reasoning question. A verifier, ei-
+allowed to use external signals to determine when         ther the LM itself (intrinsic) or the external signal
+to self-correct (i.e., refine the initial solution only   (extrinsic), then judges the correctness of the ini-
+when it is believed to be incorrect). Identifying         tial solution. If correct, the initial solution will be
+when to self-correct involves verifying the solu-         directly used as the final answer. If incorrect, a
+tions’ correctness, which is still challenging for        refiner will revise the solution. While this process
+current state-of-the-art LLMs without proper ex-          can be iterated, we fix the times of iterations as
+ternal feedback (Huang et al., 2023b). We adopt           1 throughout this paper for efficiency and leave
+a simple baseline for the self-verification problem       multiple iterations as future studies.
+following Cobbe et al. (2021). Specifically, we
+                                                             Decoupling (S ELF -)V ERIFY and S ELF -R EFINE
+fine-tune the same LMs to become verifiers with
+                                                          brings two major advantages over a one-model-
+labels based solely on the correctness of the final
+                                                          does-all design. First, we can freely parameterize
+answer, conditioning on the question and a can-
+                                                          each module—for example, by using a fine-tuned
+didate solution. As for the extrinsic setting, we
+                                                          and a few-shot prompted model. This allows us to
+simulate strong verifiers with GPT-4 and oracle
+                                                          carefully examine the impact of strong vs. weak
+labels, to show the effectiveness of small LMs as
+                                                          verifiers on the refiners’ performance. On the con-
+self-correcting reasoners.
+                                                          trary, previous work on self-correction with small
+   We test the SCORE method with the                      LMs (Yu et al., 2023b; An et al., 2023; Han et al.,
+LLaMA-2-13B-chat (Touvron et al., 2023) and               2024) conflates S ELF -V ERIFY and S ELF -R EFINE,
+Gemma-7b-it (Team et al., 2024) models on five            creating a barrier to fully understanding the distinct
+datasets spanning math and commonsense reason-            capacities of these models in each skill. Second, it
+ing. We find that our model with SCORE fine-              reduces the difficulty of training each module, since
+tuning outperforms the original model by an av-           the model only needs to specialize in one kind of
+erage of 14.6% when using a gpt-4-based veri-             ability, which is either verification or refinement.
+fier. Nevertheless, the model struggles with self-
+correction when subjected to a weak self-verifier
+fine-tuned on self-generated solutions.                   S ELF -R EFINE := Critique + Correction. The
+   Our main contributions are summarized below:           challenge for S ELF -R EFINE is that it can be dif-
+                                                          ficult for language models to directly map an
+  1. We introduce SCORE, a novel pipeline to              initial solution to a revision without any guid-
+     generate self-correction data from a small LM,       ance (Welleck et al., 2023). Using critiques—
+     and subsequently fine-tune the model to be a         assessments that pinpoint the locations of errors
+     self-correcting reasoner.                            within the reasoning steps, explain the causes of
+                                                          these errors, and offer guidance on how to cor-
+  2. Our method effectively augments the self-            rect them—can significantly enhance the perfor-
+     correction abilities of small LMs on math and        mance of language models when generating revi-
+     commonsense reasoning, when using strong             sions (Saunders et al., 2022; Madaan et al., 2023).
+     verifiers.                                           Therefore, we formulate refinement with two steps:
+                                                          the model will first generate a critique for the initial
+  3. To the best of our knowledge, we are the first       solutions determined as incorrect, followed by a
+     to demonstrate the potential of small LMs to         corrected version, in a single pass. Yet, it is still
+     bootstrap their abilities on self-corrective rea-    non-trivial to obtain high-quality critiques to guide
+     soning without distilling training data from         the error correction. We address this problem us-
+     stronger LMs or using human annotation.              ing the correct solutions as hints to facilitate the
+                                                          critique generation, detailed in Section 3.1.
+                                     Generate critique for                       Check whether base LM
+        Sample and label           incorrect solutions using                      can recover the correct                            Supervised Finetuning
+        𝑁 solutions per Q          correct solutions as hints                   solution with filtered critique                     on critique-correction data
+
+a.                                b.                                         c.                                                    d.
+                  Base LM                                Base LM                               Base LM                                              Refiner
+
+
+
+     𝑄!           𝑆!"       𝑌!"                          𝑄!         ",$
+                                                                   𝐶!                          𝑄!       𝑆!
+                                                                                                            %&    %&
+                                                                                                                 𝑌!                          𝑄!      %
+                                                                                                                                                    𝑆!
+                                                                                                                                                             ",$
+                                                                                                                                                            𝐶!      %&
+                                                                                                                                                                   𝑆!
+
+
+
+
+                                       Critique Prompt
+                              ✅                                                                                       ✅
+
+
+
+
+                                                                                  Correction
+                                                                                   Prompt
+                  𝑆!#       𝑌!#                           %
+                                                         𝑆!                                    𝑆!
+                                                                                                    %                 ❓                              ❎             ✅
+
+                        …     ❎
+     CoT Prompt
+
+
+
+
+                                                               ❎                                        ❎
+                                                         𝑆!4                                    ",$
+                                                                                               𝐶!                𝑄!    questions        𝑌!         labels
+                                                                                                                                                             masks
+                                                               ✅                                                                                             (do not
+                  𝑆!$       𝑌!$                                                                                  𝑆!    solutions        𝐶!
+                                                                                                                                                            contribute
+                              ✅                                                                                                                   critiques to loss)
+
+
+Figure 1: Illustration of the SCORE pipeline to generate critique-correction data from a small LM (step a-c) and
+fine-tune the same LM to self-correct its reasoning errors (step d), without distilling any data from stronger LMs.
+
+
+3       The SCORE Method                                                  3.1        Generating and Filtering Critiques
+                                                                          Directly generating critique for an incorrect solu-
+Our approach is inspired by rejection sampling fine-
+                                                                          tion without external supervision signals is difficult.
+tuning (RFT): sampling diverse solutions for each
+                                                                          In our preliminary experiments, we find it easier
+question and fine-tune LLMs on the self-generated
+                                                                          for the LM to generate critiques using correct solu-
+solutions that lead to the correct final answer (Yuan
+                                                                          tions as hints, as the model only needs to compare
+et al., 2023; Huang et al., 2023a; Zelikman et al.,
+                                                                          the different steps between these two solutions and
+2022). We want to bootstrap the small LM’s inher-
+                                                                          justify the correct ones. In Appendix B, we explain
+ent ability to generate critiques for reasoning steps.
+                                                                          this intuition from a mathematical perspective.
+We design an end-to-end pipeline to collect self-
+                                                                             To leverage correct solutions as hints for LMs
+correction data generated by small LMs at scale,
+                                                                          to generate critiques on incorrect solutions, we la-
+without any distillation from stronger LMs. The
+                                                                          bel these solutions and collect all possible pairs of
+self-generated critiques, after filtering, are used
+                                                                          incorrect-correct solutions for the same questions
+to fine-tune the smaller LM itself to bootstrap its
+                                                                          (Cartesian product between the sets of incorrect
+ability to self-correct. Concretely, the SCORE
+                                                                          and correct solutions). We craft a few-shot critique
+pipeline consists of two stages shown in Figure 1
+                                                                          prompt (Appendix A) to instruct the base LM to
+and described below.
+                                                                          generate critiques for the incorrect solution using
+                                                                          the paired correct solution as hints.3 Step-level
+Stage 1: Generating and Filtering Critiques.                              critiques are more useful than solution-level ones
+We sample N solutions for each question in the                            since they provide more precise and fine-grained
+training set by few-shot chain-of-thought prompt-                         supervision (Lightman et al., 2023; Wu et al., 2023;
+ing a base LM (step a). To enable the base LM                             Uesato et al., 2022a) that mitigate the undesirable
+to reflect on its incorrect solutions, we include a                       behavior of LMs using incorrect reasoning to reach
+correct solution for the same question (if exists) in                     the correct final answer (Khalifa et al., 2023; Ze-
+the prompt as a hint (step b). We then filter the                         likman et al., 2022). Therefore, we prompt the
+self-generated critiques based on their correctness                       model to provide feedback for each step of the
+and clarity (step c). This process is detailed in                         initial solution, either endorsing the initial answer
+Section 3.1.                                                              (e.g., “this step is correct”) or pinpointing the er-
+                                                                          rors (e.g., “there are errors in the step because ...”).
+Stage 2: Supervised Fine-tuning of the Refiner.                           To ensure the LM-generated critique is grounded in
+The filtered critiques obtained from stage 1 are                          a specific step, we also ask the model to copy each
+used in the next stage for fine-tuning the small LM                       step before providing feedback on it. Considering
+itself. We train a refiner that generates critiques
+                                                                             3
+and corrections conditioned on questions and initial                           The total number of incorrect-correct solution pairs could
+                                                                          be very large so we sample only one critique per pair. This has
+solutions (step d). We exclude the hints during fine-                     already provided a sufficient amount of SCORE fine-tuning
+tuning. More details are given in Section 3.2.                            data after filtering.
+these requirements, we design the format of the           • The feedback for the last step should provide
+critique prompt as follows, with a detailed example         the correct answer.
+in Appendix A.
+
+   Critique Prompt                                     The first two criteria check for the well-formedness
+                                                       of the critique and the third one focuses on the
+   Q: {question}
+                                                       correctness aspect. A critique will be removed if it
+   Answer 1 (Incorrect):                               fails to meet any of the three criteria above.
+   Step 1: ...
+   ...                                                     Given that a critique could still contain errors
+   Step n: The answer is x .                           even if it suggests the correct final answer in the
+   Answer 2 (Correct):                                 last step, we add an additional stage of prompting-
+   Step 1: ...                                         based filtering besides the above rule-based heuris-
+   ...                                                 tics. Specifically, we prompt the base LM to revise
+   Step n: The answer is y .
+                                                       the incorrect solution given the critique that already
+   There are reasoning errors in Answer 1.             passes the aforementioned filtering rule. Assuming
+   Please go through each step in Answer 1,            the base LM has reasonable ability of following
+   use Answer 2 as a reference for the correct
+   approach, and provide feedback that helps           instructions, it is expected to give a correct revision
+   correct the errors in Answer 1. End your            if the generated critique is both clear and error-free.
+   response with [END].                                We demonstrate such an example of the correction
+   Let’s go through the errors in Answer 1             prompt in Appendix A. In other words, we remove
+   and provide feedback:                               critiques that do not result in a correctly revised
+   Answer 1 (Incorrect):
+                                                       answer. After the ruled-based and prompting-based
+                                                       filtering, we obtain the high-quality critiques for
+   Step 1: ...                                         fine-tuning LMs to self-refine.
+   Feedback: This step is correct.
+   ...
+   Step i: ...
+   Feedback: This is incorrect. Because ...            3.2   Supervised Fine-tuning of the Refiner
+   ...
+   Step n: The answer is x .
+   Feedback: The correct answer, based on              We train the refiner to generate a critique and an
+   the corrected calculations, should be y .           improved solution in one pass conditioned on a
+   [END]                                               question and an initial solution. We note that al-
+                                                       though we provide the correct solutions as hints to
+   Note that the model should suggest the corrected    generate critiques during data collection, the model
+final answer, taken from the hint solution, as part    is tasked to generate critiques without the hints
+of the feedback for the last step. This forces the     during fine-tuning and inference. Previously we
+model to explicitly leverage the information from      collected critiques for every step to ensure that we
+the hint solution.                                     can apply multiple filters to obtain high-quality cri-
+                                                       tiques. But in this step, we truncate the critiques to
+Filtering Generated Critiques. After obtaining         only keep the feedback for the first error step as the
+the raw self-generated critiques, we want to re-       fine-tuning target. This is because it is difficult to
+move the low-quality ones and keep the rest for        ask the LMs to identify and correct all the errors in
+fine-tuning LMs. Thanks to the well-designed for-      one pass (Yu et al., 2023b) without referring to cor-
+mat of critiques, we can apply rule-based filters to   rect solutions as hints during inference. The refiner
+remove generated critiques that do not follow the      is fine-tuned on truncated critiques and corrections
+desired format. These criteria include:                collected in the previous stages with cross-entropy
+                                                       loss. We do not include few-shot demonstrations
+   • The number of steps and feedbacks (counted        during fine-tuning. We apply masks on the input
+     by the appearances of “Step {i}:” and             tokens so that they do not contribute to the loss.
+     “Feedback:”) should be the same.                  Although we only do 1 iteration for the refinement
+                                                       in this work, we later show that small LMs can
+   • Each step should be exactly copied from the       already achieve great improvement after 1 round of
+     initial solution.                                 self-correction when paired with a strong verifier.
+                                 GSM8K           CSQA           is introduced only when the confidence of the veri-
+                                 #      %       #       %       fier’s predictions exceeds a certain threshold, which
+ Base LM: LLaMA-2-13b-chat                                      is automatically chosen in a way that maximizes
+                                                                the accuracy on the dev set and then fixed during
+ Raw critiques             56,843 100.0 42,705 100.0
+ After rule-based filering 36,337 63.9 36,436 85.3              test-time predictions. Since fine-tuned small LMs
+ After prompting filtering
+                           14,499 25.5 24,511 57.4              are still weak verifiers that bottleneck the perfor-
+   (for SCORE fine-tuning)
+                                                                mance of self-correction, we also experiment with
+ Base LM: Gemma-7b-it                                           a second option by using gpt-4 as an off-the-shelf
+ Raw critiques             52,669 100.0 40,604 100.0            strong verifier to demonstrate the potential of our
+ After rule-based filering 17,209 32.7 35,929 88.5              fine-tuned refiner. We do so by few-shot prompting
+ After prompting filtering
+                           4,623 8.8 12,972 31.9                gpt-4 to predict the correctness of the initial so-
+   (for SCORE fine-tuning)
+                                                                lution by smaller LMs, with the verifying prompt
+Table 1: Statistics of the critique data generated from         shown in Appendix A. Finally, we directly use the
+our SCORE pipeline. Although Gemma-7B has fewer                 gold labels of the initial solutions as signals to de-
+data left after filtering, it still achieves greater improve-   termine when to self-refine. This oracle verifier
+ment than LLaMA-13B by self-correction (Section 5.1),
+                                                                setting provides an upper bound for the refiners’
+suggesting that Gemma-7B is more effective at learning
+self-correction from SCORE.                                     performance.
+
+                                                                Benchmarks and Base Models. To demonstrate
+4    Experimental Setup                                         the effectiveness of the SCORE method, we
+                                                                conduct experiments on two popular datasets:
+Self-Correction Data Collection. As stated in                   GSM8K (Cobbe et al., 2021) for mathematical
+Section 3.1, we sample N = 10 solutions from                    reasoning and CommonsenseQA (Talmor et al.,
+the base model with the chain-of-thought (CoT)                  2018) for commonsense reasoning. We also con-
+prompts shown in Appendix A, label their correct-               duct transferability studies and evaluate the gen-
+ness, and formulate incorrect-correct solution pairs            eralization performance of our fine-tuned refiner
+for critique generation. We separately collect data             on MATH (Hendrycks et al., 2021) for mathemati-
+for each base LM and task. This results in the                  cal reasoning, QASC (Khot et al., 2020) and Rid-
+number of raw critiques shown in Table 1. We se-                dleSense (Lin et al., 2021) for commonsense rea-
+quentially apply rule-based filtering and prompting-            soning. Specifically, for mathematical reasoning,
+based filtering to obtain high-quality critiques for            we train self-verifiers and SCORE refiners using
+the fine-tuning data.                                           only GSM8K training data and evaluate them on
+Verifiers. We experiment with verifiers of dif-                 the whole GSM8K test set and a subset of MATH
+ferent levels of capabilities to gauge their impacts            test set,4 following the practice of Hosseini et al.
+on self-correction performance. First, we adopt a               (2024). Similarly, for commonsense reasoning, we
+simple baseline for training a self-verifier follow-            fine-tune our models using only CommonsenseQA
+ing Cobbe et al. (2021). The self-verifier is a model           training data and evaluate them on the whole dev5
+with the same architecture as the base LM, con-                 set of CommonsenseQA, QASC, and RiddleSense.
+ditioned on the question and a candidate solution               Since questions in CommonsenseQA, QASC, and
+to judge the probability that the solution is cor-              Riddlesense have a multiple-choice format, we also
+rect/incorrect. Specifically, we label the solutions            include a random refiner baseline that randomly
+sampled from the base LM as incorrect (0) or cor-               picks a choice different from the initial answer,
+rect (1) solely based on their final answers and fine-          following the practice of Huang et al. (2023b).
+tune the verifier with a binary classification head on             We explore two open-source smaller language
+the last-layer representation of the last token in the          models, namely LLaMA-2-13B-chat (Touvron
+input sequence “Question: {q} \n Solution:                      et al., 2023) and Gemma-7B-it (Team et al., 2024)
+{s} \n Is this solution correct?”. Since the                        4
+                                                                      This subset includes a total 181 problems of Level 1 dif-
+fine-tuning data is imbalanced between correct and              ficulty in MATH with question types of algebra, Counting
+incorrect solution, we re-weight the loss for each              & probability, prealgebra and number theory, where the final
+class with regarding to its proportion. During infer-           answer is a number and no latex exists in the question.
+                                                                    5
+                                                                      The test labels of these datasets are hidden, so we use the
+ence, the verifier model outputs a probability of the           original dev set as our test set, following Kojima et al. (2022);
+initial solution being incorrect, and the refinement            Kim et al. (2023).
+Figure 2: Performance of SCORE models using LLaMA-2-13B-chat and Gemma-7B-it as base LMs. We show the
+relationship between F1 scores of the verifiers and final answer accuracies. We also report the difference between the
+final accuracy after refinement and the corresponding initial answer accuracy (Init. Accu.) by few-shot prompting
+for each base LM. For the concrete numbers of these metrics, please see Table 6 in the appendix. We include test
+results for training tasks (GSM8K and CommonsenseQA/CSQA), as well as transfer evaluation of GSM8K trained
+models on MATH subset, CSQA trained models on QASC and RiddleSense. All models use greedy decoding
+during inference.
+
+
+as the base LMs to generate self-correction data             ies (Section 5.3). Lastly, we show the impact of
+and evaluate their self-correction abilities. In Ap-         SCORE fine-tuning data size on self-correction
+pendix C, we also investigate whether our self-              performance (Section 5.4).
+correction fine-tuning can be built on top of other
+fine-tuning methods (e.g., rejection-sampling fine-          5.1   Main Findings
+tuning) to further boost the reasoning performance.
+                                                             Figure 2 presents the primary evaluation results for
+Fine-tuning and Evaluation. We fine-tune the                 our fine-tuned models compared to baseline models.
+base LM using the LLaMA-Factory library (Zheng               The results include two performance metrics: the
+et al., 2024b) with LoRA (Hu et al., 2022). We set           verifier F1, which assesses the precision and recall
+the low-rank dimension as 32, the learning rate as           of the verifier’s predictions; and the final accuracy,
+2e-5, training epochs as 3, batch size as 32. During         which measures the accuracy of the final answer
+inference, we set the temperature as 0 (i.e., greedy         after self-correction. We have four major findings.
+decoding) and the max sample length as 2,048. All               1) The critique-correction data collected by our
+our experiments can be conducted on 4×A40 GPU                SCORE pipeline enhances the base LM’s capabil-
+with 48GB of memory.                                         ity for self-correction. Our fine-tuned models con-
+                                                             sistently bring large improvements on the final ac-
+5   Results
+                                                             curacy over the initial answer obtained by few-shot
+In this section, we first present the experimental           prompting. However, the prompting-based self-
+findings of SCORE method on various models                   correction baseline (prompted verifier + prompted
+and datasets (Section 5.1). To better understand             refiner in Figure 2) proposed by Madaan et al.
+the performance changes after self-correction, we            (2023) deteriorates the final predictions, as LMs
+then analyze the behaviors of verifiers and refin-           struggle to identify errors in their reasoning (Huang
+ers (Section 5.2) and further highlight several key          et al., 2023b) and possess limited self-correction
+design decisions of our pipeline with ablation stud-         abilities before bootstrapping. On the multiple-
+                                      verifier (self)        Using the same fine-tuned refiner, the final accura-
+                  verifier (self)   + refiner (SCORE)
+                                                             cies vary a lot among different verifiers. The upper
+             0 229          599       810      18            bound performance suggested by an oracle veri-
+    True label
+                                                             fier demonstrate great potential for self-correction,
+                                                             yet a weak self-verifier can only bring minor im-
+             1    24        467        15      476           provements, if not misguiding the refiner. Nev-
+                                                             ertheless, when combined with a more advanced
+                                     verifier (gpt-4)        verifier, such as GPT-4, our refiner achieves a sig-
+                 verifier (gpt-4)   + refiner (SCORE)        nificant increase in final accuracy, e.g., an average
+                                                             of +8.3 across five datasets for Gemma-7b-it. The
+             0 760           68       721      107
+    True label
+
+
+
+
+                                                             confusion matrices in Figure 3 show the system of
+                                                             gpt-4-as-verifier + SCORE-refiner is more likely to
+             1    75        416        52      439           modify an incorrect answer to a correct one than the
+                                                             other way round. This observation underscores the
+                   0         1         0         1           necessity of effectively tackling the problem of rea-
+                 Predicted label     Predicted label
+                                                             soning verification before significant advances in
+Figure 3: Confusion matrices of the predictions by the       self-correction can be attained. Future work could
+verifier and the refiner on GSM8K test set. The base         focus on the improvement of reasoning verification
+LM is LLaMA-2-13B-chat. “True label” means the cor-          that is built upon a mechanistic (Yüksekgönül et al.,
+rectness of the initial solution. The predicted label of     2023; Yang et al., 2024) and representational (Zou
+the verifier represents whether the verifier judges it as
+                                                             et al., 2023; Zheng et al., 2024a) understanding of
+correct (1) or incorrect (0). The predicted label of the
+verifier + refiner is the correctness of the final answer.   LMs’ internal reasoning process.
+The strong verifier (gpt-4) makes fewer false positive          4) The enhanced self-correction skills can trans-
+predictions than the weak self-verifier and unleashes the    fer across different datasets. When evaluating our
+potential of the small LM to revise an incorrect answer      fine-tuned refiner on unseen datasets, it still demon-
+into a correct one more likely than the other way around.    strates consistent improvement over the baselines
+                                                             (up to +12.1 by the GSM8K-trained Gemma-7B
+                                                             on MATH subset). This shows that the model is
+choice CommonsenseQA questions, our SCORE                    learning generalizable self-correction skills rather
+fine-tuned refiner achieves much larger improve-             than overfitting to a specific dataset. Additionally,
+ment than the random baseline under oracle verifier,         we find that the verifier does not transfer as well
+indicating that our model is not simply making ran-          as the refiner, reiterating the difficulty of reasoning
+dom guess.                                                   verification for LMs.
+   2) Our framework improves self-correction for                SCORE could be combined with oversample-
+various base LMs on different types of reasoning             then-rerank, an orthogonal approach to further im-
+tasks. We validate the effectiveness of our SCORE            prove reasoning (Cobbe et al., 2021; Li et al.,
+fine-tuning on both math reasoning and common-               2023b; Hosseini et al., 2024). By aggregating veri-
+sense reasoning tasks with two pretrained LMs.               fications from multiple solutions, the weak verifiers
+In principle, our task-agonistic pipeline can be ap-         become stronger via ensembling and thus unleash
+plied to a variety of datasets whose reasoning could         the power of refiner for better self-correction of
+be expressed in a step-by-step format. We also ob-           reasoning. Please refer to Appendix D for details.
+serve that although the initial solutions proposed by
+Gemma-7B are worse than LLaMA-13B (e.g., 67.2                5.2   Analysis of Self-Correction Behaviors
+< 69.7 on CommonsenseQA), Gemma-7B’s accu-                   Following the methodology of Yu et al. (2023b), we
+racy surpasses LLaMA-13B after self-correction               focus on two key metrics to understand the model’s
+(e.g., 75.0 > 72.4 on CommonsenseQA). Consid-                self-correction behaviors: 1) the frequency with
+ering that Gemma-7B is fine-tuned with even less             which the verifier decides to self-correct (Freq.),
+self-correction data (Table 1), we believe Gemma             and 2) the extent to which these self-correction
+is more effective at learning self-correction skills         attempts enhance the model’s task performance
+from SCORE fine-tuning.                                      (Contrib.). Self-correction Freq. is measured by
+   3) The self-correction performance is largely             the ratio of self-correction attempts to the size of
+bottlenecked by the verifier rather than the refiner.        the test set, while self-correction Contrib. is deter-
+                             GSM8K            CSQA                                             Generating
+  Verifier     Refiner                                                       Critique for
+                                                                                               critique &    Final     Oracle
+                          Freq. Contrib. Freq. Contrib.                      only the first
+                                                                                               correction    Accu.     Accu.
+                                                                              error step?
+  Base LM: LLaMA-2-13b-chat                                                                   in one pass?
+  prompted                 3.7    10.2    17.5    19.6                             Initial answers by
+                                                                                                             39.4       39.4
+  self        prompted     2.7     2.9     1.2    40.0                            few-shot prompting
+  oracle                  62.8    4.0     30.3    46.2
+                                                                                      !           !          40.2       49.5
+  self
+               SCORE
+                          19.0    10.8    3.0     33.3                                %           !          39.6       46.4
+  gpt-4                   63.3    15.6    38.8    40.9
+             (fine-tuned)                                                             !           %          39.4       43.6
+  oracle                  62.8    14.0    30.3    54.3
+                                                                                      %           %          39.9       47.0
+  Base LM: Gemma-7b-it
+  prompted                18.7    21.5    20.2    45.3        Table 3: Ablation study on the format of critique and
+  self        prompted     9.9     9.9     2.9    42.9        decoupling critique and correction generation. Results
+  oracle                  63.7    2.1     32.8    22.4        are shown on GSM8K dev set with LLaMA-2-13B-chat
+  self
+               SCORE
+                          27.9    14.1    0.6     57.1        as base LM.
+  gpt-4                   63.4    17.1    38.6    48.4
+             (fine-tuned)
+  oracle                  63.7    17.4    32.8    55.6
+                                                                                              GSM8K
+Table 2: Analysis of self-correction behaviors. The
+settings are the same as those in Figure 2. Freq. (in
+                                                                            52
+percentage) means the frequency with which the verifier
+                                                                                                                        verifier
+                                                              Final Accu.
+decides to self-correct. Contrib. (in percentage) refers
+to the extent to which these self-correction attempts en-                   50                                             initial
+                                                                                                                           self
+hance the model’s task performance. A strong verifier                                                                      gpt-4
+(e.g., gpt-4) maintains a balanced frequency of self-                       48                                             oracle
+correction, ideally similar to that of the oracle verifier,
+and thus enhance the final accuracies in Figure 2. Addi-                    46
+tionally, the SCORE refiner possesses stronger refine-
+ment capabilities, as indicated by a higher contribution                         25         50          75       100
+score than the prompted refiner.                                                      % of Refiner FT. Data Used
+
+                                                              Figure 4: Final accuracy on GSM8K dev set w.r.t per-
+mined by the number of instances in which these               centage of refiner fine-tuning data used and the type
+attempts successfully resulted in the correct answer.         of verifier. The base LM is LLaMA-2-13B-chat. Un-
+   Table 2 presents a detailed analysis of the                der a strong verifier setting, our refiner brings greater
+                                                              performance gain with more fine-tuning data. Yet the
+model’s self-correction behaviors. Our analy-
+                                                              performance plateaus with a weak verifier.
+sis demonstrates that our fine-tuned refiner has
+a higher contribution to the final self-correction
+performance, explaining why it outperforms the                Such a separation not only increases the system’s
+prompting-based refiner (Madaan et al., 2023), as             complexity and delays inference but also leads to a
+shown in Figure 2. Additionally, we find that our             diminished final accuracy.
+fine-tuned verifier and the gpt-4 verifier maintain a
+more reasonable frequency of self-correction, strik-          5.4            Scaling with Fine-tuning Data Size
+ing a better balance between correction attempts              We investigate the data-efficiency for refiner fine-
+and accuracy.                                                 tuning. Figure 4 plots the size of the refiner fine-
+                                                              tuning data against the final accuracy with different
+5.3    Ablation Studies                                       verification settings on GSM8K. We fine-tune the
+In order to validate the various design decisions             LLaMA-2-13B-chat base model on a random sub-
+made in constructing our pipeline, we have con-               set (varying from 25% to 75%) of the 14,499 total
+ducted a series of ablation studies. The key findings         critique-corrections as previously shown in Table 1.
+from Table 3 can be summarized as follows. 1) It is           We find that our refiner benefits from more fine-
+easier for the LM to identify only the first erroneous        tuning data when paired with strong verifiers (ora-
+step, as the performance drops if we challenge it to          cle labels or gpt-4). Yet this effect is not observed
+critique every step. 2) There is no need to separate          when using a weak self-verifier, again highlighting
+the S ELF -R EFINE process into two modules—one               the importance of verification for self-correction.
+for generating critiques and another for corrections.         We find that increasing the fine-tuning dataset size
+yields accuracy improvements up to a certain point.      solutions and select the best one as the final out-
+For instance, beyond approximately 10k examples          put (Cobbe et al., 2021), or guide the LLM de-
+(representing 75% of the SCORE fine-tuning data),        coding through the search space for correct rea-
+the performance does not further improve.                soning paths (Khalifa et al., 2023). We lever-
+                                                         age a verifier to determine when to self-correct.
+6   Related Work                                         Verifiers come at different granularity, including
+                                                         process/step-based (Uesato et al., 2022b; Li et al.,
+Training Small Language Model to Self-Correct.
+                                                         2023b; Lightman et al., 2023) and outcome-based
+Recent work shows that smaller language model
+                                                         supervision (Cobbe et al., 2021; Yu et al., 2023a;
+can be fine-tuned on task-specific data to perform
+                                                         Hosseini et al., 2024). We use the latter since it is
+self-correct. But existing methods rely either on
+                                                         easier to construct labels automatically. Besides
+distilled data from stronger models (An et al.,
+                                                         training a verifier with supervision signals, LLMs
+2023; Yu et al., 2023b; Han et al., 2024; Ye et al.,
+                                                         can also be few-shot prompted to become a veri-
+2023; Zhang et al., 2024) or template-based cri-
+                                                         fier (Weng et al., 2023; Madaan et al., 2023; Zhou
+tiques (Paul et al., 2023; Welleck et al., 2023).
+                                                         et al., 2023; Asai et al., 2023). We also explores
+Our approach differs from prior studies in this do-
+                                                         the possibility of LLM-as-verifier, and demonstrate
+main as we gather natural language critiques from
+                                                         its usage for self-correction. We highlight the
+a small language model without relying on larger
+                                                         importance of verification in the context of self-
+models or task-specific heuristics. Furthermore,
+                                                         correction, which echoes the recent finding that
+we split the self-correction process into two phases:
+                                                         LLMs can successfully solve a problem, but can-
+(S ELF -)V ERIFY and S ELF -R EFINE. This separa-
+                                                         not verify the reasoning (Gu et al., 2024; Oh et al.,
+tion contrasts with earlier approaches that often
+                                                         2024; West et al., 2023). This calls for more effort
+merge the two skills, which not only obscures the
+                                                         for building evaluation benchmarks (Jacovi et al.,
+true abilities of these models in each respective
+                                                         2024; Chen et al., 2023a; Mao et al., 2024; Light-
+skill but also complicates the training process. In
+                                                         man et al., 2023) and developing methods (Nguyen
+a nutshell, we demonstrate that strong verifiers un-
+                                                         et al., 2024; Xu et al., 2024; Hosseini et al., 2024)
+leash the power of small LMs to S ELF -R EFINE.
+                                                         to improve the reasoning verification.
+Bootstrapping Reasoning in Language Mod-
+                                                         7   Conclusion
+els. As language models become more power-
+ful, human supervision may not be sufficient to          In this study, we investigate how to leverage mini-
+improve these models. This trend calls for self-         mal signals from strong LMs to teach small LMs
+improving LMs that provide training signals for          to self-correct their reasoning. We propose the
+themselves (Zelikman et al., 2022; Gülçehre et al.,      SCORE method to collect self-correction fine-
+2023; Yuan et al., 2023; Wang et al., 2023; Chen         tuning data solely from small LMs. We find that
+et al., 2024). The bootstrapping methods often           SCORE-fine-tuned small LMs become better re-
+involve iteratively fine-tuning a base LM on its self-   finer models without relying on knowledge distilla-
+generated examples that obtain a high reward value       tion from stronger LMs, yet they still need strong
+for correctness, helpfulness, or other desired prop-     verifiers to be successful at self-correcting their
+erties. The bootstrapping process can further lever-     reasoning errors. Our results highlight that the
+age label-free data (Huang et al., 2023a; Li et al.,     self-verification limitation of LMs currently poses
+2023a; Yuan et al., 2024) by generating pseudo la-       an obstacle to the advancement of intrinsic self-
+bels using LLMs themselves. We draw inspiration          correction in reasoning and thus warrants future
+from this family of methods and bootstrap the self-      research.
+correction ability of smaller LMs. Our method is
+complementary to the rejection-sampling finetun-
+ing approach and can further improve reasoning
+performance upon that.
+
+Verifying Reasoning. Verification of reasoning
+chains involves judging the correctness of the fi-
+nal answer and each reasoning steps. The veri-
+fier is often used to rerank multiple over-generated
+Limitations                                                     Sharma, Aditya Siddhant, Alex Ahern, Miaosen
+                                                                Wang, Chenjie Gu, Wolfgang Macherey, Arnaud
+Generating large amounts of synthetic data from                 Doucet, Orhan Firat, and Nando de Freitas. 2023.
+smaller LMs requires intensive GPU computations,                Reinforced self-training (rest) for language modeling.
+yet it removes the reliance on proprietary API mod-             CoRR, abs/2308.08998.
+els. Comparing the cost-efficiency of these two               Haixia Han, Jiaqing Liang, Jie Shi, Qianyu He, and
+approaches will help us better trade-off between                Yanghua Xiao. 2024. Small language model can
+data generated from smaller LMs and larger LMs.                 self-correct. CoRR, abs/2401.07301.
+Introducing the verifier and refiner during inference         Dan Hendrycks, Collin Burns, Saurav Kadavath, Akul
+also causes additional latency, which we discuss in             Arora, Steven Basart, Eric Tang, Dawn Song, and Ja-
+Appendix E.                                                     cob Steinhardt. 2021. Measuring mathematical prob-
+                                                                lem solving with the MATH dataset. In Proceedings
+Acknowledgements                                                of the Neural Information Processing Systems Track
+                                                                on Datasets and Benchmarks 1, NeurIPS Datasets
+This work is supported by LG AI Research. We                    and Benchmarks 2021, December 2021, virtual.
+also thank ARR reviewers for their useful feedback.           Arian Hosseini, Xingdi Yuan, Nikolay Malkin, Aaron C.
+                                                                Courville, Alessandro Sordoni, and Rishabh Agar-
+                                                                wal. 2024. V-star: Training verifiers for self-taught
+References                                                      reasoners. CoRR, abs/2402.06457.
+Shengnan An, Zexiong Ma, Zeqi Lin, Nanning Zheng,             Edward J. Hu, Yelong Shen, Phillip Wallis, Zeyuan
+  Jian-Guang Lou, and Weizhu Chen. 2023. Learning               Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and
+  from mistakes makes LLM better reasoner. CoRR,                Weizhu Chen. 2022. Lora: Low-rank adaptation of
+  abs/2310.20689.                                               large language models. In The Tenth International
+                                                                Conference on Learning Representations, ICLR 2022,
+Akari Asai, Zeqiu Wu, Yizhong Wang, Avirup Sil, and             Virtual Event, April 25-29, 2022. OpenReview.net.
+  Hannaneh Hajishirzi. 2023. Self-rag: Learning to
+  retrieve, generate, and critique through self-reflection.   Jiaxin Huang, Shixiang Gu, Le Hou, Yuexin Wu, Xuezhi
+  CoRR, abs/2310.11511.                                          Wang, Hongkun Yu, and Jiawei Han. 2023a. Large
+                                                                 language models can self-improve. In Proceedings
+Shiqi Chen, Yiran Zhao, Jinghan Zhang, I-Chun Chern,             of the 2023 Conference on Empirical Methods in Nat-
+  Siyang Gao, Pengfei Liu, and Junxian He. 2023a.                ural Language Processing, EMNLP 2023, Singapore,
+  FELM: benchmarking factuality evaluation of large              December 6-10, 2023, pages 1051–1068. Association
+  language models. In Advances in Neural Information             for Computational Linguistics.
+  Processing Systems 36: Annual Conference on Neu-
+  ral Information Processing Systems 2023, NeurIPS            Jie Huang, Xinyun Chen, Swaroop Mishra,
+  2023, New Orleans, LA, USA, December 10 - 16,                  Huaixiu Steven Zheng, Adams Wei Yu, Xiny-
+  2023.                                                          ing Song, and Denny Zhou. 2023b. Large language
+                                                                 models cannot self-correct reasoning yet. CoRR,
+Xinyun Chen, Maxwell Lin, Nathanael Schärli, and                 abs/2310.01798.
+  Denny Zhou. 2023b. Teaching large language mod-
+  els to self-debug. CoRR, abs/2304.05128.                    Alon Jacovi, Yonatan Bitton, Bernd Bohnet, Jonathan
+                                                                Herzig, Or Honovich, Michael Tseng, Michael
+Zixiang Chen, Yihe Deng, Huizhuo Yuan, Kaixuan Ji,              Collins, Roee Aharoni, and Mor Geva. 2024. A
+  and Quanquan Gu. 2024. Self-play fine-tuning con-             chain-of-thought is as strong as its weakest link: A
+  verts weak language models to strong language mod-            benchmark for verifiers of reasoning chains. CoRR,
+  els. CoRR, abs/2401.01335.                                    abs/2402.00559.
+
+Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian,               Muhammad Khalifa, Lajanugen Logeswaran, Moontae
+  Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias               Lee, Honglak Lee, and Lu Wang. 2023. GRACE:
+  Plappert, Jerry Tworek, Jacob Hilton, Reiichiro              Discriminator-guided chain-of-thought reasoning. In
+  Nakano, Christopher Hesse, and John Schulman.                Findings of the Association for Computational Lin-
+  2021. Training verifiers to solve math word prob-            guistics: EMNLP 2023, pages 15299–15328, Singa-
+  lems. CoRR, abs/2110.14168.                                  pore. Association for Computational Linguistics.
+
+Alex Gu, Wen-Ding Li, Naman Jain, Theo X. Olaus-              Tushar Khot, Peter Clark, Michal Guerquin, Peter
+  son, Celine Lee, Koushik Sen, and Armando Solar-              Jansen, and Ashish Sabharwal. 2020. QASC: A
+  Lezama. 2024. The counterfeit conundrum: Can                  dataset for question answering via sentence compo-
+  code language models grasp the nuances of their in-           sition. In The Thirty-Fourth AAAI Conference on
+  correct generations? CoRR, abs/2402.19475.                    Artificial Intelligence, AAAI 2020, The Thirty-Second
+                                                                Innovative Applications of Artificial Intelligence Con-
+Çaglar Gülçehre, Tom Le Paine, Srivatsan Srini-                 ference, IAAI 2020, The Tenth AAAI Symposium on
+  vasan, Ksenia Konyushkova, Lotte Weerts, Abhishek             Educational Advances in Artificial Intelligence, EAAI
+  2020, New York, NY, USA, February 7-12, 2020,             Juhyun Oh, Eunsu Kim, Inha Cha, and Alice Oh. 2024.
+  pages 8082–8090. AAAI Press.                                The generative AI paradox on evaluation: What it can
+                                                              solve, it may not evaluate. CoRR, abs/2402.06204.
+Geunwoo Kim, Pierre Baldi, and Stephen McAleer.
+  2023. Language models can solve computer tasks. In        OpenAI. 2023. GPT-4 technical report.            CoRR,
+  Advances in Neural Information Processing Systems           abs/2303.08774.
+  36: Annual Conference on Neural Information Pro-
+  cessing Systems 2023, NeurIPS 2023, New Orleans,          Liangming Pan, Michael Saxon, Wenda Xu, Deepak
+  LA, USA, December 10 - 16, 2023.                            Nathani, Xinyi Wang, and William Yang Wang. 2023.
+                                                              Automatically correcting large language models: Sur-
+Takeshi Kojima, Shixiang Shane Gu, Machel Reid, Yu-           veying the landscape of diverse self-correction strate-
+  taka Matsuo, and Yusuke Iwasawa. 2022. Large lan-           gies. CoRR, abs/2308.03188.
+  guage models are zero-shot reasoners. In Advances
+  in Neural Information Processing Systems 35: An-          Debjit Paul, Mete Ismayilzada, Maxime Peyrard, Beat-
+  nual Conference on Neural Information Processing            riz Borges, Antoine Bosselut, Robert West, and Boi
+  Systems 2022, NeurIPS 2022, New Orleans, LA, USA,           Faltings. 2023. REFINER: reasoning feedback on in-
+  November 28 - December 9, 2022.                             termediate representations. CoRR, abs/2304.01904.
+Xian Li, Ping Yu, Chunting Zhou, Timo Schick, Luke          William Saunders, Catherine Yeh, Jeff Wu, Steven Bills,
+  Zettlemoyer, Omer Levy, Jason Weston, and Mike              Long Ouyang, Jonathan Ward, and Jan Leike. 2022.
+  Lewis. 2023a. Self-alignment with instruction back-         Self-critiquing models for assisting human evaluators.
+  translation. CoRR, abs/2308.06259.                          CoRR, abs/2206.05802.
+Yifei Li, Zeqi Lin, Shizhuo Zhang, Qiang Fu, Bei Chen,      Alon Talmor, Jonathan Herzig, Nicholas Lourie, and
+  Jian-Guang Lou, and Weizhu Chen. 2023b. Making              Jonathan Berant. 2018. Commonsenseqa: A question
+   language models better reasoners with step-aware           answering challenge targeting commonsense knowl-
+  verifier. In Proceedings of the 61st Annual Meeting         edge. CoRR, abs/1811.00937.
+   of the Association for Computational Linguistics (Vol-
+   ume 1: Long Papers), ACL 2023, Toronto, Canada,
+                                                            Gemma Team, Thomas Mesnard, Cassidy Hardin,
+  July 9-14, 2023, pages 5315–5333. Association for
+                                                              Robert Dadashi, Surya Bhupatiraju, Shreya Pathak,
+   Computational Linguistics.
+                                                              Laurent Sifre, Morgane Rivière, Mihir Sanjay Kale,
+Hunter Lightman, Vineet Kosaraju, Yura Burda, Har-            Juliette Love, et al. 2024. Gemma: Open models
+  rison Edwards, Bowen Baker, Teddy Lee, Jan                  based on gemini research and technology. arXiv
+  Leike, John Schulman, Ilya Sutskever, and Karl              preprint arXiv:2403.08295.
+  Cobbe. 2023. Let’s verify step by step. CoRR,
+  abs/2305.20050.                                           Hugo Touvron, Louis Martin, Kevin Stone, Peter Al-
+                                                              bert, Amjad Almahairi, Yasmine Babaei, Nikolay
+Bill Yuchen Lin, Ziyi Wu, Yichi Yang, Dong-Ho Lee,            Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti
+  and Xiang Ren. 2021. Riddlesense: Reasoning about           Bhosale, Dan Bikel, Lukas Blecher, Cristian Canton-
+  riddle questions featuring linguistic creativity and        Ferrer, Moya Chen, Guillem Cucurull, David Esiobu,
+  commonsense knowledge. In Findings of the Associ-           Jude Fernandes, Jeremy Fu, Wenyin Fu, Brian Fuller,
+  ation for Computational Linguistics: ACL/IJCNLP             Cynthia Gao, Vedanuj Goswami, Naman Goyal, An-
+  2021, Online Event, August 1-6, 2021, volume                thony Hartshorn, Saghar Hosseini, Rui Hou, Hakan
+  ACL/IJCNLP 2021 of Findings of ACL, pages 1504–             Inan, Marcin Kardas, Viktor Kerkez, Madian Khabsa,
+  1515. Association for Computational Linguistics.            Isabel Kloumann, Artem Korenev, Punit Singh Koura,
+                                                              Marie-Anne Lachaux, Thibaut Lavril, Jenya Lee, Di-
+Aman Madaan, Niket Tandon, Prakhar Gupta, Skyler              ana Liskovich, Yinghai Lu, Yuning Mao, Xavier Mar-
+ Hallinan, Luyu Gao, Sarah Wiegreffe, Uri Alon,               tinet, Todor Mihaylov, Pushkar Mishra, Igor Moly-
+ Nouha Dziri, Shrimai Prabhumoye, Yiming Yang,                bog, Yixin Nie, Andrew Poulton, Jeremy Reizen-
+ Sean Welleck, Bodhisattwa Prasad Majumder,                   stein, Rashi Rungta, Kalyan Saladi, Alan Schelten,
+ Shashank Gupta, Amir Yazdanbakhsh, and Peter                 Ruan Silva, Eric Michael Smith, Ranjan Subrama-
+ Clark. 2023. Self-refine: Iterative refinement with          nian, Xiaoqing Ellen Tan, Binh Tang, Ross Tay-
+ self-feedback. CoRR, abs/2303.17651.                         lor, Adina Williams, Jian Xiang Kuan, Puxin Xu,
+                                                              Zheng Yan, Iliyan Zarov, Yuchen Zhang, Angela Fan,
+Yujun Mao, Yoon Kim, and Yilun Zhou. 2024. CHAMP:             Melanie Kambadur, Sharan Narang, Aurélien Ro-
+  A competition-level dataset for fine-grained analyses       driguez, Robert Stojnic, Sergey Edunov, and Thomas
+  of llms’ mathematical reasoning capabilities. CoRR,         Scialom. 2023. Llama 2: Open foundation and fine-
+  abs/2401.06961.                                             tuned chat models. CoRR, abs/2307.09288.
+
+Minh-Vuong Nguyen, Linhao Luo, Fatemeh Shiri, Dinh          Jonathan Uesato, Nate Kushman, Ramana Kumar, Fran-
+  Phung, Yuan-Fang Li, Thuy-Trang Vu, and Gho-                cis Song, Noah Siegel, Lisa Wang, Antonia Creswell,
+  lamreza Haffari. 2024. Direct evaluation of chain-          Geoffrey Irving, and Irina Higgins. 2022a. Solv-
+  of-thought in multi-hop reasoning with knowledge            ing math word problems with process-and outcome-
+  graphs. CoRR, abs/2402.11199.                               based feedback. arXiv preprint arXiv:2211.14275.
+Jonathan Uesato, Nate Kushman, Ramana Kumar,               Zheng Yuan, Hongyi Yuan, Chengpeng Li, Guanting
+  H. Francis Song, Noah Y. Siegel, Lisa Wang, Antonia        Dong, Chuanqi Tan, and Chang Zhou. 2023. Scaling
+  Creswell, Geoffrey Irving, and Irina Higgins. 2022b.       relationship on learning mathematical reasoning with
+  Solving math word problems with process- and               large language models. CoRR, abs/2308.01825.
+  outcome-based feedback. CoRR, abs/2211.14275.
+                                                           Mert Yüksekgönül, Varun Chandrasekaran, Erik Jones,
+Peiyi Wang, Lei Li, Liang Chen, Feifan Song, Binghuai       Suriya Gunasekar, Ranjita Naik, Hamid Palangi, Ece
+  Lin, Yunbo Cao, Tianyu Liu, and Zhifang Sui. 2023.        Kamar, and Besmira Nushi. 2023. Attention satis-
+  Making large language models better reasoners with        fies: A constraint-satisfaction lens on factual errors
+  alignment. CoRR, abs/2309.02144.                          of language models. CoRR, abs/2309.15098.
+Sean Welleck, Ximing Lu, Peter West, Faeze Brah-           Eric Zelikman, Yuhuai Wu, Jesse Mu, and Noah D.
+  man, Tianxiao Shen, Daniel Khashabi, and Yejin             Goodman. 2022. Star: Bootstrapping reasoning with
+  Choi. 2023. Generating sequences by learning to            reasoning. In Advances in Neural Information Pro-
+  self-correct. In The Eleventh International Confer-        cessing Systems 35: Annual Conference on Neural
+  ence on Learning Representations, ICLR 2023, Ki-           Information Processing Systems 2022, NeurIPS 2022,
+  gali, Rwanda, May 1-5, 2023. OpenReview.net.               New Orleans, LA, USA, November 28 - December 9,
+                                                             2022.
+Yixuan Weng, Minjun Zhu, Fei Xia, Bin Li, Shizhu He,
+  Shengping Liu, Bin Sun, Kang Liu, and Jun Zhao.          Xinliang Frederick Zhang, Carter Blum, Temma Choji,
+  2023. Large language models are better reasoners           Shalin Shah, and Alakananda Vempala. 2024. Ultra:
+  with self-verification. In Findings of the Associa-        Unleash llms’ potential for event argument extraction
+  tion for Computational Linguistics: EMNLP 2023,            through hierarchical modeling and pair-wise refine-
+  Singapore, December 6-10, 2023, pages 2550–2575.           ment. ArXiv, abs/2401.13218.
+  Association for Computational Linguistics.
+                                                           Chujie Zheng, Fan Yin, Hao Zhou, Fandong Meng, Jie
+Peter West, Ximing Lu, Nouha Dziri, Faeze Brah-              Zhou, Kai-Wei Chang, Minlie Huang, and Nanyun
+  man, Linjie Li, Jena D. Hwang, Liwei Jiang, Jil-           Peng. 2024a. Prompt-driven llm safeguarding via
+  lian Fisher, Abhilasha Ravichander, Khyathi Chandu,        directed representation optimization. arXiv preprint
+  Benjamin Newman, Pang Wei Koh, Allyson Ettinger,           arXiv:2401.18018.
+  and Yejin Choi. 2023. The generative AI paradox:
+  "what it can create, it may not understand". CoRR,       Yaowei Zheng, Richong Zhang, Junhao Zhang, Yanhan
+  abs/2311.00059.                                            Ye, Zheyan Luo, and Yongqiang Ma. 2024b. Lla-
+                                                             mafactory: Unified efficient fine-tuning of 100+ lan-
+Zeqiu Wu, Yushi Hu, Weijia Shi, Nouha Dziri, Alane           guage models. arXiv preprint arXiv:2403.13372.
+  Suhr, Prithviraj Ammanabrolu, Noah A. Smith, Mari
+  Ostendorf, and Hannaneh Hajishirzi. 2023. Fine-          Aojun Zhou, Ke Wang, Zimu Lu, Weikang Shi, Sichun
+  grained human feedback gives better rewards for lan-       Luo, Zipeng Qin, Shaoqing Lu, Anya Jia, Linqi Song,
+  guage model training. CoRR, abs/2306.01693.                Mingjie Zhan, and Hongsheng Li. 2023. Solving
+                                                             challenging math word problems using GPT-4 code
+Xin Xu, Shizhe Diao, Can Yang, and Yang Wang. 2024.
+                                                             interpreter with code-based self-verification. CoRR,
+  Can we verify step by step for incorrect answer de-
+                                                             abs/2308.07921.
+  tection? CoRR, abs/2402.10528.
+Sohee Yang, Elena Gribovskaya, Nora Kassner, Mor           Andy Zou, Long Phan, Sarah Chen, James Campbell,
+  Geva, and Sebastian Riedel. 2024. Do large language        Phillip Guo, Richard Ren, Alexander Pan, Xuwang
+  models latently perform multi-hop reasoning? CoRR,         Yin, Mantas Mazeika, Ann-Kathrin Dombrowski,
+  abs/2402.16837.                                            Shashwat Goel, Nathaniel Li, Michael J. Byun, Zifan
+                                                             Wang, Alex Mallen, Steven Basart, Sanmi Koyejo,
+Seonghyeon Ye, Yongrae Jo, Doyoung Kim, Sungdong             Dawn Song, Matt Fredrikson, J. Zico Kolter, and
+  Kim, Hyeonbin Hwang, and Minjoon Seo. 2023.                Dan Hendrycks. 2023. Representation engineering:
+  Selfee: Iterative self-revising llm empowered by self-     A top-down approach to AI transparency. CoRR,
+  feedback generation. Blog post.                            abs/2310.01405.
+
+Fei Yu, Anningzhe Gao, and Benyou Wang. 2023a.
+  Outcome-supervised verifiers for planning in mathe-
+  matical reasoning. CoRR, abs/2311.09724.
+Xiao Yu, Baolin Peng, Michel Galley, Jianfeng Gao, and
+  Zhou Yu. 2023b. Teaching language models to self-
+  improve through interactive demonstrations. CoRR,
+  abs/2310.13522.
+Weizhe Yuan, Richard Yuanzhe Pang, Kyunghyun Cho,
+  Sainbayar Sukhbaatar, Jing Xu, and Jason Weston.
+  2024. Self-rewarding language models. CoRR,
+  abs/2401.10020.
+A     Prompts
+
+    8-Shot CoT Prompts with 2 Shots Shown Below
+    Q: Jason had 20 lollipops. He gave Denny some lollipops. Now Jason has 12 lollipops. How many lollipops did Jason
+    give to Denny?
+    Explain your reasoning step by step. Your final answer should be a single numerical number, in the form answer .
+    End your response with [END].
+
+    Step 1: Jason originally had 20 lollipops.
+    Step 2: After giving some to Denny, Jason has 12 lollipops.
+    Step 3: The number of lollipops Jason gave to Denny is the difference between the original number and the remaining
+    number, which is 20 - 12 = 8 lollipops.
+    Step 4: The answer is 8 lollipops. [END]
+
+    Q: There are 15 trees in the grove. Grove workers will plant trees in the grove today. After they are done, there will be
+    21 trees. How many trees did the grove workers plant today?
+    Explain your reasoning step by step. Your final answer should be a single numerical number, in the form answer .
+    End your response with [END].
+
+    Step 1: Initially, there are 15 trees in the grove.
+    Step 2: After planting, the total number of trees in the grove is 21.
+    Step 3: The number of trees planted by the grove workers today is the difference between the final number and the
+    initial number of trees, which is 21 - 15 = 6 trees.
+    Step 4: The answer is 6 trees. [END]
+
+
+
+    2-Shot Critique Prompts with 1 Shot Shown Below
+    Q: Betty is saving money for a new wallet which costs $100. Betty has only half of the money she needs. Her parents
+    decided to give her $15 for that purpose, and her grandparents twice as much as her parents. How much more money
+    does Betty need to buy the wallet?
+
+    Answer 1 (Incorrect):
+
+    Step 1: Betty needs $100 to buy the wallet.
+    Step 2: Her parents gave her $15, which is half of the remaining amount.
+    ...
+    Step 7: The answer is $55 .
+
+    Answer 2 (Correct):
+
+    Step 1: Betty needs $100 to buy the wallet, but she currently has only half of the money, which is $50.
+    Step 2: Her parents gave her $15, so she now has $50 + $15 = $65.
+    ...
+    Step 6: The answer is 5 dollars.
+
+    There are reasoning errors in Answer 1. Please go through each step in Answer 1, use Answer 2 as a reference for the
+    correct approach, and provide feedback that helps correct the errors in Answer 1. End your response with [END].
+
+    Let’s go through the errors in Answer 1 and provide feedback:
+
+    Answer 1 (Incorrect):
+
+    Step 1: Betty needs $100 to buy the wallet.
+    Feedback: This step is correct.
+
+    Step 2: Her parents gave her $15, which is half of the remaining amount.
+    Feedback: This is incorrect. Betty’s parents gave her $15, but it’s not necessarily half of the remaining amount. The
+    question states that Betty has only half of the money she needs, not half of the remaining amount after her parents’
+    contribution.
+
+    ...
+
+    Step 7: The answer is $55 .
+    Feedback: The correct answer, based on the corrected calculations, should be $5 . [END]
+2-Shot Correction Prompts with 1 Shot Shwon Below
+Q: Kelly is grocery shopping at a supermarket and is making sure she has enough in her budget for the items in her
+cart. Her 5 packs of bacon cost $10 in total and she has 6 packets of chicken which each cost twice as much as a
+pack of bacon. She also has 3 packs of strawberries, priced at $4 each, and 7 packs of apples, each priced at half the
+price of a pack of strawberries. If Kelly’s budget is $65 then how much money, in dollars, does she have left in her budget?
+
+Step 1: Kelly spends $10 in total for 5 packs of bacon.
+Feedback: This step is correct.
+
+Step 2: Each packet of chicken costs twice as much as a pack of bacon, which is 2 x $10 = $20.
+Feedback: Each pack of chicken costs twice as much as a pack of bacon, not the total cost of bacon. So we need to
+calculate the cost of one pack of bacon first (total cost of bacon / total bags of bacon) and use that.
+
+...
+
+Step 7: The answer is $29 .
+
+Can you correct the errors in your reasoning based on the feedback provided? Your final answer should be a single
+numerical number, in the form answer . End your response with [END].
+
+Step 1: Kelly spends $10 in total for 5 packs of bacon, so each pack of bacon costs $10 / 5 = $2.
+Step 2: Each packet of chicken costs twice as much as a pack of bacon, which is 2 x $2 = $4. Since she has 6 packets of
+chicken, she spends 6 x $4 = $24 on chicken.
+...
+Step 7: The answer is $5 . [END]
+
+
+4-Shot Verifying Prompts with 2 Shots Shown Below
+Question: Betty is saving money for a new wallet which costs $100. Betty has only half of the money she needs. Her
+parents decided to give her $15 for that purpose, and her grandparents twice as much as her parents. How much more
+money does Betty need to buy the wallet?
+
+Solution:
+Step 1: Betty needs $100 to buy the wallet.
+Step 2: Her parents gave her $15, which is half of the remaining amount.
+Step 3: Her grandparents gave her twice as much as her parents, which is 2 x $15 = $30.
+Step 4: The total amount of money Betty has now is $15 + $30 = $45.
+Step 5: The difference between the amount she needs and the amount she has is $100 - $45 = $55.
+Step 6: Betty still needs $55 to buy the wallet.
+Step 7: The answer is $55 .
+
+Is this solution correct or not? Answer **correct** or **incorrect** and explain your reasoning. End your response
+with [END].
+
+The solution is **incorrect**. You’ve ignored the original amount that Betty had saved, which is half the wallet’s cost
+($100/2 = $50). So, before receiving money from her parents and grandparents, she already had $50. [END]
+
+Question: Betty is saving money for a new wallet which costs $100. Betty has only half of the money she needs. Her
+parents decided to give her $15 for that purpose, and her grandparents twice as much as her parents. How much more
+money does Betty need to buy the wallet?
+
+Solution:
+Step 1: Betty needs $100 to buy the wallet, but she currently has only half of the money, which is $50.
+Step 2: Her parents gave her $15, so she now has $50 + $15 = $65.
+Step 3: Her grandparents gave her twice as much as her parents, so she received $15 x 2 = $30 from her grandparents.
+Step 4: Betty now has a total of $65 + $30 = $95.
+Step 5: To find out how much more money Betty needs, subtract the amount she has from the amount she needs, which
+is $100 - $95 = $5.
+Step 6: The answer is 5 dollars.
+
+Is this solution correct or not? Answer **correct** or **incorrect** and explain your reasoning. End your response
+with [END].
+
+This solution is **correct**. Betty only needs $5 more to buy the $100 wallet. This is because she started with $50,
+received $15 from her parents, and received $30 from her grandparents, which totals $95. Subtracting that from the total
+cost of the wallet leaves her with needing just $5. [END]
+B Proof: Using Correct Solutions as Hints                 Verifier              Refiner
+                                                                                                      GSM8K
+  Make Critique Generation Easier                                                            Verifier F1 Final Accu.
+
+Intuitively, if we provide the LM with a correct          Initial solutions by RFT model        N/A         42.7
+solution, it will be easier for the LM to generate a      ours                                   47.3    42.8 (+0.1)
+                                                          gpt-3.5-turbo                          59.7    31.5 (-11.2)
+critique for the incorrect solution of the same ques-       w/ SC@10         SCORE               63.6     38.1 (-4.6)
+tion. In fact, we can verify this intuition from a        gpt-4                                  89.2    46.3 (+3.6)
+mathematical perspective. Given a pair of incorrect-      oracle                                100.0    51.4 (+8.7)
+correct solutions (s− , s+ ), our goal is to learn a
+mapping from the incorrect solution to the cor-          Table 4: Performance of self-correction with different
+                                                         inputs on GSM8K test set using LLaMA-2-13B-chat
+rect one, which is modeled by M (s+ |q, s− ), where
+                                                         as base LM. The initial solution is generated by the
+M (·) is the probability distribution of the base LM.    rejection-sampling fine-tuned model.
+By introducing critique c as intermediate genera-
+tions, we have:
+                                                               Verifier Refiner      Refiner
+       +           −           −        +      −               param. param.          ft. on      Final Oracle
+ M (s |q, s ) = M (c|q, s ) · M (s |q, s , c) (1)                init.    init.     solutions     Accu. Accu.
+                                                                from     from         from
+The optimal critique c∗ that we want to find should            Initial solutions by RFT model 44.9        44.9
+be best at facilitating this two-phase generation
+                                                                RFT      base         RFT         45.3    53.3
+process, i.e.,                                                  base     base         RFT         45.0    53.3
+                                                                RFT      RFT          RFT         45.2    52.3
+    c∗ = argmax M (c|q, s− ) · M (s+ |q, s− , c) (2)            base     RFT          RFT         45.0    52.3
+               c                                                RFT      base         base        45.1    53.3
+
+To obtain the optimal critique, we can first ask         Table 5: Ablation study on parameter initialization and
+the model to reverse-engineer a critique ĉ with the     refiner’s fine-tuning data source. Results are shown on
+correct solution s+ as a hint:                           GSM8K dev set with LLaMA-2-13B-chat as base LM.
+
+               ĉ = argmax M (c|q, s− , s+ )       (3)
+                       c
+                                                         replace the base LM with the RFT model. Rejec-
+With Bayes’ theorem, Equation 3 can be re-written        tion sampling fine-tuning leverages correct gener-
+as:                                                      ations for training. Yet it ignores rich information
+                                                         in the large amounts of incorrect solutions. We
+    ĉ = argmax M (c|q, s− , s+ )
+               c                                         hope weaker LMs can also learn from its own mis-
+               M (c|q, s− ) · M (s+ |q, s− , c)          takes to become better reasoners. Since we have
+      = argmax                                           already obtained a stronger RFT model that avoids
+           c           M (s+ |q, s− )              (4)
+                                                         some mistakes by base LMs that are easier to fix,
+      = argmax M (c|q, s− ) · M (s+ |q, s− , c)
+               c                                         we want our refiner to learn to correct errors that
+      =c   ∗                                             require more in-depth thinking. Consequently, to
+                                                         collect the incorrect solutions to be reflected upon,
+which is exactly what we want.                           we resample 10 solutions for each question from
+   This simple proof shows that in principle, the        the RFT model, instead of reusing the sampled so-
+critique generated with the correct solution as a        lutions from the base LM in step (a) of Figure 1.
+hint should be best at guiding the LM to recover         Then we follow the rest of the pipeline to collect
+the correct solution from the incorrect one.             critique-correction data for refiner finetuning.
+                                                            Table 4 shows that our method is complementary
+C     Combining SCORE with Rejection
+                                                         to RFT. Concretely, RFT improves the final accu-
+      Sampling Fine-Tuning                               racy upon the few-shot prompting baseline from
+Aside from self-correction upon the initial solution     37.2 to 42.7, while our self-correction system (gpt-
+generated by the base LM as shown in Figure 2, we        4 as verifier and our finetuned LLaMA as refiner)
+also explore whether our proposed self-correction        can further improve the performance from 42.7 to
+method can be combined with other fine-tuning            45.1, demonstrating the effectiveness of our method
+methods (e.g., rejection sampling fine-tuning) to        over the few-shot prompting and RFT baselines.
+further improve reasoning performance. Here we              Table 5 investigates the optimal approach for ini-
+                                                       GSM8K →                              CSQA →           CSQA →
+                                           GSM8K                             CSQA
+        Verifier         Refiner                      MATH Subset                            QASC           RiddleSense
+                                    V. F1     ACC     V. F1   ACC      V. F1    ACC      V. F1    ACC     V. F1     ACC
+        Base LM: LLaMA-2-13B-chat
+        Initial answers by
+                                       -      37.2      -     23.8       -      69.7       -      65.9       -      57.6
+        few-shot prompting
+        prompted          31.9 36.9 -0.3 20.0 23.8 +0.0 52.5 62.2 -7.5 53.1 63.3 -2.6 51.9 55.2 -2.4
+                 prompted
+        oracle            100.0 39.7 +2.5 100.0 26.5 +2.7 100.0 83.7 +14.0 100.0 76.1 +10.2 100.0 72.7 +15.1
+        self                        51.1 37.5 +0.3 36.0 23.8 +0.0 47.1 69.7 +0.0 45.8 65.6 -0.3 42.1 57.5 -0.1
+                         SCORE
+         gpt-4                      88.4 41.4 +4.2 82.9 26.5 +2.7 80.3 72.4 +2.7 85.9 68.1 +2.2 87.7 67.3 +9.7
+                       (fine-tuned)
+        oracle                      100.0 46.0 +8.8 100.0 31.5 +7.7 100.0 86.2 +16.5 100.0 78.0 +12.1 100.0 76.4 +18.8
+        Base LM: Gemma-7B-it
+        Initial answers by
+                                       -      36.3      -     27.1       -      67.2       -      65.0       -      57.1
+        few-shot prompting
+        prompted          45.3 36.3 +0.0 39.2 28.2 +1.1 55.7 65.4 -1.8 61.0 65.1 +0.1 58.2 55.3 -1.8
+                 prompted
+        oracle            100.0 37.7 +1.4 100.0 29.3 +2.2 100.0 74.5 +7.3 100.0 71.3 +6.3 100.0 62.3 +5.2
+        self                        56.8 36.7 +0.4 49.5 27.1 +0.0 42.0 67.5 +0.3 41.0 65.2 +0.2 38.1 56.8 -0.3
+                         SCORE
+        gpt-4                        89.5 42.5 +6.2 82.8 39.2 +12.1 82.7 75.0 +7.8 89.9 72.8 +7.8 85.6 64.9 +7.8
+                       (fine-tuned)
+        oracle                      100.0 47.4 +11.1 100.0 44.2 +17.1 100.0 85.4 +18.2 100.0 77.3 +12.3 100.0 72.7 +15.6
+
+Table 6: Performance of SCORE models using LLaMA-2-13B-chat and Gemma-7B-it as base LM. We report F1
+score of the verifiers (V. F1) and final answer accuracy (ACC). We include test results for training tasks (GSM8K
+and CommonsenseQA/CSQA), as well as transfer evaluation of GSM8K trained models on MATH subset, CSQA
+trained models on QASC and RiddleSense. All models use greedy decoding. We highlight the best-performing
+system per model without using an oracle verifier. On each dataset, the superior model among the highlighted ones
+is indicated in bold.
+
+
+tializing the parameters of the refiner and verifier                 where q is the question, si is the i-th sampled solu-
+during fine-tuning. Our empirical findings indicate                  tions, yi is the final answer extracted from si , and
+that initializing the verifier from the RFT model                    1yi =y is an indicator function that returns 1 (or
+and the refiner from the base language model re-                     0) if yi = y (or not), and pv (·) is the probability
+sults in superior performance. We hypothesize that                   produced by the verifier6
+stronger reasoning capabilities of RFT model could                      To integrate self-correction with the oversample-
+complement the verification skills. Furthermore,                     then-rerank approach, we apply the SCORE refiner
+when generating critiques of solutions, those cre-                   to solutions predicted to be correct with a proba-
+ated using solutions by the RFT model outperform                     bility below a certain threshold. This threshold is
+those based on the base model.                                       automatically determined to maximize accuracy
+                                                                     on the development set and is then fixed for use
+D    Combining SCORE with                                            during test-time predictions. The refiner greedily
+     Oversample-then-Rerank                                          decodes one refined solution for each solution. Sub-
+Self-correction could be combined with                               sequently, we combine the refined solutions with
+oversample-then-rerank, an orthogonal ap-                            the original solutions predicted as correct to arrive
+proach to further improve reasoning (Cobbe et al.,                   at the final answer using weighted voting for aggre-
+2021; Li et al., 2023b; Hosseini et al., 2024). The                  gation:
+oversample-then-rerank approach first samples k
+solutions per question by few-shot prompting, then                                         k
+                                                                                                 1yi =y · piv · 1piv ≥C
+                                                                                           X
+leverages a trained verifier to score the correctness                    ŷ = arg max
+of each solution, and selects the final answer based                                y
+                                                                                           i=1
+                                                                                                  + 1y′ i =y · piv · 1piv <C ,
+                                                                                                                  ′
+on a weighted voting scheme (Li et al., 2023b) as                                                                           
+follows:
+                                                                        6
+                          k                                              We find that for answer aggregation, weighted voting
+                                1yi =y · pv (q, si , yi ),           performs better than majority voting and selecting the top-
+                          X
+      ŷ = arg max                                                   1 solution, which echoes the findings of Li et al. (2023b).
+                   y
+                          i=1                                        Therefore, we report the weighted voting results in this section.
+     # Candidate Refine w/
+                           GSM8K
+                                  GSM8K→                      invoked only if the verifier flags the initial solu-
+      Solutions SCORE?           MATH Subset                  tion as incorrect. The increased inference time
+     Base LM: LLaMA-2-13B-chat                                of our pipeline over the base model is modest, at
+           1          %        37.2         23.8              x1.3 times for LLaMA-2-13B-chat and x1.4 times
+           1          !      37.5 +0.3    23.8 +0.0           for Gemma-7B-it. Comparatively, the oversample-
+          10          %      44.3 +7.1    30.9 +7.1           then-rerank baseline (Appendix D) results in a 4.5
+          10          !      46.0 +8.8    29.8 +6.0           times increase in latency when sampling 10 solu-
+     Base LM: Gemma-7B-it                                     tions per question.
+           1          %        36.3         27.1
+           1          !      36.7 +0.4    27.1 +0.0
+          10          %      39.5 +3.2    34.3 +7.2
+          10          !      41.1 +4.8    35.9 +8.8
+
+Table 7: Self-correction combined with the oversample-
+then-rerank strategy (Cobbe et al., 2021) yield bet-
+ter results than using either one alone. We show
+results on GSM8K test set and transfer evaluation
+of GSM8K trained models on MATH subset using
+LLaMA-2-13B-chat and Gemma-7B-it as base LMs.
+
+
+where piv = pv (q, si , yi ) is the verifier probability
+                                   ′
+for the original solution si , piv = pv (q, s′i , y′ i ) is
+the verifier probability for the refined solution s′i
+coming from si , and C is a threshold for determin-
+ing when to self-refine.
+   We sample k = 10 solutions for each question
+with a temperature of 0.9 and use the same fine-
+tuned self-verifier (not gpt-4 or oracle verifier)
+across all the settings in Table 7 that involve a
+verifier. As shown by previous work, oversample-
+then-rerank improves performance upon few-shot
+prompting with only greedy decoding by a large
+margin, because it better explores the solution
+space by sampling multiple solutions. Our self-
+correction method is both orthogonal to and syner-
+gistic with the oversample-then-rerank. By incorpo-
+rating our self-correction method into the baseline,
+with only a weak self-verifier, we still observe an
+improvement in accuracy compared to the baseline:
++1.7 for LLaMA-2-13B-chat on GSM8K, and +1.6
+for GSM8K-trained Gemma-7B-it on MATH. By
+aggregating verifications from multiple solutions,
+the weak verifiers become stronger via ensembling
+and thus unleash the power of refiner for better
+self-correction of reasoning.
+
+E    Inference Overhead by SCORE
+Although we employ three models for inference
+(few-shot prompted solution generator, self-verifier,
+self-refiner), it will not necessarily triple the latency.
+The self-verifier’s latency is minimal because it
+classifies rather than generates, and the refiner is
+

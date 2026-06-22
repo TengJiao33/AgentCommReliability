@@ -1,0 +1,1517 @@
+                                              Heterogeneous Agent Collaborative Reinforcement
+                                                                Learning
+
+
+                                                Zhixia Zhang1∗ Zixuan Huang1,2∗ Gongxun Li1 Huaiyang Wang1                         Chengyi Yuan5
+                                                Xin Xia2 Deqing Wang1 Fuzhen Zhuang1 Shuai Ma1 Ning Ding3                          Yaodong Yang4
+                                                                           Jianxin Li1 Yikun Ban1†
+arXiv:2603.02604v2 [cs.LG] 21 May 2026
+
+
+
+
+                                          1                            2                     3                         4                       5
+                                              Beihang University           Bytedance China       Tsinghua University       Peking University       Apple
+
+                                                                  § Github Page:      https://zzx-peter.github.io/hacrl/
+
+
+
+                                                                                           Abstract
+                                                      We introduce Heterogeneous Agent Collaborative Reinforcement Learning
+                                                      (HACRL), a new Reinforcement Learning from Verifiable Reward (RLVR) prob-
+                                                      lem that addresses the inefficiencies of isolated multi-agent on-policy optimization.
+                                                      HACRL enables collaborative optimization with independent execution: hetero-
+                                                      geneous agents share verified rollouts during training to mutually improve, while
+                                                      operating independently at inference time. Unlike LLM-based multi-agent rein-
+                                                      forcement learning (MARL), HACRL does not require coordinated deployment,
+                                                      and unlike on-/off-policy distillation, it enables bidirectional mutual learning
+                                                      among heterogeneous agents rather than one-directional homogeneous teacher-to-
+                                                      student transfer. Building on this problem, we propose HACPO, a collaborative
+                                                      RL algorithm that enables principled rollout sharing to maximize sample utilization
+                                                      and cross-agent knowledge transfer. To mitigate capability discrepancies and policy
+                                                      distribution shifts, HACPO introduces four tailored mechanisms with theoretical
+                                                      guarantees on unbiased advantage estimation. Extensive experiments across diverse
+                                                      heterogeneous model combinations and reasoning benchmarks show that HACPO
+                                                      consistently improves all participating agents, outperforming GSPO with double
+                                                      rollouts by an average of 3.6% while using only half the rollout cost.
+
+
+                                         1      Introduction
+                                         Reinforcement Learning with Verifiable Rewards (RLVR) has emerged as a highly effective paradigm
+                                         for training strong reasoning models via automatically checkable reward signals (e.g., unit tests and
+                                         formal verifiers) Yang et al. [2026]. Compared with SFT Ouyang et al. [2022] and DPO Rafailov
+                                         et al. [2023], RL Stiennon et al. [2020] more directly aligns the model with downstream objectives,
+                                         and RLVR further strengthens this alignment through verifiability. Within RLVR, group-based
+                                         policy optimization algorithms such as GRPO Shao et al. [2024] replace the critic in PPO Schulman
+                                         et al. [2017] by computing group-relative advantages, motivating variants including DAPO Yu
+                                         et al. [2025] and GSPO Zheng et al. [2025]. Despite these advances, RLVR remains bottlenecked
+                                         by expensive on-policy sampling and verification, which frequently dominate the overall training
+                                         overhead and limit scalability. Meanwhile, modern LLM ecosystems are inherently heterogeneous:
+                                         agents differ in parameter states, model size, architecture and different downstream tasks, such as
+                                         instruction following Ouyang et al. [2022], mathematical problem solving Cobbe et al. [2021], and
+                                         code generation Weyssow et al. [2025]. This heterogeneity becomes even more pronounced when
+                                              ∗ Equal contribution.
+                                              † Corresponding author: yikunb@buaa.edu.cn
+
+
+
+                                         Preprint.
+Figure 1: In HACPO, shared rollouts from multiple heterogeneous agents are leveraged for collabora-
+tive training. Built upon vanilla RL Optimization, HACPO introduces four algorithmic innovations to
+mitigate capability and policy distribution discrepancy.
+
+
+
+
+models come from different vendors or families Yang et al. [2025a], Grattafiori et al. [2024], with
+mismatched pretraining corpora, tokenizers, and architectural choices.
+Typically, given one identical task, multiple agents execute RLVR optimization independently of one
+another. For essentially the same objective, they repeatedly generate trajectories and yield verifiable
+rewards, while these costly intermediate results are only utilized for self-training.
+To break through this wasteful practice, we propose a collaborative policy optimization problem for
+RLVR: given a set of heterogeneous agents, can an agent improve both effectiveness and efficiency
+by leveraging rollouts generated by other agents, rather than relying solely on its own on-policy
+rollouts? Our goal is to enable mutual benefit across agents—each agent can reuse rollouts from
+others—while controlling distribution shift induced by heterogeneity.
+We first formalize this setting as Heterogeneous Agent Collaborative Reinforcement Learning
+(HACRL), which captures collaborative policy optimization among heterogeneous agents that
+execute independently at inference time. HACRL differs fundamentally from existing paradigms
+as illustrated in Figure 1: (1) LLM-based Multi-Agent Reinforcement Learning (MARL). Liao
+et al. [2025] MARL trains agents to coordinate and jointly solve tasks through interaction within
+a coupled multi-agent system. In contrast, HACRL does not require coordinated execution. In
+many practical scenarios, only a single agent is deployed at inference time; however, we still desire
+that this agent benefits from knowledge acquired from other agents during training. (2) On-/Off-
+Policy Distillation. Distillation typically follows a one-directional “teacher-to-student” paradigm,
+often among homogeneous agents. HACRL instead enables bidirectional mutual learning among
+heterogeneous agents, where each agent simultaneously acts as both a knowledge provider and a
+learner.
+We then propose Heterogeneous Agent Collaborative Policy Optimization (HACPO) to solve
+HACRL (Figure 1). Compared to vanilla RL optimization, HACPO improves training in two critical
+aspects: (1) Maximized Sample Utilization. In an n-agent system, each rollout can be reused up to n
+times, substantially improving sample efficiency. (2) Bidirectional Knowledge Transfer. By learning
+from one another, agents acquire complementary knowledge unavailable through self-learning alone,
+enabling all agents to break performance bottlenecks.
+In this work, our contributions can be summarized as:
+
+
+                                                  2
+[Problem Definition]. We formulate HACRL as a collaborative policy optimization problem for
+heterogeneous agents under RLVR, aiming to achieve mutual benefit through cross-agent rollout
+reuse while controlling distribution shifts caused by heterogeneity.
+[Algorithm]. We propose HACPO to address this problem, with four modifications: (1) Agent-
+Capability-Aware Advantage Estimation, (2) Model Capabilities Discrepancy Coefficient, (3) Expo-
+nential Importance Sampling, and (4) Stepwise Clipping. These tailored techniques enable the agents
+to engage in effective and stable mutual learning.
+[Performance]. We evaluate HACPO across three types of heterogeneity and seven challenging
+mathematical reasoning benchmarks, demonstrating consistent performance improvements, averaging
+3.6%, while utilizing only half the rollout cost, compared to GSPO with double rollouts.
+
+
+2     Heterogeneous Agent Collaborative Reinforcement Learning
+
+2.1   Heterogeneous LLM Agent Taxonomy
+
+Let πθ denote a large language model (LLM) agent parameterized by θ ∈ Θ, where Θ specifies the
+complete parameter space, including architecture, dimensionality, and trainable weights. Let Vπ
+denote the output vocabulary of agent πθ . We consider a collaborative policy optimization setting in
+which multiple LLM agents are jointly optimized toward a shared or coupled objective.
+We categorize heterogeneity among distinct LLM agents into three types: (1) heterogeneous state; (2)
+heterogeneous size; (3) heterogeneous model.
+                                                                (1)        (2)
+Definition 2.1 (Heterogeneous State). Two LLM agents πθ and πθ are said to exhibit hetero-
+geneous state if Θ1 = Θ2 and dim(θ1 ) = dim(θ2 ), but θ1 ̸= θ2 at the start of collaborative policy
+optimization.
+                                                              (1)        (2)
+Definition 2.2 (Heterogeneous Size). Two LLM agents πθ and πθ are said to exhibit heteroge-
+neous size if they belong to the same model family and share the same architectural design principles,
+but have different parameter dimensionalities, i.e., dim(θ1 ) ̸= dim(θ2 ), with θ1 ̸= θ2 at the start of
+collaborative policy optimization.
+                                                                         (1)             (2)
+Definition 2.3 (Heterogeneous Model). Given two LLM agents πθ and πθ , we define them to
+exhibit heterogeneous model heterogeneity if their model architectures differ (e.g., tokenizer, attention
+mechanism, or training objective), their parameter spaces and sizes are distinct (i.e., Θ1 ̸= Θ2 ), and
+their initial parameter instantiations are unique (i.e., θ1 ̸= θ2 ).
+Remark 2.4. This taxonomy represents increasing degrees of heterogeneity: heterogeneous state dif-
+fers only in optimization state, heterogeneous size introduces capacity mismatch, and heterogeneous
+model captures architectural and representational divergence. This hierarchy enables a systematic
+study of collaborative policy optimization among heterogeneous LLM agents.
+
+2.2   Problem Formalization
+
+We consider the Heterogeneous Agent Collaborative Reinforcement Learning (HACRL) framework
+                                                                              (k)
+with n LLM agents. Each agent k ∈ {1, . . . , n} is associated with a policy πθ . All agents operate
+on a shared task distribution D and exhibit heterogeneity as defined in Section 2.1.
+During training step t, for a prompt x ∼ D, each agent k independently samples G candidate
+responses from its policy. The joint response set is:
+                                                                               n
+                   (k)         (k)       (k)       (k)                               (k)
+                                                                               [
+                 Yt (x) = {y1 , . . . , yG } ∼ πθ (· | x),      Yt (x) =           Yt (x).            (1)
+                                                                           k=1
+
+Since all agents solve the same task, a shared reward function R(·) is applied to every response. The
+joint reward set is:
+                                                                         n
+                   (k)         (k)                                                 (k)
+                                                                         [
+                  Rt (x) = {R(yi ) | i = 1, . . . , G},       Rt (x) =         Rt (x).                (2)
+                                                                         k=1
+
+
+                                                   3
+Definition 2.5 (HACRL Problem). Consider a system of n heterogeneous agents. For a prompt
+x ∼ D, let Y(x) and R(x) denote the joint response and reward sets, respectively. The objective of
+Heterogeneous Agent Collaborative Reinforcement Learning is to optimize each agent k ∈ {1, . . . , n}
+by maximizing
+                                                                              
+                       (k)    (k)       (k)         (k)     (j)       (j)
+              J (k) = Jhomo Yt (x), Rt (x) + Jhete {Yt (x), Rt (x)}j̸=k ,                          (3)
+
+             (k)                                                               (k)
+where Jhomo is computed using rollouts generated by agent k itself, and Jhete leverages rollouts
+generated by the other agents.
+
+This formulation enables each agent to benefit from both self-generated experiences and cross-agent
+information under collaborative reinforcement learning.
+
+3         Heterogeneous Agent Collaborative Policy Optimization
+In this section, we propose HACPO, a novel multi-agent collaborative optimization algorithm
+(procedure is shown in Appendix E): for one given task, multiple heterogeneous LLM agents execute
+independently and learn from each other.
+Facing two challenges shown in Figure 1: the discrepancy of agent capability and policy distribution,
+Our method addresses the above challenges through the following components: (1) Agent-Capability-
+Aware Advantage Estimation; (2) Model Capability Discrepancy Coefficient; (3) Exponential Impor-
+tance Sampling; (4) Stepwise Clipping.
+
+3.1       Agent-Capability-Aware Advantage Estimation
+                                                                                           (k)
+At training step t, for each prompt x, each agent k ∈ {1, ..., n} generates G responses {yt,i }G
+                                                                                               i=1 ∼
+    (k)
+πθ (· | x). For a single agent, the standard group-relative advantage estimator Shao et al. [2024] is:
+                                                                           
+                                                   (k)     1
+                                                             PG           (k)
+                                                R yt,i − G      i=1 R   y t,i
+                           (k)          (k)
+                          Asingle.t,i (yt,i ) =              (k)
+                                                                                .                 (4)
+                                                       std{Rt (x)}
+
+While Eq. (4) is appropriate for training a single model in isolation, it becomes suboptimal in a
+multi-agent settings where agents exhibit heterogeneous capabilities. Relying solely on self-generated
+responses fails to leverage valuable information from other agents, while naively averaging rewards
+across all agents disregards inter-model capability differences and often results in miscalibrated
+advantage estimates.
+To address this issue, we propose an agent-capability-aware advantage estimator. The advantage of
+          (k)
+response yt,i for agent k is defined as
+                                      
+                                   (k)      (k)
+                          R yt,i       − µt                 n  G
+                                                         1 X X (k,j)  (j) 
+                (k)   (k)                          (k)
+              At,i yt,i =                       , µt =              ω      R yt,i ,           (5)
+                                std{Rt (x)}             nG j=1 i=1 t
+
+            (k)                                       (k,j)
+Here, µt is the capability-adjusted baseline. ωt    is a capability ratio that rescales responses from
+agent j when estimating the baseline for agent k, defined as:
+                                       (k)                           G
+                          (k,j)       Pt        (k)         1 X X  (k) 
+                         ωt       =    (j)
+                                           ,   Pt     =             R yt,i ,                       (6)
+                                      Pt                  |B|G  i=1
+                                                              x∈Bt
+
+                   (k)
+where the Pt denotes an estimate of the performance of agent k, obtained by averaging the mean
+rewards of the batch Bt at the current step t.
+Intuitively, when estimating the advantage baseline in a group for agent k, rewards from other agents
+are reweighted according to their relative capabilities, allowing all responses to contribute while
+preserving agent-specific calibration.
+
+
+                                                        4
+We further analyze the capability-aware adjustment in Appendix D. Since the normalization factor
+std{Rt (x)} is known to introduce a common but minor bias in practice, our analysis focuses on the
+                  (k)                (k)
+centered reward Āt,i (y) = R(y) − µt .
+As shown in Appendix D.1, the oracle capability-aware baseline is exactly unbiased: its expectation
+matches the agent’s true expected reward, so the corresponding centered reward has zero mean.
+The Appendix D.2 further analyzes the practical batch-level empirical ratio and proves uniform
+high-probability bounds on its estimation error via Hoeffding’s inequality and union bounds.
+This theoretical guarantee ensures that HACPO can safely incorporate heterogeneous cross-agent roll-
+outs to enrich the learning signal and maximize sample efficiency—while introducing no systematic
+bias in the oracle case, and only bounded, controllable error in the finite-batch implementation.
+
+3.2   Model Capabilities Discrepancy Coefficient
+
+To address capability discrepancies across heterogeneous agents, we employ the capability ratio
+  (k,j)
+ωt , introduced earlier, as a quantitative measure of relative model competence. When training
+agent k, advantages computed from samples generated by other agents are rescaled according to their
+relative capability. This design encourages an agent to learn more aggressively from stronger agents,
+while adopting a more conservative update when incorporating samples from weaker ones.
+                                                                               (j)
+Formally, suppose that agent k is updated at training step t using a response yt,i generated by agent
+j. The effective advantage used for updating agent k is defined as
+                                                         
+                                       A(k) t,i   y
+                                                       (j)
+                                                       t,i            j=k
+                             (k)   (j)
+                           Ãt,i yt,i =        (j,k)      (k)
+                                                              
+                                                                (j)
+                                                                                                 (7)
+                                          ωt        · At,i yt,i      j ̸= k
+        (k,j)
+Here, ωt     represents the performance ratio between agents k and j at training step t, with larger
+values indicating that agent k outperforms agent j.
+                      (k,j)
+The capability ratio ωt       serves two complementary roles to enable stable collaboration:
+(1) Baseline Calibration: In Sec. 3.1, it rescales cross-agent reward statistics to properly calibrate
+              (k)
+the baseline µt .
+(2) Gradient Modulation: In Eq. (7), it acts as a modulation factor that amplifies learning signals
+from stronger agents while attenuating those from weaker ones.
+
+3.3   Exponential Importance Sampling
+
+Importance sampling is commonly used to correct distributional mismatches between samples
+generated by different policies. Following GSPO, we adopt a sequence-level importance ratio and
+extend it to the heterogeneous multi-agent setting. When updating agent k at step t, for a response
+ (j)
+yt,i generated by agent j, we define
+                                                         1
+                                                (k)   (j) L
+                                               πθ yt,i k
+                                       (k,j)
+                                      st,i =            1 .                                   (8)
+                                                (j)   (j) Lj
+                                              πθold yt,i
+                                                                  (j)
+Here, Lk and Lj respectively represent the length of response yt,i under tokenizers of agent k and j.
+For combinations of heterogeneous agents that satisfy Definition 2.3 with incompatible tokenizers,
+we detokenize the response into text and retokenize it using the target agent’s tokenizer. Through
+sequence-level normalization, the slight length discrepancies arising from re-tokenization become
+negligible. The experiment shows that on the MATH training set, the tokenizers of Qwen and Llama
+differ in the number of tokens produced for the same reasoning (700 tokens average) by only 4%.
+In heterogeneous settings, inter-agent policy discrepancies can be much larger than on-policy updates,
+making direct use of this ratio overly aggressive. To mitigate this issue, we introduce a non-gradient
+exponential reweighting:
+                           (k,j)   (k,j)        (k,j) α           (k,j)
+                         s̃t,i = st,i · sg[ st,i ]        k ̸= j, st,i < 1.0                       (9)
+
+
+                                                    5
+where sg[·] denotes the stop-gradient operator and α ≥ 0 controls the degree of conservativeness.
+This design biases agent k toward learning from agents whose output distributions are more aligned
+with its own, while reducing the impact of large cross-agent distribution shifts.
+
+3.4   Stepwise Clipping
+                                              (k,j)
+The cross-agent importance sampling ratio st,i        exhibits fundamentally different behaviors from
+                      (k,k)
+the self-agent ratio st,i , necessitating tailored clipping mechanisms (see Appendix C for further
+empirical details):
+                                                                  (k,k)
+Asymmetric Clipping Bounds. Across training iterations, st,i              typically fluctuates closely around
+                                                                                   (k,j)
+1.0, requiring a narrow clipping range (e.g., [0.9997, 1.0004]). In contrast, st,i evolves dynamically
+and remains significantly smaller than 1.0. To maintain a reasonable clipping proportion, we adopt an
+asymmetric clipping range for the cross-agent setting, which is typically bounded within [0.8, 1.0].
+                                                          (k,k)
+Stepwise Clipping. Within a single training batch, st,i           decays as parameter updates increase,
+                                                            (k,j)
+which naturally elevates the clipping proportion. However, st,i fluctuates irregularly. To prevent the
+later updates within a batch from being dominated by cross-agent responses, we introduce a stepwise
+strategy that gradually tightens the cross-agent clipping bounds as updates progress within one step.
+Let m denote the number of parameter updates performed so far within the current step, and δstep
+denote the per-update tightening factor. Combining these principles, the clipping function for
+cross-agent importance sampling is formulated as:
+                                                                
+                                     (k,j)
+                              clip st,i , 1 − δ + m · δstep , 1.0 ,                         (10)
+
+where the lower-bound hyperparameter δ is empirically initialized to 0.2 and is dynamically within a
+step reduced following our stepwise strategy.
+
+4     Experiment
+Setting Details. We adopt 7.5k high quality math questions from the MATH dataset Hendrycks et al.
+[2021] for training. During evaluation, we select a comprehensive set of benchmarks: MATH-500,
+MATH, GSM8K Cobbe et al. [2021], AIME2025, AMC23, MinervaLewkowycz et al. [2022] and
+OlympiadHe et al. [2024].
+To verify the effectiveness of our method, we conduct experiments on the three heterogeneity
+settings mentioned in Section 2.1. We compare our approach against the following baselines: (1)
+Standard Single-Agent Baselines (GRPO, GSPO), which serve as benchmarks for isolated training
+performance (same rollout cost as HACPO but with half the policy updates); (2) Data-Equivalent
+Baseline (GSPO×2), a single-agent GSPO setting with double rollouts and updates in every step.
+This serves to rule out the impact of increased data and updates, verifying the complementary value
+of heterogeneous agents (double the rollout cost of HACPO but with the same policy updates); (3)
+Naive Collaborative Baseline (Naive), a two-agent setting with shared rollouts but lacking the
+algorithmic innovations in Section 3, used to validate the necessity of our proposed discrepancy
+mitigation techniques (same rollout and policy update costs as HACPO).
+We focus our empirical comparisons on different RLVR baselines, omitting Knowledge Distillation
+(KD) and Multi-Agent RL (MARL) due to fundamental differences in problem formulation. Specifi-
+cally: (1) Unlike KD, which is a unidirectional process relying on a frozen, homogeneous teacher’s
+output distribution, HACRL enables bidirectional mutual improvement across heterogeneous agents
+(regardless of relative capabilities). (2) Unlike MARL, which typically requires coupled agents for
+joint execution, our agents maintain strictly independent execution at inference time.
+
+4.1   Result and Analysis
+
+As detailed in Table 1, HACPO demonstrates superior final performance compared to all baselines
+across various heterogeneous settings. Across 7 benchmarks, HACPO achieves an average accuracy
+improvement of +3.6% over the strong baseline GSPO×2, while requiring only half the rollout
+
+
+                                                  6
+Table 1: Main results across three heterogeneity settings (state, size and model). We compare our
+method against Standard Single-Agent Baselines (GRPO, GSPO), a Resource-Equivalent Baseline
+(GSPO×2) and a Naive multi-agent rollout share baseline(Naive). The content in the brackets
+represents a comparison with GSPO × 2.
+ Model                  MATH-500       MATH      GSM8K      AIME2025     AMC23      Minerva   Olympiad       AVG
+                                   Qwen3-4B and Qwen3-4B-Instruct (Heterogeneous State)
+ 4B                       0.802         0.836     0.907         0.335      0.65       0.39     0.524         0.635
+ 4B (GRPO)                 0.88         0.889     0.918         0.582     0.775      0.386     0.592         0.717
+ 4B (GSPO)                0.854          0.87     0.925         0.485     0.675      0.412     0.564         0.684
+ 4B (GSPO×2)              0.876         0.875     0.923         0.522     0.675      0.39      0.579         0.691
+ 4B (Naive)               0.728         0.737     0.891         0.378       0.6      0.353     0.394         0.583
+ 4B(HACPO)                 0.91         0.905     0.933         0.622      0.85      0.423     0.643     0.755 (+0.064)
+ 4B-Instruct              0.938         0.937     0.936         0.696      0.85      0.441     0.722         0.789
+ 4B-Instruct (GRPO)        0.93         0.933     0.933         0.676     0.875       0.43      0.72         0.785
+ 4B-Instruct (GSPO)       0.938          0.94     0.939          0.72       0.9       0.43     0.726         0.799
+ 4B-Instruct (GSPO×2)     0.932         0.939     0.942          0.74      0.9       0.43      0.711         0.799
+ 4B-Instruct(Naive)       0.844         0.845     0.936         0.547     0.725       0.39     0.552         0.691
+ 4B-Instruct(HACPO)       0.948         0.943     0.946         0.757      0.95      0.452     0.732     0.818 (+0.019)
+                                  Qwen3-1.7B-Base and Qwen3-4B-Base (Heterogeneous Size)
+ 1.7B-Base                 0.5          0.483     0.616         0.033       0.3      0.206     0.229         0.338
+ 1.7B-Base (GRPO)         0.682         0.652     0.824          0.16     0.375      0.272     0.298         0.466
+ 1.7B-Base (GSPO)         0.648         0.641     0.826         0.148      0.45      0.272     0.287         0.467
+ 1.7B-Base (GSPO×2)       0.664          0.65     0.829         0.177     0.375      0.265     0.293         0.465
+ 1.7B-Base (Naive)        0.608         0.601     0.798         0.147     0.325      0.235     0.263         0.425
+ 1.7B-Base(HACPO)          0.69         0.674     0.822         0.225      0.45      0.279     0.314     0.493 (+0.028)
+ 4B-Base                   0.61         0.676     0.445           0.1       0.4      0.308     0.347         0.412
+ 4B-Base (GRPO)           0.796         0.788     0.885         0.307     0.475      0.349     0.454         0.579
+ 4B-Base (GSPO)           0.782         0.787     0.877          0.25     0.525      0.368      0.46         0.578
+ 4B-Base (GSPO×2)         0.756         0.794     0.873         0.208      0.55      0.382     0.463         0.575
+ 4B-Base (Naive)          0.708         0.712     0.895         0.196     0.475      0.342     0.354         0.526
+ 4B-Base (HACPO)          0.808         0.801     0.903         0.267     0.575      0.386     0.467     0.601 (+0.026)
+                             Qwen3-4B-Base and Llama3.2-3B-Instruct (Heterogeneous Model)
+ Qwen3                     0.61         0.676     0.445           0.1       0.4      0.308     0.347          0.412
+ Qwen3 (GRPO)             0.796         0.788     0.885         0.307     0.475      0.349     0.454          0.579
+ Qwen3 (GSPO)             0.782         0.787     0.877          0.25     0.525      0.368      0.46          0.578
+ Qwen3 (GSPO×2)           0.756         0.794     0.873         0.208     0.55       0.382     0.463          0.575
+ Qwen3 (Naive)            0.734         0.712     0.895         0.143      0.55      0.342     0.354          0.526
+ Qwen3 (HACPO)            0.786         0.783     0.921         0.268       0.6      0.379     0.442     0.597 (+0.022)
+ Llama3.2                 0.267         0.441     0.788           0.0       0.2      0.169     0.158          0.289
+ Llama3.2 (GRPO)          0.502         0.507     0.814           0.0      0.25      0.199     0.174          0.349
+ Llama3.2 (GSPO)          0.512         0.501     0.812         0.054     0.225      0.184      0.17          0.351
+ Llama3.2 (GSPO×2)        0.488         0.498     0.829           0.0     0.175      0.188     0.159          0.334
+ Llama3.2 (Naive)         0.406         0.407     0.734           0.0     0.225      0.177     0.107          0.294
+ Llama3.2 (HACPO)         0.566         0.548     0.826         0.054      0.35      0.176     0.208      0.39 (+0.056)
+
+
+
+
+cost. To illustrate the learning dynamics, Figure 2 presents the training curves of HACPO versus
+the single-agent GSPO and GSPO × 2 baseline. We attribute these performance gains to two
+primary mechanisms inherent in the HACPO: (1) Capability-driven guidance, where stronger models
+assist in enhancing the performance of weaker ones; and (2) Mutual knowledge exchange, which
+involves the sharing of complementary rollouts—encompassing both correct solutions and informative
+errors—between agents.
+The improvements are consistent across model combinations, benchmarks, and random seeds, con-
+firming that HACPO’s gains are robust. Specifically, we conduct reproducibility experiments with five
+random seeds on the Qwen3-1.7B-Base and Qwen3-4B-Base combination. Across all runs, HACPO
+consistently outperforms GSPO by a stable margin: +3.56% on average for Qwen3-1.7B-Base and
++2.84% for Qwen3-4B-Base on MATH500. Full results are provided in Appendix F.2. In total, we
+evaluate HACPO on 6 heterogeneous agent combinations. The main text presents 3 representative
+settings; results for the additional 3 combinations are deferred to Appendix F.1.
+We also report peak GPU memory utilization and wall-clock runtime to demonstrate HACPO’s more
+efficient use of rollout compute. Detailed profiling results are included in Appendix F.3.
+Heterogeneous State. In the Qwen3-4B and Qwen3-4B-Instruct setting, we observe asymmetric but
+non-trivial gains: while the 4B model improves more substantially, the Instruct model also exhibits
+consistent performance improvements. Although this setting corresponds to heterogeneous state,
+
+
+                                                            7
+       0.86                                                    0.650                                                     0.750
+                                                               0.625                                                     0.725
+       0.84                                                    0.600                                                     0.700
+Accuracy
+
+
+
+
+                                                                                                                  Accuracy
+                                                        Accuracy
+                                                               0.575                                                     0.675
+       0.82
+                                                               0.550                                                     0.650
+                                    Qwen3-4B(HACPO)                                   Qwen3-1.7B-Base(HACPO)                                      Qwen3-4B-Base(HACPO)
+                                    Qwen3-4B(GSPO×2)           0.525                  Qwen3-1.7B-Base(GSPO×2)            0.625                    Qwen3-4B-Base(GSPO×2)
+       0.80                                                                           Qwen3-1.7B-Base(GSPO)                                       Qwen3-4B-Base(GSPO)
+                                    Qwen3-4B(GSPO)             0.500                                                     0.600
+               0    10    20 30 40 50 60                                  0   10   20      30     40   50    60                     0   10    20      30     40  50    60
+                           Training Steps                                           Training Steps                                             Training Steps
+                                                                   0.80                                                      0.55
+       0.87                                                                                                                  0.50
+                                                                   0.75
+                                                                                                                             0.45
+
+
+
+
+                                                                                                                  Accuracy
+                                                        Accuracy
+       0.86
+Accuracy
+
+
+
+
+                                                                   0.70                                                      0.40
+       0.85                                                                                                                  0.35
+                            Qwen3-4B-Instruct(HACPO)               0.65                Qwen3-4B-Base(HACPO)                                  Llama3.2-3B-Instruct(HACPO)
+                            Qwen3-4B-Instruct(GSPO×2)                                  Qwen3-4B-Base(GSPO×2)                 0.30            Llama3.2-3B-Instruct(GSPO×2)
+       0.84                 Qwen3-4B-Instruct(GSPO)                0.60                Qwen3-4B-Base(GSPO)                                   Llama3.2-3B-Instruct(GSPO)
+                                                                                                                             0.25
+               0    10    20 30 40 50 60                                  0   10   20      30     40  50    60                      0   10    20      30     40    50    60
+                           Training Steps                                           Training Steps                                             Training Steps
+              (a) Qwen3-4B and Qwen3-4B-Instruct                    (b) Qwen3-1.7B-Base and Qwen3-4B-Base                    (c) Qwen3-4B-Base and Llama3.2-3B-Instruct
+
+                                  Figure 2: Training Curves of HACPO, GSPO and GSPO × 2
+
+where agents differ only due to post-training stages, HACPO still enables the stronger agent to
+benefit from the weaker one. Specifically, the weaker agent contributes complementary exploration
+signals—such as alternative reasoning paths and informative errors—that are underrepresented in
+the stronger agent’s own rollouts. As a result, learning is not purely unidirectional. Even when
+capability-driven guidance dominates, the stronger agent can still extract useful supervisory signals
+from the weaker agent, leading to measurable performance gains.
+Heterogeneous Size. In the Qwen3-1.7B-Base and Qwen3-4B-Base setting, both models improve
+significantly, validating the mechanism of mutual knowledge exchange. Even with lower capability,
+the 1.7B model serves as a distinct explorer, generating valuable erroneous responses and a few unique
+correct solutions that the 4B model fails to produce, thereby facilitating bidirectional knowledge
+transfer.
+Heterogeneous Model. Finally, we consider the heterogeneous model setting involving Qwen3-4B-
+Base and Llama3.2-3B-Instruct, which differ substantially in architecture, tokenizer, and training ob-
+jectives. Despite this high degree of heterogeneity, we observe consistent performance improvements
+in both models. These results demonstrate that HACPO is able to extract transferable knowledge
+from cross-model rollouts and effectively share it across heterogeneous agents. By leveraging verified
+responses—including correct solutions and informative failure cases—each model can learn from
+complementary reasoning patterns that are absent from its own policy distribution.
+The experimental results show that HACPO significantly improves performance across all three types
+of heterogeneity, validating its generality and robustness. Additionally, the differences observed
+among the three settings shed light on the two underlying mechanisms of HACPO.
+
+4.2            Ablation Study
+
+Agent-Capability-Aware Advantage Estimation. Ablation on the Qwen3-1.7B/4B-Base combina-
+tion (Table 2) confirms that removing this module significantly degrades performance. This decline
+stems from the systematic bias in standard group-relative advantages in multi-agent setting due to the
+capability discrepancy cross heterogenous agents. Our method addresses this by constructing agent-
+capability-aware advantage baselines—raising the standard for the stronger models and lowering it
+for the weaker ones—thereby preserving the unbiasedness of the advantage estimator established in
+Theorem D.5.
+Model Capabilities Discrepancy Coefficient. We isolate this coefficient in gradient modulation by
+disabling it in Eq.7, while retaining it for advantage estimation. Table 3 confirms that removing this
+modulation degrades performance. This validates the coefficient’s critical function as a capability-
+aware scaler: it amplifies gradients from stronger agents to accelerate learning, while attenuating
+updates from weaker ones to mitigate potential noise.
+
+
+                                                                                     8
+                                         Table 2: Ablation of Advantage Estimator
+        Model                   MATH-500        MATH     GSM8K               AIME2025           AMC23             Minerva              Olympiad           AVG
+        1.7B(HACPO - Adv)            0.696      0.659    0.825                    0.126           0.375            0.261                    0.313         0.465
+        1.7B(HACPO)                   0.69      0.674    0.822                    0.225            0.45            0.279                    0.314         0.493
+        4B(HACPO - Adv)              0.774      0.771    0.912                    0.308            0.55            0.348                    0.442         0.586
+        4B(HACPO)                    0.808      0.801    0.903                    0.267           0.575            0.386                    0.467         0.601
+
+
+                          Table 3: Ablation of Model Capabilities Discrepancy Coefficient
+           Model                    MATH-500     math    gsm8k              aime2025         ACM23           minerva              olympiad           AVG
+           1.7B(HACPO - ω )           0.666      0.657   0.806               0.105            0.425            0.25                   0.324          0.462
+           1.7B(HACPO)                 0.69      0.674   0.822               0.225             0.45           0.279                   0.314          0.493
+           4B(HACPO - ω)              0.803      0.797   0.902               0.261             0.55           0.401                   0.475           0.6
+           4B(HACPO)                  0.808      0.801   0.903               0.267            0.575           0.386                   0.467          0.601
+
+
+
+Exponential Importance Sampling. We examined the impact of α on Qwen3-1.7B/4B-Base
+and Qwen3-4B/8B-Base combinations (Table 4). Results highlight a critical trade-off: increasing α
+enforces a more conservative policy towards cross-agent responses, which aids stability by suppressing
+large distribution shifts but hinders efficiency by reducing the effective learning signal. Thus, the
+optimal α is model combination dependent, necessitating a balance between stable convergence and
+maximal information extraction.
+Stepwise Clipping. We assess the necessity of this mechanism on the Qwen3-4B/8B-Base combina-
+tion. As visualized in Figure 3, removing the clipping constraint (no Clip) causes severe instability,
+while omitting the stepwise schedule (no Stepwise) leads to suboptimal convergence compared to the
+full HACPO. This confirms that the stepwise clipping is indispensable for stabilizing collaborative
+learning, as neither unconstrained nor statically bounded updates suffice to handle high-variance
+cross-agent responses.
+
+    Table 4: The Impact of α (MATH500)                           0.80                                                     0.825
+                                                                                                                          0.800
+    α               0.0       1.0        2.0       3.0           0.75                                                     0.775
+                                                                                                                          0.750
+                                                          Accuracy
+
+
+
+
+                                                                                                                   Accuracy
+
+
+
+        Qwen3-1.7B-Base and Qwen3-4B-Base                        0.70
+                                                                                                                          0.725
+                                                                                                                          0.700
+    1.7B-Base       0.63     0.664      0.654   0.668            0.65                4B_Base(HACPO)                                            8B_Base(HACPO)
+                                                                                     4B_Base(HACPO no Stepwise)           0.675                8B_Base(HACPO no Stepwise)
+    4B-Base        0.756     0.792      0.768    0.77            0.60                4B_Base(HACPO no Clip)               0.650                8B_Base(HACPO no Clip)
+                                                                        0    25     50 75 100 125 150                             0    25     50 75 100 125 150
+                                                                                     Training Steps                                            Training Steps
+        Qwen3-4B-Base and Qwen3-8B-Base
+                                                                        (a) Qwen3-4B-Base                                         (b) Qwen3-8B-Base
+    4B-Base        0.772     0.776       0.77   0.776
+    8B-Base        0.764     0.772      0.766   0.778      Figure 3: Ablation of Stepwise Clipping (MATH500)
+
+5       Related Work
+Our work is most closely related to Reinforcement Learning with Verifiable Rewards (RLVR),
+with Group Sequence Policy Optimization (GSPO) being the most relevant prior study. GSPO
+demonstrates the efficacy of sequence-level importance sampling in Mixture-of-Experts (MoE)
+models, where tokens may originate from different networks. This insight inspires our approach
+to facilitate rollout sharing among heterogeneous agents. Additionally, our work shares conceptual
+parallels with Multi-Agent Reinforcement Learning (MARL). A more detailed discussion of related
+work is provided in Appendix B.
+
+6       Conclusion
+We propose HACRL, a collaborative multi-agent reinforcement learning problem tailored for het-
+erogeneous agent ecosystems. HACRL enables principled rollout sharing among heterogeneous
+agents, improving sample utilization efficiency while promoting cross-agent knowledge transfer. To
+instantiate this problem, we introduce HACPO, which incorporates four tailored mechanisms to
+mitigate capability discrepancies and policy distribution shifts arising during collaborative policy
+optimization. We provide the theoretical analysis establishing the unbiasedness of the proposed
+advantage estimation scheme and the validity of the resulting optimization direction under con-
+
+
+                                                                        9
+trolled heterogeneity. Extensive experiments demonstrate that HACPO consistently and significantly
+improves performance across all heterogeneity types.
+
+7   Limitation and Future Work
+While HACPO inherently supports n ≥ 3 agents, current empirical evaluations are restricted to two-
+agent settings due to prohibitive computational resource and non-trivial infrastructure modifications
+required within the verl framework. Nevertheless, our extensive validation across six diverse model
+combinations and three distinct types of heterogeneity serves as a strong empirical proxy. The
+consistent, robust gains observed across these highly varied two-agent pairs indicate that HACPO’s
+collaborative mechanisms will generalize effectively to larger agent ecosystems. Future work will
+address these engineering bottlenecks to empirically scale HACPO.
+
+
+
+
+                                                 10
+References
+Rishabh Agarwal, Nino Vieillard, Yongchao Zhou, Piotr Stanczyk, Sabela Ramos Garea, Matthieu Geist, and
+  Olivier Bachem. On-policy distillation of language models: Learning from self-generated mistakes. In The
+  Twelfth International Conference on Learning Representations, 2024.
+
+Rohan Anil, Gabriel Pereyra, Alexandre Passos, Robert Ormandi, George E Dahl, and Geoffrey E Hinton. Large
+  scale distributed neural network training through online distillation. arXiv preprint arXiv:1804.03235, 2018.
+
+Weilin Cai, Juyong Jiang, Fan Wang, Jing Tang, Sunghun Kim, and Jiayi Huang. A survey on mixture of experts
+  in large language models. IEEE Transactions on Knowledge and Data Engineering, 2025a.
+
+Wenrui Cai, Qingjie Liu, and Yunhong Wang. Learning historical status prompt for accurate and robust visual
+  tracking. arXiv preprint arXiv:2311.02072, 7, 2023.
+
+Wenrui Cai, Qingjie Liu, and Yunhong Wang. Hiptrack: Visual tracking with historical prompts. In Proceedings
+  of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, pages 19258–19267, 2024.
+
+Wenrui Cai, Qingjie Liu, and Yunhong Wang. Spmtrack: spatio-temporal parameter-efficient fine-tuning with
+  mixture of experts for scalable visual tracking. In Proceedings of the computer vision and pattern recognition
+  conference, pages 16871–16881, 2025b.
+
+Wenrui Cai, Defa Zhu, Qingjie Liu, and Qiyang Min. Seednorm: Self-rescaled dynamic normalization. arXiv
+  preprint arXiv:2510.22777, 2025c.
+
+Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian, Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias Plappert,
+  Jerry Tworek, Jacob Hilton, Reiichiro Nakano, et al. Training verifiers to solve math word problems. arXiv
+  preprint arXiv:2110.14168, 2021.
+
+Yilun Du, Shuang Li, Antonio Torralba, Joshua B Tenenbaum, and Igor Mordatch. Improving factuality and
+   reasoning in language models through multiagent debate. In Forty-first International Conference on Machine
+  Learning, 2023.
+
+Jakob Foerster, Gregory Farquhar, Triantafyllos Afouras, Nantas Nardelli, and Shimon Whiteson. Counterfactual
+   multi-agent policy gradients. In Proceedings of the AAAI conference on artificial intelligence, volume 32,
+   2018.
+
+Zhihong Fu, Zehua Fu, Qingjie Liu, Wenrui Cai, and Yunhong Wang. Sparsett: Visual tracking with sparse
+  transformers. arXiv preprint arXiv:2205.03776, 2022.
+
+Jianping Gou, Baosheng Yu, Stephen J Maybank, and Dacheng Tao. Knowledge distillation: A survey.
+   International journal of computer vision, 129(6):1789–1819, 2021.
+
+Aaron Grattafiori, Abhimanyu Dubey, Abhinav Jauhri, Abhinav Pandey, Abhishek Kadian, Ahmad Al-Dahle,
+  Aiesha Letman, Akhil Mathur, Alan Schelten, Alex Vaughan, et al. The llama 3 herd of models. arXiv
+  preprint arXiv:2407.21783, 2024.
+
+Chaoqun He, Renjie Luo, Yuzhuo Bai, Shengding Hu, Zhen Thai, Junhao Shen, Jinyi Hu, Xu Han, Yujie Huang,
+  Yuxiang Zhang, et al. Olympiadbench: A challenging benchmark for promoting agi with olympiad-level
+  bilingual multimodal scientific problems. In Proceedings of the 62nd Annual Meeting of the Association for
+  Computational Linguistics (Volume 1: Long Papers), pages 3828–3850, 2024.
+
+Dan Hendrycks, Collin Burns, Saurav Kadavath, Akul Arora, Steven Basart, Eric Tang, Dawn Song, and Jacob
+  Steinhardt. Measuring mathematical problem solving with the math dataset. arXiv preprint arXiv:2103.03874,
+  2021.
+
+Geoffrey Hinton, Oriol Vinyals, and Jeff Dean. Distilling the knowledge in a neural network. arXiv preprint
+  arXiv:1503.02531, 2015.
+
+Namgyu Ho, Laura Schmid, and Se-Young Yun. Large language models are reasoning teachers. In Proceedings
+  of the 61st annual meeting of the association for computational linguistics (volume 1: long papers), pages
+  14852–14882, 2023.
+
+Cheng-Yu Hsieh, Chun-Liang Li, Chih-Kuan Yeh, Hootan Nakhost, Yasuhisa Fujii, Alex Ratner, Ranjay Krishna,
+  Chen-Yu Lee, and Tomas Pfister. Distilling step-by-step! outperforming larger language models with less
+  training data and smaller model sizes. In Findings of the Association for Computational Linguistics: ACL
+  2023, pages 8003–8017, 2023.
+
+
+                                                      11
+Zixuan Huang, Yikun Ban, Lean Fu, Xiaojie Li, Zhongxiang Dai, Jianxin Li, and deqing wang. Adaptive
+  batch-wise sample scheduling for direct preference optimization. In The Thirty-ninth Annual Conference on
+  Neural Information Processing Systems, 2025. URL https://openreview.net/forum?id=8FN25PlktS.
+Zixuan Huang, Xin Xia, Yuxi Ren, Jianbin Zheng, Xuanda Wang, Zhixia Zhang, Hongyan Xie, Songshi Liang,
+  Zehao Chen, Xuefeng Xiao, et al. Does your reasoning model implicitly know when to stop thinking? arXiv
+  preprint arXiv:2602.08354, 2026a.
+Zixuan Huang, Xin Xia, Yuxi Ren, Jianbin Zheng, Xuefeng Xiao, Hongyan Xie, Li Huaqiu, Songshi Liang,
+  Zhongxiang Dai, Fuzhen Zhuang, et al. Real-time aligned reward model beyond semantics. arXiv preprint
+  arXiv:2601.22664, 2026b.
+Jakub Grudzien Kuba, Ruiqing Chen, Muning Wen, Ying Wen, Fanglei Sun, Jun Wang, and Yaodong Yang.
+  Trust region policy optimisation in multi-agent reinforcement learning. arXiv preprint arXiv:2109.11251,
+   2021.
+Aitor Lewkowycz, Anders Andreassen, David Dohan, Ethan Dyer, Henryk Michalewski, Vinay Ramasesh,
+  Ambrose Slone, Cem Anil, Imanol Schlag, Theo Gutman-Solo, et al. Solving quantitative reasoning problems
+  with language models. Advances in neural information processing systems, 35:3843–3857, 2022.
+Huaqiu Li, Xiaowan Hu, and Haoqian Wang. Interpretable unsupervised joint denoising and enhancement for
+  real-world low-light scenarios. arXiv preprint arXiv:2503.14535, 2025a.
+Huaqiu Li, Yong Wang, Tongwen Huang, Hailang Huang, Haoqian Wang, and Xiangxiang Chu. Ld-rps:
+  Zero-shot unified image restoration via latent diffusion recurrent posterior sampling. In Proceedings of the
+  IEEE/CVF International Conference on Computer Vision, pages 13684–13694, 2025b.
+Huaqiu Li, Wang Zhang, Xiaowan Hu, Tao Jiang, Zikang Chen, and Haoqian Wang. Prompt-sid: Learning
+  structural representation prompt via latent diffusion for single image denoising. In Proceedings of the AAAI
+  Conference on Artificial Intelligence, volume 39, pages 4734–4742, 2025c.
+Yuan Li, Yixuan Zhang, and Lichao Sun. Metaagents: Simulating interactions of human behaviors for llm-based
+  task-oriented coordination via collaborative generative agents. arXiv preprint arXiv:2310.06500, 2023.
+Junwei Liao, Muning Wen, Jun Wang, and Weinan Zhang. Marft: Multi-agent reinforcement fine-tuning. arXiv
+  preprint arXiv:2504.16129, 2025.
+Shuo Liu, Zeyu Liang, Xueguang Lyu, and Christopher Amato. Llm collaboration with multi-agent reinforcement
+  learning. arXiv preprint arXiv:2508.04652, 2025.
+Weiting Liu, Han Wu, Yufei Kuang, Xiongwei Han, Tao Zhong, Jianfeng Feng, and Wenlian Lu. Automated
+  optimization modeling via a localizable error-driven perspective. arXiv preprint arXiv:2602.11164, 2026.
+Ryan Lowe, Yi I Wu, Aviv Tamar, Jean Harb, OpenAI Pieter Abbeel, and Igor Mordatch. Multi-agent actor-critic
+  for mixed cooperative-competitive environments. Advances in neural information processing systems, 30,
+  2017.
+Hao Ma, Tianyi Hu, Zhiqiang Pu, Boyin Liu, Xiaolin Ai, Yanyan Liang, and Min Chen. Coevolving with the
+  other you: Fine-tuning llm with sequential cooperative multi-agent reinforcement learning. Advances in
+  Neural Information Processing Systems, 37:15497–15525, 2024.
+Lovish Madaan, Aniket Didolkar, Suchin Gururangan, John Quan, Ruan Silva, Ruslan Salakhutdinov, Manzil
+  Zaheer, Sanjeev Arora, and Anirudh Goyal. Rethinking thinking tokens: Llms as improvement operators.
+  arXiv preprint arXiv:2510.01123, 2025.
+Long Ouyang, Jeffrey Wu, Xu Jiang, Diogo Almeida, Carroll Wainwright, Pamela Mishkin, Chong Zhang,
+  Sandhini Agarwal, Katarina Slama, Alex Ray, et al. Training language models to follow instructions with
+  human feedback. Advances in neural information processing systems, 35:27730–27744, 2022.
+Chanwoo Park, Seungju Han, Xingzhi Guo, Asuman Ozdaglar, Kaiqing Zhang, and Joo-Kyung Kim. Maporl:
+  Multi-agent post-co-training for collaborative large language models with reinforcement learning. arXiv
+  preprint arXiv:2502.18439, 2025.
+Rafael Rafailov, Archit Sharma, Eric Mitchell, Christopher D Manning, Stefano Ermon, and Chelsea Finn. Direct
+  preference optimization: Your language model is secretly a reward model. Advances in neural information
+  processing systems, 36:53728–53741, 2023.
+Tabish Rashid, Mikayel Samvelyan, Christian Schroeder De Witt, Gregory Farquhar, Jakob Foerster, and Shimon
+  Whiteson. Monotonic value function factorisation for deep multi-agent reinforcement learning. Journal of
+  Machine Learning Research, 21(178):1–51, 2020.
+
+
+                                                     12
+Adriana Romero. Fitnets: Hints for thin deep nets. arXiv preprint arXiv:1412.6550, 2014.
+Victor Sanh, Lysandre Debut, Julien Chaumond, and Thomas Wolf. Distilbert, a distilled version of bert: smaller,
+  faster, cheaper and lighter. arXiv preprint arXiv:1910.01108, 2019.
+
+John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov. Proximal policy optimization
+  algorithms. arXiv preprint arXiv:1707.06347, 2017.
+
+Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Zhang, Mingchuan Zhang,
+  YK Li, Yang Wu, et al. Deepseekmath: Pushing the limits of mathematical reasoning in open language
+  models. arXiv preprint arXiv:2402.03300, 2024.
+
+Guangming Sheng, Chi Zhang, Zilingfeng Ye, Xibin Wu, Wang Zhang, Ru Zhang, Yanghua Peng, Haibin Lin,
+  and Chuan Wu. Hybridflow: A flexible and efficient rlhf framework. CoRR, abs/2409.19256, 2024. doi:
+  10.48550/ARXIV.2409.19256. URL https://arxiv.org/abs/2409.19256.
+
+Nisan Stiennon, Long Ouyang, Jeffrey Wu, Daniel Ziegler, Ryan Lowe, Chelsea Voss, Alec Radford, Dario
+  Amodei, and Paul F Christiano. Learning to summarize with human feedback. Advances in neural information
+  processing systems, 33:3008–3021, 2020.
+Ziyu Wan, Yunxiang Li, Xiaoyu Wen, Yan Song, Hanjing Wang, Linyi Yang, Mark Schmidt, Jun Wang, Weinan
+  Zhang, Shuyue Hu, et al. Rema: Learning to meta-think for llms with multi-agent reinforcement learning.
+  arXiv preprint arXiv:2503.09501, 2025.
+Jiakang Wang, Runze Liu, Lei Lin, Wenping Hu, Xiu Li, Fuzheng Zhang, Guorui Zhou, and Kun Gai. Aspo:
+   Asymmetric importance sampling policy optimization. arXiv preprint arXiv:2510.06062, 2025.
+
+Martin Weyssow, Xin Zhou, Kisub Kim, David Lo, and Houari Sahraoui. Exploring parameter-efficient
+ fine-tuning techniques for code generation with large language models. ACM Transactions on Software
+ Engineering and Methodology, 34(7):1–25, 2025.
+
+An Yang, Anfeng Li, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu, Chang Gao, Chengen
+  Huang, Chenxu Lv, et al. Qwen3 technical report. arXiv preprint arXiv:2505.09388, 2025a.
+
+Fengkai Yang, Zherui Chen, Xiaohan Wang, Xiaodong Lu, Jiajun Chai, Guojun Yin, Wei Lin, Shuai Ma, Fuzhen
+  Zhuang, Deqing Wang, Yaodong Yang, Jianxin Li, and Yikun Ban. Your group-relative advantage is biased,
+  2026. URL https://arxiv.org/abs/2601.08521.
+
+Shihui Yang, Chengfeng Dou, Peidong Guo, Kai Lu, Qiang Ju, Fei Deng, and Rihui Xin. Dcpo: Dynamic
+  clipping policy optimization. arXiv preprint arXiv:2509.02333, 2025b.
+
+Chao Yu, Akash Velu, Eugene Vinitsky, Jiaxuan Gao, Yu Wang, Alexandre Bayen, and Yi Wu. The surprising
+  effectiveness of ppo in cooperative multi-agent games. Advances in neural information processing systems,
+  35:24611–24624, 2022.
+
+Qiying Yu, Zheng Zhang, Ruofei Zhu, Yufeng Yuan, Xiaochen Zuo, Yu Yue, Weinan Dai, Tiantian Fan, Gaohong
+  Liu, Lingjun Liu, et al. Dapo: An open-source llm reinforcement learning system at scale. arXiv preprint
+  arXiv:2503.14476, 2025.
+
+Fei Zhao, Chonggang Lu, Zheyong Xie, Ziyan Liu, Haofu Qian, Jianzhao Huang, Fangcheng Shi, Zijie
+  Meng, Hongcheng Guo, Mingqian He, et al. Redone: Revealing domain-specific llm post-training in social
+  networking services. In Proceedings of the 2025 Conference on Empirical Methods in Natural Language
+  Processing: Industry Track, pages 2648–2674, 2025a.
+Yuzhong Zhao, Yue Liu, Junpeng Liu, Jingye Chen, Xun Wu, Yaru Hao, Tengchao Lv, Shaohan Huang, Lei Cui,
+  Qixiang Ye, et al. Geometric-mean policy optimization. arXiv preprint arXiv:2507.20673, 2025b.
+
+Chujie Zheng, Shixuan Liu, Mingze Li, Xiong-Hui Chen, Bowen Yu, Chang Gao, Kai Dang, Yuqiong Liu, Rui
+  Men, An Yang, et al. Group sequence policy optimization. arXiv preprint arXiv:2507.18071, 2025.
+
+Yifan Zhong, Jakub Grudzien Kuba, Xidong Feng, Siyi Hu, Jiaming Ji, and Yaodong Yang. Heterogeneous-agent
+   reinforcement learning. Journal of Machine Learning Research, 25(32):1–67, 2024.
+
+
+
+
+                                                      13
+A     Training and Evaluation Details
+All experiments in this paper are conducted using verl Sheng et al. [2024]. In the experiments, we set the
+maximum prompt length to 1024 and the maximum response length to 4096. We use the MATH dataset for
+training. The learning rate is set to 1 × 10−6 . For the responses generated by the trained agents in HACPO
+or single GSPO, we set ϵlow = 0.0003 and ϵhigh = 0.0004, which is consistent with the setting mentioned in
+GSPOZheng et al. [2025]. As for the single GRPO, we set ϵlow = 0.2 and ϵhigh = 0.28, which follows the trick
+mentioned in DAPO Yu et al. [2025] and is widely used. The batch size is set to 128, with a mini-batch size of
+64 and n = 8 rollouts per prompt. In the Resource-Equivalent Baseline (GSPO×2), we use a mini-batch size of
+32 and n = 16 rollouts per prompt to ensure double updates per step, while maintaining a consistent number of
+rollouts per update with other settings. We train for one epoch, except when examining the impact of stepwise
+clipping on stabilizing the training process. During evaluation, due to the high complexity of benchmarks such
+as AIME2025, we adopt a maximum response length of 8196 tokens in the main experiments and the ablation of
+Agent-Capability-Aware Advantage Estimator and Model Capability Discrepancy Coefficient (Table 1, Table
+10, Table 3 and Table 2). For all other experiments, the maximum response length is kept consistent with the
+training configuration and is set to 4096 tokens. Our experiment is conducted on eight GPUs.
+Regarding the models used in our experiments, We employed the Qwen3 Yang et al. [2025a] and Llama3.2
+Grattafiori et al. [2024] series of models. In detail, Qwen3-(1.7B/4B/8B)-Base denotes the base models,
+while Qwen3-(1.7B/4B/8B) refer to the distilled variants obtained through strong model distillation from their
+corresponding base models. In addition, Qwen3-4B-Instruct is a further fine-tuned version of Qwen3-4B,
+designed to better follow user instructions and generate more accurate responses.
+For the clipping boundary δ in the exponential importance sampling of α, as well as the gradient clipping step
+size δstep , each experiment has slight variations. We provide the specific settings used for each experiment in the
+Table 5. A commonly used set of parameters is α = 1, 1-δ = 0.8, and δstep = 0.025.
+
+
+                                  Table 5: The Details of Hyperparameter
+                     Model Combination                                      α     1-δ    δstep
+                     Qwen3-4B and Qwen3-4B-Instruct                        3.0    0.8     0.01
+                     Qwen3-1.7B-Base and Qwen3-4B-Base                     1.0    0.8    0.025
+                     Qwen3-4B-Base and Qwen3-8B-Base                       3.0    0.8    0.025
+                     Llama3.2-1B-Instruct and Llama3.2-3B-Instruct         1.0    0.9     0.01
+                     Qwen3-1.7B-Base and Llama3.2-1B-Instruct              1.0    0.8    0.025
+                     Qwen3-4B-Base and Llama3.2-3B-Instruct                1.0    0.8    0.025
+
+
+B     Additional Related Work
+B.1    Reinforcement Learning From Verifiable Rewards
+GRPO is one of the main algorithms used in Reinforcement Learning From Verifiable Rewards, and Yang et al.
+[2026] provides a principled theoretical analysis of group-based advantage estimation. The primary modification
+of GRPOShao et al. [2024] involves the formation of a set of responses generated from the same prompt, within
+which the advantage for each response is computed. This approach eliminates the need for a critic network,
+thereby significantly reducing both memory and computational overhead. Several variants of GRPO Yu et al.
+[2025], Yang et al. [2025b], Zhao et al. [2025b], Wang et al. [2025], Huang et al. [2026a], Liu et al. [2026],
+Huang et al. [2026b] have been proposed to address issues in GRPO, the most related one is GSPO Zheng et al.
+[2025], which improve the performance and generalization of GRPO.
+GSPO replaces the token-level importance sampling ratio in GRPO with a sequence-level ratio. GSPO demon-
+strates greater suitability than GRPO for fine-tuning Mixture-of-Experts (MoE) models. During inference, MoE
+models dynamically activate different expert networks Cai et al. [2025a]. When employing GRPO, if the current
+policy and the sampling policy activate different experts for a given token, the importance sampling weight for
+that token can become an outlier, leading to training instability. In contrast, GSPO averages the importance
+sampling ratio across all tokens within the response, thereby significantly enhancing stability. Importance
+sampling essentially acts as a weighting mechanism to diminish the gradient contributions from samples that
+deviate substantially from the current policy’s distribution. The sequence-level importance sampling employed
+by GSPO proves particularly effective for MoE models with varying expert networks. This success inspires a
+broader consideration of measuring the deviation between a sample from other models and the current policy
+distribution.
+In addition to the methods discussed above, a wide range of advanced techniques have been proposed in recent
+years to address various challenges in representation learning, model optimization, and generative modeling.
+
+
+                                                        14
+These include progress in interpretable representation learning Li et al. [2025a], prompt-based structural
+modeling Li et al. [2025c], diffusion-driven restoration Li et al. [2025b], efficient transformer architectures for
+visual modeling Fu et al. [2022], prompt-guided sequence modeling Cai et al. [2023, 2024], parameter-efficient
+tuning strategies Cai et al. [2025b], as well as novel normalization mechanisms for improving model stability Cai
+et al. [2025c]. Although these works are designed for different task scenarios, they collectively enrich the
+toolkit of modern machine learning research and provide useful insights for understanding the generalization
+and optimization of neural models.
+
+
+      Traditional RLVR methods like GRPO and GSPO optimize agents independently, often leading to costly
+      on-policy sampling and underutilized intermediate rollouts. HACPO builds upon these group-based
+      paradigms by enabling cross-agent rollout sharing. It maximizes sample utilization by allowing each
+      rollout in an n-agent system to be leveraged up to n times, directly addressing the efficiency bottlenecks
+      of isolated RLVR training.
+
+
+
+B.2     Multi-Agent Reinforcement Learning (MARL)
+
+Multi-Agent Reinforcement Learning (MARL) represents a paradigm in Reinforcement Learning (RL), where
+multiple agents evolve collectively Lowe et al. [2017], Kuba et al. [2021], Yu et al. [2022], Zhong et al. [2024],
+Rashid et al. [2020], Foerster et al. [2018]. MARL has gradually been applied to LLM-based agent scenarios.
+Most works in MARL focus on employing multiple agents to build a comprehensive system, where the agents
+collaborate to accomplish tasks Liao et al. [2025], Park et al. [2025], Wan et al. [2025], Liu et al. [2025], Li
+et al. [2023], Du et al. [2023]. These works primarily focus on constructing a holistic system in which agents
+collaborate to accomplish tasks. In contrast, our work targets scenarios in which multiple agents are required
+to perform tasks independently. Although these works address different settings compared to ours, they still
+provide valuable inspiration: even when using only the output text as an input prompt, different models can
+learn from each other. The model’s sampling not only includes the generated text but also the corresponding
+probability distribution information. By directly utilizing these samples for policy updates, rather than as inputs,
+the model can more effectively learn the knowledge of other models.
+Several works have used MARL frameworks to fine-tune models. For example, in COPY Ma et al. [2024],
+two copies of the same model are assigned as the pioneer and the observer, respectively, with the input of the
+pioneer serving as the output of the observer. The roles are then exchanged to further facilitate knowledge
+transfer. However, homogeneous models struggle to transcend their intrinsic performance ceilings Madaan et al.
+[2025]. Besides, such fine-tuning approaches require numerous sampling iterations, leading to low utilization
+efficiency. Furthermore, using the same model makes it difficult to inject knowledge beyond the model’s intrinsic
+capabilities.
+
+
+      While MARL typically focuses on collaborative execution where multiple agents coordinate to solve
+      a task jointly, HACPO introduces a distinct paradigm: independent execution with collaborative
+      optimization. By facilitating mutual knowledge transfer during training while ensuring agents act
+      independently at inference, HACPO bridges the gap between collective learning benefits and the
+      practical need for autonomous agent operation.
+
+
+
+B.3     Knowledge Distillation (KD)
+
+Knowledge Distillation (KD) is a widely adopted technique in the field of Large Language Models (LLMs),
+where a high-capacity teacher model is utilized to guide the training of a more compact student model Hinton
+et al. [2015], Gou et al. [2021], Sanh et al. [2019]. The core mechanism involves the teacher conveying not
+just its final predictions but its nuanced output distribution (dark knowledge), enabling the student to mimic the
+teacher’s internal logic and probabilistic insights Hinton et al. [2015], Romero [2014].
+Beyond traditional static methods, recent advancements have transitioned the distillation process from offline to
+online and on-policy settings Anil et al. [2018], Agarwal et al. [2024], Gou et al. [2021], Agarwal et al. [2024],
+Huang et al. [2025], Zhao et al. [2025a]. These approaches allow for the dynamic transfer of knowledge, often
+leveraging the student’s own generated trajectories to bridge the distribution gap between models. In the context
+of LLMs, distillation has also evolved into Black-box Distillation, where students learn from the teacher’s
+generated responses or chain-of-thought rationales when model weights are inaccessible Hsieh et al. [2023], Ho
+et al. [2023]. The distinction between distillation and our approach lies in the fact that, in our method, there are
+no "teacher" or "student" models; instead, all models can learn from each other simultaneously. Furthermore,
+our approach enables models to engage in both self-exploration and learning from other models concurrently.
+
+
+                                                         15
+      Standard Knowledge Distillation (KD) relies on a fixed, one-way path where a student mimics a stronger
+      teacher, potentially limiting the system’s ceiling. HACPO transcends this by treating heterogeneous
+      agents as peer co-learners. Through Agent-Capability-Aware Advantage Estimation and bidirectional
+      transfer, it allows even weaker models to contribute unique exploration trajectories, facilitating a mutual
+      performance boost that self-learning or one-way distillation cannot achieve.
+
+
+
+C      Heterogeneous Agent Importance Sampling Analysis
+
+In the reinforcement learning paradigm, importance sampling is commonly used to stabilize updates, often
+through a clipping mechanism. The clipping range typically centers around 1.0. For instance, in GSPO, the
+upper and lower bounds for clipping are set to 1.0004 and 0.9997, respectively. However, in a multi-agent setting,
+the importance sampling values for samples from other agents do not exhibit the same pattern and fluctuate as
+training progresses.
+In the experiment involving Qwen3-1.7B-Base and Qwen3-4B-Base, we distinguish between self-generated
+                                                 (1,1)    (1,2)
+responses and cross-agent responses, denoted as st,i and st,i , respectively. These values represent the
+                                                                                                        (1,1)
+average importance sampling across each training step. It is important to note that while st,i                  remains stable
+                                                            (1,2)
+and tends to stay around 1 throughout training, st,i                does not follow a fixed range and fluctuates as training
+progresses. The results are shown in Table 6
+
+
+                                     (1,1)          (1,2)
+                         Table 6: st,i       and st,i        of Qwen3-1.7B-Base in all steps
+                                Model         mean             max           min       range
+                                 homo
+                                s            1.00002        1.00020        0.99960    0.00060
+                                shete        0.89550        0.93615        0.86198    0.07417
+
+
+For self-generated responses, as the number of updates(mini batches) within a batch increases, the discrepancy
+                                                                                            (1,1)
+between the sampling policy πθold and the current policy πθ grows, leading to an increased st,i and a higher
+                                                                                                                       (k)
+ratio of clipped tokens. However, for cross-agent responses, the discrepancy between the current policy πθ and
+                              (j)                                                  (1,2)
+the sampling model’s policy πθold fluctuates unpredictably, leading to a variable st,i and the ratio of clipped
+tokens.
+In a batch with multiple mini-batches, as the number of updates increases, self-generated responses become
+more heavily clipped in later mini-batches due to the growing discrepancy between the current and old policies.
+Therefore, the influence of cross-agent responses is likely to increase in later mini-batches, as their importance
+sampling values are less predictable, leading to an instability if they dominate the update.
+
+
+D      Theoretical Analysis
+
+To ensure mathematical rigor, the appendix proofs use the expanded notation R(x, y) for rewards and πt for
+policies at step t. All other symbols are consistent with the main text.
+
+
+D.1     Oracle Capability Baseline
+
+This subsection defines the oracle capability ratio using expectations over the prompt distribution and the response
+distributions of the agents. It proves that the capability-aware baseline in Eq. (5) has the same expectation as
+the reward of the learner agent. All expectations below are taken jointly over prompt sampling and response
+sampling.
+We first define the expected reward of each agent and the batch-level reward mean used by the oracle baseline.
+Assumption D.1 (Finite expected reward). Fix a training step t and n agents. Let Dt be the prompt distribution
+                                                   (a)
+at step t. For each agent a ∈ {1, . . . , n}, let πt (· | x) denote the response distribution of agent a given prompt
+x. Assume the reward has finite expectation for each agent:
+
+                                         Ex∼D , y∼π(a) (·|x) [|R(x, y)|] < ∞.                                                (11)
+                                                t       t
+
+
+
+
+                                                                16
+Define the conditional prompt value and the prompt-averaged expected reward as
+                                  (a)
+                             qt (x) := Ey∼π(a) (·|x) [R(x, y)] ,                                                                            (12)
+                                           t
+                                             h          i
+                                 (a)             (a)
+                                pt := Ex∼Dt qt (x) = Ex∼D , y∼π(a) (·|x) [R(x, y)] .                                                        (13)
+                                                                                        t         t
+
+Assumption D.2 (Positive oracle denominators). Throughout the oracle baseline construction, for every
+denominator agent j ∈ {1, . . . , n},
+                                              (j)
+                                             pt > 0.                                             (14)
+                                                                                              (j)
+Definition D.3 (Oracle capability ratio). For agents k and j with pt                                  > 0, the oracle capability ratio is
+                                                                            (k)
+                                                                  (k,j)   p
+                                                                ω̄t     := t(j) .                                                           (15)
+                                                                          pt
+                 (k,k)
+In particular, ω̄t         = 1.
+Definition D.4 (Oracle capability-aware baseline). Let the batch at step t contain B prompt instances
+                                                                                (j)              (j)
+Xt,1 , . . . , Xt,B sampled independently from Dt . Conditional on Xt,b , let Yt,b,1 , . . . , Yt,b,G be sampled inde-
+                     (j)
+pendently from πt (· | Xt,b ). Define
+                                                          B  G
+                                                  (j)   1 XX              (j)
+                                                                                
+                                                Pet :=          R Xt,b , Yt,b,i                                                             (16)
+                                                       BG   i=1     b=1
+
+as the batch-level empirical mean reward of agent j. The oracle capability-aware baseline for learner agent k is
+                                                                          n
+                                                          (k)           1 X (k,j) e(j)
+                                                      µt,⋆ :=                ω̄  Pt .                                                       (17)
+                                                                        n j=1 t
+
+Theorem D.5 (Unbiased oracle capability-aware baseline). Under Assumptions D.1 and D.2, the oracle
+                           (k)
+capability-aware baseline µt,⋆ in Definition D.4 satisfies
+                                h     i
+                                  (k)       (k)
+                              E µt,⋆ = pt = Ex∼D , y∼π(k) (·|x) [R(x, y)] .                   (18)
+                                                                              t         t
+
+
+                                        (j)
+Proof. By the definition of Pet               and Assumption D.1,
+                                                           h      i
+                                                              (j)      (j)
+                                                          E Pet     = pt .                                                                  (19)
+
+Therefore,
+                                                             n
+                                                  h
+                                                    (k)
+                                                        i 1 X (k,j) h e(j) i
+                                                 E µt,⋆ =      ω̄  E Pt                                                                     (20)
+                                                          n j=1 t
+                                                                         n        (k)
+                                                                    1 X pt (j)       (k)
+                                                                =              pt = pt .                                                    (21)
+                                                                    n j=1 p(j)
+                                                                           t
+
+
+
+                                                                                            (k)
+Corollary D.6 (Zero-mean oracle centered reward). Let y ∼ πt (· | x) with x ∼ Dt , and define the oracle
+centered reward
+                                       (k)                      (k)
+                                     Āt,⋆ (x, y) := R(x, y) − µt,⋆ .                               (22)
+Under the conditions of Theorem D.5,         h            i
+                                                (k)
+                                            E Āt,⋆ (x, y) = 0.                                     (23)
+
+Proof. By linearity of expectation,
+                          h            i                                   h     i
+                              (k)                                            (k)
+                         E Āt,⋆ (x, y) = Ex∼D , y∼π(k) (·|x) [R(x, y)] − E µt,⋆ .                                                          (24)
+                                                                    t         t
+
+Theorem D.5 shows that the two terms are equal, so the difference is zero.
+Remark D.7 (Single-agent degeneration). When n = 1, the oracle ratio and baseline become
+                                                      (k,k)                        (k)     (k)
+                                                    ω̄t         = 1,              µt,⋆ = Pet .                                              (25)
+Thus the multi-agent statement reduces to the standard single-agent sample-mean baseline.
+
+
+                                                                          17
+D.2     Empirical Ratio Concentration
+The next result bounds the deviation between the batch-level empirical ratio and the oracle ratio.
+Assumption D.8 (Bounded batch-level sampling). In addition to Assumption D.1, assume the reward is bounded:
+                                                           0 ≤ R(x, y) ≤ 1.                                          (26)
+Let B be the number of prompts in the batch at step t, and let G be the number of responses sampled for each
+prompt and agent. Define
+                                                   Nbatch := BG.                                             (27)
+The batch at step t is sampled under the prompt distribution and agent policies in Assumption D.1. For each
+prompt instance b ∈ {1, . . . , B}, let Xb ∼ Dt be sampled independently. Conditional on Xb , responses
+  (a)            (a)                                 (a)
+Yb,1 , . . . , Yb,G are sampled independently from πt (· | Xb ) for each agent a, and different prompt groups are
+independent. The observed reward samples are
+                                                 
+                              (a)             (a)
+                            Zb,g := R Xb , Yb,g ,        b = 1, . . . , B, g = 1, . . . , G.                 (28)
+
+Definition D.9 (Batch-level empirical capability ratio). Using the batch-level samples in Eq. (28), define
+                                                           B X
+                                                             G                                             (k)
+                                 (a)              1        X           (a)                (k,j)        P̂t
+                             P̂t         :=                          Zb,g ,            ω̂t        :=       (j)
+                                                                                                                 .   (29)
+                                               Nbatch                                                  P̂t
+                                                           b=1 g=1
+
+Lemma D.10 (Batch-level concentration of empirical capabilities). Under Assumption D.8, for any δ ∈ (0, 1),
+with probability at least 1 − δ, all agents simultaneously satisfy
+                                   (a)         (a)
+                             P̂t         − pt         ≤ ϵbatch (δ),               for all a = 1, . . . , n,          (30)
+
+where
+                                              ϵbatch (δ) := ϵprompt (δ) + ϵresp (δ),                                 (31)
+with
+                                                                      r
+                                                                              log(4n/δ)
+                                                 ϵprompt (δ) :=                         ,                            (32)
+                                                                                 2B
+                                                                      r
+                                                                              log(4n/δ)
+                                                      ϵresp (δ) :=                      .                            (33)
+                                                                                2BG
+
+Proof. For a fixed agent a, define the empirical prompt-value average
+                                                                          B
+                                                     (a)         1 X (a)
+                                                 q̄t,batch :=       qt (Xb ).                                        (34)
+                                                                 B
+                                                                      b=1
+
+Then                                                                              
+                             (a)          (a)       (a)   (a)         (a)        (a)
+                           P̂t      − pt        = P̂t − q̄t,batch + q̄t,batch − pt     .                             (35)
+       (a)
+Since qt (Xb ) ∈ [0, 1] and the prompt instances are independent, Hoeffding’s inequality gives
+                                                       
+                                        (a)        (a)
+                                   Pr q̄t,batch − pt ≥ ϵ ≤ 2 exp(−2Bϵ2 ).                                            (36)
+                                                                (a)
+Conditional on the prompt instances, the rewards Zb,g are independent and bounded in [0, 1], with conditional
+         (a)
+means qt (Xb ). Therefore,
+                                                          
+                           (a)  (a)
+                     Pr P̂t − q̄t,batch ≥ ϵ X1 , . . . , XB ≤ 2 exp(−2BGϵ2 ).                                        (37)
+
+Taking expectation over the prompt instances gives the unconditional bound
+                                                       
+                                     (a)    (a)
+                              Pr P̂t − q̄t,batch ≥ ϵ ≤ 2 exp(−2BGϵ2 ).                                               (38)
+
+Choose ϵprompt (δ) and ϵresp (δ) as in Eqs. (32)–(33). For each agent, the prompt and response failure prob-
+abilities are each at most δ/(2n). Applying the union bound over both terms and over the n agents gives
+Eq. (30).
+Theorem D.11 (High-probability bound for the empirical capability ratio). Suppose Assumption D.8 holds. Let
+                                                                    (j)
+ϵbatch = ϵbatch (δ) be defined as in Eq. (31), and assume ϵbatch < pt . Then with probability at least 1 − δ,
+                                          (k)                                       (k)
+                                         pt   − ϵbatch            (k,j)           pt      + ϵbatch
+                                          (j)
+                                                             ≤ ω̂t            ≤     (j)
+                                                                                                       .             (39)
+                                         pt + ϵbatch                              pt − ϵbatch
+
+
+                                                                     18
+Moreover,                                                                                      
+                                                                                       (j)  (k)
+                                                                             ϵbatch pt + pt
+                                               (k,j)     (k,j)
+                                             ω̂t     − ω̄t                 ≤                   .                           (40)
+                                                                              (j)    (j)
+                                                                             pt     pt − ϵbatch
+                                                                                   (j)
+If, in addition, there exists a constant γ > 0 such that pt ≥ γ and ϵbatch ≤ γ/2, then
+                                                      r              r           !
+                               (k,j)     (k,j)   4       log(4n/δ)     log(4n/δ)
+                             ω̂t     − ω̄t     ≤ 2                 +                .                                        (41)
+                                                γ           2B            2BG
+
+Proof. On the event from Lemma D.10, we have
+                                                  (a)                            (a)           (a)
+                                              pt        − ϵbatch ≤ P̂t                   ≤ pt        + ϵbatch                (42)
+                                   (j)                   (j)
+for every agent a. Since ϵbatch < pt , the denominator P̂t is positive. Therefore,
+                                              (k)                                (k)           (k)
+                                             pt      − ϵbatch              P̂t             pt   + ϵbatch
+                                              (j)
+                                                                      ≤          (j)
+                                                                                     ≤      (j)
+                                                                                                         .                   (43)
+                                             pt + ϵbatch                     P̂t           pt − ϵbatch
+This proves Eq. (39).
+For the deviation bound, write
+                                 (k)           (k)                  (k) (j)              (k)    (j)
+                               P̂t            pt               P̂t pt − pt P̂t
+                                 (j)
+                                        −      (j)
+                                                        =                    (j) (j)
+                               P̂t            pt                           P̂t pt
+                                                                (j)        (k)           (k)          (k)     (j)      (j)
+                                                               pt      P̂t         − pt         + pt        P̂t     − pt
+                                                        ≤                                      (j) (j)
+                                                                        P̂t pt
+                                                                            
+                                                                    (j)  (k)
+                                                          ϵbatch pt + pt
+                                                        ≤                   .                                              (44)
+                                                           (j)    (j)
+                                                          pt    pt − ϵbatch
+    (j)
+If pt     ≥ γ and ϵbatch ≤ γ/2, then
+                                                                (j)
+                                                               pt − ϵbatch ≥ γ/2.                                            (45)
+Since rewards lie in [0, 1], we also have
+                                                                     (j)           (k)
+                                                                    pt + p t             ≤ 2.                                (46)
+Combining Eqs. (44)–(46) with Eq. (31) proves Eq. (41).
+
+Definition D.12 (Empirical capability-aware baseline). Replacing the oracle ratio in Definition D.4 with the
+batch-level empirical ratio gives
+                                                     n
+                                         (k)      1 X (k,j) e(j)
+                                       µ̂t,emp :=       ω̂   Pt .                                       (47)
+                                                  n j=1 t
+Corollary D.13 (Baseline error induced by empirical ratios). Under the event in Lemma D.10, suppose
+          (j)
+ϵbatch < pt for every denominator agent j. Then
+                                                                          
+                                                                   (j) (k)
+                                             1 Xn        ϵbatch pt + pt
+                            (k)      (k)             (j)
+                          µ̂t,emp − µt,⋆ ≤        Pe                       .                   (48)
+                                             n j=1 t p(j) p(j) − ϵbatch
+                                                              
+                                                          t      t
+
+          (j)                                                                                  (j)
+Since Pet       ∈ [0, 1], the same bound also holds after dropping the multiplicative factor Pet from each summand.
+
+Proof. By Definitions D.4 and D.12,
+                                                                              n
+                                       (k)               (k)           1 X  (k,j)     (k,j)
+                                                                                             
+                                                                                                 (j)
+                                     µ̂t,emp − µt,⋆ =                        ω̂t   − ω̄t       Pet
+                                                                       n j=1
+                                                                             n
+                                                                      1 X e(j) (k,j)     (k,j)
+                                                                ≤          P  ω̂t    − ω̄t     .                             (49)
+                                                                      n j=1 t
+
+Applying Theorem D.11 to each ratio gives Eq. (48).
+
+
+                                                                              19
+Corollary D.14 (Combined empirical baseline error). For any δ ∈ (0, 1), define
+                                                     ϵδbatch := ϵbatch (δ/2).                                     (50)
+                                                                             (j)
+Under Assumption D.8, suppose there exists γ > 0 such that pt ≥ γ for every denominator agent j. If
+ϵδbatch ≤ γ/2, then with probability at least 1 − δ,
+                                                             
+                                       (k)       (k)   4    1
+                                     µ̂t,emp − pt ≤       +     ϵδbatch .                      (51)
+                                                       γ2   γ
+
+Proof. Apply Lemma D.10 with failure probability δ/2 to the empirical ratio. By Theorem D.11, the ratio error
+then satisfies
+                                            (k,j)     (k,j)   4
+                                          ω̂t     − ω̄t     ≤ 2 ϵδbatch                                  (52)
+                                                             γ
+simultaneously for all denominator agents j. Applying the same batch-level Hoeffding argument to the empirical
+means in the baseline gives, with failure probability δ/2,
+                                                       (j)  (j)
+                                                     Pet − pt ≤ ϵδbatch                                           (53)
+
+simultaneously for all j = 1, . . . , n. By the union bound, the two events hold together with probability at least
+1 − δ.
+On this joint event,
+                             (k)       (k)             (k)         (k)       (k)   (k)
+                            µ̂t,emp − pt         ≤ µ̂t,emp − µt,⋆ + µt,⋆ − pt
+                                                                         n
+                                                     4 δ         1 X (k,j)  e(j)     (j)
+                                                                                          
+                                                 ≤      ϵbatch +       ω̄ t P t   − p t
+                                                     γ2          n j=1
+                                                                     n   (k)
+                                                      4 δ         1 X pt δ
+                                                 ≤     2
+                                                         ϵbatch +            ϵbatch .                             (54)
+                                                     γ            n j=1 p(j)
+                                                                         t
+
+                                           (k)               (j)
+Since rewards are bounded in [0, 1], pt          ≤ 1, and pt       ≥ γ by the denominator lower-bound condition. Hence
+                                                    n   (k)
+                                                 1 X pt δ           1
+                                                            ϵbatch ≤ ϵδbatch .                                    (55)
+                                                 n j=1 p(j)
+                                                        t
+                                                                    γ
+
+Combining Eqs. (54) and (55) proves Eq. (51).
+Remark D.15 (Role of the concentration bound). Lemma D.10 gives finite-batch control of the empirical
+                                   (k,j)
+capability means used to form ω̂t        at a fixed training step. The two terms in Eq. (31) correspond to the
+two sampling sources in a batch: the B prompt instances determine the prompt-distribution term ϵprompt (δ),
+while the BG response samples determine the response-sampling term ϵresp (δ). Theorem D.11 propagates this
+mean-reward error through the capability ratio under a positive denominator condition. Corollaries D.13 and
+D.14 then transfer the resulting ratio control to the empirical capability-aware baseline.
+
+
+E       Formulation and Pseudocode of HACPO
+To facilitate a precise understanding of HACPO, we present the complete algorithmic formulation and training
+procedure.
+Taking two agents (1 and 2) as an example. The optimization objective for agent 1 consists of two terms: the
+loss computed from its own samples, Jhomo (θ), and the loss computed from samples of other agents, Jhete (θ).
+The final loss is the sum of these two terms. Similarly, agent 2 is updated using a loss function of the same form,
+but with different values.
+
+                                G
+                   (1)      1 X      
+                                       (1,1)  (1) (1)            (1,1)                      (1)
+                                                                                                
+                  Jhomo =         min st,i · At,i (yt,i ), clip(st,i , 1 − ϵl , 1 + ϵh ) · At,i                   (56)
+                            G i=1
+
+  (1)
+Jhomo is the homo objective for Agent 1 using its own rollouts.
+
+                        G
+            (1)      1 Xh        (1,2)                                  (1,2)     (2,1)    (1) (2)
+                                                                                                       i
+          Jhete =          clip(st,i , 1.0 − δ + m · δstep , 1.0) · sg(st,i )α · ωt     · At,i (yt,i )            (57)
+                     G i=1
+
+
+                                                               20
+    (1)
+Jhete is the hete objective for Agent 1 using the rollouts from Agent 2.
+
+                                                (1)         (1)                                            (2)          (1)
+                         (1)   (1)      R(yt,i ) − µt                            (1)     (2)        R(yt,i ) − µt
+                       At,i (yt,i ) =                 ,                      At,i (yt,i ) =                                   (58)
+                                         std{Rt (x)}                                                 std{Rt (x)}
+                                                                     1                                             1
+                                          (1)     (1)                                                (1)    (2)
+                                                            !        (1)
+                          (1,1)         πθ (yt,i )              |y
+                                                                     t,i
+                                                                         |
+                                                                                       (1,2)       πθ (yt,i ) L1
+                         st,i =          (1)          (1)
+                                                                             ,    st,i         =                   1          (59)
+                                                                                                    (2)      (2)
+                                        πθold (yt,i )                                              πθold (yt,i ) L2
+                                                                                         (2)
+Here, L1 and L2 respectively represent the length of response yt,i under tokenizers of agent 1 and 2.
+                                                                      (1)                (1)
+                                                 J (1) = Jhomo + Jhete                                                        (60)
+
+The final optimization objective is the sum of homogeneous and heterogeneous objective.
+
+Algorithm 1 Heterogeneous Agent Collaborative Policy Optimization
+Require: n initial policy models πθ1 , πθ2 , ...πθn , reward models R, task prompts D, each prompt
+    has G outputs. The training step is t. Each step has M policy updates.
+ 1: for k = 1 to n do
+                              (k)
+ 2:   rollout policy model πθold ← πθk
+ 3: end for
+ 4: for t = 1 to N do
+ 5:   Sample a batch Dt from D
+ 6:   for k = 1 to n do
+                                             (k)       (k)
+ 7:       Update the rollout policy model πθold ← πθ
+ 8:   end for
+ 9:   for k = 1 to n do
+                                  (k)
+10:       Sample G output y ∼ πθold (· | x) for each question x ∈ Dt
+11:       Compute rewards R(yi ) for each output yi in the batch
+12:       Compute accuracy for the sampling model
+13:   end for
+14:   for k = 1 to n do
+15:       Compute At,i (y) for the response y in batch (agent k)
+16:       for mini batch = 1 to M do
+                                        (k)
+17:          Update the policy model πθ by maximizing the HACPO objective
+18:       end for
+19:   end for
+20: end for
+            (k)
+Ensure: πθ |k = 1, 2, ..., n
+
+
+
+F         Additional Experimental Results
+
+
+                                           Table 7: Seed Experiments
+                          Method             0       1      42     1337                                          3407
+                                                      Qwen3-1.7B-Base
+                          HACPO            0.656            0.656                0.664         0.656         0.644
+                          GSPO             0.622            0.614                0.622         0.622         0.618
+                          GSPO×2           0.624            0.628                0.624         0.626         0.62
+                                                       Qwen3-4B-Base
+                          HACPO            0.762             0.78                0.792         0.772         0.774
+                          GSPO              0.74            0.748                0.748          0.75          0.75
+                          GSPO×2           0.744            0.75                 0.756         0.746         0.752
+
+
+
+                                                                      21
+                                     Table 8: Runtime Comparison
+             Method                 Qwen3-1.7B-Base Qwen3-4B-Base                  Total Time
+             GSPO                          1h 31m                2h 38m               4h 9m
+             GSPO updates×2                 2h 6m                2h 59m              5h 5m
+             GSPO×2                        2h 43m                 4h 1m              6h 44m
+             HACPO                                        Overall 5h 31m
+
+
+                                      Table 9: GPU Memory Usage
+                     Method                 Qwen3-1.7B-Base Qwen3-4B-Base
+                     GSPO                           76.8%              82.7%
+                     GSPO updates×2                 76.6%              80.3%
+                     GSPO×2                         82.2%              84.2%
+                     HACPO                               Overall 86.0%
+
+
+F.1   Three More Model Combinations
+Here, we present additional experiments in Table 10, including comparisons between Qwen3-4B-Base + Qwen3-
+8B-Base, Llama3.2-1B-Instruct + Llama3.2-3B-Instruct, and Qwen3-1.7B-Base + Llama3.2-1B-Instruct.
+
+F.2   The Performance over Different Seeds
+We conduct experiments on the combination of Qwen3-1.7B-Base and Qwen3-4B-Base, evaluating performance
+across five different random seeds (0, 1, 42, 1337, and 3407). For these experiments, we utilize the MATH500
+benchmark as our test set and set the maximum response length to 4096. The detailed results are shown in Table
+7.
+Across all five seeds, HACPO consistently outperforms both GSPO and the resource-equivalent GSPO×2
+baseline by a clear margin. Specifically, on Qwen3-1.7B-Base, HACPO achieves 65.52% ± 0.72% (vs. GSPO’s
+61.96% ± 0.36% and GSPO×2’s 62.44% ± 0.30%). On Qwen3-4B-Base, HACPO achieves 77.60% ± 1.10%
+(vs. GSPO’s 74.72% ± 0.41% and GSPO×2’s 74.96% ± 0.48%). The gains are stable across different seeds,
+confirming that HACPO’s improvements are robust and statistically significant.
+
+F.3   The GPU Peak Memory and Overall Runtime
+We report the runtime (Table 8) and peak GPU memory utilization ratio (Table 9) for the Qwen3-1.7B-Base
+and Qwen3-4B-Base combination. We added a baseline GSPO updates × 2, which fixed the sampling quantity
+and doubled the number of updates (i.e., both the sampling cost and the update cost were the same as those of
+HACPO).
+
+
+
+
+                                                     22
+                        Table 10: Additional Experimental Results
+
+Model                  MATH-500       math    gsm8k     aime2025     AMC23    minerva   olympiad   AVG
+                                    Qwen3-4B-Base and Qwen3-8B-Base
+4B-Base                   0.61        0.676    0.445       0.1         0.4     0.308     0.347     0.412
+4B-Base(GRPO)            0.796        0.788    0.885      0.307       0.475    0.349     0.454     0.579
+4B-Base(GSPO)            0.782        0.787    0.877       0.25       0.525    0.368      0.46     0.578
+4B-Base(GSPO×2)          0.756        0.794    0.873      0.208       0.55     0.382     0.463     0.575
+4B-Base(Naive)           0.734        0.712    0.895      0.143        0.55    0.342     0.354     0.526
+4B-Base(HACPO)            0.81        0.803    0.904      0.275         0.6    0.364     0.463     0.603
+8B-Base                  0.647        0.713    0.684      0.033         0.4    0.232     0.375     0.441
+8B-Base(GRPO)            0.814        0.812    0.921      0.265       0.575    0.415     0.479     0.612
+8B-Base(GSPO)            0.794        0.804    0.923      0.225         0.6    0.426     0.468     0.606
+8B-Base(GSPO×2)           0.8         0.803     0.92       0.2        0.575    0.404      0.46     0.595
+8B-Base(Naive)            0.79        0.783    0.921      0.252         0.5    0.408     0.429     0.583
+8B-Base(HACPO)           0.828        0.813    0.933      0.323       0.625    0.423     0.467      0.63
+                             Llama3.2-1B-Instruct and Llama3.2-3B-Instruct
+Llama3.2-1B              0.176        0.297    0.489        0          0.15    0.052     0.061      0.18
+Llama3.2-1B(GRPO)         0.35        0.349    0.569        0         0.125    0.008     0.097     0.214
+Llama3.2-1B(GSPO)        0.356        0.346    0.523      0.021       0.125    0.066     0.088     0.218
+Llama3.2-1B(GSPO×2)      0.352        0.349    0.573      0.07        0.125    0.079     0.103     0.227
+Llama3.2-1B(Naive)       0.284        0.302     0.45       0.0        0.025    0.066     0.073     0.171
+Llama3.2-1B(HACPO)        0.35        0.352    0.541      0.022         0.2    0.081     0.085     0.233
+Llama3.2-3B              0.267        0.441    0.788       0.0          0.2    0.169     0.158     0.289
+Llama3.2-3B(GRPO)        0.502        0.507    0.814       0.0         0.25    0.199     0.174     0.349
+Llama3.2-3B(GSPO)        0.512        0.501    0.812      0.054       0.225    0.184      0.17     0.351
+Llama3.2-3B (GSPO×2)     0.488        0.498    0.829       0.0        0.175    0.188     0.159     0.334
+Llama3.2-3B(Naive)       0.406        0.407    0.734       0.0        0.225    0.177     0.107     0.294
+Llama3.2-3B(HACPO)       0.522         0.51    0.828      0.067       0.275    0.199     0.188      0.37
+                                 Qwen3-1.7B-Base and Llama3.2-1B-Instruct
+Qwen3                      0.5        0.483    0.616      0.033         0.3    0.206     0.229     0.338
+Qwen3(GRPO)              0.682        0.652    0.824       0.16       0.375    0.272     0.298     0.466
+Qwen3(GSPO)              0.648        0.641    0.826      0.148        0.45    0.272     0.287     0.467
+Qwen3(GSPO×2)            0.664         0.65    0.829      0.177       0.375    0.265     0.293     0.475
+Qwen3(Naive)              0.59        0.596    0.798      0.105         0.3    0.221     0.241     0.407
+Qwen3(HACPO)             0.676        0.661    0.838       0.22        0.45    0.305      0.32     0.496
+Llama3.2                 0.176        0.297    0.489      0.033        0.15    0.052     0.061      0.18
+Llama3.2(GRPO)            0.35        0.349    0.569         0        0.125    0.008     0.097     0.214
+Llama3.2(GSPO)           0.356        0.346    0.523      0.021       0.125    0.066     0.088     0.218
+Llama3.2(GSPO×2)         0.352        0.349    0.573       0.07       0.125    0.079     0.103     0.227
+Llama3.2(Naive)          0.336        0.337    0.512        0.0       0.125    0.066     0.071     0.214
+Llama3.2(HACPO)          0.356        0.368    0.533      0.033        0.15    0.066     0.091     0.228
+
+
+
+
+                                                   23
+

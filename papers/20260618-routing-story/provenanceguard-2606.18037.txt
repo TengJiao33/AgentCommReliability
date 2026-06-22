@@ -1,0 +1,1317 @@
+                                         ProvenanceGuard: Source-Aware Factuality Verification for
+                                                       MCP-Based LLM Agents
+                                                           Ander Alvarez,1, ∗ Santhiya Rajan,1, † Samuel Mugel,2, ‡ and Román Orús1, 3, 4, §
+                                                                    1
+                                                                      Multiverse Computing, Parque Cientifico y Tecnológico de Gipuzkoa,
+                                                                       Paseo de Miramón, 170, 20014 Donostia / San Sebastián, Spain
+                                                                             2
+                                                                               Multiverse Computing, Centre for Social Innovation,
+                                                                       192 Spadina Avenue Suite 509, Toronto, ON M5T 2C2, Canada
+                                                   3
+                                                     Donostia International Physics Center, Paseo Manuel de Lardizabal 4, E-20018 San Sebastián, Spain
+                                                             4
+                                                               Ikerbasque Foundation for Science, Maria Diaz de Haro 3, E-48013 Bilbao, Spain
+                                                         Many tool-using LLM agents use Model Context Protocol (MCP) to produce answers from het-
+                                                      erogeneous evidence sources, including search results, APIs, databases, clinical records, formulary
+                                                      tools, and other external systems exposed through tool servers. Existing factuality and faithfulness
+                                                      metrics typically evaluate whether an answer is supported by the available context after evidence
+arXiv:2606.18037v1 [cs.AI] 16 Jun 2026
+
+
+
+
+                                                      has been pooled. This abstraction misses an important provenance-sensitive failure mode: a claim
+                                                      may be supported somewhere in the evidence while being attributed to the wrong source. We call
+                                                      this failure cross-source conflation.
+                                                         We introduce ProvenanceGuard, a source-aware verifier for MCP-grounded answers. Prove-
+                                                      nanceGuard is the retained calibrated Router+NLI system: it consumes captured MCP traces
+                                                      with stable tool IDs, source IDs, and raw tool outputs; decomposes an answer into atomic claims;
+                                                      routes claims to source-specific evidence; checks support with NLI and an attention-derived token-
+                                                      alignment proxy; and separately compares the claim’s stated attribution with the routed source.
+                                                      It returns both per-claim source verdicts and an answer-level allow/block decision, and can in-
+                                                      voke retrieval-augmented answer revision (RARR)-style repair to revise blocked answers before
+                                                      re-verification.
+                                                         We evaluate on a frozen prospective corpus of 281 captured medical-domain MCP-agent traces.
+                                                      A 266-trace claim-adjudicated subset yields 2,325 LLM-assisted claim labels, split by trace into
+                                                      train, validation, and held-out test partitions; the 361 held-out labels are then verified by human
+                                                      experts, and the full 281-trace corpus is used for answer-level repair evaluation. On the 40-trace,
+                                                      361-claim held-out split, ProvenanceGuard reaches block F1 0.802 and source accuracy 0.858
+                                                      over 260 source-eligible claims. Source-blind claim/evidence baselines on the same packet reach
+                                                      block F1 0.783 for MiniCheck, 0.758 for RAGAS Faithfulness, 0.662 for AlignScore, and 0.436 for
+                                                      SummaC-ZS, but none emit claim-to-source IDs. On a harder multi-source adjudicated bench-
+                                                      mark, ProvenanceGuard reaches block F1 0.846 over frozen extracted claims from the locked test
+                                                      questions, while source-plus-relation accuracy drops to 0.229, showing that exact source ownership
+                                                      remains difficult under many semantically close candidate sources. On the full trace set, a repair-
+                                                      and-reverify loop resolves all 173 blocked answers, though 144 require conservative fallback rather
+                                                      than substantive rewriting; on reconstructed multi-source test traces, a fresh answer-level repair re-
+                                                      run resolves all 59 initially blocked answers with two terminal fallbacks. In 50 generated, clinically
+                                                      framed conflation probes over frozen captured MCP evidence, ProvenanceGuard detects all 50
+                                                      deliberately injected source-attribution swaps in controlled probes with no retained wrong attribu-
+                                                      tion. These results indicate that source attribution is an independent evaluation axis for factuality
+                                                      verification in MCP-based agents.
+
+
+                                                          I.   INTRODUCTION                                PubMed abstract with a patient’s FHIR record, while
+                                                                                                           an enterprise agent may combine a CRM entry, a billing
+                                           LLM agents that use Model Context Protocol (MCP)                record, and a support ticket. In such settings, factu-
+                                         increasingly operate over multiple external tools rather          ality verification must assess not only whether a claim
+                                         than a single retrieved passage. They call tools through          is supported somewhere in the available evidence, but
+                                         MCP servers, inspect structured records, combine multi-           also whether the answer assigns the claim to the correct
+                                         ple outputs, and often generate answers that mix source-          source.
+                                         grounded facts with general background knowledge and                 Consider an answer that states: “According to the
+                                         safety disclaimers. A medical agent may combine a                 patient’s chart, empagliflozin reduced a mortality end-
+                                                                                                           point.” The mortality claim may be supported by a
+                                                                                                           clinical-trial abstract, but not by the patient’s chart. A
+                                         ∗ Email: ander.alvarez@multiversecomputing.com                    source-blind verifier that pools the chart and the abstract
+                                         † Email: santhiya.rajan@multiversecomputing.com                   can mark the claim as supported. A source-aware verifier
+                                         ‡ Email: sam.mugel@multiversecomputing.com
+                                                                                                           should instead reject the attribution because the eviden-
+                                         § Email: roman.orus@multiversecomputing.com
+                                                                                                           tial source is incorrect.
+                                                                                                                         2
+
+                       Claim in answer: “Empagliflozin reduced a mortality endpoint.”
+                                   Stated source in answer: patient chart
+
+       stated attribution             routed support
+
+
+        Patient chart              Literature abstract           PubMed metadata                  FHIR labs
+    diagnosis, medications          mortality estimate           title, journal, year           patient values
+  same patient, wrong source    correct supporting source     same topic, partial source same chart family, no support
+
+
+                      same claim can be supported somewhere while attributed to the wrong source
+                    Source-blind support                                      Source-aware verdict
+                 pooled evidence: supported                               support yes, attribution block
+
+
+FIG. 1. Why source-aware factuality is stricter than source-blind support. A claim can be supported by one MCP source while
+the answer attributes it to another. Source-blind scoring sees support in pooled evidence; ProvenanceGuard separately
+checks whether the supporting source matches the stated or implied attribution.
+
+
+   The frozen 281-trace captured-agent corpus does not               repair on full captured traces and targeted
+by itself estimate the natural prevalence of this failure            source-conflation probes.
+mode: the captured random traces contain single source-
+family outputs, or PubMed search plus metadata outputs            The central claim is limited to source-attribution factu-
+that remain within the literature family. We therefore         ality in MCP-grounded answers; we do not claim to solve
+evaluate cross-source conflation with a targeted 50-case       open-domain factuality detection, clinical safety valida-
+source-conflation probe set over frozen captured MCP           tion, or parametric-knowledge correction.
+evidence, where each probe contains one deliberate attri-
+bution swap.
+   This distinction matters because many factuality sys-                       II.   RELATED WORK
+tems were designed for summary consistency or retrieval
+faithfulness. They typically score support against a con-         Our work sits at the intersection of support verifica-
+text, rather than claim-to-source ownership. Such scores       tion, source attribution, and tool-grounded agent evalu-
+are informative for unsupported fabrication, but they          ation. We organize prior work by the kind of evidence
+are insufficient for MCP-grounded agents whose answers         object each line of work preserves.
+carry implicit or explicit provenance claims.                     a. Fine-grained support verification. Factual consis-
+   This paper makes four contributions:                        tency systems such as FActScore, MiniCheck, SummaC,
+                                                               AlignScore, and VeriScore evaluate whether generated
+   1. We formulate source-attribution factuality for           claims are supported by evidence [1–5]. Fine-grained
+      MCP-grounded answers: a verifier must evaluate           work decomposes generated text below the sentence level:
+      both support and source ownership for each claim.        Dependency Arc Entailment localizes errors at depen-
+                                                               dency arcs [6], QASemConsistency expresses predicate-
+   2. We introduce ProvenanceGuard, a calibrated               argument propositions as question-answer pairs [7], and
+      source-aware Router+NLI verifier that decomposes         PrefixNLI studies entailment over generation prefixes
+      answers into claims, preserves stable MCP tool IDs       [8]. These methods motivate claim-level checking, but
+      and source IDs from raw tool outputs, routes claims      they do not generally preserve claim-to-MCP-source IDs.
+      to source-specific evidence, and detects cross-source    They are therefore relevant to binary allow/block deci-
+      conflation.                                              sions but are not direct baselines for source attribution
+   3. We report a frozen captured medical-domain agent         metrics such as Top-1 source accuracy, recall@k, mean
+      benchmark built from 281 captured MCP-agent              reciprocal rank, or source-set Jaccard.
+      traces, a 266-trace claim subset with 2,325 LLM-            b. RAG faithfulness and attributed generation.
+      assisted labels, and a 40-trace held-out packet with     RAG evaluation frameworks such as RAGAS ask
+      complete MCP tool outputs and human-expert-              whether answer statements are faithful to retrieved
+      reviewed labels.                                         context [9]. Other work studies answer generation with
+                                                               citations and attribution: ALCE evaluates citation
+   4. We    compare    ProvenanceGuard       against           quality for LLM-generated answers [10]; AttributedQA
+      MiniCheck, RAGAS Faithfulness, AlignScore,               formalizes attributed question answering [11]; AutoAIS
+      and SummaC-ZS on the same held-out claim                 automates AIS-style attribution judgments [12, 13]; and
+      packet, while separately evaluating RARR-style           TRUE consolidates factual-consistency datasets across
+                                                                                                                          3
+
+summarization, dialogue, paraphrasing, and verification       implies? A related MCP community proposal has iden-
+[14]. More recent attribution work localizes evidence to      tified a similar gap: the proposed verification capability
+user-selected spans through LAQuer [15] or decomposes         for MCP servers [24] calls for structured verdicts with
+generation into executable attribution programs [16].         confidence scores, mirroring our allow/block/unavailable
+These methods are close in motivation, but faithfulness       decision space. Our work provides a concrete implemen-
+to pooled or cited context is not equivalent to source        tation of this verification layer for the MCP trace set-
+ownership. A claim can be supported by one retrieved          ting.
+source while being falsely attributed to another. ALCE
+[10] evaluates whether LLM-generated citations point
+to the correct supporting passage, which is the closest                   III.     PROVENANCEGUARD
+existing task to source attribution. However, ALCE
+operates at the passage or chunk level within a single          ProvenanceGuard            verifies    attribution      in
+retrieved set, whereas MCP traces expose stable tool-         provenance-preserving Model Context Protocol (MCP)
+level source IDs that require a routing step to identify      traces. The goal is not to prove that a source is clinically
+which tool output is responsible for a given claim. Our       or scientifically correct. The goal is narrower: when
+work can therefore be seen as extending citation-style        an agent answer makes a factual claim, Provenance-
+attribution to the tool-provenance layer.                     Guard asks whether the claim is supported by the
+   c. Tool and source attribution in multi-source sys-        source it should be attributed to, and whether the
+tems. As RAG systems become tool-using agents, at-            answer assigns the claim to the right MCP provenance
+tribution must track which tool output supplied the ev-       object. This framing is important in data-sensitive
+idence. Atomic Information Flow models tool outputs,          domains, where an offline verifier can spend more
+LLM calls, and final responses as flows of atomic in-         computation on reliable source attribution rather than
+formation through an orchestration graph [17]. Faith-         optimizing for interactive latency.
+fulRAG focuses on conflicts between retrieved evidence
+and parametric knowledge at the fact level [18], while
+Answering with Faithfulness couples answer generation                              A.     Trace Interface
+with faithfulness prediction [19]. Our setting differs be-
+cause MCP traces expose stable tool and source iden-            ProvenanceGuard starts from the trace object pro-
+tifiers. We do not infer latent information flow or re-       duced by a tool-using agent. A trace contains the user
+solve parametric-knowledge conflicts; we verify whether       request, the final assistant answer, and a list of complete
+the answer’s stated or implied attribution matches the        tool outputs. Each evidence object is represented as
+routed MCP source.
+   d. Post-hoc revision and trained verifiers. RARR                              ei = (tooli , sourcei , texti ),
+[20] takes a generated passage, researches evidence, and
+revises unsupported claims while preserving the original      where tooli identifies the tool family, sourcei identifies the
+style and structure. In our setting, RARR-style repair is     provenance-bearing source within the trace, and texti is
+evaluated after source-aware blocking: the verifier rejects   the observed tool output or structured sub-output. Two
+an answer, repair attempts to produce a source-grounded       tool calls to the same tool family (e.g., two PubMed
+revision or conservative fallback, and the same verifier      searches with different queries) produce separate evi-
+rechecks the revised answer. Training-based approaches        dence objects if their source IDs differ. The verifier never
+improve consistency at generation or detection time, in-      collapses these evidence objects into a single anonymous
+cluding reinforcement learning with textual entailment        context. It carries the source identifier forward because
+feedback [21], FactCC’s synthetic inconsistency classifier    the same answer may combine patient-record evidence,
+[22], and RAGulator’s lightweight out-of-context detec-       literature evidence, and metadata evidence.
+tors for grounded generation [23]. These methods are             The output of this stage is a source-preserving evidence
+complementary to ProvenanceGuard, which operates as           set E = {e1 , . . . , en } paired with the assistant answer y.
+an independent post-hoc check on black-box MCP-agent          When a tool output lacks a stable source ID, the verifier
+outputs. For calibration specifically, alternatives include   falls back to tool name as the provenance identifier. Ap-
+Platt scaling, isotonic regression, and conformal predic-     pendix A gives the escaped JSON trace structure used
+tion; we adopt a random-forest calibrator because it han-     for this interface.
+dles tabular verifier features after simple one-hot encod-
+ing and numeric scaling.
+   e. Tool-use and agent traces. Tool-use evaluation                                B.    Atomic Claims
+often studies whether agents call the right tools, com-
+plete tasks, and produce valid final answers. Our focus          The next step decomposes the answer into checkable
+is narrower: after an agent has produced an answer and        claims,
+the tool trace is available, can a verifier decide whether
+each claim is supported by the source the answer cites or                  C(y) = {c1 , . . . , cm },     m ≤ M.
+                                                                                                                                4
+
+      User              MCP agent             Draft
+      query               core               answer
+                                                           Answer + trace
+                                                              packet
+
+                         Tool calls       Source-bearing
+                        and servers           trace
+
+                                                           Atomic claim          Source            NLI support
+                                                           decomposition         routing             check
+                                                                                                                     Verified
+                                                                                                                     output
+
+                                                            Calibration        Attribution            Answer
+                                                               score              check                gate
+
+                                                                                                                      Block
+
+
+                                                                                                 RARR-style repair
+                                                                                                    candidate
+
+
+
+FIG. 2. Sequential source-aware verification pipeline. The agent core calls MCP tools and produces a draft answer; Prove-
+nanceGuard consumes the answer and captured source-bearing tool traces, decomposes the answer into claims, routes claims
+to MCP evidence, estimates support with NLI, token alignment, and calibration, checks attribution separately from support,
+and sends blocked answers through repair and re-verification.
+
+
+Each cj should express one factual proposition. Literal             but increase truncation and distraction risk. The cur-
+values that can change the meaning of a claim, such                 rent service default is 512 tokens for the premise–claim
+as numbers, units, dates, identifiers, medication quan-             pair, which avoids the earlier 256-token bottleneck while
+tities, and quoted values, are preserved exactly. If the            staying within the base DeBERTa context window.
+answer names a source family, such as patient history or
+published literature, the decomposer also preserves that
+stated attribution span.                                                          D.       Support and Alignment
+   Generic safety boilerplate is not treated as evidence-
+bearing content unless it contains a concrete factual as-              The routed premise and claim are then passed to a
+sertion. This prevents template text from dominating                natural-language-inference (NLI) model. The NLI rela-
+the claim set while keeping the verifier accountable for            tion is one of entailment, neutral, or contradiction. En-
+factual statements that remain in the answer.                       tailment is evidence of support, contradiction is evidence
+                                                                    of conflict, and neutral means the routed source does not
+                                                                    provide enough support by itself.
+                   C.     Source Routing
+                                                                       ProvenanceGuard also computes a heuristic token-
+                                                                    alignment proxy from NLI attention. This proxy is used
+  For each claim, ProvenanceGuard ranks the source-                 as an additional grounding signal, not as an indepen-
+specific evidence objects before support checking. Let qj           dently validated explanation of the NLI model. Let P be
+be the embedding of claim cj , and let es,1 , . . . , es,ns be      the premise token indices and Hc the claim token indices
+the embedded chunks belonging to source s. The source               in the paired NLI encoding. For attention tensor Aℓ,h ,
+representation is the centroid                                      the alignment score for claim token i ∈ Hc is
+                                  s   n
+                             1 X                                                                   L K
+                                                                                                              !
+                        rs =        es,i .                                                     1 X X ℓ,h
+                             ns i=1                                                ai = max               Aij ,
+                                                                                        j∈P   LK
+                                                                                                      ℓ=1 h=1
+The router selects the highest-scoring source,
+                                                                    where L is the number of layers and K is the number
+                 ŝj = arg max cos(qj , rs ),                       of attention heads. A content token is marked weakly
+                                 s
+                                                                    grounded when
+and records the routing margin between the top two
+source scores. The top-ranked source is used for single-                                     ai < τ max ak .
+                                                                                                      k
+source attribution. Top-k routing is used only as an anal-
+ysis of whether the correct source is near the head of the          The supported-token ratio is computed over non-
+ranked list.                                                        stopword claim tokens. A claim with low token support
+   After routing, the premise is narrowed to claim-                 remains blocked even if the coarse NLI label is uncertain.
+relevant evidence and capped by a fixed length bud-                    Literal values receive a stricter check. If an entailed
+get. This premise-selection step controls distractor ef-            claim contains a protected value absent from the routed
+fects before NLI scoring: shorter premises reduce irrele-           premise after normalization, the claim is treated as un-
+vant context, while longer premises may improve recall              supported or contradictory. Conversely, a neutral NLI
+                                                                                                                        5
+
+output can be lexically rescued only when all protected       where ϕ is the feature vector assembled from routing,
+values are present and normalized content-term overlap,       NLI, alignment, lexical, and protected-value checks. The
+                                                              support threshold is selected on validation by maximizing
+                      |Tclaim ∩ Tpremise |                    block F1, with block accuracy used only as a tie-breaker.
+                                           ,
+                            |Tclaim |                         The selected threshold is 0.65. A claim is passed forward
+                                                              as supported only when psup (cj , ŝj ) ≥ 0.65; otherwise it
+exceeds a fixed rescue threshold. This rescue rule is re-     is passed forward as blocked for the routed source.
+stricted to exact structured evidence; otherwise neutral
+remains not enough evidence.                                     This calibration step deliberately answers only one
+                                                              question: is the claim supported by the routed MCP
+                                                              source? It does not yet decide whether the answer de-
+            E.    Calibrated Claim Decision                   scribed that source correctly. The result passed to the
+                                                              next stage is a tuple containing the calibrated support
+                                                              decision, the routed source identifier, and the evidence
+   The previous stages produce several imperfect signals:
+                                                              features that explain the decision.
+the router says which source is most likely responsible
+for the claim, NLI estimates whether that routed premise
+entails the claim, and alignment checks whether tokens
+and protected values are grounded. None of these signals
+is reliable enough on its own. A high route score can still               F.   Attribution and Conflation
+point to a semantically related but wrong source, and
+a neutral NLI label can occur when structured evidence
+                                                                 Attribution is the second decision. Once calibration
+supports the claim lexically but not in the form expected
+                                                              has decided whether claim cj is supported by routed
+by the NLI model.
+                                                              source ŝj , ProvenanceGuard compares that routed
+   The calibrated claim decision is therefore the support
+                                                              source with the source family stated or implied in the
+decision for the routed source. It keeps the source iden-
+                                                              answer. Explicit attribution spans are matched by lex-
+tity fixed and learns an operating boundary from devel-
+                                                              ical aliases for patient-history, chart, FHIR, PubMed,
+opment data using only verifier-internal features. Cal-
+                                                              literature, metadata, and tool-name variants. If no ex-
+ibration should tune a verifier whose raw routing and
+                                                              plicit span is present, patient-specific claims default to
+support scores are already meaningful; it should not re-
+                                                              patient-record sources, literature-general claims default
+place source-aware modeling. The categorical inputs are
+                                                              to literature sources, and ambiguous claims are marked
+the NLI label, trace category, predicted tool family, and
+                                                              unavailable rather than silently assigned. A claim can be
+router status. The numeric inputs are route score, NLI
+                                                              supported by some MCP source and still be wrong as an
+score, routing margin, lexical overlap with the routed
+                                                              attributed answer if the answer assigns it to a different
+source, lexical overlap with all trace evidence, claim
+                                                              source. Let aj be the source family stated or implied
+length, evidence-chunk count, protected-value counts,
+                                                              by claim cj , and let ŝj be the routed supporting source.
+missing protected-value counts, stated-attribution indi-
+                                                              ProvenanceGuard marks a source conflation when the
+cator, and interaction features such as NLI-score times
+                                                              calibrated support decision is positive but aj and ŝj refer
+route-score and route-score times lexical overlap. These
+                                                              to incompatible provenance families.
+inputs are not source-blind baseline outputs; baseline sys-
+tems are evaluated later and are never used to train or          For example, a patient-specific fact may be supported
+calibrate ProvenanceGuard.                                    by a patient-history tool output but incorrectly intro-
+   The retained calibrator is a random-forest classifier      duced as a literature finding. The factual content is then
+trained on the development training split. The target is      not the only issue: the answer has also misrepresented
+binary support for the routed source: zj = 1 when claim       where the fact came from. This is the gap that source-
+cj is adjudicated supported by ŝj , and zj = 0 for not-      blind support checks cannot address.
+enough-evidence, unsupported, contradiction, or failed-
+source cases. Categorical features are one-hot encoded
+and numeric features are standardized before fitting. The
+forest uses 400 trees with maximum depth 5, minimum                            G.    Answer Decision
+leaf size 8, balanced class weights, bootstrap bagging,
+Gini impurity splitting, and fixed seed 20260607. Be-
+cause a random forest is not optimized by epoch-wise             ProvenanceGuard aggregates claim decisions with
+gradient descent, we do not report a neural training-loss     a fail-closed policy. An answer is blocked if any claim has
+curve; the relevant training objective is node-level Gini     source conflation, high-confidence contradiction, missing
+impurity reduction, and the relevant operating curve is       protected values, failed routing, or insufficient support.
+the validation sweep over decision thresholds.                An answer is allowed only when every factual claim is
+   After fitting, the forest estimates                        supported by the appropriate routed source. Empty ev-
+                                                              idence, malformed claims, or failed verifier components
+          psup (cj , ŝj ) = P (zj = 1 | ϕ(cj , ŝj , E)),    are not silently accepted.
+                                                                                                                                  6
+
+                               Routing
+                         score, margin, tool
+                                                                                                       psup (cj , ŝj )
+                                 NLI                   One-hot              RandomForest
+                           label and score             + scaling          support calibrator
+                                                                                                    Support verdict
+                                                                                                   at threshold 0.65
+                           Lexical, token,
+                       protected-value features
+
+
+                  Validation block metric                                0.65
+                         1.0
+
+                         0.8
+
+                         0.6
+
+                         0.4
+
+                         0.2
+                                    Block F1       Block recall
+                           0                                                                           Support threshold
+                               0             0.2       0.4         0.6             0.8           1.0
+
+
+FIG. 3. Calibration layer. The calibrator receives only verifier-internal routing, NLI, lexical, token-alignment, and protected-
+value features. It returns a calibrated support probability for the routed source and a binary support verdict after validation-
+threshold selection. The lower panel shows the validation threshold sweep used to select the retained support threshold.
+
+Item                Retained calibration setting or result
+Training target     Binary claim support for the routed source: supported = 1, any blocked label = 0.
+Rows                1,597 training claims, 367 validation claims, and 361 held-out claims.
+Class balance       Training: 1,171 supported and 426 blocked; validation: 213 supported and 154 blocked; held-out: 222
+                    supported and 139 blocked.
+Preprocessing       One-hot encoding for NLI label, category, predicted tool, and router status; standard scaling for
+                    numeric verifier features.
+Random forest       400 trees, maximum depth 5, minimum leaf size 8, balanced class weights, Gini split criterion, bootstrap
+                    bagging.
+Threshold selection Validation sweep over thresholds 0.01–0.99; selected threshold 0.65 by block F1 with block accuracy as
+                    the tie-breaker.
+Validation result   Block F1 0.841, precision 0.737, recall 0.981, block accuracy 0.845.
+Held-out result     Block F1 0.802, precision 0.673, recall 0.993, block accuracy 0.812; block F1 95% trace-bootstrap CI
+                    [0.664, 0.900].
+
+TABLE I. Training details for the retained calibrated claim decision. The random forest is non-neural and has no epoch-wise
+loss curve; its split objective is Gini impurity, and the operating point is selected by the validation threshold curve in Figure 3.
+
+
+             H.     Repair and Reverification                            The RARR-style repair loop is therefore not treated as
+                                                                         a separate oracle; it is a repair mechanism whose output
+                                                                         must satisfy the same attribution-sensitive checks that
+   Blocked answers enter a bounded revise-and-reverify                   blocked the original answer.
+loop. The repair step receives the original answer, the
+claim-level verifier outputs, and the routed evidence. It
+can rewrite unsupported spans, correct source attribu-
+tion, or remove claims that cannot be grounded. The                                  IV.       EXPERIMENTAL SETUP
+reported implementation is RARR-style: it follows the
+retrieve/revise/reverify pattern, but many blocked full-                            A.     Captured MCP-Agent Traces
+trace cases terminate through deterministic evidence-
+only rewrites, blocked-claim pruning, or conservative                       We evaluate the pipeline in Section III on captured
+non-claim fallback rather than the original open-web                     traces from a medical MCP-agent evaluation stack. Each
+RARR procedure. The revised answer is then evaluated                     trace contains a clinician-facing question, the route se-
+by the same ProvenanceGuard verifier.                                    lected by the agent, the observed tool calls, complete
+  The loop terminates when the revised answer passes                     source-bearing tool outputs, and the final assistant reply.
+source-aware verification or when remaining unverified                   The setting is useful for source-aware evaluation because
+content is replaced by a conservative non-claim response.                patient-record tools and literature-search tools produce
+                                                                                                                         7
+
+adjacent but distinct provenance objects. A correct an-         claim case may have multiple candidate sources, includ-
+swer may need both kinds of evidence, but it should not         ing same-topic distractors. Its labels are produced by a
+attribute a patient-record fact to literature or a literature   grouped gpt-5.4 LLM-as-a-judge pass over blind claim
+fact to the patient chart.                                      packets and then validated before packaging. The fixed
+   The full trace set is used for answer-level and repair       policy combines the benchmark training split with ear-
+evaluation. A trace-level split with LLM-assisted claims        lier two-judge positive-boost rows, while validation and
+is used for claim-level support and source-attribution          test use only the benchmark’s adjudicated rows. The
+scoring. This instantiates the trace interface in Sec-          locked test split contains 59 questions, 254 claim cases,
+tion III: the verifier receives the answer and the com-         and 2,587 pairwise source-candidate rows.
+plete list of MCP evidence objects, not a pooled retrieval         The benchmark is useful for the multi-tool cases that
+context.                                                        the primary held-out split underrepresents. It con-
+   a. Data governance. The frozen traces are internal           tains chart-plus-literature cases, literature-summary ver-
+MCP-agent evaluation traces collected for this bench-           sus exact-citation cases, same-topic wrong-chart candi-
+mark. Patient-like records, names, identifiers, and ap-         dates, and count/resource-summary claims. We report
+pendix examples are synthetic or de-identified bench-           these as stress slices rather than as separate training ob-
+mark artifacts; no protected health information is in-          jectives.
+cluded in the released artifact bundle. The study eval-            The router+NLI rerun is scored on frozen indepen-
+uates verifier behavior on captured tool outputs and is         dently extracted answer claims associated with the same
+not a clinical intervention or a medical-device validation      locked test questions. This creates a small unit mis-
+study.                                                          match: the pairwise benchmark split has 254 claim
+                                                                cases, while the frozen extraction artifact contains 263
+                                                                extracted claims for those 59 questions. We therefore re-
+                    B.   Claim Labels                           port both counts and make clear which unit each table
+                                                                uses. Metrics from the pairwise comparison package and
+   The claim-level evaluation follows the decomposition         metrics from the frozen extracted-claim rerun should not
+step in Section III. Answers are decomposed into atomic         be compared as if they were computed over the same
+claims, and each claim receives an LLM-assisted support         examples.
+label, relation label, and best-source annotation. Splits
+are made by trace rather than by claim so that claims
+from the same assistant answer do not appear in both                     D.   ProvenanceGuard Instantiation
+development and held-out evaluation.
+   The held-out split contains 40 traces and 361 claims.           The evaluated system instantiates each stage in Sec-
+Source metrics are computed only for claims with an ad-         tion III. Atomic claims are routed to source-specific MCP
+judicated source target. Binary support metrics treat un-       evidence by cosine similarity over source embeddings.
+supported, not-enough-evidence, contradiction, and con-         The routed premise is checked with NLI, token align-
+flation outcomes as block decisions.                            ment, protected-value matching, and lexical rescue. A
+   We distinguish three related but separate claim units.       RandomForest calibration layer then maps the verifier
+First, offline label construction uses model-assisted           features to a supported versus blocked claim decision for
+claim-packet extraction and adjudication to create frozen       the routed source. The support threshold is selected on
+claims and labels; this is a benchmark-construction step,       validation before held-out evaluation. This calibrated
+not the reported runtime decomposer. Second, claim-             support decision is passed to the attribution stage, which
+level scoring tables evaluate ProvenanceGuard on                separately checks whether the answer’s stated or implied
+those frozen claims, so no runtime decomposer is in-            source matches the routed source. The NLI scorer uses
+voked. Third, answer-level verification and repair must         a 512-token pair budget by default, and the joint verifier
+split a full answer into claims at runtime; the reported        runtime now defaults to a 512-token pair budget for new
+answer-level and repair experiments use the determinis-         reruns; historical 256-token backbone runs are reported
+tic rule-based decomposer for that stage. The runtime           as such rather than overwritten.
+decomposer filters boilerplate disclaimers and response-           This setup is designed for offline or data-sensitive re-
+level meta-commentary before routing and NLI scoring.           view, where the cost of false attribution can dominate
+                                                                latency concerns. It therefore favors conservative block-
+                                                                ing and explicit source preservation over a low-latency
+     C.    Multi-Source Adjudicated Benchmark                   best-effort answer.
+                      Extension
+
+  We also rerun ProvenanceGuard on a harder multi-                     E.   Claim Decomposition Measurement
+source adjudicated benchmark. This packet is harder
+than the primary 40-trace held-out split because it is rep-       The current artifacts do not contain a separately
+resented as pairwise claim–candidate-source rows: each          human-authored gold decomposition set with span-level
+                                                                                                                                                                                          8
+
+
+                                                                                            Train + validation                                  Answer repair
+    primary captured-trace corpus                                                           1,597 + 367 claims                                  281 full traces
+             281 full                               266 claim-labeled
+            MCP traces                                    traces
+                                                                                                   Held-out                                  Claim support +
+                                                                                                   40 traces                                  source metrics
+                                                                                                  361 claims                                260 source-eligible
+
+
+                                                                                             254 claim cases                                       Multi-tool
+    harder multi-source benchmark                                                          2,587 pairwise rows                                    stress slices
+      Locked multi-source                                59 test
+          benchmark                                     questions
+                                                                                                 263 frozen                               Router+NLI +
+                                                                                              extracted claims                    answer-level RARR-style repair
+
+
+
+    targeted attribution probes
+        Frozen MCP               50 injected                                                   Controlled
+          evidence              source swaps                                                conflation repair
+
+
+
+FIG. 4. Evaluation datasets and units used in the paper. The primary captured-trace corpus supports claim-level scoring,
+source-blind baseline comparison, and full-trace repair. The newer locked multi-source benchmark is reported separately because
+its pairwise source-candidate rows and frozen extracted claims use different units. A targeted 50-case source-conflation probe
+set isolates explicit attribution errors.
+
+Constant                         Reported setting
+Maximum extracted claims M      20 in the service default; artifact-specific scripts report overrides where used.
+Source embedding model          all-MiniLM-L6-v2 SentenceTransformer, cosine similarity over normalized source embeddings.
+Chunking/windowing              Complete MCP tool outputs grouped by stable source ID; claim-relevant NLI window capped at 1,500 characters before tokenization.
+NLI model                       MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli.
+NLI max length                  512 tokens for new reported Router+NLI reruns; historical 256-token artifacts are labeled as historical.
+Alignment threshold τ           0.35 of the maximum claim-token attention-derived score.
+Minimum supported-token ratio 0.70 for entailment claims with token-alignment output.
+Lexical rescue threshold        0.55 content-term overlap when protected values are present; 0.85 otherwise.
+Protected-value normalization   Lowercase alphanumeric, decimal, percentage, date, time, currency, and structured identifier tokens; embedded digits inside alphanumeric words are ignored.
+Calibration model and threshold RandomForestClassifier, 400 trees, maximum depth 5, minimum leaf size 8, balanced class weights, threshold 0.65 selected on validation by block F1.
+
+
+TABLE II. Operating constants for the reported ProvenanceGuard configuration. These values make explicit the non-learned
+thresholds and model identifiers used in the frozen run.
+
+
+or proposition-level recall. To make the decomposi-                                                          G.      Repair and Conflation Evaluation
+tion stage measurable, we compare the deterministic
+rule-based decomposer against the frozen independent
+sentence-level extraction artifact on the locked bench-
+mark test questions. We report this as reference-set
+agreement, not as human gold decomposition accuracy.                                               RARR-style repair is evaluated as the repair-and-
+The metric is still useful because it exposes over-splitting,                                    reverification stage described in Section III. Rejected an-
+missed extracted claims, and protected-value preserva-                                           swers are rewritten using routed evidence or, when the
+tion errors before the routing and NLI stages.                                                   remaining content cannot be verified, replaced by a con-
+                                                                                                 servative non-claim response. Revised answers are then
+                                                                                                 scored by the same verifier.
+                         F.     External Baselines
+
+  MiniCheck, RAGAS Faithfulness, AlignScore, and                                                   We report a full-trace repair run and a targeted source-
+SummaC-ZS are run on the same held-out claim packet                                              conflation probe set. Each probe injects one deliberate
+as source-blind support comparators. These baselines es-                                         attribution error into otherwise captured benchmark ev-
+timate whether a claim is supported by pooled evidence,                                          idence: patient-record facts are attributed to literature,
+but they do not emit MCP source identifiers. They are                                            or literature facts are attributed to the patient chart.
+therefore compared on binary support metrics only, not                                           This isolates the failure mode that source-blind support
+on source attribution.                                                                           checks cannot measure.
+                                                                                                                        9
+
+               H.   Adjudication Status                       B.   Multi-Source Benchmark Rerun and Multi-Tool
+                                                                                 Stress Slices
+
+   The primary held-out labels are produced by two in-
+                                                                 Finding. On the harder multi-source adjudicated
+dependent judge prompts run on a local Gemma 4 E4B
+                                                              benchmark, ProvenanceGuard remains a strong con-
+instruction-tuned model, followed by priority adjudica-
+                                                              servative blocker but source-exact attribution is much
+tion for disagreements, and the resulting labels are LLM-
+                                                              harder.
+assisted. Human expert review is limited to the final
+361-label held-out packet used for the reported primary          The locked test split contains 254 pairwise claim cases
+evaluation. The separate multi-source benchmark uses          expanded into 2,587 source-candidate rows. The frozen
+the gpt-5.4 adjudication path described above and is re-      extraction artifact for the same 59 questions contains
+ported as a distinct benchmark rather than merged into        263 extracted claims, which are the unit scored by
+the primary held-out packet.                                  the ProvenanceGuard router+NLI rerun. On those
+                                                              frozen extracted claims, ProvenanceGuard reaches
+                                                              block F1 0.846, but source accuracy is 0.503 and source-
+                                                              plus-relation accuracy is 0.229. This is the expected
+                                                              direction for a benchmark with many same-topic can-
+                                                              didates: binary blocking remains feasible, while exact
+                     V.   RESULTS                             source ownership becomes substantially harder.
+                                                                 The stress-slice counts show that the new bench-
+     A.   RQ1: Source-Aware Support Decisions                 mark covers the failure modes missing from simpler two-
+                                                              source traces. The test split includes 14 multi-tool claim
+                                                              cases, 64 chart-plus-literature mixed cases, 14 literature-
+   Finding. ProvenanceGuard preserves source iden-            summary versus exact-citation cases, 118 same-topic
+tity while making a conservative held-out support deci-       wrong-patient/chart cases, and 240 count or resource-
+sion.                                                         summary cases. It also includes 42 cases with semanti-
+   On the held-out split, ProvenanceGuard reaches             cally close wrong candidates. These are the cases most
+0.802 block F1 with block recall of 0.993 and block preci-    relevant to MCP provenance: the wrong source can be
+sion of 0.673. It also reports source accuracy of 0.858 and   topically plausible even when it is not the correct prove-
+source-plus-relation accuracy of 0.681 over 260 source-       nance object.
+eligible held-out claims. The low four-way verdict macro         The slice metrics show where exact provenance is
+F1 reflects the highly imbalanced held-out verdict distri-    hardest. ProvenanceGuard retains high block F1
+bution and the rarity or absence of contradiction and         on chart-plus-literature and literature-citation slices, but
+conflation labels in the random held-out split; binary        source-plus-relation accuracy falls to 0.127 on same-
+block F1 is the primary deployment metric. The trace-         topic wrong-chart or wrong-patient cases and 0.179 on
+bootstrap interval for block F1 is [0.664, 0.900], reflect-   count/resource-summary claims. This suggests that
+ing the small 40-trace held-out split and claim clustering    source-aware benchmarks should report both support
+within traces.                                                and provenance metrics: a conservative blocker can still
+                                                              fail to identify the exact supporting provenance object.
+   The mechanism is source preservation. Source-blind            The measured multi-source router+NLI rerun is fast
+baselines see pooled evidence and can estimate whether        at the claim-packet level: mean NLI call latency is 0.036
+a claim is supported somewhere, but they cannot tell          seconds and mean routing latency per question group is
+whether the answer assigned that claim to the correct         0.029 seconds. The table does not include claim decom-
+MCP source. ProvenanceGuard keeps the routed                  position because the benchmark packet supplies frozen
+source ID attached to each claim, giving 0.858 source         claims.
+accuracy over 260 source-eligible held-out claims and            Against the frozen independent extraction reference,
+0.681 source-plus-relation accuracy. This supports RQ1:       rule-based decomposition has high recall (0.935) but
+source-aware verification can match or improve support        lower precision (0.644), producing 382 claims for 263 ref-
+detection while adding a provenance metric that source-       erence claims. This is acceptable for a fail-closed verifier
+blind baselines cannot report.                                because over-splitting tends to increase review burden
+   The limitation is precision. ProvenanceGuard               rather than silently allow unsupported content, but the
+trades precision for recall: its block precision is 0.673.    protected-value exact rate among value-bearing matches
+In data-sensitive review, this fail-closed operating point    is only 0.563. The paper therefore treats decomposition
+is often appropriate, but deployments with high review        as a measured limitation, not a solved preprocessing step.
+burden may choose a different threshold. This pattern is         The fresh answer-level rerun reconstructs full test-
+consistent with prior factual-consistency systems: NLI-       question traces from the locked benchmark pairwise rows,
+style and support-checking methods are useful for de-         runs verification with rule-based decomposition, and en-
+tecting unsupported text, but they do not solve source        ables one repair iteration plus re-verification. The exter-
+ownership unless source identity is part of the decision.     nal correction editor was unavailable in this local run, so
+                                                                                                                               10
+
+              Split           Claims Verdict acc. Verdict macro F1 Block P Block R Block F1 Source acc. Src+rel acc.
+              Train             1597         0.799            0.392   0.571     0.993       0.725       0.841       0.691
+              Validation         367         0.842            0.421   0.737     0.981       0.841       0.812       0.729
+              Held-out test      361         0.812            0.406   0.673     0.993       0.802       0.858       0.681
+
+TABLE III. Prospective captured-agent trace claim-level ProvenanceGuard results. Verdict macro F1 is macro F1 over
+the four factual verdict labels: supported, unsupported, contradicted, and not-enough-evidence. ProvenanceGuard is the
+retained RandomForest-calibrated Router+NLI verifier. Source accuracy and source-plus-relation accuracy are computed over
+source-eligible claims; the held-out split has 260 source-eligible claims.
+
+                   Split        Questions Pairwise cases Pair rows Frozen claims Block F1 Source acc. Src+rel acc.
+                   Train               539           3489   15248               –           –           –           –
+                   Validation           58            250    2603               –           –           –           –
+                   Test                 59            254    2587             263       0.846       0.503       0.229
+
+TABLE IV. ProvenanceGuard rerun on the locked multi-source adjudicated benchmark. Pairwise cases are the benchmark
+claim cases; frozen claims are independently extracted answer claims from the same 59 test questions and are the unit scored
+by the claim-level rerun.
+
+
+the repair policy used its local fallbacks: 47 evidence-only             The mechanism is that the naive raw NLI label loses
+rewrites, 10 blocked-claim pruning repairs, and 2 termi-              information that is present in evidence-derived features:
+nal conservative responses. All 59 reconstructed answers              routing score, routing margin, lexical overlap, token sup-
+are initially blocked, all 59 are handled by this repair              port, and protected-value coverage. The direct raw ver-
+policy, and all 59 revised outputs pass the same verifier.            dict head learns a verdict decision from those features
+Mean elapsed time per answer is 0.498 seconds in this                 before any threshold calibration layer is applied. Cali-
+local setup, with NLI and routing dominating the mea-                 bration is still useful for choosing a fail-closed operating
+sured stage latencies.                                                point, but it no longer needs to rescue a fundamentally
+                                                                      weak raw verdict mapping in this experiment. The cal-
+                                                                      ibrated support verdict also creates the precondition for
+                                                                      conflation detection: only after the verifier knows which
+              C.      RQ2: Ablation Studies
+                                                                      routed source supports the claim can it ask whether the
+                                                                      answer attributed that claim to the same provenance
+   Finding. A direct raw verdict head substantially re-               family. Hard route-score cutoffs do not solve the prob-
+duces the earlier calibration gap, while routing keeps the            lem: Table XV shows that increasingly strict cutoffs re-
+correct source near the head of the source ranking.                   ject most claims and reduce source accuracy among re-
+   The initial uncalibrated NLI-only support decision                 tained source-eligible claims.
+reaches 0.750 block F1 and only 0.363 held-out verdict                   This confirms the RQ2 hypothesis in a bounded way.
+accuracy, while the retained calibrated Provenance-                   Routing alone is necessary for attribution but does not
+Guard run reaches 0.802 block F1 and 0.812 verdict                    decide support; NLI alone estimates support but does not
+accuracy. This 0.449 verdict-accuracy gap showed that                 preserve the source-ranking behavior needed for attribu-
+the naive raw label mapping was not semantically strong               tion; calibrated Router+NLI combines both. The limi-
+enough. We therefore add a direct raw verdict head                    tation is that this held-out split cannot evaluate large-k
+trained on the train split over routed Router+NLI and                 source recall: Top-3 and Top-5 would be tautological be-
+source-evidence features, without selecting a deployment              cause each claim has at most two candidate sources. A
+support threshold on validation. This raw verdict head                larger trace set with more simultaneous MCP sources is
+reaches 0.839 held-out verdict accuracy, 0.816 block F1,              needed to measure whether top-k routing remains strong
+and 0.704 source-plus-relation accuracy. Threshold cali-              under heavier source competition.
+bration on top of this raw head does not improve held-out                We then compare the retained verifier with develop-
+accuracy: the validation-F1 threshold gives 0.817 verdict             ment variants that test alternative calibration and rout-
+accuracy and 0.800 block F1, while a high-recall thresh-              ing choices. The raw verdict head has the strongest
+old gives 0.795 verdict accuracy and 0.789 block F1 but               held-out verdict accuracy and block F1, while Prove-
+restores block recall to 0.993. The gap to the retained               nanceGuard is retained as the fail-closed deployment
+calibrated verifier is therefore no longer a raw-accuracy             point because it preserves the highest block recall among
+deficit; it is an operating-point tradeoff. Router-only               the strong variants. Thresholding the raw head moves
+source ranking gives 0.858 Top-1 source accuracy. We                  it toward that conservative operating point but reduces
+do not treat Top-3 or Top-5 as meaningful performance                 held-out accuracy and block F1. The evidence-calibrated
+metrics on this split because each source-eligible held-out           ExtraTrees/logistic blend and calibrated-score ensemble
+claim has at most two candidate sources.                              improve some validation statistics, but in the held-out
+                                                                                                                             11
+
+                              Slice in locked test benchmark                        Pairwise claim cases
+                              All claim cases                                                       254
+                              Multiple tool outputs present                                          14
+                              Exactly one annotated best source among candidates                     33
+                              Semantically close wrong candidate present                             42
+                              Chart plus literature mixed cases                                      64
+                              Literature summary versus exact citation cases                         14
+                              Same-topic but wrong patient/chart source cases                       118
+                              Count or resource-summary claims                                      240
+
+TABLE V. Stress slices available in the locked multi-source adjudicated test benchmark, counted after grouping pairwise source-
+candidate rows by claim case. Slice labels are non-exclusive diagnostics, so counts need not sum to the total number of claim
+cases.
+
+                      Slice                                    Frozen claims Block F1 Source acc. Src+rel acc.
+                      Chart + literature mixed                           67      0.927      0.433          0.400
+                      Literature summary vs exact citation               15      0.941      0.889          0.778
+                      Same-topic wrong chart/patient                    122      0.813      0.392          0.127
+                      Count/resource-summary                             59      0.800      0.692          0.179
+
+TABLE VI. ProvenanceGuard performance by multi-source stress slice on frozen extracted claims from the locked test
+questions. Slice rows are small and are intended as diagnostics rather than powered subgroup estimates.
+
+
+audit they reduce block recall and do not improve block               alone is too blunt for support decisions.
+F1 relative to the retained system. We therefore report                  The blocked-case taxonomy explains where the sys-
+both the raw verdict head as the strongest uncalibrated               tem spends its recall. On the held-out split, 176 blocked
+verifier and ProvenanceGuard as the retained conser-                  claims are NLI-neutral or not-enough-evidence cases and
+vative verifier for RARR-style repair.                                29 are wrong-route candidates. This is consistent with
+   The multi-source benchmark comparison clarifies the                the method design: ProvenanceGuard is primarily
+role of calibration. Calibration is useful when it tunes              rejecting claims that cannot be grounded in the routed
+an already meaningful score into an operating thresh-                 source, not only overt contradictions.
+old. It is not a substitute for a raw model that under-
+stands source ownership. In the current post-finetune
+benchmark package, the completed two-head backbones
+                                                                      D.      RQ3: Comparison With Source-Blind Baselines
+already have much stronger raw source-plus-relation ac-
+curacy than the legacy comparison rows: Long DeBERTa
+and ModernBERT reach 0.478, and ModernCE reaches                         Finding. Source-blind support baselines are compet-
+0.420. Validation calibration changes the operating point             itive on binary support, but they cannot evaluate MCP
+rather than uniformly improving every metric: block F1                source attribution.
+increases slightly for the calibrated variants, while source-            The comparison table is therefore read only on the sup-
+plus-relation accuracy is unchanged or lower. This sup-               port axis. ProvenanceGuard has the highest block
+ports the design goal for future versions: improve the                F1 at 0.802, followed by MiniCheck at 0.783 and RA-
+base verifier so raw relation and source scores are sen-              GAS Faithfulness at 0.758. MiniCheck is close enough
+sible, then use calibration only to choose a deployment               that the 0.019 absolute F1 gap is not statistically sig-
+operating point.                                                      nificant under paired trace-level bootstrap comparison
+   After the original 20-epoch 2048-token ModernBERT                  (one-sided p ≈ 0.13; two-sided p ≈ 0.26). The practical
+checkpoint proved unreadable, we trained a replacement                difference is metric coverage: only ProvenanceGuard
+2048-token ModernBERT checkpoint for one bounded                      reports claim-to-source IDs, source accuracy, and source-
+100-group epoch and evaluated it raw on the full locked               plus-relation accuracy.
+multi-source test split. This is a diagnostic checkpoint                 The uncertainty estimates confirm that the support-
+rather than a full finetune: case source-plus-relation ac-            only advantage should not be overread. Provenance-
+curacy is 0.090, with source-pair accuracy 0.559. This                Guard reaches 0.802 block F1 with a 95% CI of [0.664,
+gives a valid long-context raw test point, but it does not            0.900], MiniCheck reaches 0.783 [0.645, 0.882], and RA-
+yet support the stronger claim that longer context alone              GAS Faithfulness reaches 0.758 [0.618, 0.861]. These in-
+makes the raw verifier sensible.                                      tervals overlap because the held-out split contains only
+   The route-score diagnostic explains why a hard no-                 40 traces.
+source cutoff was not retained. Increasing the cutoff re-                The mechanism is the distinction between pooled
+jects most claims before NLI and reduces source accuracy              support and provenance-sensitive support. MiniCheck
+among the retained source-eligible claims, so route score             and RAGAS can determine whether evidence contains
+                                                                                                                               12
+
+                                       Stage         Count Mean s    P50 s    P95 s   Max s
+                                       decide          263 < 0.001 < 0.001 < 0.001 < 0.001
+                                       group total      59   0.189   0.185   0.242   0.464
+                                       nli             263   0.036   0.034   0.049   0.117
+                                       router           59   0.029   0.027   0.039   0.093
+
+TABLE VII. Measured ProvenanceGuard claim-packet stage latency on the locked multi-source test questions. The packet
+provides frozen claims, so decomposition and repair are measured separately in Table X.
+
+                       Strategy     Questions Pred. claims Ref. claims Precision Recall       F1 Value exact
+                       Rule-based          59           382         263      0.644 0.935 0.763         0.563
+
+TABLE VIII. Claim-decomposition agreement against the frozen independent sentence-level extraction reference on the locked
+multi-source test questions. This is reference-set agreement, not a separate human gold span annotation.
+
+
+enough information to support a claim, but their out-               mains, the terminal fallback removes the remaining fac-
+put does not encode whether the supporting evidence                 tual claim rather than allowing an unverifiable answer.
+came from the patient chart, PubMed metadata, litera-               This supports the repair hypothesis only in the conserva-
+ture search, or another MCP source. This connects to the            tive sense: the loop can prevent unverifiable content from
+paper’s main hypothesis: attribution requires preserving            passing, but it does not always recover a rich answer.
+source identity through routing and support checking.                  The limitation is that repair success is measured
+  The limitation is scope. The source-blind baselines are           against the same verifier that triggered the block. This
+not failed attribution systems; they are different tools.           is appropriate for checking pipeline consistency, but it is
+They remain appropriate comparators for support esti-               not independent proof that the revised answer is clini-
+mation, and their strong held-out F1 shows that pooled-             cally complete. Compared with prior RARR work, this
+evidence support checking is a meaningful baseline. The             setting is stricter because revision must preserve MCP
+unexpected result is how close MiniCheck is on sup-                 source attribution, not only improve general factual con-
+port F1, which suggests that the clearest contribution of           sistency against retrieved text.
+ProvenanceGuard is not a large binary F1 gain but
+the ability to retain source ownership while maintaining
+competitive support detection.                                               F.   RQ5: Targeted Source Conflation
+
+                                                                       Finding. ProvenanceGuard detects and repairs
+  E.   RQ4: Repair After Source-Aware Blocking                      deliberately injected source-conflation errors in a con-
+                                                                    trolled clinical probe set.
+   Finding. The repair loop can turn blocked captured-                 In 50 clinically framed source-conflation probes, the
+trace answers into verifier-passing answers, but many re-           verifier blocks all 50 source-conflation replies and labels
+pairs require conservative fallback rather than a fully             all 50 as explicit conflations. The repair policy resolves
+rewritten substantive answer.                                       all 50 cases; all 50 pass post-repair verification, and no re-
+   On 281 full captured traces, the pre-repair verifier al-         vised answer retains the deliberately wrong attribution.
+lows 108 answers and blocks 173. The repair loop resolves           The exact binomial 95% interval for 50/50 successes is
+all 173 blocked answers, and all 173 revised outputs pass           approximately [0.93, 1.00]; the bootstrap interval is de-
+the same Router+NLI verifier. However, 144 of those                 generate on this fixed controlled probe set and should not
+resolutions use a terminal conservative response. This              be read as a generalization interval.
+full-trace result should be separated from the targeted                The mechanism is the separation between support and
+source-conflation probe set in RQ5, where the controlled            attribution. The factual content in these probes is of-
+probes are deliberately simpler.                                    ten supported somewhere in the trace, but the answer
+   The answer-level rerun in Table IX is a second re-               assigns it to the wrong provenance family. Source-blind
+pair check on the multi-source benchmark rather than on             support checks cannot see that failure mode because the
+the original 281-trace corpus. It is stricter in the sense          claim may still be supported by pooled evidence. Prove-
+that all reconstructed benchmark answers are initially              nanceGuard detects it by comparing stated attribution
+blocked, but it is also smaller and uses the same deter-            with the routed supporting source.
+ministic rule-based runtime decomposition configuration                This supports the source-conflation hypothesis for ex-
+as the reported full-trace repair run.                              plicit attribution swaps. The limitation is difficulty: each
+   The mechanism is fail-closed repair. The RARR-                   probe contains one clear source swap and no adversarial
+style repair loop first attempts source-grounded rewrit-            attempt to hide the attribution error. The 1.000 result
+ing, then reruns the verifier. If unsupported content re-           should therefore be interpreted as a diagnostic check for a
+                                                                                                                             13
+
+                 Run                        Answers Initial blocks Repair resolved Revised allow Terminal fallback
+                 Locked multi-source test        59            59                59              59             2
+
+TABLE IX. Answer-level ProvenanceGuard repair evaluation on reconstructed multi-source test traces. The conservative
+repair policy resolved all initially blocked answers under re-verification; two required the terminal fallback response.
+
+                                   Answer-level stage Count Mean s       P50 s        P95 s   Max s
+                                   conflation check       902 < 0.001 < 0.001 < 0.001 < 0.001
+                                   conflation route       117   0.027   0.025   0.041   0.070
+                                   decide                 117 < 0.001 < 0.001 < 0.001 < 0.001
+                                   decompose              120 < 0.001 < 0.001 < 0.001   0.002
+                                   nli                    451   0.039   0.036   0.063   0.220
+                                   router                 117   0.036   0.026   0.074   0.468
+
+TABLE X. Answer-level RARR-style repair rerun latency with rule-based decomposition, local embedding and NLI scoring,
+one repair iteration, and post-repair re-verification.
+
+
+constrained failure mode, not as evidence that all source-             The multi-source rerun sharpens this interpretation.
+conflation cases are solved.                                        On a larger pairwise source-candidate benchmark, binary
+                                                                    blocking remains strong, but exact source-plus-relation
+                                                                    accuracy drops sharply. This suggests that provenance
+               G.     Adjudication Status                           verification should be judged on two axes: support de-
+                                                                    tection and source ownership. A model that is useful
+   Finding. The held-out evaluation uses complete                   for blocking unsupported content is not necessarily good
+LLM-assisted labels with human expert review.                       enough for exact attribution when several semantically
+                                                                    close sources are present.
+   The held-out packet has labels for all 361 claims. The
+agreement rows reflect two independent judge prompts                   The calibration results also change the engineering les-
+run on a local Gemma 4 E4B instruction-tuned model                  son. Calibration is useful for setting a fail-closed operat-
+and priority adjudication for disagreements. Human ex-              ing point, but it should not carry the core semantics of
+perts then reviewed the resulting held-out labels before            the verifier. The initial raw Router+NLI label mapping
+they were used for evaluation.                                      had exactly that weakness: it reached only 0.363 held-out
+   The mechanism is a two-stage adjudication workflow:              verdict accuracy, compared with 0.812 for the retained
+model judges provide first-pass labels, disagreements re-           calibrated verifier. A direct raw verdict head over routed
+ceive priority adjudication, and human experts verify the           NLI and source-evidence features reduces this depen-
+final held-out labels. This supports reproducible bench-            dence, reaching 0.839 held-out verdict accuracy without
+marking while incorporating expert review after model               a validation-selected support threshold. Threshold cali-
+adjudication.                                                       bration on top of this raw head does not improve held-out
+                                                                    accuracy; it shifts the system toward higher block recall.
+                                                                    With a high-recall threshold, the raw head reaches the
+                    VI.   DISCUSSION                                same 0.993 block recall as ProvenanceGuard but falls
+                                                                    to 0.795 verdict accuracy and 0.789 block F1. The re-
+   The central result is not that attribution guarantees            maining distinction is therefore an operating-point trade-
+truth. It does not. The contribution is that a verifier             off rather than a raw semantic failure: the raw head has
+for MCP-based agents can preserve source identity while             higher verdict accuracy and block F1, while the retained
+estimating support, making it possible to distinguish a             calibrated verifier has higher block recall at a better con-
+supported claim from a correctly attributed supported               servative operating point. The post-finetune multi-source
+claim. This distinction matters when one answer com-                comparison reinforces this point: stronger raw two-head
+bines patient-specific records, medical literature, and tool        backbones reach substantially higher source-plus-relation
+metadata.                                                           accuracy before calibration, and calibration mainly ad-
+                                                                    justs the deployment threshold. Future work should
+   The empirical pattern is consistent across the held-
+                                                                    therefore prioritize stronger source-aware raw training
+out results. ProvenanceGuard is competitive with
+                                                                    and harder negative candidates before adding more cal-
+source-blind support baselines on binary blocking, but
+                                                                    ibration machinery. The replacement 2048-token Mod-
+its distinctive value is provenance: it returns claim-to-
+                                                                    ernBERT diagnostic run is loadable and evaluated, but
+source IDs and can detect source conflation. The gain is
+                                                                    its low source-plus-relation accuracy leaves the longer-
+most useful in offline or data-sensitive settings where a
+                                                                    context hypothesis unresolved rather than supported.
+conservative block is preferable to silently accepting an
+answer whose facts are attached to the wrong source.                   The repair results should be read with the same cau-
+                                                                                                                                                        14
+
+                      Condition                            Measured outcome                                                  Value
+                      Router-only source ranking       Top-1 source accuracy over source-eligible claims         0.858
+                      NLI-only support decision        Block F1 / block recall                           0.750 / 0.993
+                      Calibrated source-aware verifier Block F1 / block recall                           0.802 / 0.993
+                      Calibrated source-aware verifier Top-1 source accuracy over source-eligible claims         0.858
+
+TABLE XI. Router ablation on the held-out claim split. Router-only reports whether the adjudicated source is ranked first
+over the 260 source-eligible claims. NLI-only uses the routed NLI support decision without the calibrated evidence-feature
+layer. The calibrated source-aware verifier is the retained ProvenanceGuard system. Top-3 and Top-5 are omitted because
+the held-out source candidate sets are too small to make those cutoffs discriminative.
+
+Variant                          Development objective                                              Verdict acc. Block R Block F1 Source acc. Src+rel acc.
+Uncalibrated source-aware verifier Initial source-aware verifier.                                         0.363     0.993    0.750      0.858        0.615
+Route-threshold rerun              Tested hard no-source filtering.                                       0.346     0.993    0.738      0.858        0.592
+No-source top-k                    Explicit top-k no-source fallback.                                     0.729     0.993    0.738      0.858        0.481
+Claim-relevant windows             Restricted NLI premises to claim-relevant evidence.                    0.421     0.942    0.771      0.862        0.673
+Raw verdict head                   Direct train-split verdict head without threshold calibration.         0.839     0.928    0.816      0.858        0.704
+Raw head + val threshold           Validation-selected threshold on raw-head support probability.         0.817     0.950    0.800      0.858        0.688
+Raw head + high-recall threshold Validation threshold constrained to block recall at least 0.99.          0.795     0.993    0.789      0.858        0.685
+Evidence-calibrated blend          ExtraTrees/logistic evidence-coverage calibration.                     0.817     0.957    0.801      0.858        0.685
+Calibrated-score ensemble          Validation-selected blend of calibrated support scores.                0.809     0.957    0.794      0.858        0.681
+ProvenanceGuard (ours)             Retained RandomForest-calibrated source-aware verifier.               0.812     0.993    0.802      0.858        0.681
+
+
+TABLE XII. Held-out results for source-aware verifier development runs. All rows are evaluated on the same 361-claim held-out
+packet. Source metrics are computed on the 260 tool-source-eligible claims. The retained system is bolded.
+
+
+tion. RARR-style repair plus reverification can remove                                                VII.        CONCLUSION
+or correct unsupported content, and the targeted source-
+conflation probes show that explicit attribution swaps are
+detectable. But repair success against the same verifier                          We presented ProvenanceGuard, a source-aware
+is not independent clinical validation, and conservative                       factuality verifier for MCP-based LLM agents. The pa-
+fallbacks are evidence of fail-closed behavior rather than                     per’s central claim is that factuality verification in multi-
+rich answer recovery.                                                          tool settings must go beyond pooled evidence support:
+   Offline benchmark claim-packet extraction and LLM-                          it must also determine whether each claim is attributed
+assisted adjudication used a local Gemma 4 E4B                                 to the correct source. This distinction matters because a
+instruction-tuned model. Runtime answer-level verifica-                        claim can be supported somewhere in the available MCP
+tion and repair used the deterministic rule-based decom-                       trace while still being misleadingly assigned to the wrong
+poser. This is a deliberately conservative deployment                          tool output, patient record, literature source, or meta-
+setting: it keeps the verifier compatible with offline and                     data source.
+data-sensitive environments. The framework itself is not
+tied to that local model. More capable state-of-the-art                           ProvenanceGuard preserves stable MCP source
+LLMs, including frontier Opus- or GPT-class systems,                           identifiers, decomposes answers into atomic claims,
+may improve the LLM-dependent offline benchmark-                               routes claims to source-specific evidence, checks support
+construction stages or repair rewriting. We treat this as                      with NLI and alignment signals, and compares stated
+a generalization hypothesis rather than a reported result,                     attribution with the routed source. On a frozen cor-
+because the held-out numbers in this paper are only for                        pus of captured medical-domain MCP-agent traces, the
+the frozen local-model configuration. The new decompo-                         system achieved competitive blocking performance while
+sition measurement also suggests where stronger runtime                        also producing claim-to-source attribution judgments un-
+decomposition could help: the rule-based decomposer re-                        available from source-blind baselines. In targeted source-
+covers most frozen reference claims but over-splits and                        conflation probes, it detected all deliberately injected at-
+preserves protected values imperfectly.                                        tribution swaps, demonstrating the value of source-aware
+                                                                               verification.
+  The main open question is scale. The primary held-out
+split is small, confidence intervals are wide, and it cannot                     These results suggest that source attribution should be
+meaningfully evaluate Top-3 or Top-5 source routing be-                        treated as an independent evaluation axis for tool-using
+cause the current traces usually expose only one or two                        LLM agents. However, the current evidence is limited by
+candidate sources per claim. The multi-source bench-                           the use of one medical agent stack, labels that are LLM-
+mark is a step toward this harder setting, but it also                         assisted, a small held-out split, and controlled source-
+shows that longer context and stronger source-aware raw                        conflation probes. Future work should expand evaluation
+models are needed when the candidate set contains many                         to larger, more diverse MCP environments and include
+plausible near misses.                                                         more subtle source-conflation cases.
+                                                                                                                                     15
+
+    System                         Stage                                  Rel. acc. Source acc. Src+rel acc. Block F1 Verdict acc.
+    Legacy pairwise-package scorer diagnostic only; not retained system      0.496       0.472        0.212     0.869       0.249
+    Long DeBERTa                   raw                                       0.750       0.707        0.478     0.868       0.665
+    Long DeBERTa                   calibrated                                0.750       0.688        0.478     0.874       0.657
+    ModernBERT                     raw                                       0.771       0.669        0.478     0.873       0.650
+    ModernBERT                     calibrated                                0.750       0.656        0.459     0.875       0.661
+    ModernCE                       raw                                       0.681       0.675        0.420     0.814       0.626
+    ModernCE                       calibrated                                0.670       0.586        0.382     0.850       0.598
+
+TABLE XIII. Raw and validation-calibrated systems from the current post-finetune benchmark package on the locked multi-
+source adjudicated benchmark. This table uses the package’s pairwise comparison units. The legacy pairwise-scorer row is a
+diagnostic from the package and is not the retained frozen-claim ProvenanceGuard pipeline; Table IV separately reports
+that frozen extracted-claim rerun.
+
+                   Model                   Max tokens Pair rows      Status Case src+rel acc. Note
+                   ModernBERT-base raw            2048       2587 complete                0.090 100-group 1-epoch
+
+TABLE XIV. Raw longer-context diagnostic using a 2048-token ModernBERT checkpoint trained for one bounded 100-group
+epoch.
+
+
+                 VIII.     LIMITATIONS                              against a separately human-authored gold atomic-claim
+                                                                    set. This makes the decomposition numbers useful for
+   The trace benchmark is drawn from one medical MCP-               regression testing and error analysis, but not a final esti-
+agent stack. It is representative of that stack, but it             mate of human gold extraction precision and recall. De-
+does not establish universal medical factuality or clinical         composition errors can still affect answer-level behavior,
+safety validation.                                                  especially protected-value preservation, so this remains
+   The reproducible object is the frozen trace, not future          an evaluation gap.
+behavior of PubMed, FHIR resources, search tools, or the               The initial raw Router+NLI label mapping depended
+live agent. Tool outputs and agent behavior may vary if             heavily on calibration for final verdict accuracy. On
+the same prompts are rerun at a later date.                         the main held-out split, the naive raw verdict accu-
+   The 2,325-label claim subset uses LLM-assisted adjudi-           racy is 0.363 and the retained calibrated verifier reaches
+cation with two independent judge prompts and priority              0.812. The direct raw verdict head reduces this gap
+adjudication for disagreements. Human expert verifica-              by reaching 0.839 verdict accuracy without validation-
+tion covers only the 361 held-out labels used in the re-            threshold calibration, but it is still trained on split-
+ported primary evaluation; it does not cover training or            specific Router+NLI and source-evidence features rather
+validation labels and does not establish universal medical          than being an end-to-end source-aware NLI model.
+factuality or clinical safety validation. The benchmark             Threshold calibration on top of the raw head shows the
+should therefore not be interpreted as a fully clinician-           expected recall–accuracy tradeoff rather than an addi-
+adjudicated training corpus.                                        tional held-out accuracy gain: the high-recall operating
+   The claim-level bootstrap intervals are wide because             point reaches 0.993 block recall but falls to 0.795 ver-
+the held-out split contains only 40 traces and claims are           dict accuracy. This improves the reported calibration-
+clustered within traces. Reported uncertainty therefore             dependence story, while leaving robustness under distri-
+uses trace-level resampling rather than treating all 361            bution shift as an evaluation gap.
+claims as independent.                                                 The 2048-token raw ModernBERT result uses a re-
+   The held-out labels are dominated by supported and               placement one-epoch checkpoint trained for only 100
+not-enough-evidence claims. There are few explicit con-             sampled groups after the original longer run was not
+tradictions and no gold conflation relation in the ran-             available for evaluation. This is enough to verify the
+dom held-out claim split. The targeted 50-case source-              evaluation path and report a valid raw long-context test
+conflation probe set is therefore the most direct evidence          point, but it is not a full training run. We therefore do
+for controlled conflation detection and repair, while the           not claim that longer context improved raw source-aware
+random 281-trace run evaluates full-answer behavior. Be-            verification.
+cause the 50 probes are generated by injecting one ex-                 External source-blind support baselines are not source-
+plicit source-attribution swap into otherwise captured              attribution systems. They are appropriate binary de-
+benchmark evidence, the 1.000 repair metrics do not im-             cision comparators where configured, but they are not
+ply that the task is solved under harder, multi-error,              baselines for claim-to-source accuracy.
+paraphrased, or adversarial source-conflation conditions.              The LLM-dependent components are also a valid-
+   The paper reports claim-decomposition agreement                  ity boundary. The reported configuration uses a local
+against a frozen independent extraction artifact, not               Gemma 4 E4B instruction-tuned model for offline bench-
+                                                                                                                                  16
+
+                                              Cutoff Kept Rejected Source acc. kept
+                                               0.100   314        47                0.847
+                                               0.200   191       170                0.787
+                                               0.300    89       272                0.684
+                                               0.400    39       322                0.533
+                                               0.500     9       352                0.400
+                                               0.600     2       359                0.000
+                                               0.700     1       360                0.000
+                                               0.800     0       361                    –
+
+TABLE XV. Held-out route-score threshold diagnostic. A hard no-source cutoff rejects low-score claims before NLI. Higher
+cutoffs reject most claims and reduce source accuracy among retained source-eligible claims, so this policy was not retained.
+Source accuracy is undefined when no claims are retained.
+
+                          Split           Blocked NLI/NEE Wrong route Contradiction No source Other
+                          Train              741       592              149                 0      0      0
+                          Validation         205       167               38                 0      0      0
+                          Held-out test      205       176               29                 0      0      0
+
+         TABLE XVI. Blocked prediction taxonomy for ProvenanceGuard on prospective captured-agent traces.
+
+
+mark claim-packet extraction and adjudication where                    the deployment exposes model IDs; model documenta-
+LLM calls are required. Runtime answer-level ver-                      tion and local model-card checks were accessed on 2026-
+ification and repair use deterministic decomposition.                  06-16. The calibrated support layer is trained on the
+Stronger frontier LLMs may produce cleaner offline claim               development split, and its threshold is selected on vali-
+packets, more stable adjudications, or richer repairs, but             dation before held-out scoring.
+those systems are not evaluated in the reported frozen                    The NLI scorer truncates premise–claim pairs at a con-
+run.                                                                   figurable token budget. The current default is 512 tokens
+                                                                       through the NLI maximum-length setting; the prior 256-
+                                                                       token setting is retained only in historical backbone arti-
+              IX.    REPRODUCIBILITY                                   facts that were run under local MPS memory constraints.
+                                                                       New joint-verifier training and scoring runs default to 512
+   The reproducible unit is the frozen MCP trace and its               tokens unless a model-specific longer-context run over-
+derived claim-level evaluation packet. Each reported ta-               rides the argument. The 2048-token ModernBERT raw
+ble is generated from stored traces, claim packets, LLM-               evaluation and replacement checkpoint are included in
+assisted labels, prediction files, baseline outputs, uncer-            the released artifact bundle.
+tainty resamples, and repair outputs. The artifact re-                    The full-trace repair outputs are stored separately from
+lease preserves the raw tool outputs and stable source                 claim-level outputs because they evaluate answer-level
+identifiers needed to rerun source routing and attribu-                behavior rather than isolated claim predictions. Exter-
+tion checks.                                                           nal baselines are stored as source-blind support outputs
+   The implementation used for the reported run instan-                and are not used to train or calibrate Provenance-
+tiates Section III as follows. Source routing uses the                 Guard. Historical rerun summaries are not used for
+all-MiniLM-L6-v2 SentenceTransformer model with co-                    the manuscript numbers. The reconstructed multi-source
+sine similarity over normalized embeddings. Support                    answer-level traces, fresh answer-level RARR-style out-
+checking uses Moritz Laurer’s DeBERTa-v3-base check-                   puts, summary, and latency files are stored together in
+point fine-tuned on MNLI, FEVER, and ANLI. Of-                         the released artifact bundle.
+fline benchmark claim-packet extraction and the two                       The raw verdict-head results and threshold-calibration
+model-adjudication passes use a local Gemma 4 E4B                      variants are stored under artifacts/router_nli_raw_
+instruction-tuned model; runtime answer-level verifica-                verdict_head/. The multi-source benchmark tables are
+tion and repair use the deterministic rule-based de-                   generated from frozen benchmark artifacts and copied
+composer. The multi-source adjudication path uses                      into the paper artifact bundle. The associated answer-
+the gpt-5.4 API model identifier, and the local judge                  trace reconstruction, claim-decomposition measurement,
+prompts use the deployed Gemma 4 E4B instruction-                      and long-context raw-evaluation outputs are preserved
+tuned checkpoint, recorded as gemma-4-e4b-it where                     with the same released artifacts.
+
+
+
+
+ [1] S. Min, K. Krishna, X. Lyu, M. Lewis, W.-t. Yih, P. W.                   ceedings of the 2023 Conference on Empirical Methods in
+     Koh, M. Iyyer, L. Zettlemoyer, and H. Hajishirzi, in Pro-
+                                                                                                                                                                 17
+
+                             System                                      Claims Block P Block R Block F1 Verdict acc. Verdict macro F1
+                             ProvenanceGuard (ours)                           361       0.673      0.993    0.802       0.812             0.406
+                             MiniCheck                                        361        0.655      0.971    0.783       0.792             0.396
+                             RAGAS Faithfulness                               361        0.660      0.892    0.758       0.781             0.390
+                             AlignScore                                       361        0.510      0.942    0.662       0.629             0.313
+                             SummaC-ZS                                        361        0.433      0.439    0.436       0.562             0.270
+
+TABLE XVII. Held-out captured-agent trace claim-level factuality comparison. Verdict macro F1 is macro F1 over the
+four factual verdict labels: supported, unsupported, contradicted, and not-enough-evidence. ProvenanceGuard uses only
+router, NLI, and evidence-derived features. MiniCheck, RAGAS Faithfulness, AlignScore, and SummaC-ZS are source-blind
+claim/evidence support baselines and therefore are not scored on claim-to-source attribution.
+
+
+Quantity                                                  Point estimate              95% CI             Natural Language Processing (2023).
+ProvenanceGuard (ours) block F1                                     0.802 [0.664, 0.900]             [2] L. Tang, P. Laban, and G. Durrett, in Proceedings of the
+MiniCheck block F1                                                   0.783 [0.645, 0.882]                2024 Conference on Empirical Methods in Natural Lan-
+RAGAS Faithfulness block F1                                          0.758 [0.618, 0.861]
+AlignScore block F1                                                  0.662 [0.498, 0.778]                guage Processing (Association for Computational Lin-
+SummaC-ZS block F1                                                   0.436 [0.287, 0.555]                guistics, Miami, Florida, USA, 2024) pp. 8818–8847.
+ProvenanceGuard (ours) source accuracy                              0.858 [0.731, 0.963]
+Conflation-probe repair resolution rate                              1.000    [0.93, 1.00]
+                                                                                                     [3] P. Laban, T. Schnabel, P. N. Bennett, and M. A. Hearst,
+Post-repair pass among resolved probes                               1.000    [0.93, 1.00]               SummaC: Re-visiting nli-based models for inconsistency
+                                                                                                         detection in summarization (2021), arXiv:2111.09525.
+TABLE XVIII. Uncertainty estimates for held-out claim-level                                          [4] Y. Zha, Y. Yang, R. Li, and Z. Hu, in Proceedings of
+metrics and targeted repair. Claim-level intervals use 5,000                                             the 61st Annual Meeting of the Association for Compu-
+trace-level bootstrap resamples over the 40 held-out traces.                                             tational Linguistics (Association for Computational Lin-
+Repair intervals for 50/50 probe successes use an exact bino-                                            guistics, Toronto, Canada, 2023) pp. 11328–11348.
+mial 95% interval rounded to two decimals because case-level                                         [5] Y. Song, Y. Kim, and M. Iyyer, in Findings of the Asso-
+bootstrap resampling is degenerate on the fixed controlled                                               ciation for Computational Linguistics: EMNLP (2024).
+probe set. ProvenanceGuard source accuracy is computed                                               [6] T. Goyal and G. Durrett, in Findings of the Association
+over 260 source-eligible held-out claims.                                                                for Computational Linguistics: EMNLP 2020 (2020).
+                                                                                                     [7] A. Cattan, P. Roit, S. Zhang, D. Wan, R. Aharoni,
+Rows Pre allow Pre block Repair resolved Terminal fallback Revised allow                                 I. Szpektor, M. Bansal, and I. Dagan, Transactions of
+281               108       173                  173                    144                173
+                                                                                                         the Association for Computational Linguistics (2026).
+                                                                                                     [8] S. Harary, E. Hirsch, A. Slobodkin, D. Wan, M. Bansal,
+                                                                                                         and I. Dagan, PrefixNLI: Detecting factual inconsisten-
+TABLE XIX. Full captured-trace RARR-style repair results
+                                                                                                         cies as soon as they arise (2025), arXiv:2511.01359.
+on 281 captured MCP-agent traces. Rejected answers enter
+                                                                                                     [9] S. Es, J. James, L. Espinosa-Anke, and S. Schockaert,
+the repair loop and are then re-scored by the same source-
+                                                                                                         in Proceedings of the 18th Conference of the European
+router plus NLI verifier. Terminal fallback means the remain-
+                                                                                                         Chapter of the Association for Computational Linguis-
+ing unverified content was replaced with a conservative non-
+                                                                                                         tics: System Demonstrations (Association for Computa-
+claim response.
+                                                                                                         tional Linguistics, St. Julian’s, Malta, 2024) pp. 150–158.
+Rows Pre block Explicit confl. Repair resolved Terminal fallback Post allow Wrong attr. retained    [10] T. Gao, H. Yen, J. Yu, and D. Chen, in Proceedings of
+50           50            50              50                11         50                    0          the 2023 Conference on Empirical Methods in Natural
+                                                                                                         Language Processing (EMNLP) (Association for Compu-
+TABLE XX. Targeted clinically framed source-conflation                                                   tational Linguistics, Singapore, 2023) pp. 10355–10377.
+probe set over frozen captured MCP evidence. The 50 probes                                          [11] B. Bohnet, V. Q. Tran, P. Verga, R. Aharoni, D. Andor,
+contain one deliberate source-attribution error each; post-                                              L. B. Soares, M. Ciaramita, J. Eisenstein, K. Ganchev,
+repair verification uses the same source-router plus NLI veri-                                           J. Herzig, K. Hui, T. Kwiatkowski, J. Ma, J. Ni,
+fier.                                                                                                    L. Sestorain Saralegui, T. Schuster, W. W. Cohen,
+                                                                                                         M. Collins, D. Das, D. Metzler, S. Petrov, and K. Web-
+              Item                                                       Count                           ster, Attributed question answering: Evaluation and
+                                                                                                         modeling for attributed large language models (2022),
+              Held-out claims in adjudication packet                          361
+              LLM-assisted labeled claims                                     361                        arXiv:2212.08037.
+              Model-assisted agreement rows                                   350                   [12] X. Yue, B. Wang, Z. Chen, K. Zhang, Y. Su, and H. Sun,
+              Priority-adjudicated disagreements                               11                        in Findings of the Association for Computational Lin-
+              Human expert reviewed held-out labels                           361                        guistics: EMNLP 2023 (Association for Computational
+                                                                                                         Linguistics, Singapore, 2023) pp. 4615–4635.
+TABLE XXI. Held-out adjudication status. Labels come from                                           [13] H. Rashkin, V. Nikolaev, M. Lamm, L. Aroyo, M. Collins,
+two independent judge prompts run on a local Gemma 4 E4B                                                 D. Das, S. Petrov, G. S. Tomar, I. Turc, and D. Reitter,
+instruction-tuned model, priority adjudication for disagree-                                             Computational Linguistics 49, 777 (2023).
+ments, and human expert review of the resulting 361 held-out                                        [14] O. Honovich, R. Aharoni, J. Herzig, H. Taitelbaum,
+labels. This table does not claim human review of the training                                           D. Kukliansy, V. Cohen, T. Scialom, I. Szpektor, A. Has-
+or validation labels; exact model identifiers and access dates                                           sidim, and Y. Matias, in Proceedings of the 2022 Confer-
+are reported in Section IX.                                                                              ence of the North American Chapter of the Association
+                                                                 18
+
+     for Computational Linguistics: Human Language Tech-
+     nologies (NAACL) (Association for Computational Lin-
+     guistics, Seattle, United States, 2022) pp. 3905–3920.
+[15] E. Hirsch, A. Slobodkin, D. Wan, E. Stengel-Eskin,
+     M. Bansal, and I. Dagan, in Proceedings of the 63rd An-
+     nual Meeting of the Association for Computational Lin-
+     guistics (2025) pp. 15355–15370.
+[16] D. Wan, E. Hirsch, E. Stengel-Eskin, I. Dagan, and
+     M. Bansal, GenerationPrograms: Fine-grained attribu-
+     tion with executable programs (2025), arXiv:2506.14580.
+[17] J. Gao, J. Zhou, Q. Sun, R. Huang, and S. Yoo, Atomic
+     information flow: A network flow model for tool attribu-
+     tions in RAG systems (2026), arXiv:2602.04912.
+[18] Q. Zhang, Z. Xiang, Y. Xiao, L. Wang, J. Li, X. Wang,
+     and J. Su, in Proceedings of the 63rd Annual Meeting of
+     the Association for Computational Linguistics (2025).
+[19] S. Filice, E. Haramaty, G. Horowitz, Z. Karnin, L. Lewin-
+     Eytan, and A. Shtoff, in Proceedings of the 14th Interna-
+     tional Joint Conference on Natural Language Processing
+     and the 4th Conference of the Asia-Pacific Chapter of
+     the Association for Computational Linguistics (2025) pp.
+     1017–1037.
+[20] L. Gao, Z. Dai, P. Pasupat, A. Chen, A. T. Chaganty,
+     Y. Fan, V. Y. Zhao, N. Lao, H. Lee, D.-C. Juan, and
+     K. Guu, in Proceedings of the 61st Annual Meeting of
+     the Association for Computational Linguistics (Volume
+     1: Long Papers) (Association for Computational Linguis-
+     tics, Toronto, Canada, 2023) pp. 16477–16508.
+[21] P. Roit, J. Ferret, L. Shani, R. Aharoni, G. Cideron,
+     R. Dadashi, M. Geist, S. Girgin, L. Hussenot, O. Keller,
+     N. Momchev, S. Ramos Garea, P. Stanczyk, N. Vieillard,
+     O. Bachem, G. Elidan, A. Hassidim, O. Pietquin, and
+     I. Szpektor, in Proceedings of the 61st Annual Meeting of
+     the Association for Computational Linguistics (Volume
+     1: Long Papers) (Association for Computational Linguis-
+     tics, Toronto, Canada, 2023) pp. 6252–6272.
+[22] W. Kryściński, B. McCann, C. Xiong, and R. Socher, in
+     Proceedings of the 2020 Conference on Empirical Methods
+     in Natural Language Processing (EMNLP) (Association
+     for Computational Linguistics, 2020) pp. 9332–9346.
+[23] I. Poey, J. Liu, and Q. Zhong, in Proceedings of the 2025
+     Conference on Empirical Methods in Natural Language
+     Processing: Industry Track (2025) pp. 1057–1071.
+[24] ThoughtProof, Reasoning verification capability — veri-
+     fying ai output correctness through MCP, MCP GitHub
+     Discussion #2574 (2026).
+                                                                                             19
+
+                                 Appendix A: Illustrative Escaped JSON Schema Fragments
+
+{
+    "question_id": "clin-real-v2-shuf-003",
+    "user_question": "Summarize beta blockers in heart failure with atrial fibrillation.",
+    "category": "literature_review",
+    "route": "pubmed_research",
+    "tool_calls": [
+      "search_pubmed_key_words",
+      "get_pubmed_article_metadata"
+    ],
+    "full_tool_outputs": [
+      {
+        "tool_name": "get_pubmed_article_metadata",
+        "source_id": "tool_output::get_pubmed_article_metadata",
+        "source_role": "complete_tool_output",
+        "chunk_count": 3,
+        "text": "Complete tool output for get_pubmed_article_metadata.\\n[1] ..."
+      },
+      {
+        "tool_name": "search_pubmed_key_words",
+        "source_id": "tool_output::search_pubmed_key_words",
+        "source_role": "complete_tool_output",
+        "chunk_count": 12,
+        "text": "Complete tool output for search_pubmed_key_words.\\n[1] ..."
+      }
+    ],
+    "original_evidence_chunk_count": 15,
+    "assistant_answer": "A source-grounded answer summarizing the literature...",
+    "final_reply_to_user": "A source-grounded answer summarizing the literature...",
+    "elapsed_s": 19.97
+}
+
+
+
+                                 Appendix B: Random-Forest Calibration Input and Output
+
+{
+    "claim_id": "clin-real-v2-shuf-014::c01",
+    "candidate_claim": "The patient is Carla Mendoza.",
+    "routed_source": {
+      "source_id": "tool_output::load_patient_history",
+      "tool_name": "load_patient_history",
+      "route_score": 0.224,
+      "routing_margin": 0.224
+    },
+    "calibrator_input": {
+      "categorical_features": {
+        "verifier_label": "entailment",
+        "category": "chart_plus_literature",
+        "pred_tool": "load_patient_history",
+        "status": "routed_entailment"
+      },
+      "numeric_features": {
+        "route_score": 0.224,
+        "pred_score": 0.927,
+        "routing_margin": 0.224,
+        "term_overlap": 1.000,
+        "all_term_overlap": 1.000,
+        "claim_terms_n": 3,
+        "protected_n": 1,
+        "protected_missing": 0,
+        "protected_missing_all": 0,
+        "evidence_chunks_n": 4,
+        "claim_len": 5,
+        "has_stated_attr": 0,
+        "score_x_route": 0.208,
+        "score_x_overlap": 0.927,
+        "route_x_overlap": 0.224,
+        "neutral": 0,
+        "entailment": 1,
+        "contradiction": 0,
+        "weak_route_high_score": 0,
+        "strong_route": 0,
+        "score_x_route_squared": 0.043
+      }
+    },
+    "calibrator": {
+      "model": "RandomForestClassifier",
+      "n_estimators": 400,
+      "max_depth": 5,
+      "min_samples_leaf": 8,
+                                                                                           20
+
+      "class_weight": "balanced",
+      "threshold": 0.650
+    },
+    "calibrator_output": {
+      "support_probability": 0.9996,
+      "support_decision": "supported",
+      "pred_relation": "entailment",
+      "pred_source_id": "tool_output::load_patient_history",
+      "pred_tool_id": "load_patient_history"
+    },
+    "downstream_use": {
+      "support_passes_to_attribution_matching": true,
+      "answer_level_policy": "block if any claim fails support or attribution"
+    }
+}
+
+
+
+                             Appendix C: Escaped Claim, Routing, NLI, and Repair Example
+
+{
+    "trace_evidence": {
+      "tool_name": "load_patient_history",
+      "source_id": "tool_output::load_patient_history",
+      "text": "id: bench-6; name: Felipe Costa; label: Asthma; status: active."
+    },
+    "atomic_claim": {
+      "text": "Felipe Costa (bench-6) has active condition Asthma",
+      "stated_attribution": "According to PubMed evidence."
+    },
+    "routing": {
+      "routed_source_id": "tool_output::load_patient_history",
+      "tool_name": "load_patient_history",
+      "score": 0.637,
+      "margin": 0.413
+    },
+    "nli": {
+      "relation": "entailment",
+      "protected_values": ["bench-6"],
+      "unsupported_content_token_indices": []
+    },
+    "attribution": {
+      "status": "conflation",
+      "reason": "Supported by patient-history evidence, not PubMed evidence."
+    },
+    "rarr": {
+      "status": "corrected",
+      "replacement": "Patient history: Felipe Costa (bench-6) has active Asthma."
+    }
+}
+

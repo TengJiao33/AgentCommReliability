@@ -1,0 +1,2076 @@
+                                         Multi-Agent Design: Optimizing Agents with
+                                         Better Prompts and Topologies
+                                         Han Zhou1 2 * , Xingchen Wan1 , Ruoxi Sun1 , Hamid Palangi1 , Shariq Iqbal1 , Ivan Vulić1 2 , Anna Korhonen2 and
+                                         Sercan Ö. Arık1
+                                         1 Google, 2 University of Cambridge
+
+
+
+
+                                         Large language models, employed as multiple agents that interact and collaborate with each other,
+                                         have excelled at solving complex tasks. The agents are programmed with prompts that declare their
+                                         functionality, along with the topologies that orchestrate interactions across agents. Designing prompts
+arXiv:2502.02533v2 [cs.LG] 31 Jan 2026
+
+
+
+
+                                         and topologies for multi-agent systems (MAS) is inherently complex. To automate the entire design
+                                         process, we first conduct an in-depth analysis of the design space aiming to understand the factors behind
+                                         building effective MAS. We reveal that prompts together with topologies play critical roles in enabling
+                                         more effective MAS design. Based on the insights, we propose Multi-Agent System Search (Mass), a
+                                         MAS optimization framework that efficiently exploits the complex MAS design space by interleaving its
+                                         optimization stages, from local to global, from prompts to topologies, over three stages: 1) block-level
+                                         (local) prompt optimization; 2) workflow topology optimization; 3) workflow-level (global) prompt
+                                         optimization, where each stage is conditioned on the iteratively optimized prompts/topologies from
+                                         former stages. We show that Mass-optimized multi-agent systems outperform a spectrum of existing
+                                         alternatives by a substantial margin. Based on the Mass-found systems, we finally propose design
+                                         principles behind building effective multi-agent systems.
+
+
+                                         1. Introduction
+                                         Large language models (LLMs) have showcased                           MASS                         Optimized
+                                                                                                                                           MAS    design
+                                         extraordinary capabilities in understanding, rea-           Prompt Optimization Space
+                                                                                                                                        Optimized topology
+                                         soning, and generating coherent responses based           Instruction          Exemplar
+                                         on user prompts, revolutionizing a wide range
+                                                                                                     Multi-Agent Design Space
+                                         of applications (Kojima et al., 2022; Ouyang
+                                                                                                    aggregate          summarize
+                                         et al., 2022). LLM-based agents enhance us-                                             <ex_1>        <ex_1>    <ex_1>
+
+                                                                                                                                 <ex_2>        <ex_2>    <ex_2>
+                                         ability by autonomously handling complex tasks               reflect           tool-use
+                                                                                                                                    ...           ...       ...
+
+                                         across diverse domains, including code generation            debate             custom   <ins>         <ins>     <ins>
+
+
+                                         and debugging (Jimenez et al., 2023), retrieval-                 Topology Optimizer
+                                                                                                                                        Optimized prompt
+
+                                         augmented generation (Singh et al., 2025; Wang                                                 for each agent type
+
+                                         et al., 2024a), data analysis (Guo et al., 2024; Hu
+                                         et al., 2024b), and interactive decision-making Figure 1 | Proposed Multi-Agent System Search
+                                         (Li et al., 2025; Su et al., 2025). These agents are (Mass) framework discovers effective multi-
+                                         typically programmed with prompts that reinforce agent system designs (with both optimized topol-
+                                         them to interact with the environment, utilizing ogy and optimized prompts, right) via interleaved
+                                         available tools, and approach their objectives over prompt optimization and topology optimization
+                                         multiple turns (Yao et al., 2023). Beyond individ- in a customizable multi-agent design space (key
+                                         ual agents, LLMs can be orchestrated within com- components illustrated on the left).
+                                         plex topologies that coordinate multiple agents
+                                         toward a shared objective. This type of multi-agent system (MAS) typically outperforms its single-
+                                         agent counterpart by involving more diverse agentic perspectives or role profiles, such as agents as
+                                         verifiers (Shinn et al., 2024) and multi-agent debate (Qian et al., 2024; Wang et al., 2024b).
+
+
+                                         Corresponding author(s): {hzhouml, soarik}@google.com. Work done while Han Zhou was a Student Researcher at Google.
+                                         Published in the fourteenth International Conference on Learning Representations (ICLR 2026).
+                      Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+    However, designing effective MAS for new domains often proves to be challenging. First, the
+single agent might suffer from prompt sensitivity (Verma et al., 2024), where simple modifications
+in the prompt can already exert significant but unexpected degradation of performance (Liu et al.,
+2024a; Zhou et al., 2024b). In MAS, when sensitive agents are cascaded, the compounding effect
+due to prompt sensitivity may be amplified. Together with the prompt design, crafting an effective
+topology might demand a substantial amount of manual experimentation, based on trial and error.
+The problem complexity is exacerbated by the overall combinatorial search space, over not only the
+unbounded space of prompt design but also the design decisions of what agent to integrate into the
+topology.
+     Although recent research has explored automating various aspects of agentic designs, there is
+still a gap in understanding of what matters most regarding improved MAS performance. For example,
+DSPy (Khattab et al., 2024) automates the process of designing exemplars for improved prompt
+programming. Li et al. (2024a) propose to optimize MAS by scaling up the number of agents in
+majority voting. ADAS (Hu et al., 2024a) programs new topologies expressed in code via an LLM-
+based meta-agent. AFlow (Zhang et al., 2024b) searches better topologies using Monte-Carlo Tree
+Search within a set of predefined operators. However, the interplay between multiple design spaces,
+including prompts and topologies, remains unclear.
+    In this paper, we first conduct in-depth analyses of common design spaces in MAS, examining the
+impact of aspects such as optimizing the prompts, scaling the number of agents, and involving different
+types of topologies. Our analyses reveal that prompts frequently form an influential design component
+that yields strong-performing MAS, and influential topologies only represent a small fraction of the
+full search space. Based on these insights, we aim to distill the essence of influential MAS components
+into a pruned search space, thereby lowering the complexity of the overall search process. We propose
+Multi-Agent System Search (Mass), a novel multi-stage optimization framework that automates
+the optimization for MAS over an efficient search space. Mass integrates a plug-and-play prompt
+optimizer and workflow optimizer over a configurable topology space. It overcomes the complexity of
+joint optimization on MAS by interleaving the optimization stages, from local to global, from prompts
+to topologies, over three stages: 1) block-level (local) prompt ‘warm-up’ for each topology block; 2)
+workflow topology optimization in a pruned set of topology space; 3) workflow-level (global) prompt
+optimization given the best-found topology.
+    By optimizing over the identified influential components, Mass yields optimized MAS that
+achieves state-of-the-art performance, outperforming existing manually-crafted MAS baselines and
+automatically-generated alternatives, by a substantial margin, demonstrated across an extensive
+selection of tasks, including reasoning, multi-hop understanding, and code generation. Based on the
+strongest MAS found by Mass, we provide further insights and guidelines behind building effective
+MAS. Overall, our contributions can be summarized as follows: 1) we provide an in-depth analysis of
+the design factors that influence the performance of LLM-based MAS, highlighting the importance of
+prompts and identifying the influential topologies; 2) we propose Mass, a novel multi-stage optimizer
+that automates the MAS design by interleaving the optimization of prompts and topologies in an
+influential search space; 3) Mass shows significant performance improvement on various evaluation
+benchmarks, delivering guidelines for building effective multi-agent systems for the future.
+
+
+2. Designing Multi-Agent Systems
+In this section, we provide a formulation for designing MAS, followed by analyzing the influence
+of prompt and topology designs. We refer to the structural arrangements of agents as the topology
+of agents and define workflow as the logical sequence across different topologies that builds the
+
+
+                                                                                                     2
+                       Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+MAS. The design of a MAS can thus be broadly divided into two levels: block-level design and
+workflow-level orchestration. At the block level, a building block infers a group of agents that work
+together for a certain function (e.g., debate), and we aim to design effective individual agents that
+best perform their intended role with better prompt design. On the other hand, at the workflow
+level, the optimization involves determining the types and quantities of agents to include and how
+to arrange them in the most effective way, referred to as the topology optimization. Formally, given
+a search space A = { 𝑎𝑖 } that defines all valid agentic configuration over the building block search
+dimensions 𝑎𝑖 (see Fig. 3), individual agents and their composite topologies can both be parameterized
+as specific configurations in this search space. To obtain the best workflow W ∗ ( 𝑎), the workflow
+topology optimization is framed as the following optimization problem with an objective function
+ 𝑓 (·, ·) on a target input and output set ( 𝑥, 𝑦 ) ∼ D in the defined search space A:
+
+                               W ∗ ( 𝑎) = arg max 𝔼 ( 𝑥,𝑦 )∼D [ 𝑓 (W ( 𝑎 ( 𝑥 )) , 𝑦 )] .                    (1)
+                                              𝑎∼A
+
+In the rest of this section, we provide an in-depth analysis of each component of MAS design.
+
+
+2.1. Block-level Analysis: Prompt Design for Agents
+
+At the block level, the primary “optimizable com-                           84
+                                                                                 SC
+ponent” that significantly influences downstream                                 Reflect
+                                                                            82   Debate
+performance is the prompt, which defines the
+                                                                                 Prompting
+role of the agent (e.g., “You are an expert in re-                          80   Prompt->SC
+                                                             Accuracy (%)
+
+
+
+
+flecting on errors...”), provides additional instruc-
+tions to shape its behavior (e.g., “You should think                        78
+step by step...”) and optionally, contains few-shot                         76
+demonstrations (in-context examples) to guide the
+agent’s responses (Wan et al., 2024). For instance,                         74
+a state-of-the-art prompt optimizer searches both
+instructions and few-shot demonstrations, where                                          103
+                                                                                               Tokens
+demonstrations are bootstrapped from the model’s
+own, correct predictions on the validation set                Figure 2 | Accuracy vs. total token counts for
+based on a validation metric. Conditioned on the              prompt-optimized agents per question on MATH
+demonstrations, the prompt optimizer then pro-                by Gemini 1.5 Pro compared to scaling agents
+poses a few candidates for the instruction with a             with self-consistency (SC), self-refine (reflect),
+dataset summary or various hints to improve can-              and multi-agent debate (debate) only. The error
+didate diversity (Opsahl-Ong et al., 2024). The               bar indicates 1 standard deviation. We show that
+instructions and demonstrations are then jointly              by utilizing more compute, better accuracy can
+optimized.                                                    be obtained via more effective prompting.
+    Although it is well known that LLMs are sensi-
+tive to prompts (Verma et al., 2024; Zhou et al., 2024a), applying automatic prompt optimization
+(APO) techniques to MAS is not straightforward. In single-turn tasks, APO can be easily performed
+by treating prompts as optimizable variables and performance over a validation set as the target.
+However, in MAS, APO becomes more complex due to the interdependence across agents (e.g., the
+output of one agent may be the input of another agent in a cascade with ground-truth responses for
+intermediate outputs not being available) and exponentially increasing complexity for combinatorial
+optimization with more number of agents 𝑛 involved; The reward signals also become more sparse
+when 𝑛 increases, preventing us for implementing APO directly on MAS in any manageable budget; as
+such, many prior works (Xia et al., 2024; Zhang et al., 2024f) in MAS still primarily use handcrafted
+prompts instead of including the prompts as optimizable components in the MAS design.
+
+                                                                                                              3
+                       Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+    To systematically understand the influence of prompt design in MAS, we specifically and quantita-
+tively analyze the effect of prompt optimization and compare its effectiveness to other operations
+common in MAS literature, such as scaling with more agents but with default prompts. We con-
+duct APO on a chain-of-thought (Kojima et al., 2022) agent via a state-of-the art prompt optimizer
+MIPRO (Opsahl-Ong et al., 2024) that is capable of joint instruction and (1-shot) exemplar optimiza-
+tion, and fairly compare the total inference token cost with self-consistency (Kojima et al., 2022),
+self-refine (Madaan et al., 2024), and multi-agent debate (Du et al., 2024), where the specifications
+are provided in App. §B. In Fig. 2, prompting, which equips agents with more informative instructions
+and exemplars, demonstrates significant advantages in its token-effectiveness over other building
+blocks. Furthermore, by applying self-consistency on top of the prompt-optimized agent, we observe
+an improved scaling performance on the token cost, whereas standard approaches in scaling the
+number of agents (e.g. SC, or Reflect) saturate much earlier. This empirical observation sheds light
+on the importance of prompting while providing early evidence for designing effective MAS – optimize
+agents locally before scaling their topology.
+
+
+2.2. Workflow-level Search Space Design
+
+At the workflow level, the primary focus is on orchestrating agents to achieve the best performance
+effectively, and topology optimization has recently garnered significant attention (Li et al., 2024c;
+Zhang et al., 2024b). However, while much of the existing research emphasizes search methods—such
+as discovering the most efficient and effective way to identify the optimal configuration—there has
+been less focus on the design of search spaces, which determines the perimeter and the scope of any
+search algorithm. This imbalance draws a parallel to the historical development of neural architecture
+search (NAS) (White et al., 2023). Initially, the field concentrated on sophisticated search methods,
+such as Bayesian optimization (Kandasamy et al., 2018; Ru et al., 2021) and differentiable search (Liu
+et al., 2018). Follow-up works have highlighted the often-overlooked importance of search space
+design, arguing that it can be equally, if not more, critical (Wan et al., 2022; Zhou et al., 2023a).
+    Inspired by this insight, we hypothesize that manually crafted topologies might be sub-optimal,
+and automatic topology optimization (potentially framed as a rigorous optimization problem) can
+play a similarly pivotal role via judiciously designing search space for MAS. To achieve so, we first
+define an expressive search space, similar to prior works, that consists of the connections between
+the following building blocks, which form a unified search space for Mass:
+• Aggregate: Agents can collaborate in parallel with diversified predictions, which is then followed by
+an aggregation operator that obtains the most consistent prediction. The aggregate block can be
+parameterized by 𝑁𝑎 agents and also defines the number of agent chains acting in parallel. Majority
+vote (Li et al., 2024a) and self-consistency (Chen et al., 2024c) sits within this topology.
+• Reflect: Agents can act as verifiers, providing critics and improvement suggestions based on for-
+mer predictions. The feedback is then fed into the predictor or the reflector itself for an iterative
+improvement. Similarly, reflect can be parameterized by 𝑁𝑟 that defines the number of rounds for
+self-reflection. The self-refine (Madaan et al., 2024) and Reflexion (Shinn et al., 2024) represent this
+block, and 𝑁𝑟 can be interpreted as a parameter that contributes to the depth of the MAS network.
+• Debate: Agents in debate can elicit more truthful predictions than a single agent (Du et al., 2024;
+Liang et al., 2024), where each debating agent would collect opinions from all other agents and
+provide an updated response. This topology involves a mixture of agents, and 𝑁𝑑 defines the number
+of rounds for debating (i.e., number of fully-connected agent layers in the topology space).
+• Custom Agents: While the former three forms of agents represent the vast majority of agent topologies
+constructed as multiple parallel, serial, and a mixture of agents, more versatile definitions of agents
+
+                                                                                                      4
+                                         Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+ 1     Block-level Prompt Optimization                     2 Workflow Topology Optimization         3 Workflow-level Prompt Optimization
+Aggregate                 Self-reflect                                                                     Best topology from Step 2
+                                                                   Proposed candidate
+  </>                       </>          </>                                                                </> </> </> </> </>
+            Predictor
+      P                        P               R                                                            </> </> </> </> </>
+  </>                                                                                                       </> </> </> </> </>
+      P           A       Summarize
+  </>                              </>         </>
+      P                                  S             P                Evaluate on                                Evaluate on
+                                                                   validation task / split                    validation task / split
+                           Long inputs
+ Multi-agent debate
+                                         Tool-use                               Validation metric                         Validation metric
+     </>        </>
+        P             D                      </>              Optimizer: Store evaluations and
+                                                                                                        Instruction     Let's think step by
+     </>        </>                                P          propose new workflow
+                                                                                                                        step → (Example
+                                   A                                                                    optimization
+        P             D                                       (                                                         new prompt)
+     </>        </>                                                                 , 63%)
+                                                   T                                                       Demo         <example_1>
+        P             D                                       (                      , 75%)             optimization
+                                                                                                                        <example_2>
+                                                                                                                        ...
+             </>: Optimizable prompts                                       ...                             </>: Optimizable prompts
+
+
+Figure 3 | Illustration of the Mass framework with its search space and the optimization. The
+search space combines both prompts (Instruction, Demo) and configurable agentic building blocks
+(Aggregate, Reflect, Debate, Summarize, and Tool-use). [1PO: Block-level Prompt Optimiza-
+tion]: we conduct block-level prompt optimization for each agentic module individually (denoted by
+</>); [2TO: Workflow Topology Optimization]: conditioned on the best prompts found in Stage 1 on
+each agent block, Mass samples valid configurations from an influence-weighted design space while
+fusing the prompts of each building block from Stage 1; [3PO: Workflow-level Prompt Optimization]:
+conditioned on the best workflow found, we again conduct workflow-level prompt optimization on
+the best-found MAS (topologies visualized for illustration only).
+
+
+can be inserted into the MAS design space. For example, for task-specific use cases, we introduce an
+agent as summarize to improve the long-context capability in the customizable design space, where
+𝑁𝑠 defines the rounds of abstraction of information.
+
+• Tool-use: Building towards an effective MAS, enabling agents to leverage tools to access external
+information is critical for system performance, such as using a retriever for RAG (Lewis et al., 2020)
+and executor with test cases in coding (Chen et al., 2024d). We introduce tool-use (e.g., code
+execute) as an optimizable binary ‘insertion’ decision 𝑁𝑇 ∈ {0, 1} with the predictor.
+
+
+3. Mass: Multi-Agent System Search
+Our analyses in Sec. 2 underscore the importance of well-designed prompts for individual agents and
+the careful definition of the search space to achieve effective MAS performance. Building on these,
+we propose a multistage optimization algorithm, Multi-Agent System Search (Mass), that surpasses
+prior arts that focused solely on optimizing workflow topology without appropriate prompt designs.
+Instead, our approach demonstrates the greater effectiveness of MAS design with properly optimized
+prompts and thoughtfully designed search spaces. Mass framework is illustrated in Algorithm 1 and
+Fig. 3, following an intuition from local to global, from block-level to workflow-level, that conquers
+the complexity of combinatorial optimization with effective per-stage optimization detailed below.
+
+1) Block-level prompt optimization. Before composing agents, we first ensure that individual agents
+are thoroughly optimized at the block level, as highlighted in Sec. 2.1 and Fig. 2 – this step ensures
+that each agent is primed for its role with the most effective instructions in the most manageable
+computation budget. To further overcome the complexity of joint optimization on a large MAS space,
+
+
+                                                                                                                                              5
+                       Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+we first warm up the initial predictor with single-agent APO, 𝑎∗0 ← O D ( 𝑎0 ), where both instruction
+and exemplars are jointly optimized with the modular prompt optimizer O. Followed by conditioning
+on the warmed predictor, we continue optimizing each topology with a minimum number of agents,
+𝑎∗𝑖 ← O D ( 𝑎𝑖 | 𝑎∗0 ), such that, 2 predictors paired with 1 debator form the minimum building block as the
+debate topology, thereby lowering the complexity for optimization, and this topology can be scaled
+up later with more predictors and debators but all equipped with optimized prompts. To measure
+the influence of each building block, we store the validation performance once the optimization is
+completed. It is important that though Stage (1) serves as the warm-up stage per building block, it is
+still a critical stage that guarantees the follow-up topology optimization is searching in an effective
+space, composing well-performing agents instead of suffering from the compounding impact from
+any ill-formed agents with manual prompts.
+
+2) Workflow topology optimization. In this                         HotpotQA               LiveCodeBench
+                                                         70               +3%                           +10%
+stage, we focus on optimizing the overall MAS                                              +7%      +6%
+
+
+
+                                                             Performance (%)
+structure, determining the most effective arrange-       68                       80
+                                                                 +1%                 Base
+ment and connectivity between agents. To under-          66 Base      -0%
+                                                                                  70
+stand the influence of individual blocks, we report                           -2%
+the performance of various topologies in Fig. 4.         64                                    -15%
+                                                                                  60
+It is noticeable that not all topologies are benefi-     62
+cial to MAS design, whereas positively influenced           CoT SC Ref. Deb. Sum.    CoT SC Ref. Deb. Exe.
+                                                                    Method                    Method
+topologies only represent a small fraction of the
+overall set, such that, in HotpotQA (Yang et al., Figure 4 | The performance of different topologies
+2018), only debate brings 3% gain while others with Gemini 1.5 Pro compared to the base agent
+fail to improve or even degrade systematic per- with each topology being optimized with APO,
+formance. We again observe similar trends in the where Sum. (Summarize) and Exe. (Executor)
+test-output-prediction subtask of LiveCodeBench are task-specific topologies as illustrated in Fig. 3.
+(Jain et al., 2024). It highlights the importance of We observe that not all topologies have a positive
+searching in the influential set of the search space, influence on the MAS design.
+whereas including decremental building blocks
+may not only result in higher search complexity but also degrade the performance. The analysis
+in Fig. 4 shows that beneficial topologies only represent a small fraction of the full design space.
+Therefore, we aim to distill the essence of strong-performing topologies into a pruned space, thereby
+making the workflow-level topology search more efficient.
+    Here, we propose to measure the incremental influence 𝐼 𝑎𝑖 = E ( 𝑎∗𝑖 )/E ( 𝑎∗0 ) that quantifies the
+relative gain for integrating the search dimension 𝑎𝑖 over the initial agent 𝑎0 . Following the intuition
+that influential dimension comes with higher selection probability, we reject the corresponding
+topology search dimension 𝑎𝑖 if 𝑢 > 𝑝𝑎𝑖 to form a pruned search space, given 𝑢 ∼ Uniform(0, 1) and
+𝑝𝑎 = Softmax( 𝐼 𝑎 , 𝑡 ), where 𝑡 is the temperature for the softmax function. Therefore, the workflow
+can be randomly sampled from a pruned configuration space within a maximum budget, such that
+𝑎 ∼ A 𝑝 s.t. N ( 𝑎) < 𝐵, where N ( 𝑎) caps the overall number of agents and 𝐵 is the maximum budget;
+For instance, given A = { 𝑎𝑖 } as the original configuration space with the topology building block search
+dimension 𝑎𝑖 parameterized by its property 𝑁𝑎𝑖 as defined in Sec. 2.2, each search dimension 𝑎𝑖 will
+be weighted by the influence of that dimension 𝑝𝑎𝑖 , and rejected to form A 𝑝 if 𝑢 ∼ Uniform(0, 1) > 𝑝𝑎𝑖 .
+Followed by sampling valid configurations from A 𝑝 , the workflow W ( 𝑎) = ( 𝑎𝑖 , 𝑎𝑖 + 1, . . . ) is then
+constructed in a predefined rule to arrange the flow of agents, where the rule-based flow removes
+redundancy in various orders in design and reduce the optimization complexity. The rule follows a
+simple predefined sequence that aligns with the practice of agent designs, such that [summarize,
+reflect, debate, aggregate]. We refer to App. §B for the detailed construction rule, MAS
+visualizations, and search space per task.
+
+
+                                                                                                          6
+                         Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+Algorithm 1 Mass: Multi-Agent System Search
+ 1: Input: Agentic modules in the search space 𝑎𝑖 ∈ A, workflow of agents W ( 𝑎), prompt optimizer O, evaluator E,
+    validation set D, temperature 𝑡 , number of candidates 𝑁 , budget 𝐵.
+ 2: Output: Optimized multi-agent system W ∗ .
+ 3: [1PO: Block-level Prompt Optimization]
+ 4: Prompt optimization for the initial agent: 𝑎∗0 ← O D ( 𝑎0 ).
+ 5: for 𝑎𝑖 in A \ { 𝑎0 } do
+ 6:    Local prompt optimization for each building block in the design space: 𝑎∗𝑖 ← O D ( 𝑎𝑖 | 𝑎∗0 ).
+ 7:    Obtain incremental Influence: 𝐼 𝑎𝑖 ← E ( 𝑎∗𝑖 )/E ( 𝑎∗0 ).
+ 8: end for
+ 9: [2TO: Workflow Topology Optimization]
+10: Obtain the selection probability 𝑝𝑎 ← Softmax( 𝐼 𝑎 , 𝑡 ).
+11: while 𝑛 < 𝑁 do
+12:     Search space pruning: A 𝑝 = { 𝑎𝑖 } for 𝑎𝑖 in A if 𝑢 < 𝑝𝑎𝑖 , where 𝑢 ∼ Uniform(0, 1).
+13:     Reject sampling for agentic configurations in budget: 𝑎 ∼ A 𝑝 s.t. N ( 𝑎) < 𝐵.
+14:     Build the workflow W𝑐 ← ( 𝑎∗𝑖 (·) , 𝑎∗𝑖+1 (·) , . . .) in a rule-base order with optimized prompts.
+15:     Evaluate and record the score E D (W𝑐 ).
+16: end while
+17: Obtain the best-performing workflow W𝑐∗ ← arg max𝑐 ∈ C E D (W𝑐 ) .
+18: [3PO: Workflow-level Prompt Optimization]
+19: Workflow-level prompt optimization for the best-performing topology: W ∗ ← O D (W𝑐∗ ).
+20: Return optimized multi-agent system W ∗ .
+
+
+
+3) Workflow-level prompt optimization. As a final step, we treat the entire MAS design as an
+integrated entity and conduct a round of joint prompt optimization over all agents simultaneously,
+conditioned on the best topology discovered in Stage (2), W ∗ = O D (W𝑐∗ ). Although prompts were
+optimized at the individual level in Stage (1), this stage acts as an adaptation or fine-tuning process,
+ensuring that prompts are tailored for orchestration within the MAS and that the interdependence
+between agents is optimized appropriately. Our experiments (Fig. 5 & 6) demonstrate that this stage
+often yields practical benefits with a converged performance as shown in Table 6.
+
+
+4. Experiments
+Models and evaluation data. Aside from the common benchmarks used for automating MAS
+(Hu et al., 2024a; Zhang et al., 2024b), we conduct experiments on an extensive collection of
+tasks: 1) Hendryck’s MATH (Hendrycks et al., 2021) and DROP (Dua et al., 2019) for reason-
+ing; HotpotQA (Yang et al., 2018), MuSiQue (Trivedi et al., 2022), 2WikiMultiHopQA (Ho et al.,
+2020) from LongBench (Bai et al., 2024) for long-context understanding; 3) MBPP (Austin et al.,
+2021), HumanEval (Chen et al., 2021), and LiveCodeBench (LCB) ‘test output prediction’ (Jain
+et al., 2024) for coding. We refer to App. §B & §D for details on data splits and prompt tem-
+plates. We conduct all main experiments primarily on two Gemini 1.5 model sizes (Reid et al.,
+2024) (gemini-1.5-{pro,flash}-002) and further validate key findings on Claude 3.5 Sonnet
+(claude-3-5-sonnet@20240620) (Anthropic, 2024) and Mistral Nemo (mistral-nemo-12b) (Mis-
+tral, 2024) in App. §C.
+Baselines. We consider the following baselines: 1) CoT (Kojima et al., 2022): direct chain-of-thought
+reasoning via zero-shot prompting; 2) CoT-SC (Wang et al., 2023) (@9 agents): with self-consistency
+to find the most consistent answers from diversified reasoning traces; 3) Self-Refine (Madaan et al.,
+2024; Shinn et al., 2024) (2 agents @5 rounds): reflective agents to verify and self-refine predictions;
+4) Multi-Agent Debate (Du et al., 2024; Liang et al., 2024) (3 agents @3 rounds + 1 judger): with
+agents justifying answers and aggregating information from other agents in multi-round debate;
+5) ADAS (Hu et al., 2024a): an automatic agent design framework, where an LLM-based meta-
+
+
+                                                                                                                7
+                           Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+Table 1 | Results on the evaluation set with Gemini 1.5 Pro and Gemini 1.5 Flash. We report the mean
+and standard deviation for all results with 3 runs of evaluations. We report the accuracy (%) for
+MATH and the test-output-prediction subtask of LiveCodeBench (LCB), F1 score for DROP, HotpotQA,
+MuSiQue, and 2WikiMQA, and pass@1 for MBPP and HumanEval. We note that the meta-prompt of
+AFlow* only works properly with Claude 3.5 Sonnet. Therefore, we reproduce AFlow with Gemini
+1.5 Pro as the executor and Claude 3.5 Sonnet as the optimizer, where * indicates the results are only
+for reference. The inference cost is controlled comparably as shown in Table 7.
+
+                                                    Gemini-1.5-pro-002
+  Task                    Reasoning                Multi-hop Long-context                       Coding
+  Method                MATH     DROP          HotpotQA MuSiQue 2WikiMQA            MBPP       HumanEval     LCB       Avg.
+  CoT                  71.673.30   70.591.67   57.430.52   37.811.43   63.391.12   68.330.47   86.670.94   66.330.62   65.28
+  Self-Consistency     77.331.25   74.060.90   58.602.19   41.811.00   67.791.19   69.500.71   86.000.82   70.330.94   68.18
+  Self-Refine          79.672.36   71.031.31   60.623.33   42.151.34   66.742.43   63.670.24   84.001.63   67.331.31   66.90
+  Multi-Agent Debate   78.670.94   71.780.71   64.870.23   46.000.80   71.780.63   68.670.85   86.671.25   73.671.65   70.26
+  ADAS                 80.000.82   72.960.90   65.881.29   41.951.24   71.140.66   73.001.08   87.671.70   65.171.25   69.72
+  AFlow*               76.000.82   88.920.63   68.620.47   32.051.29   76.511.05       -       88.000.00       -         -
+  Mass (Ours)          84.670.47   90.520.64   69.911.11   51.400.42   73.340.67   86.500.41   91.670.47   82.330.85   78.79
+                                                   Gemini-1.5-flash-002
+  CoT                  66.672.36   71.790.69   57.821.10   37.101.35   63.400.68   63.331.25   75.671.89   51.170.24   60.87
+  Self-Consistency     69.331.25   73.420.19   60.191.01   41.940.93   67.980.72   63.670.62   77.671.89   53.831.18   63.50
+  Self-Refine          71.330.94   73.711.09   58.843.04   41.211.99   65.561.57   63.331.25   81.671.89   52.001.41   63.46
+  Multi-Agent Debate   71.670.94   74.790.87   64.171.69   46.271.33   72.190.54   63.000.71   79.671.25   55.500.41   65.91
+  ADAS                 68.001.41   75.951.18   61.362.89   48.811.03   66.901.00   65.830.24   80.672.49   50.501.63   64.75
+  Mass (Ours)          81.002.45   91.680.14   66.530.38   43.671.21   76.690.50   78.000.82   84.670.47   72.170.85   74.30
+
+
+
+agent iteratively proposes new agents based on former evaluations; 6) AFlow (Zhang et al., 2024b):
+automatic workflow design via Monte-Carlo Tree Search over a set of pre-defined operators. We fairly
+compare all baselines with a comparable inference cost per query and a maximum number of agents
+of 10. We refer to Table 7 for the detailed token consumption and App. §B for all specifications.
+Setup. Mass is plug-and-play with arbitrary prompt optimizers. We integrate MIPRO (Opsahl-Ong
+et al., 2024) for a joint instruction and exemplar optimization, and we ablate other prompt optimizers
+implemented with Mass in Table 9. We limit the number of bootstrapped demonstrations to 3 and
+instruction candidates to 10, per agent in 10 rounds. In topology optimization for all tasks, we search
+for 10 different topologies via rejection sampling. Along with topology optimization, each topology
+is evaluated on the validation set 3 times to stabilize the prediction. The optimized MAS is then
+reported on the held-out test set over three runs. We set model temperature 𝑇 at 0.7, maximum
+output tokens at 4096, and the 𝑡 in Softmax at 0.05 for sharpening the selection probability 𝑝𝑎 for
+each search dimension. We implement the same LLM backbone as both evaluator and optimizer.
+Main results. We present the main results of Mass compared to the baselines on the evaluation
+set in Table 1. Mass yields substantial gains over common forms of multi-agent systems, (e.g. self-
+consistency, self-refine, and multi-agent debate), that scale up without optimizing prompts for agents
+in collaboration. Mass leads to high-performing MAS: 78.8% and 74.3% on average on Gemini 1.5
+Pro and Flash, respectively, where we observe consistent improvements on Claude 3.5 Sonnet and
+Mistral Nemo as reported in Table 4 & 5. By comparing Mass with state-of-the-art automatic agent
+design baselines, ADAS and AFlow, we first notice that ADAS only brings subtle gains even by already
+conditioning its meta-agent generation based on the common forms of agents. The meta-agent keeps
+
+
+                                                                                                                               8
+                                         Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+                  80                77.3 78.8 68
+                                                                                       95          ADAS                             3PO: Workflow-level PO
+                                                                                                   AFlow
+Performance (%)
+
+                  75           74.2                                                                             2TO: More parallel agents involved
+                                                                                       90          MASS (Ours)
+                                                                                                                  1PO: Debate
+                  70                          66                                                  1PO: Aggregate
+                          68.0
+                  65 63.5                                                              85
+                                              64                                            Better Prompt
+
+
+
+
+                                                                              F1 (%)
+                  60                                                                   80
+                                              62
+                  55
+                     CoT APO 1PO 2TO 3PO         w/o PO w/o Prune PO TO                75
+                              Stage                      Ablation
+                                                                                       70
+ Figure 5 | Left: average performance per opti-
+                                                                                       65
+ mization stage of Mass over 8 evaluation tasks                                             0    10         20   30     40      50      60      70      80
+ on Gemini 1.5 Pro. We compare Mass with a                                                              Round
+ single agent (CoT) starting point as the reference                           Figure 6 | The optimization trajectories of
+ and an APO baseline that optimizes over the sin-                             Mass compared to agent design baselines per
+ gle agent by MIPROv2 (Opsahl-Ong et al., 2024).                              validation round on DROP. We note that, as a dis-
+ Refer to App. §C for the detailed ablation per task.                         tinct advantage of Mass, the optimization within
+ Right: a comparative ablation study on topology                              stages (1) & (2) of Mass can be completely paral-
+ optimization (2TO) without pruning and without                               lelized, whereas ADAS and AFlow are iterative al-
+ the former stage of prompt optimization (1PO)                                gorithms that have to wait to propose new agents
+ evaluated on HotpotQA.                                                       until finishing earlier trajectories.
+
+
+ proposing complex topologies but without optimizing the prompt design. AFlow, on the other hand,
+ demonstrates a competitive performance to Mass, especially on 2WikiMQA and HumanEval.
+    We attribute the performance of AFlow to: 1) its ‘expansion’ phase that generates new nodes
+based on an error log that contrasts the predictions with the ground truth, which provides implicit
+textual gradients (Pryzant et al., 2023) to reflect on any formatting errors in prompt design; 2) a more
+refined search space within a pre-defined set of operators. Though AFlow draws similar inspirations
+on the importance of search space design as Mass, it still lacks a phase of prompt optimization to
+optimize its pre-defined operators properly, resulting in under-performance for MAS search results
+at MATH and MuSiQue. Different from these baselines, the consistent improvements brought by
+Mass highlight the importance of searching in both prompt and topology design space.
+Ablating optimization stages. To understand the incremental gain per Mass optimization stage, we
+provide a stage-by-stage ablation study in Fig. 5. We list the average performance of Mass from block-
+level to workflow-level optimization and compare it with a single agent APO baseline (MIPROv2),
+where the block-level optimization performance indicates the best-performing building block 𝑎 ∈ A
+after APO. First, we notice that there is a large gain, 6% on average, between block-level optimization
+and single-agent APO, showing that MAS benefits substantially from having its agents optimized
+inside the building block, outperforming APO alone significantly. In addition, going from Stage (1)
+to (2), another 3% gain can be achieved by composing influential topologies while searching for
+the optimal configurations. Here, we provide an ablation on conducting Stage (2) without prompt
+optimization beforehand or without search space pruning. Fig. 5 (right) shows that both of them are
+critical for effective search space exploration. Lastly, Mass obtains further gains (∼2%) by conducting
+workflow-level prompt optimization on the best-found topology, which indicates that optimizing the
+prompts towards modeling the interdependence of agents is beneficial in MAS.
+Cost-effectiveness of Mass. We conduct analysis on the cost-effectiveness of Mass. In particular,
+we visualize the optimization trajectory of Mass as shown in Fig. 6. Mass’s trajectory demonstrates
+a steady trend of optimization that gradually improves the validation performance via interleaving
+the search towards better prompts and topologies. However, when it comes to automatic design
+
+
+                                                                                                                                                             9
+                             Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+1 Block-level Prompt Optimization ( 62% → 79% )                                  2 Workflow Topology Optimization ( 79% → 83% )
+  Debator:                                                                                              P   D             P
+  You are a seasoned math professor specializing in clear and concise                       P
+                                                                                  ( P ) (       D   ) ( P   D       ) (       A   )
+
+
+
+
+                                                                                                                       ...
+  explanations. You are reviewing student solutions to math problems.                                           A
+                                                                                            P
+  Below, you will find the problem, followed by solutions from several                                  P   D             P
+  students. Carefully examine each student's solution, identifying any
+  errors in their logic or calculations. Provide a comprehensive                 3 Workflow-level Prompt Optimization ( 83% → 85% )
+  rationale explaining your analysis of each student's work, clearly
+  stating whether their final answer is correct or incorrect and why.              Predictor:
+  Finally, provide your own definitive and simplified solution to the              Let's think step by step to solve the
+  problem, ensuring its accuracy and clarity. Present your final answer            given problem. Clearly explain your
+  bracketed between <answer> and </answer> at the end.                             reasoning process, showing all
+                                                                                   intermediate calculations and
+  Question: Compute $17^{-1}\\pmod{83}$.                                           justifications. Express your final
+  Solutions: Agent 0: 44\nAgent 1: 74                                              answer as a single numerical value or
+  Rationale: <Rationale>                                                           simplified expression enclosed within
+  Answer: 44                                                                       <answer></answer> tags. Avoid
+                                                                                   extraneous text or explanations outside
+  <Task Demo: Exemplar_2>                                                          of the core reasoning and final answer.
+  <Task Demo: Examplar_3>                                                          <Task Demo: Exemplar_1>
+
+
+Figure 7 | A demonstration of the optimization trajectory of Mass on MATH. In (1) block-level
+optimization: multi-agent debate serves as the best-performing topology. In (2) workflow topology
+optimization, aggregating with more parallel agents outweighs the performance of agents in debate.
+Lastly, (3) workflow-level optimization discovers the optimal prompt conditioned on the best topology.
+
+
+baselines without explicit prompt optimization stages, AFlow is exposed to a larger variance in its
+optimization due to the nature of MCTS, whereas ADAS gets trapped in discovering over-complex
+topologies that appear to be less effective than the prompt design space. Overall, the optimization
+trajectory of Mass highlights the importance of optimizing in an effective design space, where
+interleaved optimization further resolves the complexity with more consecutive rewards within the
+same amount of training costs compared to baselines. Following Sec. 2.1, Mass also demonstrated
+advanced inference token-effectiveness and a comparable training cost, which we refer to Fig. 9 and
+Table 7.
+Best-found MAS architectures & Design principles. We further inspect an example of optimized
+prompts and the trajectory of Mass in discovering more effective topologies in Fig. 7. The optimization
+starts from a zero-shot CoT agent, and soon Mass in Stage (1) identifies the high-performing topology
+in debate with its optimized prompt. However, as found in Stage (2), aggregating with more parallel
+agents actually outweighs the multi-agent debate. Workflow-level prompt optimization then leads
+to the best-performing predictor for aggregation. The overall optimization flow sheds light on
+our guidelines for building effective MAS: 1) Optimizing individual agents properly is important
+before composing them into an MAS; 2) A more effective MAS can be built by composing influential
+topologies; and 3) Modeling the interdependence between agents is beneficial, and can be achieved
+via workflow-level joint optimization.
+
+
+5. Related Work
+Forms of LLM-based agentic systems. The simplest form of an LLM-based agentic system involves
+a single agent that can dynamically interact and respond to the environment (Yao et al., 2023).
+Recent advances endow agents with diverse roles and tools (Wu et al., 2023), orchestrating multiple
+agents to cooperate with each other (Chen et al., 2024b). Standard forms of agent cooperation (i.e.,
+topology) often involve parallel and serial flows of information. The parallel form usually diversifies
+the exploration among many agents in parallel (Li et al., 2024a), and self-consistency (SC) (Wang
+et al., 2023) is a representative way for scaling agents in parallel. The serial form aims to advance the
+exploitation of a task via a chain of agents, where LLMs can serve as reflective agents to self-justify
+
+
+                                                                                                                                      10
+                      Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+and refine former predictions (Madaan et al., 2024; Shinn et al., 2024). Later, the opinions from
+multiple agents can be summarized to retrieve the most consistent answer by an aggregation agent
+(Chen et al., 2024c; Lin et al., 2024). Moreover, multi-agent debate consists of a more complex flow
+of information (Chen et al., 2024a; Wang et al., 2024c; Zhang et al., 2024c), and recent research
+shows that debating can elicit more truthful predictions (Du et al., 2024; Khan et al., 2024). Recent
+agent topology extends beyond the above connections (Qian et al., 2024; Wang et al., 2024b), and
+Mass can automatically search the best topology among the aforementioned spaces.
+
+Automatic optimization for MAS. Recent research starts automating agent design by interpreting
+agent functions as learnable policies (Zhang et al., 2024d,e) and synthesizing trajectories for agent
+fine-tuning (Qiao et al., 2024). Going further from a single agent, automatic multi-agent optimization
+faces a higher level of complexity, thereby requiring a more sophisticated design of the search space
+and algorithms. Among all recent advances in multi-agent optimization, the optimization space has
+spanned prompts (Khattab et al., 2024; Wang et al., 2024d), tools (Zhou et al., 2024c), workflows
+(Li et al., 2024c), and thinking strategies (Shang et al., 2024). Aligning closer to our topology search
+space, DyLAN (Liu et al., 2024b) dynamically activates the composition of agents, and Archon (Saad-
+Falcon et al., 2024) frames MAS as a hyperparameter optimization problem. Neither of them has
+taken the important prompt space into account, where we demonstrated the importance of prompt
+optimization in Sec. 3. In addition, GPTSwarm (Zhuge et al., 2024) optimizes the connections
+between agentic nodes using a policy gradient algorithm. State-of-the-art automatic agent design
+methods, ADAS (Hu et al., 2024a) and AFlow (Zhang et al., 2024b), also attempt to optimize agentic
+workflows with advanced search algorithms and LLM as optimizers. Concurrently with us, MaAS
+(Zhang et al., 2025) optimizes an agentic supernet for query-dependent MAS. However, we observe
+that the importance of prompt designs has been relatively under-studied in these prior works.
+
+
+6. Conclusion
+We approach designing effective MAS by first conducting a thorough analysis of the massive design
+space, revealing the crucial role of prompts, and identifying the redundancy in MAS search space
+design. Building on these findings, we introduce Mass, a novel multi-stage optimization frame-
+work that searches within a pruned design space, interleaving prompt and topology optimization
+to efficiently generate high-performing MAS. Mass is agnostic to customized prompt optimizers
+and topology design space. Our experiments demonstrate that Mass-optimized MAS significantly
+outperforms existing manual and automated approaches across an extensive set of tasks. Finally,
+based on the optimized systems discovered by Mass, we extract valuable design principles to guide
+the development of future MAS, and we expect future prospective prompt and topology designs
+integrated with Mass towards building more efficient and effective LLM-based agents.
+
+
+Acknowledgment
+We thank Jinsung Yoon and all other colleagues from Google Cloud AI Research for their valuable
+feedback.
+
+
+References
+Anthropic. The claude 3 model family: Opus, sonnet, haiku. 2024.
+J. Austin, A. Odena, M. Nye, M. Bosma, H. Michalewski, D. Dohan, E. Jiang, C. Cai, M. Terry, Q. Le,
+   et al. Program synthesis with large language models. arXiv preprint arXiv:2108.07732, 2021.
+
+                                                                                                     11
+                      Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+Y. Bai, X. Lv, J. Zhang, H. Lyu, J. Tang, Z. Huang, Z. Du, X. Liu, A. Zeng, L. Hou, Y. Dong, J. Tang,
+   and J. Li. LongBench: A bilingual, multitask benchmark for long context understanding. In L.-W.
+   Ku, A. Martins, and V. Srikumar, editors, Proceedings of the 62nd Annual Meeting of the Association
+   for Computational Linguistics (Volume 1: Long Papers), pages 3119–3137, Bangkok, Thailand,
+   Aug. 2024. Association for Computational Linguistics. doi: 10.18653/v1/2024.acl-long.172. URL
+   https://aclanthology.org/2024.acl-long.172/.
+J. Chen, S. Saha, and M. Bansal. ReConcile: Round-table conference improves reasoning via consensus
+   among diverse LLMs. In L.-W. Ku, A. Martins, and V. Srikumar, editors, Proceedings of the 62nd
+   Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages
+   7066–7085, Bangkok, Thailand, Aug. 2024a. Association for Computational Linguistics. doi:
+   10.18653/v1/2024.acl-long.381. URL https://aclanthology.org/2024.acl-long.381/.
+
+M. Chen, J. Tworek, H. Jun, Q. Yuan, H. P. D. O. Pinto, J. Kaplan, H. Edwards, Y. Burda,
+ N. Joseph, G. Brockman, et al. Evaluating large language models trained on code. arXiv preprint
+ arXiv:2107.03374, 2021.
+
+W. Chen, Y. Su, J. Zuo, C. Yang, C. Yuan, C.-M. Chan, H. Yu, Y. Lu, Y.-H. Hung, C. Qian, Y. Qin,
+ X. Cong, R. Xie, Z. Liu, M. Sun, and J. Zhou. Agentverse: Facilitating multi-agent collaboration and
+ exploring emergent behaviors. In The Twelfth International Conference on Learning Representations,
+ 2024b. URL https://openreview.net/forum?id=EHg5GDnyq1.
+
+X. Chen, R. Aksitov, U. Alon, J. Ren, K. Xiao, P. Yin, S. Prakash, C. Sutton, X. Wang, and D. Zhou.
+  Universal self-consistency for large language models. In ICML 2024 Workshop on In-Context Learning,
+  2024c. URL https://openreview.net/forum?id=LjsjHF7nAN.
+
+X. Chen, M. Lin, N. Schärli, and D. Zhou. Teaching large language models to self-debug. In The
+  Twelfth International Conference on Learning Representations, 2024d. URL https://openreview.
+  net/forum?id=KuPixIqPiq.
+C.-A. Cheng, A. Nie, and A. Swaminathan. Trace is the next autodiff: Generative optimization with rich
+  feedback, execution traces, and LLMs. In The Thirty-eighth Annual Conference on Neural Information
+  Processing Systems, 2024. URL https://openreview.net/forum?id=rYs2Dmn9tD.
+
+Y. Du, S. Li, A. Torralba, J. B. Tenenbaum, and I. Mordatch. Improving factuality and reasoning in
+   language models through multiagent debate. In Forty-first International Conference on Machine
+   Learning, ICML 2024, Vienna, Austria, July 21-27, 2024. OpenReview.net, 2024. URL https:
+  //openreview.net/forum?id=zj7YuTE4t8.
+D. Dua, Y. Wang, P. Dasigi, G. Stanovsky, S. Singh, and M. Gardner. DROP: A reading comprehension
+  benchmark requiring discrete reasoning over paragraphs. In J. Burstein, C. Doran, and T. Solorio,
+  editors, Proceedings of the 2019 Conference of the North American Chapter of the Association for
+  Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers), pages
+  2368–2378, Minneapolis, Minnesota, June 2019. Association for Computational Linguistics. doi:
+  10.18653/v1/N19-1246. URL https://aclanthology.org/N19-1246/.
+
+S. Guo, C. Deng, Y. Wen, H. Chen, Y. Chang, and J. Wang. Ds-agent: Automated data science by
+   empowering large language models with case-based reasoning, 2024. URL https://arxiv.org/
+   abs/2402.17453.
+D. Hendrycks, C. Burns, S. Kadavath, A. Arora, S. Basart, E. Tang, D. Song, and J. Steinhardt.
+  Measuring mathematical problem solving with the math dataset. NeurIPS, 2021. URL https:
+  //openreview.net/forum?id=7Bywt2mQsCe.
+
+                                                                                                    12
+                      Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+X. Ho, A.-K. Duong Nguyen, S. Sugawara, and A. Aizawa. Constructing a multi-hop QA dataset for
+  comprehensive evaluation of reasoning steps. In D. Scott, N. Bel, and C. Zong, editors, Proceedings
+  of the 28th International Conference on Computational Linguistics, pages 6609–6625, Barcelona,
+  Spain (Online), Dec. 2020. International Committee on Computational Linguistics. doi: 10.18653/
+  v1/2020.coling-main.580. URL https://aclanthology.org/2020.coling-main.580/.
+
+S. Hu, C. Lu, and J. Clune. Automated design of agentic systems. arXiv preprint arXiv:2408.08435,
+   2024a.
+
+X. Hu, Z. Zhao, S. Wei, Z. Chai, Q. Ma, G. Wang, X. Wang, J. Su, J. Xu, M. Zhu, Y. Cheng, J. Yuan,
+  J. Li, K. Kuang, Y. Yang, H. Yang, and F. Wu. Infiagent-dabench: Evaluating agents on data analysis
+  tasks, 2024b. URL https://arxiv.org/abs/2401.05507.
+
+N. Jain, K. Han, A. Gu, W.-D. Li, F. Yan, T. Zhang, S. Wang, A. Solar-Lezama, K. Sen, and I. Stoica.
+  Livecodebench: Holistic and contamination free evaluation of large language models for code.
+  arXiv preprint arXiv:2403.07974, 2024.
+
+C. E. Jimenez, J. Yang, A. Wettig, S. Yao, K. Pei, O. Press, and K. Narasimhan. Swe-bench: Can
+  language models resolve real-world github issues? arXiv preprint arXiv:2310.06770, 2023.
+
+K. Kandasamy, W. Neiswanger, J. Schneider, B. Poczos, and E. P. Xing. Neural architecture search with
+  bayesian optimisation and optimal transport. Advances in neural information processing systems, 31,
+  2018.
+
+A. Khan, J. Hughes, D. Valentine, L. Ruis, K. Sachan, A. Radhakrishnan, E. Grefenstette, S. R. Bowman,
+  T. Rocktäschel, and E. Perez. Debating with more persuasive LLMs leads to more truthful answers.
+  In Forty-first International Conference on Machine Learning, 2024. URL https://openreview.
+  net/forum?id=iLCZtl7FTa.
+O. Khattab, A. Singhvi, P. Maheshwari, Z. Zhang, K. Santhanam, S. V. A, S. Haq, A. Sharma, T. T. Joshi,
+  H. Moazam, H. Miller, M. Zaharia, and C. Potts. DSPy: Compiling declarative language model calls
+  into state-of-the-art pipelines. In The Twelfth International Conference on Learning Representations,
+  2024. URL https://openreview.net/forum?id=sY5N0zY5Od.
+
+T. Kojima, S. S. Gu, M. Reid, Y. Matsuo, and Y. Iwasawa. Large language models are zero-shot
+  reasoners. Advances in neural information processing systems, 35:22199–22213, 2022.
+
+P. Lewis, E. Perez, A. Piktus, F. Petroni, V. Karpukhin, N. Goyal, H. Küttler, M. Lewis, W.-t. Yih,
+   T. Rocktäschel, et al. Retrieval-augmented generation for knowledge-intensive nlp tasks. Advances
+   in Neural Information Processing Systems, 33:9459–9474, 2020.
+
+J. Li, Q. Zhang, Y. Yu, Q. FU, and D. Ye. More agents is all you need. Transactions on Machine Learning
+   Research, 2024a. ISSN 2835-8856. URL https://openreview.net/forum?id=bgzUSZ8aeg.
+
+M. Li, S. Zhao, Q. Wang, K. Wang, Y. Zhou, S. Srivastava, C. Gokmen, T. Lee, L. E. Li, R. Zhang, W. Liu,
+  P. Liang, L. Fei-Fei, J. Mao, and J. Wu. Embodied agent interface: Benchmarking llms for embodied
+  decision making, 2025. URL https://arxiv.org/abs/2410.07166.
+
+Y. Li, Y. Du, J. Zhang, L. Hou, P. Grabowski, Y. Li, and E. Ie. Improving multi-agent debate with sparse
+   communication topology. In Y. Al-Onaizan, M. Bansal, and Y.-N. Chen, editors, Findings of the
+   Association for Computational Linguistics: EMNLP 2024, pages 7281–7294, Miami, Florida, USA, Nov.
+   2024b. Association for Computational Linguistics. doi: 10.18653/v1/2024.findings-emnlp.427.
+   URL https://aclanthology.org/2024.findings-emnlp.427/.
+
+
+                                                                                                     13
+                      Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+Z. Li, S. Xu, K. Mei, W. Hua, B. Rama, O. Raheja, H. Wang, H. Zhu, and Y. Zhang. Autoflow: Automated
+   workflow generation for large language model agents. arXiv preprint arXiv:2407.12821, 2024c.
+
+T. Liang, Z. He, W. Jiao, X. Wang, Y. Wang, R. Wang, Y. Yang, S. Shi, and Z. Tu. Encouraging divergent
+   thinking in large language models through multi-agent debate. In Y. Al-Onaizan, M. Bansal, and
+   Y.-N. Chen, editors, Proceedings of the 2024 Conference on Empirical Methods in Natural Language
+   Processing, pages 17889–17904, Miami, Florida, USA, Nov. 2024. Association for Computational
+   Linguistics. doi: 10.18653/v1/2024.emnlp-main.992. URL https://aclanthology.org/2024.
+   emnlp-main.992/.
+L. Lin, J. Fu, P. Liu, Q. Li, Y. Gong, J. Wan, F. Zhang, Z. Wang, D. Zhang, and K. Gai. Just ask one more
+   time! self-agreement improves reasoning of language models in (almost) all scenarios. In L.-W.
+   Ku, A. Martins, and V. Srikumar, editors, Findings of the Association for Computational Linguistics:
+   ACL 2024, pages 3829–3852, Bangkok, Thailand, Aug. 2024. Association for Computational
+   Linguistics. doi: 10.18653/v1/2024.findings-acl.230. URL https://aclanthology.org/2024.
+   findings-acl.230/.
+F. Liu, N. AlDahoul, G. Eady, Y. Zaki, B. AlShebli, and T. Rahwan. Self-reflection outcome is sensitive
+   to prompt construction. arXiv preprint arXiv:2406.10400, 2024a.
+
+H. Liu, K. Simonyan, and Y. Yang.           Darts: Differentiable architecture search.           arXiv preprint
+  arXiv:1806.09055, 2018.
+
+Z. Liu, Y. Zhang, P. Li, Y. Liu, and D. Yang. A dynamic LLM-powered agent network for task-
+  oriented agent collaboration. In First Conference on Language Modeling, 2024b. URL https:
+  //openreview.net/forum?id=XII0Wp1XA9.
+A. Madaan, N. Tandon, P. Gupta, S. Hallinan, L. Gao, S. Wiegreffe, U. Alon, N. Dziri, S. Prabhumoye,
+  Y. Yang, et al. Self-refine: Iterative refinement with self-feedback. Advances in Neural Information
+  Processing Systems, 36, 2024.
+
+Mistral. Mistral nemo. 2024. URL https://mistral.ai/news/mistral-nemo.
+
+K. Opsahl-Ong, M. J. Ryan, J. Purtell, D. Broman, C. Potts, M. Zaharia, and O. Khattab. Opti-
+  mizing instructions and demonstrations for multi-stage language model programs. In Y. Al-
+  Onaizan, M. Bansal, and Y.-N. Chen, editors, Proceedings of the 2024 Conference on Empirical
+  Methods in Natural Language Processing, pages 9340–9366, Miami, Florida, USA, Nov. 2024.
+  Association for Computational Linguistics. doi: 10.18653/v1/2024.emnlp-main.525. URL
+  https://aclanthology.org/2024.emnlp-main.525/.
+L. Ouyang, J. Wu, X. Jiang, D. Almeida, C. Wainwright, P. Mishkin, C. Zhang, S. Agarwal, K. Slama,
+   A. Ray, et al. Training language models to follow instructions with human feedback. Advances in
+   neural information processing systems, 35:27730–27744, 2022.
+
+R. Pryzant, D. Iter, J. Li, Y. Lee, C. Zhu, and M. Zeng. Automatic prompt optimization with “gradient
+  descent” and beam search. In H. Bouamor, J. Pino, and K. Bali, editors, Proceedings of the 2023
+  Conference on Empirical Methods in Natural Language Processing, pages 7957–7968, Singapore, Dec.
+  2023. Association for Computational Linguistics. doi: 10.18653/v1/2023.emnlp-main.494. URL
+  https://aclanthology.org/2023.emnlp-main.494/.
+C. Qian, Z. Xie, Y. Wang, W. Liu, Y. Dang, Z. Du, W. Chen, C. Yang, Z. Liu, and M. Sun. Scaling
+  large-language-model-based multi-agent collaboration. arXiv preprint arXiv:2406.07155, 2024.
+
+
+
+                                                                                                             14
+                      Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+S. Qiao, N. Zhang, R. Fang, Y. Luo, W. Zhou, Y. Jiang, C. Lv, and H. Chen. AutoAct: Automatic agent
+   learning from scratch for QA via self-planning. In L.-W. Ku, A. Martins, and V. Srikumar, editors,
+   Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1:
+   Long Papers), pages 3003–3021, Bangkok, Thailand, Aug. 2024. Association for Computational
+   Linguistics. doi: 10.18653/v1/2024.acl-long.165. URL https://aclanthology.org/2024.
+   acl-long.165/.
+M. Reid, N. Savinov, D. Teplyashin, D. Lepikhin, T. P. Lillicrap, J. Alayrac, R. Soricut, A. Lazaridou,
+ O. Firat, J. Schrittwieser, I. Antonoglou, R. Anil, S. Borgeaud, A. M. Dai, K. Millican, E. Dyer,
+ M. Glaese, T. Sottiaux, B. Lee, F. Viola, M. Reynolds, Y. Xu, J. Molloy, J. Chen, M. Isard, P. Barham,
+ T. Hennigan, R. McIlroy, M. Johnson, J. Schalkwyk, E. Collins, E. Rutherford, E. Moreira, K. Ayoub,
+ M. Goel, C. Meyer, G. Thornton, Z. Yang, H. Michalewski, Z. Abbas, N. Schucher, A. Anand,
+ R. Ives, J. Keeling, K. Lenc, S. Haykal, S. Shakeri, P. Shyam, A. Chowdhery, R. Ring, S. Spencer,
+ E. Sezener, and et al. Gemini 1.5: Unlocking multimodal understanding across millions of tokens
+ of context. CoRR, abs/2403.05530, 2024. doi: 10.48550/ARXIV.2403.05530. URL https:
+ //doi.org/10.48550/arXiv.2403.05530.
+B. Ru, X. Wan, X. Dong, and M. Osborne. Interpretable neural architecture search via bayesian
+  optimisation with weisfeiler-lehman kernels. International Conference on Learning Representations
+  (ICLR), 2021.
+J. Saad-Falcon, A. G. Lafuente, S. Natarajan, N. Maru, H. Todorov, E. Guha, E. K. Buchanan, M. Chen,
+   N. Guha, C. Ré, et al. Archon: An architecture search framework for inference-time techniques.
+   arXiv preprint arXiv:2409.15254, 2024.
+Y. Shang, Y. Li, K. Zhao, L. Ma, J. Liu, F. Xu, and Y. Li. Agentsquare: Automatic llm agent search in
+   modular design space. arXiv preprint arXiv:2410.06153, 2024.
+N. Shinn, F. Cassano, A. Gopinath, K. Narasimhan, and S. Yao. Reflexion: Language agents with
+  verbal reinforcement learning. Advances in Neural Information Processing Systems, 36, 2024.
+A. Singh, A. Ehtesham, S. Kumar, and T. T. Khoei. Agentic retrieval-augmented generation: A survey
+  on agentic rag. arXiv preprint arXiv:2501.09136, 2025.
+H. Su, R. Sun, J. Yoon, P. Yin, T. Yu, and S. Ö. Arık. Learn-by-interact: A data-centric framework for
+  self-adaptive agents in realistic environments. arXiv preprint arXiv:2501.10893, 2025.
+H. Trivedi, N. Balasubramanian, T. Khot, and A. Sabharwal. MuSiQue: Multihop questions via single-
+  hop question composition. Transactions of the Association for Computational Linguistics, 10:539–554,
+  2022. doi: 10.1162/tacl_a_00475. URL https://aclanthology.org/2022.tacl-1.31/.
+M. Verma, S. Bhambri, and S. Kambhampati. On the brittle foundations of react prompting for agentic
+  large language models. arXiv preprint arXiv:2405.13966, 2024.
+X. Wan, B. Ru, P. M. Esperança, and Z. Li. On redundancy and diversity in cell-based neural
+  architecture search. In International Conference on Learning Representations, 2022. URL https:
+  //openreview.net/forum?id=rFJWoYoxrDB.
+X. Wan, R. Sun, H. Nakhost, and S. O. Arik. Teach better or show smarter? on instructions and
+  exemplars in automatic prompt optimization. In The Thirty-eighth Annual Conference on Neural In-
+  formation Processing Systems, 2024. URL https://openreview.net/forum?id=IdtoJVWVnX.
+F. Wang, X. Wan, R. Sun, J. Chen, and S. Ö. Arık. Astute rag: Overcoming imperfect retrieval
+   augmentation and knowledge conflicts for large language models. arXiv preprint arXiv:2410.07176,
+   2024a.
+
+                                                                                                    15
+                       Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+J. Wang, J. Wang, B. Athiwaratkun, C. Zhang, and J. Zou. Mixture-of-agents enhances large language
+   model capabilities. arXiv preprint arXiv:2406.04692, 2024b.
+Q. Wang, Z. Wang, Y. Su, H. Tong, and Y. Song. Rethinking the bounds of LLM reasoning: Are
+  multi-agent discussions the key? In L.-W. Ku, A. Martins, and V. Srikumar, editors, Proceedings of
+  the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers),
+  pages 6106–6131, Bangkok, Thailand, Aug. 2024c. Association for Computational Linguistics. doi:
+  10.18653/v1/2024.acl-long.331. URL https://aclanthology.org/2024.acl-long.331/.
+W. Wang, H. A. Alyahya, D. R. Ashley, O. Serikov, D. Khizbullin, F. Faccio, and J. Schmidhuber.
+ How to correctly do semantic backpropagation on language-based agentic systems. arXiv preprint
+ arXiv:2412.03624, 2024d.
+X. Wang, J. Wei, D. Schuurmans, Q. V. Le, E. H. Chi, S. Narang, A. Chowdhery, and D. Zhou. Self-
+  consistency improves chain of thought reasoning in language models. In The Eleventh International
+  Conference on Learning Representations, 2023. URL https://openreview.net/forum?id=
+  1PL1NIMMrw.
+C. White, M. Safari, R. Sukthanker, B. Ru, T. Elsken, A. Zela, D. Dey, and F. Hutter. Neural architecture
+  search: Insights from 1000 papers. arXiv preprint arXiv:2301.08727, 2023.
+Q. Wu, G. Bansal, J. Zhang, Y. Wu, S. Zhang, E. Zhu, B. Li, L. Jiang, X. Zhang, and C. Wang.
+  Autogen: Enabling next-gen llm applications via multi-agent conversation framework. arXiv preprint
+  arXiv:2308.08155, 2023.
+C. S. Xia, Y. Deng, S. Dunn, and L. Zhang. Agentless: Demystifying llm-based software engineering
+  agents. arXiv preprint arXiv:2407.01489, 2024.
+C. Yang, X. Wang, Y. Lu, H. Liu, Q. V. Le, D. Zhou, and X. Chen. Large language models as
+  optimizers. In The Twelfth International Conference on Learning Representations, 2024. URL
+  https://openreview.net/forum?id=Bb4VGOWELI.
+Z. Yang, P. Qi, S. Zhang, Y. Bengio, W. Cohen, R. Salakhutdinov, and C. D. Manning. HotpotQA: A
+   dataset for diverse, explainable multi-hop question answering. In E. Riloff, D. Chiang, J. Hock-
+   enmaier, and J. Tsujii, editors, Proceedings of the 2018 Conference on Empirical Methods in Nat-
+   ural Language Processing, pages 2369–2380, Brussels, Belgium, Oct.-Nov. 2018. Association for
+  Computational Linguistics. doi: 10.18653/v1/D18-1259. URL https://aclanthology.org/
+   D18-1259/.
+S. Yao, J. Zhao, D. Yu, N. Du, I. Shafran, K. R. Narasimhan, and Y. Cao. React: Synergizing reasoning
+   and acting in language models. In The Eleventh International Conference on Learning Representations,
+   2023. URL https://openreview.net/forum?id=WE_vluYUL-X.
+M. Yuksekgonul, F. Bianchi, J. Boen, S. Liu, P. Lu, Z. Huang, C. Guestrin, and J. Zou. Optimizing
+ generative ai by backpropagating language model feedback. Nature, 639:609–616, 2025.
+G. Zhang, Y. Yue, Z. Li, S. Yun, G. Wan, K. Wang, D. Cheng, J. X. Yu, and T. Chen. Cut the crap: An eco-
+  nomical communication pipeline for llm-based multi-agent systems. arXiv preprint arXiv:2410.02506,
+  2024a.
+G. Zhang, L. Niu, J. Fang, K. Wang, L. Bai, and X. Wang. Multi-agent architecture search via agentic
+  supernet. arXiv preprint arXiv:2502.04180, 2025.
+J. Zhang, J. Xiang, Z. Yu, F. Teng, X. Chen, J. Chen, M. Zhuge, X. Cheng, S. Hong, J. Wang, et al.
+   Aflow: Automating agentic workflow generation. arXiv preprint arXiv:2410.10762, 2024b.
+
+                                                                                                       16
+                       Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+J. Zhang, X. Xu, N. Zhang, R. Liu, B. Hooi, and S. Deng. Exploring collaboration mechanisms for LLM
+   agents: A social psychology view. In L.-W. Ku, A. Martins, and V. Srikumar, editors, Proceedings of the
+   62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages
+   14544–14607, Bangkok, Thailand, Aug. 2024c. Association for Computational Linguistics. doi:
+   10.18653/v1/2024.acl-long.782. URL https://aclanthology.org/2024.acl-long.782/.
+
+S. Zhang, J. Zhang, J. Liu, L. Song, C. Wang, R. Krishna, and Q. Wu. Offline training of language
+   model agents with functions as learnable weights. In Forty-first International Conference on Machine
+   Learning, 2024d. URL https://openreview.net/forum?id=2xbkWiEuR1.
+
+W. Zhang, K. Tang, H. Wu, M. Wang, Y. Shen, G. Hou, Z. Tan, P. Li, Y. Zhuang, and W. Lu. Agent-
+ pro: Learning to evolve via policy-level reflection and optimization. In L.-W. Ku, A. Martins,
+ and V. Srikumar, editors, Proceedings of the 62nd Annual Meeting of the Association for Com-
+ putational Linguistics (Volume 1: Long Papers), pages 5348–5375, Bangkok, Thailand, Aug.
+ 2024e. Association for Computational Linguistics. doi: 10.18653/v1/2024.acl-long.292. URL
+ https://aclanthology.org/2024.acl-long.292/.
+Y. Zhang, R. Sun, Y. Chen, T. Pfister, R. Zhang, and S. O. Arik. Chain of agents: Large language models
+   collaborating on long-context tasks. In The Thirty-eighth Annual Conference on Neural Information
+   Processing Systems, 2024f. URL https://openreview.net/forum?id=LuCLf4BJsr.
+
+H. Zhou, X. Wan, I. Vulić, and A. Korhonen. Survival of the most influential prompts: Efficient black-
+  box prompt search via clustering and pruning. In H. Bouamor, J. Pino, and K. Bali, editors, Findings
+  of the Association for Computational Linguistics: EMNLP 2023, pages 13064–13077, Singapore, Dec.
+  2023a. Association for Computational Linguistics. doi: 10.18653/v1/2023.findings-emnlp.870.
+  URL https://aclanthology.org/2023.findings-emnlp.870/.
+
+H. Zhou, X. Wan, Y. Liu, N. Collier, I. Vulić, and A. Korhonen. Fairer preferences elicit improved
+  human-aligned large language model judgments. In Y. Al-Onaizan, M. Bansal, and Y.-N. Chen,
+  editors, Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing,
+  pages 1241–1252, Miami, Florida, USA, Nov. 2024a. Association for Computational Linguistics. doi:
+  10.18653/v1/2024.emnlp-main.72. URL https://aclanthology.org/2024.emnlp-main.
+  72/.
+H. Zhou, X. Wan, L. Proleev, D. Mincu, J. Chen, K. A. Heller, and S. Roy. Batch calibration: Rethinking
+  calibration for in-context learning and prompt engineering. In The Twelfth International Conference
+  on Learning Representations, 2024b. URL https://openreview.net/forum?id=L3FHMoKZcS.
+
+W. Zhou, Y. Ou, S. Ding, L. Li, J. Wu, T. Wang, J. Chen, S. Wang, X. Xu, N. Zhang, et al. Symbolic
+ learning enables self-evolving agents. arXiv preprint arXiv:2406.18532, 2024c.
+
+Y. Zhou, A. I. Muresanu, Z. Han, K. Paster, S. Pitis, H. Chan, and J. Ba. Large language models are
+   human-level prompt engineers. In The Eleventh International Conference on Learning Representations,
+   2023b. URL https://openreview.net/forum?id=92gvk82DE- .
+
+M. Zhuge, W. Wang, L. Kirsch, F. Faccio, D. Khizbullin, and J. Schmidhuber. GPTSwarm: Language
+ agents as optimizable graphs. In Forty-first International Conference on Machine Learning, 2024.
+ URL https://openreview.net/forum?id=uTC9AFXIhg.
+
+
+
+
+                                                                                                       17
+                          Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+A. Limitations and future work
+Mass is a multi-agent design meta-framework also orthogonal to prompt and topology optimizers.
+Mass has brought substantial improvements over a single agent design by searching in a customizable
+topology space. Though our proposed topology space has covered the vast majority of effective MAS
+designs, including serial, parallel, and mixture of connections, it is still likely that incorporating
+other topologies may further improve the final performance of Mass, which is complementary to the
+development of Mass. For instance, the debate topology proposed in Mass involves a fully-connected
+topology across agents. Recent work has been identifying the sparsity of agent communications (Li
+et al., 2024b; Zhang et al., 2024a), and pruning redundant communications may further enhance the
+overall efficiency of the strongest Mass-found design. Though the topology optimizer in Mass already
+traverses efficiently in the proposed topology space, incorporating more advanced search algorithms,
+such as the Bayes optimizer (Kandasamy et al., 2018; Ru et al., 2021), may further improve the
+sample efficiency of Mass when faces a more complex design space. Similarly, the sample efficiency
+of the prompt optimizer may be further enhanced by conditioning on textual feedback from error
+logs (Cheng et al., 2024; Pryzant et al., 2023), which we will endeavor to explore in future work.
+These prospective future topology and prompt design methods will further strengthen Mass, while
+Mass has been served as a generalizable guideline in identifying influential agentic design components
+and a systematic framework for scalable MAS optimization.
+
+
+B. Implementation details
+
+B.1. Datasets
+
+In this work, we included the following dataset: 1) Hendryck’s MATH (Hendrycks et al., 2021)
+consisting competition-level mathematics problems, and DROP (Dua et al., 2019) requires discrete
+and symbolic reasoning over paragraphs; 2) HotpotQA (Yang et al., 2018), MuSiQue (Trivedi et al.,
+2022), and 2WikiMultiHopQA (Ho et al., 2020) to evaluate long-context reasoning with agentic
+systems, which we report from standardized versions in LongBench (Bai et al., 2024); 3) MBPP (Austin
+et al., 2021), HumanEval (Chen et al., 2021), and LiveCodeBench (Jain et al., 2024) as well-established
+coding benchmarks. Regarding LiveCodeBench, we use the ‘test output prediction’ task as an agent
+cooperative task. In line with AFlow (Zhang et al., 2024b), we use the public test cases of MBPP
+and HumanEval for the executor to retrieve reliable external feedback signals. To save computation
+resources, we randomly sample a subset of the original validation and test splits to conduct all the
+experiments, where the specifications are reported in Table 2.
+
+Table 2 | The specification of evaluation tasks: dataset split, topology search space, and the Mass-
+optimized MAS (on Gemini 1.5 Pro).
+
+  Task            Type                             |Val|   |Test|            Topology Search Space              Mass
+  MATH            Mathematical Reasoning            60     100            {Aggregate, Reflect, Debate}         {9, 0, 0}
+  DROP            Discrete Reasoning               60      200            {Aggregate, Reflect, Debate}         {5, 0, 0}
+  HotpotQA        Long-context Understanding       50      100      {Summarize, Aggregate, Reflect, Debate}   {0, 5, 0, 1}
+  MuSiQue         Long-context Understanding       50      100      {Summarize, Aggregate, Reflect, Debate}   {0, 3, 0, 2}
+  2WikiMQA        Long-context Understanding       50      100      {Summarize, Aggregate, Reflect, Debate}   {0, 3, 0, 1}
+  MBPP            Coding                           60      200       {Aggregate, Reflect, Debate, Executor}   {1, 4, 0, 1}
+  HumanEval       Coding                           50      100       {Aggregate, Reflect, Debate, Executor}   {1, 3, 0, 1}
+  LiveCodeBench   Coding: test output prediction   100     200       {Aggregate, Reflect, Debate, Executor}   {3, 1, 1, 1}
+
+
+
+
+                                                                                                                        18
+                           Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+                                                                 Topology Building Blocks
+
+                    Summarize              Aggregate                     Reflect                Debate           Executor
+
+                                               P
+                                                                                                P
+                       S    P                  P        A               P       R                   D        P      E       R
+                                                                                                P
+                                               P
+
+                                                              MASS-optimized Topology
+     MATH       DROP            HotpotQA                    MuSiQue         2WikiMQA                MBPP   HumanEval            LiveCodeBench
+
+    P          P                P    D              P        D    D            P    D               P        P              P     E    R   D
+
+         A           A
+                                    ...
+                           ...
+   ...
+
+
+
+              ...
+
+
+
+
+                                           A        P        D    D    A       P    D       A       E        E              P     E    R   D    A
+    P          P                P    D
+                                                    P        D    D            P    D               R        R              P     E    R   D
+
+
+Figure 8 | Visualization of the topology building blocks and best Mass-discovered topologies from
+Gemini 1.5 Pro.
+
+Table 3 | The search dimension for each topology. The minimum topology defines the building block
+that Mass Stage (1) optimized. We refer the definition of search space to Sec.2.2.
+
+   Topology         Search Space                   Minimum Topology Building Block                                 Definition
+   Summarize        𝑁𝑠 ∈ {0, 1, 2, 3, 4}           1 Summarizer + 1 Predictor                                      Rounds of summarization
+   Aggregate        𝑁𝑎 ∈ {1, 3, 5, 7, 9}           3 Predictor + 1 Aggregator                                      Number of parallel agents
+   Reflect          𝑁𝑟 ∈ {0, 1, 2, 3, 4}           1 Predictor + 1 Reflector                                       Rounds of self-reflection
+   Debate           𝑁𝑑 ∈ {0, 1, 2, 3, 4}           2 Predictor + 1 Debator                                         Rounds of debating
+   Execute          𝑁𝑡 ∈ {0, 1}                    1 Predictor + 1 Executor + 1 Reflector}                         Use of code execution
+
+
+
+
+B.2. Baselines
+
+In this section, we report the specifications of all our baselines. We note that for the baselines: CoT,
+SC, Self-Refine, and Multi-Agent Debate, we follow the prompts given in ADAS (Hu et al., 2024a).
+   1) Chain-of-Thought (CoT) (Kojima et al., 2022). Direct chain-of-thought reasoning via zero-shot
+prompting: “Please think step by step and then solve the task."
+    2) Self-Consistency (SC) (Wang et al., 2023). In self-consistency, we generate diverse chain-of-
+thought reasoning traces with a temperature of 0.8, followed by a rule-based majority vote that
+collects the most consistent answer. In Table 1, we report SC@9 to provide a fair comparison across
+baselines.
+    3) Self-Refine (Madaan et al., 2024): This baseline consists of one predictor that constantly
+takes feedback and a self-reflector that provides criticism. It involves a stop criterion whenever the
+self-reflector outputs “correct” in its prediction. We set the maximum number of rounds of reflections
+to 5, such that the worst case will involve 11 (1 + 2 × 5) calls.
+    4) Multi-Agent Debate (Du et al., 2024; Liang et al., 2024). In this baseline, it involves 3 agents
+that conduct reasoning and debating for 3 rounds. The opinions along the rounds of debating are
+finally judged by an aggregator that makes the final prediction. Hence, it contains 10 (3 × 3 + 1)
+agents.
+   5) Automated Design of Agentic Systems (ADAS) (Hu et al., 2024a). Consistent with our main
+
+                                                                                                                                                    19
+                        Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+experimental setups. We use Gemini 1.5 as both LLM optimizer and evaluator for reproducing all
+ADAS results. The generation of ADAS is conditioned on former evaluations of baselines, including
+CoT, SC, Self-Refine, and Multi-Agent Debate. We report ADAS with 30 rounds of search, and each
+round is evaluated on the validation set 3 times to stablize the prediction.
+    6) AFlow (Zhang et al., 2024b). Automatic workflow design via Monte-Carlo Tree Search over a
+set of pre-defined operators. Similar to ADAS, AFlow also relies on an LLM optimizer to generate
+new nodes and topologies expressed in codes. However, we find the meta-prompt of AFlow does not
+generalize to other LLM backbones. Consequently, we report AFlow with its original LLM optimizer by
+Claude 3.5 Sonnet, and reproduce experiments with Gemini 1.5 Pro as the LLM executor. Therefore,
+the comparison is not completely fair, and we treat the results from AFlow as a good reference. We
+note that the ‘-’ in Table 1 refers to out-of-time errors, where the LLM executor has been trapped in
+executing accidental scripts with infinite loops. We still endeavored to report most results from AFlow
+as shown in Table 1 & Fig. 6 with the default experimental setup from AFlow: 20 rounds, 5 runs of
+validation per round, and k at 3.
+
+
+B.3. Mass details and Construction Rules
+
+In this section, we provide additional details for Mass. The topology search space for each task is
+defined in Table 2. In addition, for Stage (1) block-level prompt optimization, the specification of
+the building block is defined in Table 3. MASS follows a simple and predefined rule for constructing
+different topologies in sequence. Throughout our study, we find that the impact of different agentic
+configurations outweighs the ordering substantially. Consequently, our rule follows the practice
+of agent designs by constructing topology in a fixed order of [summarize, reflect, debate,
+aggregate]. When multiple search dimensions are kept active, aggregate basically controls the
+number of chain-of-agents in parallel, where the length of the chain is defined via the pre-defined
+order. We provide the visualization of both the minimum building blocks and the optimized topology
+in Fig. 8. We refer the reader to App. §D & §E for the prompt templates we used to define each type
+of agent and the best prompts discovered.
+
+
+C. Additional experiments
+
+C.1. Generalization across LLM backbones
+
+Table 4 | Results on the evaluation set with Claude 3.5 Sonnet. We keep the same experimental setup
+as Table 1. Since Claude 3.5 Sonnet does not support the same context window as Gemini, we report
+the standard HotpotQA instead of the LongBench. As we transfer the prompt template for each agent
+from Gemini to Claude, it is noticeable that the basic topology on some tasks may result in severe
+degradation of performance, and Mass successfully recovers the performance and brings significant
+improvements over the initial agent.
+
+                                                   Claude-3.5-Sonnet
+   Task                      Reasoning                Multi-hop                      Coding
+   Method                 MATH       DROP             HotpotQA         MBPP         HumanEval        LCB       Avg.
+   CoT                   57.330.94     55.520.42      23.561.52      67.501.47       88.671.70     72.672.39   60.21
+   Self-Consistency      61.671.89     57.860.45      25.690.44      69.170.62       90.000.82     72.672.39   62.84
+   Self-Refine           57.001.63     56.260.56      23.572.56      68.000.82       87.001.41     49.331.65   56.86
+   Multi-Agent Debate    45.003.74     26.620.11      31.413.30      00.000.00       84.333.30     72.821.84   43.36
+   Mass                  63.000.00     68.930.38      66.980.99      68.830.62       93.000.82     73.731.43   72.43
+
+
+                                                                                                                       20
+                           Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+Table 5 | Results on the evaluation set with the open-source model, Mistral-Nemo-12B. We keep the
+same experimental setup as Table 4 and evaluate a subset of representative coding tasks to save
+resources. Mass demonstrate consistent improvements over the baselines on Mistral Nemo.
+
+                                                     Mistral-Nemo-12B
+      Task                                  Reasoning                     Multi-hop              Coding
+      Method                            MATH         DROP                 HotpotQA                MBPP            Avg.
+      CoT                               13.3             49.0                  55.9               43.5            40.4
+      Self-Consistency                  22.0             57.6                  58.9               46.5            46.3
+      Self-Refine                       14.3             48.6                  52.5               48.0            40.9
+      Multi-Agent Debate                26.0             61.4                  59.5               40.5            46.9
+      Mass                              43.7             68.4                  62.6               48.7            55.9
+
+
+Table 6 | The detailed ablation results per optimization stage of Mass. Practical gains can be obtained
+by further conducting workflow-level prompt optimization (3PO) on the best-found topology.
+
+                                                     Gemini-1.5-pro-002
+  Task            Reasoning                 Multi-hop Long-context                           Coding
+  Method        MATH     DROP           HotpotQA MuSiQue 2WikiMQA                 MBPP      HumanEval       LCB       Avg.
+  Base Agent   62.330.94    71.650.61    56.961.26    43.320.13    49.200.61    68.830.85    89.331.70    66.332.09   63.54
+  + APO        79.331.89    77.510.38    59.720.00    43.970.00    61.490.24    67.001.08    86.331.25    68.501.22   67.44
+  + 1PO        80.000.00    86.450.90    62.521.86    48.860.61    67.400.58    80.331.25    91.671.25    76.000.00   74.56
+  + 2TO        83.001.63    86.751.32    65.221.34    52.610.52    72.820.86    85.001.08    92.000.82    81.330.00   77.55
+  + 3PO        84.670.47    90.520.64    69.911.11    51.400.42    73.340.67    86.500.41    91.670.47    82.330.85   78.40
+
+
+
+C.2. Discussion on Mass-found topologies
+
+In Fig. 8, we find that the optimal Mass-found topologies indicate certain patterns per task family, and
+there are topologies that demonstrate clear advantages over other topologies in particular tasks. By
+inspecting Fig. 8, we notice that the “debating” topology brings significant gains to all multi-hop tasks
+that require factual knowledge: HotpotQA, MuSiQue, and 2WikiMQA, which is aligned with previous
+multi-agent debate work (Khan et al., 2024) that argues debating will elicit more truthful answers.
+Reasoning tasks: MATH and DROP benefit from more exploration, where SC becomes more effective.
+Lastly, the coding tasks share a common pattern of reflection with tool-using. However, even the best
+configuration in the same task family still shows differentiations, indicating the necessity of automatic
+optimization. Therefore, no matter the underlying complexity of the task-dependent topology, the
+unique advantage of MASS is being able to identify the most influential topology automatically for
+any customized search space.
+
+
+C.3. Cost analysis
+
+To estimate the computation cost, the prompt optimizer evaluates the MAS with 𝐾 rounds of evaluation,
+where each round consists of 𝑀 prompt candidates, and each inference requires N ( 𝑎) API calls by
+the number of agents in the MAS. Hence, 1PO scales linearly with the number of building blocks 𝐽 ,
+and its cost can be computed as 𝐶 (1PO) = 𝐽𝑗 N ( 𝑎 𝑗 ) × 𝑀 × 𝐾 . The topology optimization evaluates
+                                           Í
+
+𝑁 topology candidates. Hence, 𝐶 (2TO) = 𝑛𝑁 N (W𝑛 ). Similar to 1PO, 3PO conducts PO on the
+                                             Í
+best-found workflow W ∗ , such that 𝐶 (3PO) = N (W ∗ ) × 𝑀 × 𝐾 , and the cost of 3PO scales linearly
+
+
+                                                                                                                          21
+                                 Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+Table 7 | The training and inference cost for running Mass and baselines, where we show the training
+cost and the actual run-time of Mass is comparable to the training cost of auto-agent baselines. We
+note that the performance of self-consistency, self-refine, and multi-agent debate is already saturated,
+and further scaling the inference cost of these baselines only brings marginal gains, whereas the
+Mass-found MAS outperforms the baseline substantially at a comparable inference token cost.
+
+                                                 Training                               Inference (per query)
+  Method                        Input Token      Output Token        Cost ($)   Input Token Output Token Cost ($)     Acc (%)
+  Self-Consistency                     -                 -              -         1538           3013        0.0010    69.3
+  Self-Refine                          -                 -              -         2051            850        0.0004    71.3
+  Multi-Agent Debate                   -                 -              -         6536           2483        0.0012    71.7
+  AFlow                              11M                8M            3.89        2523           1481        0.0006    64.3
+  ADAS                               23 M              13 M           5.61        7850           3335        0.0016    72.7
+  Mass                               24 M              11 M           5.09        6645           3263        0.0014    81.0
+
+
+                                                        MATH (gemini-1.5-pro-002)
+                                84                                        MASS
+                                                              MASS                 MASS
+                                82               MASS
+                                                         Refine@5
+                                80
+                 Accuracy (%)
+
+
+
+
+                                                                                              Debate 2R@3A
+                                78                  Debate 1R@2A                  Quality-Diverse
+                                                Step-Back
+                                                        CoT-SC@5ADAS-T&S
+                                76              CoT-SC@3
+                                                                                             ADAS-Tool
+                                74 CoT
+                                72       Role Assign
+                                70
+                                     0      1000 2000 3000 4000 5000 6000 7000 8000
+                                                                 Total Tokens
+Figure 9 | The Pareto-front of Mass-optimized designs compared to multi-agent baselines. Total
+tokens include both inference input tokens and output tokens. Additional multi-agent baselines from
+ADAS (Hu et al., 2024a) and the two best-found ADAS designs are included.
+
+
+with the number of agents in the network. The final computation cost is therefore a summation of
+the cost at individual stages.
+    In Table 7, we report the detailed token cost for both training Mass and the inference cost per
+query with reference costs from baselines, where we show that the training cost of Mass is comparable
+to the training cost of auto-agent baselines. It is worth noting that the performance of training-free
+baselines (e.g., self-consistency@9) is already saturated, and further scaling the inference cost of
+these baselines only brings marginal gains, whereas the Mass-found MAS outperforms baselines
+substantially. In addition, we record the Pareto-front of Mass optimized designs in Fig. 9. Though
+the primary objective of this work is a single-objective optimization that targets to maximize the task
+performance within the same training budget, we show that Mass can generate a Pareto-front of
+optimized MAS designs with stronger token-effectiveness than baselines, and the more cost-efficient
+workflows can be selected from the pivotal points in the Mass Pareto-front.
+
+
+
+                                                                                                                              22
+                          Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+    Table 8 | Comparison of Mass with graph optimization baselines. We reproduce GPTSwarm with
+    (Zhang et al., 2024a), and (Pro) & (Flash) indicate optimization results from Gemini 1.5 Pro and
+    Gemini 1.5 Flash, respectively.
+
+           Method                          MATH (%)                    HumanEval (%)                  Average (%)
+           GPTSwarm (Pro)                      76.0                           85.0                       80.5
+           Mass (Pro)                          84.7                           91.7                       88.2
+           GPTSwarm (Flash)                    61.0                           73.0                       67.0
+           Mass (Flash)                        81.0                           84.7                       82.9
+
+    Table 9 | Ablation of Mass with different prompt optimizers on Gemini 1.5 Flash.
+
+          Method              CoT              Mass (APE)                 Mass (DSPy)                Mass (MIPRO)
+          MATH (%)            66.7                  73.3                       78.2                      81.0
+
+
+    C.4. Graph optimization baseline
+
+    We further compare Mass against a graph optimization baseline, GPTSwarm (Zhuge et al., 2024),
+    on the overlapped set of tasks from the original work. We observe that the graph optimization
+    is more effective in improving the inference efficiency from a fully-connected graph to a sparse
+    graph rather than enhancing the task performance, whereas the prompt optimization component of
+    Mass particularly led to more significant contributions. Overall, Mass brought a substantial gain
+    (8% and 6% over MATH & HumanEval, respectively) in representative reasoning and coding tasks
+    compared to graph optimization methods.
+
+
+    C.5. Ablation on prompt optimizers
+
+    Mass is a plug-and-play framework with arbitrary prompt optimizers. We integrate MIPRO (Opsahl-
+    Ong et al., 2024) as a representative prompt optimizer due to the importance of simultaneous
+    instruction and exemplar optimization, which has been justified in both (Opsahl-Ong et al., 2024;
+    Wan et al., 2024) that show superior performance over OPRO-style (Yang et al., 2024) instruction-only
+    optimization methods. It is also worth noting that the MASS framework itself is agnostic to the prompt
+    optimizer, and thus any prospective better methods can only enhance the overall performance of
+    Mass. In Table 9, we additionally provide an ablation of common prompt optimizers, APE (Zhou et al.,
+    2023b) & DSPy (Khattab et al., 2024), and we show Mass with exemplar optimization (+DSPy) also
+    led to significant gains. We consider extending the existing PO to feedback-based optimizers (e.g.,
+    ProTeGi (Pryzant et al., 2023) or TextGrad (Yuksekgonul et al., 2025)) that may come with better
+    sample efficiency as a desirable future work.
+
+
+    D. Prompt template
+    We provide all the prompt templates we used for defining the Mass search space. We use <> to
+    enclose texts that have been skipped for presentation purposes. We follow the DSPy (Khattab et al.,
+    2024) in constructing these agentic templates.
+       The general template for instruction, exemplar, and input/output fields:
+1
+2   < Instruction >
+
+
+                                                                                                                    23
+                            Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+3
+4    ---
+5
+6    Follow the following format .
+7
+8  Input : $ { Input }
+9  ...
+10 Output : $ { output }
+11
+12   ---
+13
+14   < example_1 >
+15
+16   ---
+17
+18 Input : < Input >
+19 ...
+20 Output : < output >
+
+
+           MATH:
+1    Predictor :
+2
+3 Let ’ s think step by step .
+4 ---
+5 Question : $ { question }
+6 Reasoning : Let ’ s think step by step in order to $ { produce the answer }. We ...
+7 Answer : $ { answer }
+8
+9    ------------
+10   Reflector :
+11
+12   Please review the answer above and criticize on where might be wrong . If you are
+         absolutely sure it is correct , output ’ True ’ in ’ correctness ’.
+13
+14 ---
+15 Question : $ { question }
+16 Text : $ { text }
+17 Reasoning : Let ’ s think step by step in order to $ { produce the correctness }. We ...
+18 Feedback : $ { feedback }
+19 Correctness : True / False indicating if answer is correct given the question .
+20
+21   ------------
+22   Refiner :
+23
+24   Given previous attempts and feedback , carefully consider where you could go wrong in
+          your latest attempt . Using insights from previous attempts , try to solve the
+         task better . Show your final answer bracketed between < answer > and </ answer > at
+         the end .
+25
+26 ---
+27 Question : $ { question }
+28 Previous answer : $ { p re v io u s_ a ns w er }
+29 Reflection : $ { reflection }
+30 Correctness : $ { correctness }
+31 Thinking : $ { thinking }
+32 Answer : $ { answer }
+33
+34   ------------
+35
+36   Debator :
+37
+38   These are the solutions to the question from other agents . Examine the solutions
+         from other agents in your rationale , finish by giving an updated answer . Show
+         your final answer bracketed between < answer > and </ answer > at the end .
+39
+40 ---
+41 Question : $ { question }
+42 Solutions : the solutions to the question from other agents
+43 Reasoning : Let ’ s think step by step in order to $ { Examine the solutions from other
+       agents }. We ...
+
+
+                                                                                                       24
+                        Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+44   Answer : The updated answer for the question . Do not repeat Answer :
+
+        DROP:
+1    Predictor :
+2
+3 Please think step by step and then solve the task . # Your Task :
+4 Please answer the following question based on the given context .
+5 ---
+6 Question : $ { question }
+7 Context : $ { context }
+8 Thinking : $ { thinking }
+9 Answer : Directly answer the question . Keep it very concise .
+10
+11   ------------
+12   Reflector :
+13
+14   Verify that the answer is based on the provided context . Give your reflection in the
+          rationale .
+15
+16 ---
+17 Question : $ { question }
+18 Context : $ { context }
+19 Text : $ { text }
+20 Reasoning : Let ’ s think step by step in order to $ { produce the correctness }. We ...
+21 Correctness : True / False indicating if answer is correct given the observations and
+       question .
+22
+23   ------------
+24   Refiner :
+25
+26   Please think step by step and then solve the task . # Your Task :
+27   Based on the reflection , correctness of the previous answer , and the context again ,
+         give an updated answer .
+28
+29 ---
+30 Question : $ { question }
+31 Context : $ { context }
+32 Previous answer : $ { p re v io u s_ a ns w er }
+33 Reflection : $ { reflection }
+34 Correctness : $ { correctness }
+35 Thinking : $ { thinking }
+36 Answer : Directly answer the question . Keep it very concise .
+37
+38   ------------
+39
+40   Debator :
+41
+42   These are the solutions to the question from other agents . Based on the context ,
+         examine the solutions from other agents in your rationale , finish by giving an
+         updated answer .
+43
+44 ---
+45 Question : $ { question }
+46 Context : $ { context }
+47 Solutions : the solutions to the question from other agents
+48 Reasoning : Let ’ s think step by step in order to $ { Examine the solutions from other
+       agents }. We ...
+49 Answer : The updated answer for the question . Do not repeat Answer :
+
+
+        HotpotQA, MuSiQue, and 2WikiMQA:
+1    Predictor :
+2
+3 Answer the question with information based on the context . Only return the answer as
+       your output .
+4 ---
+5 Question : $ { question }
+6 Context : $ { context }
+7 Answer : Only give me the answer . Do not output any other words .
+8
+9    ------------
+
+
+                                                                                                   25
+                        Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+10   Summarizer :
+11
+12 Based on the question , retrieve relevant information from context that is ONLY
+       helpful in answering the question . Include all key information . Do not repeat
+       context .
+13 ---
+14 Question : $ { question }
+15 Context : $ { context }
+16 Summary : Only generate the summary . Start with Summary :
+17
+18   ------------
+19   Reflector :
+20
+21   Verify that the answer is based on the provided context .
+22
+23 ---
+24 Question : $ { question }
+25 Context : $ { context }
+26 Text : $ { text }
+27 Reasoning : Let ’ s think step by step in order to $ { produce the correctness }. We ...
+28 Correctness : True / False indicating if answer is correct given the observations and
+       question .
+29
+30   ------------
+31
+32   Debator :
+33
+34   These are the solutions to the question from other agents . Based on the context ,
+         examine the solutions from other agents in your rationale , finish by giving an
+         updated answer .
+35
+36 ---
+37 Question : $ { question }
+38 Context : $ { context }
+39 Solutions : the solutions to the question from other agents
+40 Reasoning : Let ’ s think step by step in order to $ { Examine the solutions from other
+       agents }. We ...
+41 Answer : The updated answer for the question . Do not repeat Answer :
+
+
+        MBPP:
+1    Predictor :
+2
+3 Let ’ s think step by step . Provide a complete and correct code implementation in
+       python .
+4 ---
+5 Question : $ { question }
+6 Thinking : $ { thinking }
+7 Answer : Only the code imp lemen tation . Do not include example usage or explainations .
+8
+9    ------------
+10   Reflector :
+11
+12   Please determine the correctness of the solution in passing all test cases . If it
+         fails , based on the error message and trackback , think step by step , carefully
+         propose an updated solution in the answer output with a correct code
+         imp leme ntati on in python .
+13
+14 ---
+15 Question : $ { question }
+16 Previous solution : $ { p r e v i o u s _ s o l u t io n }
+17 Traceback : It contains the test cases , execution results , and ground truth . If there
+        is an error , the relevant traceback is given .
+18 Correctness : ’ True / False ’ based on the correctness of executive feedback . If there
+       is an error message , output ’ False ’
+19 Thinking : $ { thinking }
+20 Answer : $ { answer }
+21
+22   ------------
+23
+24   Debator :
+
+
+                                                                                                   26
+                              Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+25
+26   These are the solutions to the question from other agents . Examine the solutions
+         from other agents in your rationale , finish by giving an updated answer . Let ’ s
+         think step by step . Provide a complete and correct code implementation in python
+         .
+27
+28 ---
+29 Question : $ { question }
+30 Solutions : the solutions to the question from other agents
+31 Reasoning : Let ’ s think step by step in order to $ { Examine the solutions from other
+       agents }. We ...
+32 Answer : $ { answer }
+
+
+        HumanEval:
+1    Predictor :
+2
+3 Let ’ s think step by step . Provide a complete and correct code implementation in
+       python .
+4 ---
+5 Question : $ { question }
+6 Thinking : $ { thinking }
+7 Answer : $ { answer }
+8
+9    ------------
+10   Reflector :
+11
+12   Please determine the correctness of the solution in passing all test cases . If it
+         fails , based on the error message and trackback , think step by step , carefully
+         propose an updated solution in the answer output with a correct code
+         imp leme ntati on in python .
+13
+14 ---
+15 Question : $ { question }
+16 Previous solution : $ { p r e v i o u s _ s o l u t io n }
+17 Traceback : $ { traceback }
+18 Thinking : $ { thinking }
+19 Answer : $ { answer }
+20
+21   ------------
+22
+23   Debator :
+24
+25   These are the solutions to the question from other agents . Examine the solutions
+         from other agents in your rationale , finish by giving an updated answer . Let ’ s
+         think step by step . Provide a complete and correct code implementation in python
+         .
+26
+27 ---
+28 Question : $ { question }
+29 Solutions : the solutions to the question from other agents
+30 Reasoning : Let ’ s think step by step in order to $ { Examine the solutions from other
+       agents }. We ...
+31 Answer : $ { answer }
+
+
+        LiveCodeBench:
+1    Predictor :
+2
+3 You are a helpful programming assistant and an expert Python programmer . The user
+      has written a input for the testcase . Think step by step . You will generate the
+      code based on the problem requirepement . You will calculate the output of the
+      testcase and write the whole assertion statement in the markdown code block with
+        the correct output .
+4 ---
+5 Question : $ { question }
+6 Thinking : $ { thinking }
+7 Code : $ { code }
+8 Answer : complete the testcase with assertion .
+9
+10   ------------
+11   Reflector :
+
+
+                                                                                                         27
+                         Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+12
+13   If there is an executive output in the traceback , parse the output into an assertion
+          in the answer given the executive output .
+14
+15 ---
+16 Question : $ { question }
+17 Previous solution : $ { p r e v i o u s _ s o l u t io n }
+18 Traceback : It contains the test cases , execution results , and ground truth . If there
+        is an error , the relevant traceback is given .
+19 Correctness : ’ True / False ’ based on the correctness of executive feedback . If there
+       is an error message , output ’ False ’
+20 Thinking : $ { thinking }
+21 Answer : $ { answer }
+22
+23   ------------
+24
+25   Debator :
+26
+27   These are the solutions to the question from other agents . Examine the solutions
+         from other agents in your rationale , finish by giving an updated answer .
+28
+29 ---
+30 Question : $ { question }
+31 Solutions : the solutions to the question from other agents
+32 Reasoning : Let ’ s think step by step in order to $ { Examine the solutions from other
+       agents }. We ...
+33 Answer : assert $ { function ( input ) } == { e xecutive_output }
+
+
+
+
+     E. Best Prompts Discovered
+     In this section, we show a few typical prompts that have been discovered by Mass. Similarly, we
+     indicate <> that skips some comments.
+           MATH:
+1    Predictor :
+2
+3    Let ’ s think step by step to solve the given problem . Clearly explain your reasoning
+          process , showing all intermediate calculations and justifications . Express your
+            final answer as a single numerical value or simplified expression enclosed
+          within < answer > </ answer > tags . Avoid extraneous text or explanations outside of
+            the core reasoning and final answer .
+4
+5    ---
+6
+7    Follow the following format .
+8
+9  Question : $ { question }
+10 Reasoning : Let ’ s think step by step in order to $ { produce the answer }. We ...
+11 Answer : $ { answer }
+12
+13   ---
+14
+15 Question : What is the average of the two smallest positive integer solutions to the
+       congruence $$14u \\ equiv 46 \\ pmod {100}~? $$
+16 Reasoning : Let ’ s think step by step in order to find the average of the two smallest
+        positive integer solutions to the congruence $14u \\ equiv 46 \\ pmod {100} $ . We
+       are looking for solutions to $14u \\ equiv 46 \\ pmod {100} $ . We can divide the
+       congruence by 2 to get $7u \\ equiv 23 \\ pmod {50} $ . We want to find the inverse
+       of 7 modulo 50. We use the Euclidean Algorithm : \\ begin { align *} 50 &= 7 \\ cdot 7
+        + 1 \\\\ 1 &= 50 - 7 \\ cdot 7 \\ end { align *} Thus , $7 ( -7) \\ equiv 1 \\ pmod {50} $ ,
+        so $7 ^{ -1} \\ equiv -7 \\ equiv 43 \\ pmod {50} $ . Multiplying $7u \\ equiv 23 \\ pmod
+       {50} $ by 43 gives $u \\ equiv 23 \\ cdot 43 \\ pmod {50} $ . $23 \\ cdot 43 = 989 = 50
+       \\ cdot 19 + 39 $ , so $23 \\ cdot 43 \\ equiv 39 \\ pmod {50} $ . Therefore , $u \\ equiv
+       39 \\ pmod {50} $ . The two smallest positive integer solutions are $u = 39 $ and $u
+       = 39+50=89 $ . The average of these two solutions is $ \\ frac {39+89}{2} = \\ frac
+       {128}{2} = 64 $ .
+17 Answer : 64
+
+
+
+
+                                                                                                    28
+                          Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+18
+19   ---
+
+         In the following prompts, interestingly, we observe that including the data summary, task demon-
+     strations, and past instructions that have been used in MIPRO (Opsahl-Ong et al., 2024) to propose
+     new candidates actually improves the final performance. Hence, we keep these prompts that lead to
+     strong task performance.
+           DROP:
+1    Predictor :
+2
+3    This dataset is designed for extractive question answering , focusing on retrieving
+         concise , factual answers from short texts . Many questions involve extracting
+         numerical information and performing simple calculations , suggesting
+         applications in areas like sports analytics or financial data analysis . However ,
+          the dataset ’ s Western cultural bias and lack of complex reasoning questions
+         limit its g e n e r a l i z a b i l i t y and real - world applicability .
+4
+5 TASK DEMO ( S ) :
+6 < example_1 >
+7 Question : How many more points did the Spurs win by in Game 4 against the Mavericks ?
+8
+9    Context :
+10   The Mavericks finished 49 -33 , one game ahead of Phoenix for the eighth and final
+         playoff spot , which meant that they would once again have to face their in - state
+          rivals , the San Antonio Spurs , who were the top seed in the Western Conference
+         with a 62 -20 record . In Game 1 in San Antonio , Dallas had an 81 -71 lead in the
+         fourth quarter , but the Spurs rallied back and took Game 1 , 85 -90. However , the
+         Mavs forced 22 turnovers in Game 2 to rout the Spurs 113 -92 , splitting the first
+          two games before the series went to Dallas . In Game 3 , Manu Gin \ u00f3bili hit a
+          shot that put the Spurs up 108 -106 with 1.7 seconds left , but a buzzer - beater
+         by Vince Carter gave the Mavs the victory , putting them up 2 -1 in the series .
+         The Spurs took Game 4 in Dallas 93 -89 despite a late Dallas comeback after the
+         Spurs at one point had a 20 - point lead and later won Game 5 at home , 109 -103 ,
+         giving them a 3 -2 series lead . The Mavs avoided elimination in Game 6 at home by
+          rallying in the fourth quarter , winning 111 -113. Game 7 was on the Spurs home
+         court , and the Spurs beat the Mavericks 119 -96 , putting an end to the Mavericks
+         season .
+11
+12 Thinking :
+13 The Spurs scored 93 points in Game 4. The Mavericks scored 89 points in Game 4.                   The
+        difference is 93 - 89 = 4.
+14 Answer : 4
+15
+16
+17 BASIC INSTRUCTION :
+18 ‘‘‘
+19 You are a highly specialized AI tasked with extracting critical numerical
+       information for an urgent news report . A live broadcast is relying on your
+       accuracy and speed . Think step - by - step , focusing on the numerical information
+       provided in the context . Then , answer the question concisely with the extracted
+        numerical answer . Failure to provide the correct numerical information will
+       result in the broadcast being interrupted .
+20
+21 Question : { question }
+22 Context : { context }
+23 ‘‘‘
+24
+25   TIP : Keep the instruction clear and concise .
+26
+27   PROPOSED INSTRUCTION :
+28
+29   ‘‘‘
+30   Extract the numerical answer to the following question . Show your reasoning by
+         identifying the relevant numbers from the provided context and performing any
+         necessary calculations . Respond with only the final numerical answer .
+31
+32   Question : { question }
+33   Context : { context }
+
+
+                                                                                                      29
+                         Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+34   ‘‘‘
+
+           HotpotQA:
+1    Predictor :
+2
+3    This multi - passage question answering dataset focuses on complex questions requiring
+          synthesis of information from multiple Wikipedia - like sources , often involving
+         named entities and temporal reasoning . It emphasizes integrating information ,
+         handling ambiguity , and leveraging real - world knowledge , posing a significant
+         challenge for models relying solely on provided text . The dataset appears well -
+         suited for evaluating advanced language models ’ reasoning abilities across
+         diverse domains and varying complexity levels .
+4
+5 TASK DEMO ( S ) :
+6 Question : The actor that plays Phileas Fogg in \" Around the World in 80 Days \" , co -
+      starred with Gary Cooper in a 1939 Goldwyn Productions film based on a novel by
+      what author ?
+7 Context : Provided in prompt
+8 Answer : Charles L . Clifford
+9
+10
+11   BASIC INSTRUCTION : From the provided text , extract the answer to the question .
+         Output * only * the answer .
+12
+13   TIP : Keep the instruction clear and concise .                Emphasize reliance * only * on the
+          provided text .
+14
+15   PROPOSED INSTRUCTION : Answer the question using only the provided context .                   Do not
+         use external knowledge .
+16
+17   ---
+18   < example_1 >
+19
+20   ------
+21
+22   Debator :
+23
+24   This multi - passage question answering dataset focuses on complex questions requiring
+          synthesis of information from multiple Wikipedia - like sources , often involving
+         named entities and temporal reasoning . It emphasizes integrating information ,
+         handling ambiguity , and leveraging real - world knowledge , posing a significant
+         challenge for models relying solely on provided text . The dataset appears well -
+         suited for evaluating advanced language models ’ reasoning abilities across
+         diverse domains and varying complexity levels .
+25
+26   TASK DEMO ( S ) :
+27   Provided above .
+28
+29   BASIC INSTRUCTION : These are the solutions to the question from other agents . Based
+         on the context , examine the solutions from other agents in your rationale ,
+         finish by giving an updated answer .
+30
+31   TIP : Don ’ t be afraid to be creative when creating the new instruction !
+32
+33   PROPOSED INSTRUCTION : You are an expert fact - checker for a major publication . Your
+         task is to meticulously review proposed answers to a complex research question ,
+         ensuring accuracy and correcting any errors . You are provided with the original
+         question , multiple context passages from credible sources , and several proposed
+         answers from different research assistants . Your job is to carefully analyze
+         each proposed answer , cross - referencing it with the provided context passages
+         and identifying any inconsistencies , inaccuracies , or unsupported claims .
+34
+35   ** Question :** [ Insert Question Here ]
+36
+37   ** Context Passages :**
+38   [ Insert Passages Here ]
+39
+40 ** Proposed Answers :**
+41 * Assistant 1: [ Insert Assistant 1 ’ s Answer ]
+42 * Assistant 2: [ Insert Assistant 2 ’ s Answer ]
+
+
+
+
+                                                                                                             30
+                            Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+43   ...
+44   * Assistant N : [ Insert Assistant N ’ s Answer ]
+45
+46
+47   ** Instructions :**
+48
+49 1. ** Fact - Check & Analyze :** Evaluate each proposed answer individually . For each
+       answer :
+50 * ** Verdict :**   Indicate whether the answer is \" Correct ,\" \" Incorrect ,\" \"
+       Partially Correct ,\" or \" Not Supported by Context .\"
+51 * ** Evidence :** Provide specific quotes and passage numbers from the context to
+       support your verdict . Explain how the evidence supports or refutes the proposed
+       answer . Highlight any ambiguities , assumptions , or leaps in logic made by the
+       research assistants .
+52 * ** Corrections \/ Improvements ( if applicable ) :** Suggest specific corrections or
+       improvements to partially correct or incorrect answers . Explain how these
+       changes align with the context .
+53
+54 2. ** Synthesize & Refine :** Synthesize the information gathered during the fact -
+       checking process to formulate the most accurate and comprehensive answer to the
+       question . This may involve :
+55 * Selecting the most accurate proposed answer .
+56 * Combining elements from multiple proposed answers .
+57 * Developing a completely new answer based on your analysis of the evidence .
+58
+59   3. ** Final Answer :** Clearly state your final , verified answer to the question .
+60
+61   4. ** Confidence Level :** Indicate your confidence in the final answer using a scale
+         of \" High ,\" \" Medium ,\" or \" Low .\" Briefly explain the factors influencing
+         your confidence level .
+62
+63
+64   This revised instruction emphasizes a more rigorous fact - checking process ,
+         encouraging the LM to critically evaluate each proposed answer and provide
+         detailed just ifica tion s for its assessments . The addition of a confidence level
+          prompts the LM to reflect on the certainty of its final answer , promoting more
+         nuanced and reliable responses . The \" expert fact - checker \" persona further
+         reinforces the importance of accuracy and attention to detail .
+65
+66 ---
+67 < example_1 >
+68 < example_2 >
+
+
+        MBPP:
+1    Predictor :
+2
+3    You are a highly skilled Python programmer tasked with generating a correct and
+         efficient Python function based on the given natural language problem
+         description . Think step - by - step , outlining your reasoning process before
+         presenting the code solution . Your response should adhere to the following
+         structure :
+4
+5    ** Thinking :** Provide a clear and concise breakdown of your thought process ,
+          including the steps you ’ ll take to solve the problem . This should demonstrate a
+           logical progression towards the final solution and may include considerations
+          of data types , algorithms , and edge cases . For example :
+6
+7  1.   Identify the input data type and expected output .
+8  2.   Determine the core logic or algorithm required .
+ 9 3.   Consider potential edge cases or special scenarios .
+10 4.   Outline the steps for implementing the solution in Python .
+11
+12   ** Answer :** Present your complete and correct Python code implementation within a
+          code block ( using triple backticks ) . The code should be well - formatted ,
+          efficient , and directly address the problem description . Ensure your function
+          adheres to the provided function signature if given . For example :
+13
+14 ‘‘‘ python
+15 def function_name ( i n pu t _a r gu m en t s ) :
+16 # Code impl emen tatio n here
+
+
+
+
+                                                                                                       31
+                        Multi-Agent Design: Optimizing Agents with Better Prompts and Topologies
+
+
+
+17 # ...
+18 return output
+19 ‘‘‘
+20
+21   Focus on producing functional code that accurately solves the problem . Avoid
+         including unnecessary explanations or examples within the \" Answer \" section .
+         If the problem description includes implicit or explicit test cases , ensure your
+          code passes those tests . Strive for clarity , conciseness , and correctness in
+         both your thinking and your code .
+22
+23 ---
+24 < example_1 >
+25 < example_2 >
+26 < example_3 >
+27
+28   ------
+29   Reflector :
+30
+31   This dataset is designed for Python code generation , translating natural language
+         problem descriptions into simple functions and their corresponding test cases .
+         The ’ answer ’ and ’ test ’ fields are identical , indicating a potential redundancy
+         or a unique task focusing on simultaneous code and test generation . The dataset
+         likely originates from coding challenge websites and emphasizes basic
+         programming concepts with a focus on correctness , but lacks complexity in inputs
+          and error handling .
+32
+33   TASK DEMO ( S ) :
+34   Question : Write a function that takes in two numbers and returns a tuple with the
+         second number and then the first number .
+35
+36 def swap_numbers (a , b ) :
+37 Previous Solution : def swap_numbers (a , b ) :
+38     return (b , a )
+39
+40 Traceback : Test case : print ( swap_numbers (10 ,20) )
+41 Output : (20 , 10)
+42 Ground Truth : (20 ,10)
+43 Correctness : True
+44 Thinking : The provided solution correctly swaps the order of the two input numbers
+        and returns them as a tuple . The test case demonstrates this functionality , and
+        the output matches the ground truth . Therefore , no changes are required .
+45 Answer : ‘‘‘ python
+46 def swap_numbers (a , b ) :
+47      return (b , a )
+48 ‘‘‘
+49 < example_2 >
+50 < example_3 >
+51
+52
+53   BASIC INSTRUCTION : Please determine the correctness of the solution in passing all
+         test cases . If it fails , based on the error message and trackback , think step by
+          step , carefully propose an updated solution in the answer output with a correct
+          code imp lemen tatio n in python .
+54
+55   TIP : The instruction should include a high stakes scenario in which the LM must
+          solve the task !
+56
+57   PROPOSED INSTRUCTION :
+58
+59   You are an automated code reviewer for a mission - critical satellite control system .
+          A bug in the code could lead to catastrophic failure , so absolute correctness
+         is paramount . You are given a Python function along with its associated test
+         case ( including the expected output ) . Analyze the provided
+60
+61   < example_1 >
+62   < example_2 >
+
+
+
+
+                                                                                                   32
+

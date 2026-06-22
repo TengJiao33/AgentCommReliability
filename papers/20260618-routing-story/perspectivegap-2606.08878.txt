@@ -1,0 +1,1348 @@
+                                        PerspectiveGap: A Benchmark for Multi-Agent Orchestration Prompting
+
+                                                Youran Sun1,∗     Xingyu Ren2,∗         Kejia Zhang1         Xinpeng Liu        Jiaxuan Guo3,†
+
+
+
+                                                             Abstract                               that specify each role’s task scope, context bound-
+                                            Real-world LLM applications are moving be-              aries, and expected handoffs. Yet current LLMs
+                                            yond single-agent workflows toward orches-              struggle to determine what each sub-agent needs
+                                            trated multi-agent systems, yet current mod-            to know. The resulting failures are not cosmetic:
+                                            els still struggle to determine what each sub-          main agents leak distractors, expose out-of-role
+                                            agent needs to know. To measure this, we                information, drop shared context, confuse artifact
+                                            introduce PerspectiveGap, a benchmark for               ownership, and sometimes place instructions where
+arXiv:2606.08878v1 [cs.CL] 7 Jun 2026
+
+
+
+
+                                            evaluating LLMs’ ability to compose orches-
+                                                                                                    the sub-agent cannot see them. These errors pro-
+                                            tration prompts for multi-agent systems. Per-
+                                            spectiveGap contains 110 scenarios, each eval-
+                                                                                                    duce incomplete, contaminated, or self-defeating
+                                            uated through two distractor-mixed task for-            sub-agent prompts. Section 6 analyzes these failure
+                                            mats: role-fragment assignment and free-form            modes in detail.
+                                            prompt writing. These scenarios are organized              Existing evaluations do not target this
+                                            into 10 topologies, which are distilled from            orchestration-prompting ability. Theory-of-mind
+                                            the authors’ real-world engineering practice            (ToM) benchmarks typically score question
+                                            and framed by the Prompt Economy princi-                answering or belief tracking (Le et al., 2019; Kim
+                                            ple: building loop-centered orchestrations that
+                                                                                                    et al., 2023; Sclar et al., 2024), multiple-choice
+                                            maximize utility with minimal role and en-
+                                            gineering overhead. In experiments with 27              action prediction (Gu et al., 2024), dialogue
+                                            commercial models from 10 companies, GPT-               acts (YS et al., 2026), or functional behavior
+                                            5.5 substantially outperforms all competitors,          labels (Riemer et al., 2025). Agent benchmarks
+                                            whereas Opus 4.7 shows a notable weakness               instead score downstream task success, tool use,
+                                            in orchestration prompting despite its strong           environment-level performance, or instruction
+                                            coding performance. Nevertheless, Perspective-          following (Liu et al., 2023; Qin et al., 2023;
+                                            Gap remains challenging: the evaluated models
+                                                                                                    Orogat et al., 2026; Qi et al., 2025). Neither line
+                                            achieve an average combined pass rate of only
+                                            14.9% (GPT-5.5 62.0%) and an average overall
+                                                                                                    directly evaluates whether a main agent can write
+                                            leakage rate of 246.5% (a per-scenario informa-         sub-agent prompts that respect asymmetric context
+                                            tion leak-event count, not a proportion; GPT-           and role-specific information needs. Section 2
+                                            5.5 49.1%). These findings suggest that multi-          discusses this boundary.
+                                            agent orchestration prompting is a distinct and            We introduce PerspectiveGap, a benchmark for
+                                            under-evaluated capability, and PerspectiveGap          multi-agent orchestration prompting. Perspective-
+                                            provides a foundation for measuring and im-             Gap contains 110 scenarios, each consisting of a
+                                            proving it systematically.
+                                                                                                    role list, a shuffled set of information fragments
+                                        1   Introduction                                            f1 , . . . , fN , and a reference answer specifying
+                                                                                                    which fragments each role needs. Each scenario
+                                        Prompt engineering has shifted from tuning a sin-
+                                                                                                    includes two tasks: role-fragment assignment and
+                                        gle prompt to designing multi-agent orchestras, in
+                                                                                                    free-form prompt writing. The former asks the
+                                        which a task is decomposed into specialized roles
+                                                                                                    model to output the fragment IDs for each role;
+                                        with distinct information boundaries and artifact
+                                                                                                    the latter asks the model to write the actual sub-
+                                        handoffs (Li et al., 2023; Qian et al., 2023; Hong
+                                                                                                    agent prompts. The two tasks share the same frag-
+                                        et al., 2023; Wu et al., 2023a; Chen et al., 2023; Lu
+                                                                                                    ments, so comparing them isolates models that can
+                                        et al., 2024; Tran et al., 2025).
+                                                                                                    identify each role’s needs but fail to act on them
+                                           Constructing these orchestras requires orches-
+                                                                                                    when writing the prompt. Each scenario also in-
+                                        tration prompting: writing sub-agent instructions
+                                                                                                    jects one distractor, such as prompt-engineering
+                                            1
+                                             University of Maryland. 2 The Chinese University       advice, that may look useful to the tested LLM
+                                        of Hong Kong. 3 Stanford University. ∗ Equal contri-
+                                        bution. † Corresponding author. Emails: Youran Sun,         but is useless or even burdensome for any sub-
+                                        sun1245@umd.edu; Jiaxuan Guo, guojx@stanford.edu.           agent. The benchmark covers orchestrations with
+
+                                                                                                1
+2–6 roles and 7–13 information fragments. A de-                         4. We articulate Prompt Economy as a cost-
+terministic, rule-only scorer evaluates each role’s                        benefit framing for the loop-centered topology
+prompt for inclusion of required fragments and ex-                         family.
+clusion of irrelevant content; a 716-row hand audit
+validates this containment detector. The construc-
+tion pipeline records each scenario’s topology, role
+definitions, fragments, and reference answers ex-
+plicitly, allowing new scenarios to be added with
+auditable answer keys.
+   The 110 scenarios are organized into 10 topolo-
+gies shown in Figure 2. These topologies are
+distilled from the authors’ real-world prompt-
+engineering practice and from production agent-
+system patterns. We frame their loop-centered
+structure with Prompt Economy. Under this fram-
+ing, engineering cost is largely fixed by the number
+of role prompts, while benefit accumulates across
+repeated role invocations. Loop-centered orchestra-
+tion patterns are therefore attractive when the goal
+is to maximize utility with minimal engineering
+overhead. The release uses six base patterns plus
+four pool variants, all built around one or more
+critic loops. As a set, they cover the main practical
+one- and two-loop orchestration patterns targeted
+by PerspectiveGap.
+   We evaluate 27 commercial models from 10 com-
+panies on PerspectiveGap. GPT-5.5 leads with a
+62.0% combined pass rate, while deepseek-v4-pro
+is a distant second at 32.0%, and models ranked
+3–8 cluster between 19% and 26%. The average
+combined pass rate is 14.9%. The average overall
+leakage rate is 246.5%, compared with 49.1% for
+GPT-5.5. Opus 4.7 underperforms relative to its
+strong coding performance (Wang et al., 2025)1 ,
+                                                                    Figure 1: Overview of PerspectiveGap. (A) A scenario
+suggesting that orchestration prompting is not re-                  presents a set of information fragments f1 , . . . , fN , one
+ducible to coding skill. These results indicate that                of which is a distractor (f7 ), and a set of sub-agent
+multi-agent orchestration prompting is a distinct                   roles (here dispatcher, coder, and reviewer); each role
+and under-evaluated capability.                                     needs only a specific subset of the fragments. (B) The
+   This paper makes four contributions:                             role-fragment assignment task asks the model to out-
+                                                                    put that subset for each role, as fragment identifiers.
+  1. We release PerspectiveGap, a 110-scenario                      (C) The free-form prompt writing task asks the model
+     benchmark with two task formats per scenario,                  to write each role’s actual prompt from the same frag-
+     per-scenario answer keys, construction notes,                  ments, scored by checking that each prompt contains
+     and full logs.                                                 its required fragments and excludes out-of-role content.
+                                                                    The example prompts illustrate the two error types the
+  2. We evaluate 27 commercial models from 10                       benchmark targets: a leaked distractor in the dispatcher
+     companies and report a standardized leader-                    prompt and an omitted required fragment (f2 ) in the
+                                                                    coder prompt.
+     board, revealing low average performance.
+
+  3. We identify five recurring failure modes in
+     multi-agent orchestration prompting.                           2     Related Work
+   1
+    This finding also matches the authors’ day-to-day experi-       Multi-agent orchestration. LLM applications
+ence; PerspectiveGap finally quantifies that intuition.             increasingly split work across specialized workers,
+
+                                                                2
+critic loops, and pipelines. Early multi-agent sys-          driven ToM reasoning, and strategic social reason-
+tems such as CAMEL, ChatDev, MetaGPT, Auto-                  ing shows that making viewpoints explicit can im-
+Gen, and AgentVerse showed that role-specialized             prove model behavior or expose failures in social
+LLMs can collaborate through natural-language                planning (Wilf et al., 2023; Kim et al., 2025; Yao
+messages and structured workflows (Li et al., 2023;          et al., 2025). SimpleToM, together with recent
+Qian et al., 2023; Hong et al., 2023; Wu et al.,             position and behavior-based work, goes further,
+2023a; Chen et al., 2023). Subsequent surveys and            separating explicit mental-state prediction from the
+pattern catalogues describe recurring orchestration          functional step of acting on it (Gu et al., 2024;
+motifs such as routing, planning, reflection, cri-           Riemer et al., 2025; Ackerman, 2026). Our two
+tique, and tool-mediated handoff (Tran et al., 2025;         tasks mirror this split: assignment tests whether
+Liu et al., 2024; Dao et al., 2026; Gullí, 2025).            the model knows what each role needs, and prompt
+Industrial guidance makes a similar distinction be-          writing tests whether it acts on that knowledge.
+tween workflows with prescribed control flow and             SOTOPIA-TOM is closest to our setting because
+more autonomous agentic systems, emphasizing                 it studies information management in multi-agent
+that role boundaries, context selection, and handoff         interaction (YS et al., 2026). Yet even SOTOPIA-
+discipline are central engineering concerns (An-             TOM, like the rest, tests belief tracking, action
+thropic, 2024). Recent applied systems instantiate           choice, or dialogue behavior inside an interaction.
+these motifs in optimization, scientific computing,          PerspectiveGap tests orchestration prompting: con-
+data discovery, and automated research (Lu et al.,           structing the instructions that define each role’s
+2024; Thind et al., 2025; Du et al., 2026; Sun et al.,       view of the task before the interaction begins.
+2026). These works motivate our setting, but they
+                                                             Distributed information and multi-agent fail-
+do not test the fragile step we study: whether an
+                                                             ures. Several recent benchmarks show that multi-
+LLM can write role-specific instructions that pre-
+                                                             agent LLM systems fail under distributed infor-
+serve context boundaries and handoff contracts in-
+                                                             mation even when individual models are strong.
+stead of flattening every role into the same prompt.
+                                                             HiddenBench finds a large gap between collec-
+Agent and tool-use benchmarks. AgentBench                    tive reasoning with distributed information and
+(Liu et al., 2023), ToolLLM (Qin et al., 2023), and          single-agent reasoning with complete information
+related benchmark suites evaluate execution after            (Li et al., 2025). Silo-Bench similarly shows that
+the agent’s task, tools, and instructions are already        agents may exchange enough information but fail
+given. They ask whether an agent can act in an envi-         to integrate it into a correct joint answer (Zhang
+ronment, call the right tool, or complete a workflow         et al., 2026). MAST categorizes multi-agent fail-
+under an existing scaffold. Other recent evalua-             ures and identifies inter-agent misalignment, in-
+tions compare multi-agent frameworks, delegation             cluding role confusion and incomplete delegation,
+behavior, instruction following, and failure attri-          as a recurring source of breakdowns (Cemri et al.,
+bution inside already-instantiated systems (Orogat           2025). Privacy and leakage benchmarks such
+et al., 2026; Gao et al., 2026; Qi et al., 2025; Zhang       as AgentLeak study how information can escape
+et al., 2025b). PerspectiveGap moves the evalua-             across a running multi-agent stack (Yagoubi et al.,
+tion one step earlier: before any worker acts, can           2026). These works diagnose failures after agents
+the main agent allocate context and constraints into         interact; PerspectiveGap isolates a precursor arti-
+prompts that downstream workers can safely use?              fact: the role prompts that determine each agent’s
+                                                             initial information boundary.
+Information asymmetry and ToM benchmarks.
+Theory-of-mind benchmarks study information                  Prompt optimization and role-state manage-
+asymmetry, but they do not ask the model to                  ment. Prompting and workflow methods can im-
+produce prompt artifacts. ToMi, FANToM, Hi-                  prove downstream behavior through refinement,
+ToM, OpenToM, BigToM, and ExploreToM test                    role evolution, memory, or training-time optimiza-
+belief tracking, higher-order mental-state reason-           tion (Madaan et al., 2023; Chang and Geng, 2025;
+ing, or adversarially generated belief structures            Mo et al., 2025). Other multi-agent methods make
+through question answering and classification (Le            collaborator knowledge or belief state explicit,
+et al., 2019; Kim et al., 2023; Wu et al., 2023b;            which is closely related to our premise that the
+Xu et al., 2024; Gandhi et al., 2023; Sclar et al.,          main agent must reason about what each sub-agent
+2024). Work on perspective-taking, hypothesis-               knows and needs (Zhang et al., 2025a; Singh et al.,
+
+                                                         3
+2026). However, these methods are usually eval-
+uated by final task success or workflow reliabil-
+ity. PerspectiveGap instead evaluates the generated
+prompt artifact directly: whether it assigns informa-
+tion correctly can be read from the prompts them-
+selves, not inferred from whether the downstream
+task succeeds.
+
+3   PerspectiveGap Benchmark Design
+Scenario schema. As shown in Figure 1, each
+scenario is a small orchestration problem with three
+explicit parts: a list of sub-agent roles, a shuffled
+list of information fragments f1 , . . . , fN , and a ref-
+erence role-to-fragment assignment stored with the
+scenario. The model sees the roles and the shuffled
+fragments, but not the reference assignment. The
+reference assignment applies the need-only rule:
+each role receives exactly the fragments it needs
+to do its stated job. This rule sets the role-context
+boundary used for scoring. In this sense, the ref-
+erence assignment is the task contract: given the
+stated roles and the need-only rule, the model must
+preserve that boundary in both evaluated formats.                Figure 2: Base topology patterns in PerspectiveGap.
+                                                                 Each pattern is a role-and-handoff graph: nodes are sub-
+All 110 scenario mappings were constructed under
+                                                                 agent roles, solid edges are the actor–reviewer feedback
+this rule and inspected by the full five-author team             loops and the handoffs between them, and dashed edges
+for consistency. Appendix J gives an actual bench-               are distribution or support links (a dispatcher feeding
+mark scenario, including the background, fragment                workers, or a shared librarian). The six base patterns
+headings, the “need-only” instruction shown to the               span a single coder–reviewer loop (cr), a dispatcher-
+model, the reference assignment, and the textual                 fed loop (dcr), sequential and parallel two-loop systems
+evidence behind representative boundary decisions.               (dpc and dtc, respectively), a scientist–coder–reviewer
+                                                                 arrangement (scr), and a supervisor–student–librarian
+Deterministic rendering. The benchmark sepa-                     hub (spl). Four of the six have pool variants (insets crp,
+rates topology, instance, and scenario. A topology               dcrp, dpcp, dtcp) that add parallel candidates on the
+is one of the 10 role-and-handoff patterns used in               producer side, for 10 topologies in total.
+the paper; an instance is a domain-specific real-
+ization of a topology; a scenario is the rendered                Extensibility. The topologies are reusable skele-
+benchmark item given to the model. For each                      tons, not one-off examples. These 10 topologies
+scenario, a shuffle seed fixes the displayed frag-               cover the main practical one- and two-loop or-
+ment order; the displayed identifiers are then rela-             chestration patterns targeted by PerspectiveGap2 ;
+beled as f1 , . . . , fN in that order, as choices in a          more complex orchestrations can be composed
+multiple-choice question would be relabeled after                from them as building blocks. New instances
+shuffling. Changing the seed changes the presen-                 can be added by choosing a domain, naming the
+tation order and displayed identifiers, but not the              roles, writing the fragments, and applying the same
+role definitions, fragment content, distractor, or               reference-assignment rule; the renderer and scorers
+reference assignment. This gives a deterministic                 do not change.
+way to test whether a model is assigning informa-
+                                                                    2
+tion by the need-only rule rather than by position                   We quotient away role names, artifact names, domains,
+                                                                 and exchangeable pools. A primitive loop is an actor–reviewer
+in the prompt. The same topology-instance split                  feedback pair; one-loop systems are this pair with optional
+also gives the benchmark breadth: Appendix I lists               dispatcher, pool, or producer-side support, and two-loop sys-
+the professional-domain coverage. Across these                   tems have three normal forms: no coupling, one-way handoff,
+                                                                 and mutual handoff. This claim excludes arbitrary multi-agent
+domains, the same construction rule determines                   graphs such as routers, deep hierarchies, memory managers,
+which fragments each role needs.                                 and systems with more than two feedback loops.
+
+
+                                                             4
+Distractor insertion. Each main benchmark sce-               the endpoint; it provides a continuous companion
+nario includes one distractor fragment. A represen-          for model-level consistency checks. Required cov-
+tative distractor used in the benchmark is:                  erage and Boundary P precision P are micro-averages
+     Best practices: Use consistent, descriptive tag
+                                                             over
+                                                             P     evaluations:
+                                                                        P          e TP e /  e (TPe + FNe ) and
+     names across your prompts. Nest tags when con-             e TPe /    e (TPe + FPe ). Overall leakage is
+     tent has a natural hierarchy, such as documents         avge FPe , counting every out-of-role leak event
+     inside <documents> and each document inside
+     <document index="n">.                                   per role; Distractor leakage is its restriction to the
+                                                             injected distractor, avge De , where De counts only
+This looks useful to the tested model while it is            injected-distractor leak events and thus De ≤ FPe .
+writing prompts, but it is not useful to any down-           Because leaks are counted per role, both can ex-
+stream sub-agent. The tested model must separate             ceed 100%. These diagnostics decompose failures
+information that helps itself compose the orches-            but are not intended to replace the strict endpoint.
+tra from information that a sub-agent needs to do
+its job. Leaking irrelevant content can add cogni-           Scoring. Free-form prompt writing uses a deter-
+tive load and degrade the sub-agent’s output; in             ministic rule-only scorer rather than an LLM judge,
+higher-stakes settings, it can also expose out-of-           so that prompt-boundary decisions are reproducible
+role information that enables reward hacking or              and do not depend on another model’s implicit del-
+violates safety constraints.                                 egation policy. It is a containment audit, not a
+                                                             general prompt-quality judge: it checks whether re-
+Two evaluated formats. Each scenario is ren-                 quired fragment evidence is present and out-of-role
+dered in two formats from the same shuffled frag-            fragment evidence is absent. For each fragment,
+ments. Role-fragment assignment asks for a struc-            the scorer builds a fingerprint from the unigram,
+tured mapping from roles to fragment identifiers.            bigram, and trigram phrases that distinguish that
+Free-form prompt writing asks for the final sub-             fragment from the others in the same scenario. A
+agent prompts. Pairing the two formats makes the             role prompt must include enough of each required
+failure mode visible: a model may know the bound-            fragment’s distinctive fingerprint and must not in-
+ary as a set of identifiers, yet fail to preserve that       clude enough of any fragment outside that role’s
+boundary when it writes natural-language instruc-            reference assignment. The asymmetric thresholds
+tions. The benchmark therefore reports the two               (include at least 0.7, leak less than 0.3) allow ordi-
+formats separately and also reports their combined           nary connective text while still catching wrong-role
+score.                                                       copying and distractor leakage. Phrase-level finger-
+Evaluation metrics. We treat Strict pass as the              prints also handle near-parallel fragments, such as
+primary endpoint, report Net match score as a                two file-handoff instructions that share most words
+partial-credit companion, and use Required cov-              but refer to different artifacts. Its agreement with
+erage, Boundary precision, Overall leakage, and              expert human containment labels is validated on a
+Distractor leakage as diagnostic metrics. For each           716-row hand-audited scorer test set (Table 13).
+evaluation e (one model response to one scenario,
+                                                             Released scope. The released evaluation set con-
+shuffle seed, and task format), we first aggre-
+                                                             tains 10 topologies, 100 domain instances, and 110
+gate events over all requested roles: TPe counts
+                                                             scenarios. Table 1 summarizes these counts and
+correctly included reference role-fragment events,
+                                                             the benchmark components. The benchmark data,
+FPe counts extra out-of-role events, and FNe
+                                                             renderer, scorer, and model-running scripts are pub-
+counts omitted reference events. Strict pass is 1
+                                                             licly available at WhymustIhaveaname/Perspective-
+iff FPe = FNe = 0. The average Strict pass over
+                                                             Gap.
+a task format’s evaluations is that format’s pass
+rate, and the average over all evaluations is the            4   The Prompt Economy Framing
+combined pass rate. This all-or-nothing criterion
+matches the benchmark’s boundary-preservation                Prompt-engineering effort. An orchestrated
+objective: either an output preserves all requested          agent system is maintained through role prompts
+role boundaries, or it contains an omission or cross-        and handoff protocols: the former define each sub-
+role inclusion. Net match score is max(0, (TPe −             agent’s responsibility, and the latter specify which
+FPe − FNe )/(TPe + FNe )) for each evaluation,               artifacts each role reads, writes, and ignores. If a
+averaged over evaluations. It is not used to relax           system has m role prompts and n handoff protocols,
+
+                                                         5
+         Component                        Count                of roles and handoffs; each scenario then asks the
+         Topologies                         10                 model to write prompts that give each role the con-
+         Domain instances                  100                 text it needs and the handoff constraints it must
+         Scenarios                         110
+         Evaluated formats per scenario      2
+                                                               follow, while excluding distractor material. Fig-
+         Distractors per scenario            1                 ure 2 shows the six base topology patterns used
+         Scorer test-set rows              716                 in the benchmark. The release also includes four
+                                                               pool variants that add parallel evaluator-candidate
+Table 1: Benchmark scope of PerspectiveGap. Topolo-
+                                                               structure to the producer side. Together, these 10
+gies are reusable role-and-handoff skeletons; instances
+are domain-specific realizations; scenarios are rendered
+                                                               topologies increase role and handoff complexity
+benchmark items. The main 110-scenario evaluation              while preserving the same loop-centered design
+uses one distractor per scenario; a separate distractor-       principle.
+count ablation (Appendix D) reruns role-fragment as-
+signment with 0 to 3 injected distractors.
+                                                               5   Experiments
+
+then its prompt-engineering effort can be approx-              Setup. We evaluate 27 commercial models on
+imated as O(m + αn), where α weights handoff                   both tasks across all 110 scenarios at two shuffle
+maintenance. A naive application of Conway’s law               seeds (1 and 42), yielding 27×110×2×2 = 11,880
+can therefore produce brittle orchestrations with              evaluations.
+too many roles, unclear file ownership, and unsta-
+ble handoffs. The useful design target is not “more            Main leaderboard. Appendix A reports the full
+agents,” but a small set of roles whose responsibili-          model leaderboard and per-task score-consistency
+ties and handoffs remain stable.                               metrics for all 27 evaluated models. GPT-5.5 is
+Role reuse. A role prompt is written and main-                 the clear outlier at 62.0%, nearly twice the second-
+tained once, but the role may be run many times.               place model, deepseek-v4-pro, at 32.0%. Table 2
+If vi counts useful runs of role i, then the system’s          summarizes the same leaderboard at the company
+value is better viewed as accumulating with i vi
+                                                P              level by taking each company’s best model. Only
+than as scaling with the number of roles alone. A              three companies exceed 1/4 in their best-model
+frequently reused role can amortize its prompt ef-             score, and Anthropic is notably weak despite its
+fort over many calls, whereas a rarely used role               strong coding reputation (Wang et al., 2025).
+adds maintenance cost with little return. This is the
+intuition behind Prompt Economy: keep prompt-                  Score consistency. Because Strict pass is inten-
+maintenance effort bounded while increasing use-               tionally all-or-nothing, we pair it with partial-credit
+ful role reuse. Here, “economy” refers to spar-                and diagnostic metrics that expose different failure
+ing and efficient prompt use: a small, reusable                modes. We then ask whether Net match score pre-
+prompt surface whose maintenance cost is amor-                 serves the same model-level signal as Strict pass,
+tized across repeated role invocations.                        rather than producing a different ranking driven by
+                                                               boundary details. Table 3 reports Pearson correla-
+Loop-centered design. Critic loops are the sim-                tions across the 27 evaluated models. Net match
+plest way to create that asymmetry. An actor–critic            score has the strongest linear association with Strict
+pair needs only two role prompts and a small hand-             pass (r = 0.744), while Required coverage, Bound-
+off protocol: the actor produces an artifact, the              ary precision, and Distractor leakage are weaker
+critic finds flaws, and the actor revises. Once writ-          diagnostics of the strict endpoint.
+ten, the same loop can run for many rounds, so
+                                                                  The relationship between Net match score and
+effort stays close to the two-role design while value
+                                                               Strict pass is non-linear, so here we use an idealized
+accumulates across iterations. This actor–critic pat-
+                                                               error model to explain why a non-linear recovery
+tern appears in software agents, research agents,
+                                                               is expected. Let c denote Net match score and s
+and Ralph-style practitioner workflows (Qian et al.,
+                                                               denote Strict pass. A scenario has an easy part
+2023; Lu et al., 2024; Huntley, 2025).
+                                                               that most models solve and a harder fraction p,
+From framing to benchmark topologies. The                      where a model makes an error on each hard event
+topologies in PerspectiveGap are built around this             with probability ϵ and a strict pass requires about n
+loop-centered view. Each topology specifies a set              hard events to be correct. Under these simplifying
+
+                                                           6
+            Company       Best model              Role-fragment assignment                    Free-form prompt writing   Combined
+            OpenAI        gpt-5.5                                        55.5%                                  68.6%         62.0%
+            DeepSeek      deepseek-v4-pro                                37.3%                                  26.8%         32.0%
+            Kimi          kimi-k2.6                                      26.8%                                  25.0%         25.9%
+            Google        gemini-3.1-pro                                 20.0%                                  23.6%         21.8%
+            Z.ai          glm-5                                          25.9%                                  14.5%         20.2%
+            Xiaomi        mimo-v2.5-pro                                  25.0%                                  15.0%         20.0%
+            Anthropic     claude-opus-4-7                                24.1%                                  14.1%         19.1%
+            Qwen          qwen3.6-plus                                   25.5%                                   8.6%         17.0%
+            xAI           grok-4.3                                       16.4%                                  14.5%         15.5%
+            MiniMax       minimax-m2.7                                   16.4%                                   5.9%         11.1%
+
+Table 2: Best model per company under the main Strict-pass metric. Combined is the unweighted average of
+role-fragment assignment and free-form prompt-writing.
+
+
+   Metric      Net match Coverage Precision Leakage
+   Pearson r         0.744       0.497      0.615     -0.501
+
+Table 3: Pearson correlation with Strict pass across 27
+evaluated models.
+
+
+assumptions,
+                                             1−c n
+                                                
+ c = 1−2pϵ, s = (1−ϵ)n =                  1−       . (1)
+                                              2p
+Equivalently, this suggests that s should be well ap-
+proximated by the polynomial span {1, c, . . . , cn }.                   Figure 3: Log-parity fit between Strict pass and Net
+Table 4 confirms this, with the multiple correlation                     match score under the p = 1 special case of Eq. 1.
+rising to 0.942 at n = 5. This supports treating
+Strict pass as a conservative operational endpoint.
+                                                                         only 2.3% distractor leakage, reaches 49.1% over-
+It remains strict about any single boundary fail-
+                                                                         all leakage; averaged over all 27 models, overall
+ure while tracking the same model-level capability
+                                                                         leakage reaches 246.5%.
+signal as the partial-credit score.
+
+      n          1           2      3        4         5
+                                                                                                                         Role-fragment assignment
+      r      0.744      0.855    0.913    0.935     0.942                                40                              Free-form prompt writing
+
+                                                                                         30
+                                                                         Pass rate (%)
+
+
+
+
+Table 4: Multiple correlation between Strict pass and
+polynomial bases of Net match score.
+                                                                                         20
+  As a special case, setting p = 1 in Eq. (1) gives                                      10
+                ln s = n ln ((1 + c)/2) ,                      (2)                       0
+                                                                                                2        3        4          5            6
+a one-parameter log-parity fit that reaches a log-                                                           Number of roles
+space correlation of 0.920 (Figure 3).
+                                                                         Figure 4: Pass rate by number of roles, aggregated
+Information leakage. Table 5 separates distrac-                          across all 27 commercial models.
+tor leakage from overall information leakage for
+the best model from each company and includes                            Difficulty by role count. Figure 4 aggregates
+the all-model mean used in the abstract. These                           pass rates by the number of roles in a scenario, pool-
+are role-fragment event rates, not binary scenario                       ing all models and shuffle seeds. Overall, scenarios
+or role rates: if one scenario assigns two extra                         with more roles tend to be harder. The four-role bin
+fragments to one role and three to another, it con-                      is an exception because it contains only one topol-
+tributes five leak events. Even GPT-5.5, which has                       ogy, dispatcher_scientist_coder_reviewer,
+
+                                                                     7
+    Model             Distractor leakage Overall leakage       In a software-engineering orchestra, for example, a
+    gpt-5.5                      2.3%            49.1%         coder might receive the task goal and public tests,
+    deepseek-v4-pro             42.3%            88.2%         while a reviewer or test engineer receives private
+    kimi-k2.6                   30.0%            90.0%
+    gemini-3.1-pro              24.1%            24.5%
+                                                               tests. If the main agent gives the private tests to the
+    glm-5                       32.7%           100.9%         coder, the coder can optimize for the hidden evalu-
+    mimo-v2.5-pro               76.4%           168.2%         ation instead of solving the intended problem. That
+    claude-opus-4-7            104.5%           135.0%
+    qwen3.6-plus                59.5%            80.5%         is a reward-hacking channel created by the orches-
+    grok-4.3                     7.3%            91.4%         tration prompt itself. The overall leakage column
+    minimax-m2.7                32.7%            99.1%         in Table 5 captures this broader failure mode: even
+    All-model mean               75.3%          246.5%         GPT-5.5 reaches 49.1% overall leakage, despite its
+                                                               low distractor leakage, and several models exceed
+Table 5: Role-fragment assignment leakage rates for            80%. The difference between distractor leakage
+the best model from each company in Table 2, with the
+                                                               and overall leakage shows that models are not only
+all-model mean over all 27 evaluated models shown
+in the final row. Distractor leakage counts only the           leaking irrelevant distractors; they also fail to pre-
+injected distractor fragment; overall leakage counts any       serve role-specific information boundaries.
+fragment outside the receiving role’s reference need-          Artifact ownership and handoff confusion.
+set. Both rates average role-fragment leak events over
+scenarios, so values can exceed 100%.
+                                                               Models also confuse which role owns which ar-
+                                                               tifact. In the dispatcher_planloop_codeloop
+                                                               topology, for example, the plan loop writes
+which is relatively simple. The free-form prompt-              PLAN.md and the code loop writes SOLUTION.md. A
+writing task is also slightly harder than role-                failed orchestration prompt can swap these bound-
+fragment assignment in most role-count bins.                   aries, sending instructions for SOLUTION.md to the
+                                                               plan creator or plan critic, and instructions for
+Ablation studies. We also use PerspectiveGap
+                                                               PLAN.md to the code loop. This breaks the file pro-
+for four targeted ablation studies: few-shot prompt-
+                                                               tocol itself. Table 6 gives a fragment-level view of
+ing, distractor count, scratchpad prompting, and
+                                                               this problem for a near-parallel handoff pair in dpc
+reasoning effort. These experiments test how stan-
+                                                               and dpcp, averaged over all 27 evaluated models.3
+dard prompting techniques, inference-time inter-
+                                                               For dpc, the two parallel fragments have leak rates
+ventions, and the number of distractors affect per-
+                                                               of 23.7% and 26.6%, showing that models often
+formance; details are in Appendix C, D, E and F.
+                                                               send the handoff to a non-owner role. This is the
+6     Common Failure Modes                                     practical bottleneck for automating multi-agent or-
+                                                               chestration prompting: the model does not reliably
+Distractor leakage. Main agents often pass in-                 take each sub-agent’s perspective and ask what that
+formation unrelated to a sub-agent’s work into that            role needs, so engineers still have to inspect and
+sub-agent’s prompt; this is clearest when distrac-             repair the generated prompts.
+tors are inserted. In PerspectiveGap, distractors
+are prompt-engineering tips that are useful to the                          Topology     f -id   missing      leak
+main agent while it writes prompts. Models often                            dpc          f10       7.6%     23.7%
+treat this as generally useful context and pass it to                       dpc          f11       9.6%     26.6%
+                                                                            dpcp         f10       9.8%      0.7%
+sub-agents, showing that they do not reliably rea-                          dpcp         f11      17.0%      7.6%
+son from the sub-agent’s perspective. This failure
+is common even among strong models. Table 5                    Table 6: Missing and leakage rates for the near-parallel
+reports distractor leakage for the best model from             handoff pair f10 and f11 in dpc and dpcp.
+each company: GPT-5.5 is the best case at 2.3%,
+while several other leading models leak distractors            Dropped shared context. Models also fail in the
+at much higher rates.                                          other direction: they omit context that a role actu-
+Out-of-role information leakage. A more se-                    ally needs. Shared background is especially easy to
+rious form of leakage occurs when a fragment                   mishandle because it belongs to multiple roles, not
+needed by one role is copied into another role’s               just to the role whose task looks most directly re-
+prompt. This is not merely redundant context; it               lated. Table 7 shows this pattern for f1 , the shared
+                                                                  3
+changes what the receiving role is allowed to know.                   Topology aliases are listed in Appendix Table 11.
+
+
+                                                           8
+background fragment, averaged over all 27 evalu-               present in the prompt. The failures are not cos-
+ated models. Across topologies, models often omit              metic: models leak distractors, expose out-of-role
+this fragment from roles that need it, with miss               information, drop shared context, confuse artifact
+rates ranging from 12.1% to 38.7% for actor-style              ownership, and sometimes place instructions where
+roles and 17.3% to 44.9% for reviewer-style roles.             the sub-agent cannot see them. That even coding-
+This is a different failure from over-sharing: the             strong models such as Opus 4.7 fail here indicates
+sub-agent receives a clean-looking prompt, but the             that orchestration prompting is a capability distinct
+prompt lacks the background needed to evaluate or              from the coding ability current benchmarks reward.
+complete the work.                                             These results suggest that orchestration prompt-
+                                                               ing remains a fragile intermediate step. Generated
+        Topology    Actor miss   Reviewer miss                 sub-agent prompts should not be assumed to pre-
+        cr              38.7%           26.9%                  serve role-specific information boundaries without
+        crp             12.1%           32.0%                  inspection.
+        dcr             16.0%           44.9%
+        dcrp            13.8%           36.5%
+        dpc             15.2%           26.3%                  Limitations
+        dpcp            20.2%           21.4%
+        scr             16.3%           22.9%                  Coverage. PerspectiveGap covers 10 topologies
+        dtc             15.2%           26.1%                  and 100 domain instances. It does not cover all
+        dtcp            17.5%           24.6%
+        spl             12.6%           17.3%                  possible multi-agent orchestration patterns, and fu-
+                                                               ture work can add new topology templates under
+Table 7: Role-fragment assignment miss rates for f1 ,          the same construction rule.
+the shared background fragment, from actor-style and
+reviewer-style roles. Topology aliases are listed in Ap-       Prompt artifact rather than execution. Per-
+pendix Table 11.                                               spectiveGap evaluates the prompts written for sub-
+                                                               agents, not the downstream behavior of the sub-
+                                                               agents that would consume those prompts. This
+Bootstrap paradox. Some failures are control-                  scope is deliberate. Sub-agent prompts are the
+flow errors rather than simple include-or-exclude              handoff artifact that assigns context and constraints,
+mistakes. One form places the instruction to read              and they can be inspected across domains without
+an artifact inside the artifact itself: before reading         defining a separate downstream task for each do-
+it the agent cannot see the instruction, and after             main. Running downstream agents across all do-
+reading it the instruction is redundant. Another               mains would test whether prompt-boundary errors
+form adds a no-go rule that names an otherwise                 translate into task failures, but requires a separate
+absent action, e.g., “do not do x,” even though x              runtime and success criterion for each domain.
+is so out-of-scope that the sub-agent would not
+have considered it. This is the prompt equivalent              Reference mapping and scoring. The role-to-
+of the Inception example: telling someone not to               fragment mappings are authored under the need-
+think about elephants. Both cases reveal a failure             only rule: a fragment is assigned to a role if that
+of perspective-taking: the agent cannot reason from            role needs it to discharge its documented respon-
+another agent’s point of view.                                 sibility. The full five-author team internally au-
+                                                               dited the mappings for consistency, but this does
+7   Conclusion                                                 not establish external annotator agreement; future
+We introduced PerspectiveGap, a benchmark for                  versions could measure such agreement under the
+evaluating whether LLMs can write role-specific                same rule. The free-form prompt-writing scorer
+prompts for multi-agent orchestration. Its ten                 is deterministic and LLM-free, but it can penalize
+topologies are loop-centered patterns favored by               high-quality paraphrases that no longer preserve
+the Prompt Economy principle: benefit accrues                  enough fragment-specific surface evidence.
+across repeated role invocations while engineering
+                                                               Code and Data Availability
+cost stays fixed by the number of role prompts.
+Across 110 scenarios and 27 commercial models,                 The benchmark data, rendering code, scoring
+the results show that current models still struggle            scripts, and model-running utilities are available at
+to assign context according to the need-only rule,             WhymustIhaveaname/PerspectiveGap.
+even when the required information is explicitly
+
+                                                           9
+References                                                       and Jürgen Schmidhuber. 2023. Metagpt: Meta pro-
+                                                                 gramming for a multi-agent collaborative framework.
+Christopher Ackerman. 2026. Selective deficits in LLM            Preprint, arXiv:2308.00352.
+  mental self-modeling in a behavior-based test of the-
+  ory of mind. Preprint, arXiv:2603.26089.                     Geoffrey Huntley. 2025. Ralph wiggum as a “software
+                                                                 engineer”. https://ghuntley.com/ralph/.
+Anthropic. 2024. Building effective agents. https:
+  //www.anthropic.com/engineering/building                     Hyunwoo Kim, Melanie Sclar, Zhi-Xuan Tan, Lance
+ -effective-agents.                                              Ying, Sydney Levine, Yang Liu, Joshua B. Tenen-
+                                                                 baum, and Yejin Choi. 2025. Hypothesis-driven
+M. Cemri, Melissa Z. Pan, Shuyi Yang, Lakshya A.
+                                                                 theory-of-mind reasoning for large language mod-
+  Agrawal, Bhavya Chopra, Rishabh Tiwari, Kurt
+                                                                 els. Preprint, arXiv:2502.11881.
+  Keutzer, Aditya G. Parameswaran, Dan Klein,
+  K. Ramchandran, Matei Zaharia, Joseph E. Gonza-              Hyunwoo Kim, Melanie Sclar, Xuhui Zhou, Ronan Le
+  lez, and Ion Stoica. 2025. Why do multi-agent llm              Bras, Gunhee Kim, Yejin Choi, and Maarten Sap.
+  systems fail? Preprint, arXiv:2503.13657.                      2023. FANToM: A benchmark for stress-testing
+                                                                 machine theory of mind in interactions. Preprint,
+Edward Y. Chang and Longling Geng. 2025. Sagallm:
+                                                                 arXiv:2310.15421.
+  Context management, validation, and transaction
+  guarantees for multi-agent llm planning. Preprint,           Matthew Le, Y-Lan Boureau, and Maximilian Nickel.
+  arXiv:2503.11951.                                             2019. Revisiting the evaluation of theory of mind
+Weize Chen, Yusheng Su, Jingwei Zuo, Cheng Yang,                through question answering. In Proceedings of the
+ Chenfei Yuan, Chen-Ming Chan, Heyang Yu, Yaxi                  2019 Conference on Empirical Methods in Natu-
+ Lu, Yi-Hsin Hung, Chen Qian, Yujia Qin, Xin                    ral Language Processing and the 9th International
+ Cong, Ruobing Xie, Zhiyuan Liu, Maosong Sun,                   Joint Conference on Natural Language Processing
+ and Jie Zhou. 2023. AgentVerse: Facilitating multi-            (EMNLP-IJCNLP).
+ agent collaboration and exploring emergent behav-
+                                                               Guohao Li, Hasan Abed Al Kader Hammoud, Hani
+ iors. Preprint, arXiv:2308.10848.
+                                                                 Itani, Dmitrii Khizbullin, and Bernard Ghanem. 2023.
+Minh-Dung Dao, Quy Minh Le, Hoang Thanh Lam,                     CAMEL: Communicative agents for “mind” explo-
+  Duc-Trong Le, Quoc-Viet Pham, Barry O’Sullivan,                ration of large language model society. Preprint,
+  and Hoang D. Nguyen. 2026. Agentic design pat-                 arXiv:2303.17760.
+  terns: A system-theoretic framework. Preprint,
+                                                               Yuxuan Li, Aoi Naito, and Hirokazu Shirado. 2025.
+  arXiv:2601.19752.
+                                                                 Systematic failures in collective reasoning under dis-
+Jianda Du, Youran Sun, and Haizhao Yang. 2026. Au-               tributed information in multi-agent llms. Preprint,
+   tonumerics: An autonomous, pde-agnostic multi-                arXiv:2505.11556.
+   agent pipeline for scientific computing. Preprint,
+   arXiv:2602.17607.                                           Xiao Liu, Hao Yu, Hanchen Zhang, Yifan Xu, Xuanyu
+                                                                 Lei, Hanyu Lai, Yu Gu, Hangliang Ding, Kaiwen
+Kanishk Gandhi, Jan-Philipp Fränken, Tobias Gersten-             Men, Kejuan Yang, Shudan Zhang, Xiang Deng, Ao-
+  berg, and Noah D. Goodman. 2023. Understanding                 han Zeng, Zhengxiao Du, Chenhui Zhang, Sheng
+  social reasoning in language models with language              Shen, Tianjun Zhang, Yu Su, Huan Sun, and 3 oth-
+  models. In Advances in Neural Information Process-             ers. 2023. AgentBench: Evaluating LLMs as agents.
+  ing Systems 36.                                                Preprint, arXiv:2308.03688.
+
+Yuxuan Gao, Megan Wang, Yiyao Yu, Zijian Ma, and               Yue Liu, Sin Kit Lo, Qinghua Lu, Liming Zhu, De-
+  A. Qu. 2026. Decisionbench: A benchmark for emer-              hai Zhao, Xiwei Xu, Stefan Harrer, and Jon Whittle.
+  gent delegation in long-horizon agentic workflows.             2024. Agent design pattern catalogue: A collection
+  Preprint, arXiv:2605.19099.                                    of architectural patterns for foundation model based
+                                                                 agents. Preprint, arXiv:2405.10467.
+Yuling Gu, Oyvind Tafjord, Hyunwoo Kim, Jared
+  Moore, Ronan Le Bras, Peter Clark, and Yejin Choi.           Chris Lu, Cong Lu, Robert Tjarko Lange, Jakob Foer-
+  2024. SimpleToM: Exposing the gap between ex-                  ster, Jeff Clune, and David Ha. 2024. The ai scientist:
+  plicit ToM inference and implicit ToM application in           Towards fully automated open-ended scientific dis-
+  LLMs. Preprint, arXiv:2410.13648.                              covery. Preprint, arXiv:2408.06292.
+
+Antonio Gullí. 2025. Agentic Design Patterns: A                Aman Madaan, Niket Tandon, Prakhar Gupta, Skyler
+  Hands-On Guide to Building Intelligent Systems.               Hallinan, Luyu Gao, Sarah Wiegreffe, Uri Alon,
+  Springer Cham.                                                Nouha Dziri, Shrimai Prabhumoye, Yiming Yang,
+                                                                Shashank Gupta, Bodhisattwa Prasad Majumder,
+Sirui Hong, Mingchen Zhuge, Jiaqi Chen, Xiawu Zheng,            Katherine Hermann, Sean Welleck, Amir Yazdan-
+   Yuheng Cheng, Ceyao Zhang, Jinlin Wang, Zili                 bakhsh, and Peter Clark. 2023. Self-refine: It-
+   Wang, Steven Ka Shing Yau, Zijuan Lin, Liyang                erative refinement with self-feedback. Preprint,
+   Zhou, Chenyu Ran, Lingfeng Xiao, Chenglin Wu,                arXiv:2303.17651.
+
+
+                                                          10
+Zhanfeng Mo, Xingxuan Li, Yuntao Chen, and Lidong                Lilin Wang, Lucas Ramalho, Alan Celestino, Phuc An-
+  Bing. 2025. Multi-agent tool-integrated policy opti-              thony Pham, Yu Liu, Umang Kumar Sinha, Andres
+  mization. Preprint, arXiv:2510.04678.                             Portillo, Onassis Osunwa, and Gabriel Maduekwe.
+                                                                    2025. Swe-bench++: A framework for the scal-
+Abdelghny Orogat, Ana Rostam, and Essam Man-                        able generation of software engineering bench-
+  sour. 2026. Understanding multi-agent llm frame-                  marks from open-source repositories. Preprint,
+  works: A unified benchmark and experimental analy-                arXiv:2512.17419.
+  sis. Preprint, arXiv:2602.03128.
+                                                                 Alex Wilf, Sihyun Lee, P. Liang, and Louis-Philippe
+Yunjia Qi, Hao Peng, Xiaozhi Wang, Amy Xin, Yung-                  Morency. 2023. Think twice: Perspective-taking
+  Chuan Liu, Bin Xu, Lei Hou, and Juanzi Li. 2025.                 improves large language models’ theory-of-mind ca-
+  Agentif: Benchmarking instruction following of large             pabilities. Preprint, arXiv:2311.10227.
+  language models in agentic scenarios. Preprint,                Qingyun Wu, Gagan Bansal, Jieyu Zhang, Yiran Wu,
+  arXiv:2505.16944.                                                Beibin Li, Erkang Zhu, Li Jiang, Xiaoyun Zhang,
+                                                                   Shaokun Zhang, Jiale Liu, Ahmed Hassan Awadal-
+Chen Qian, Wei Liu, Hongzhang Liu, Nuo Chen, Yufan                 lah, Ryen W. White, Doug Burger, and Chi Wang.
+  Dang, Jiahao Li, Cheng Yang, Weize Chen, Yusheng                 2023a. AutoGen: Enabling next-gen LLM ap-
+  Su, Xin Cong, Juyuan Xu, Dahai Li, Zhiyuan Liu,                  plications via multi-agent conversation. Preprint,
+  and Maosong Sun. 2023. Chatdev: Communica-                       arXiv:2308.08155.
+  tive agents for software development. Preprint,
+  arXiv:2307.07924.                                              Yufan Wu, Yinghui He, Yilin Jia, Rada Mihalcea, Yu-
+                                                                   long Chen, and Naihao Deng. 2023b. Hi-ToM:
+Yujia Qin, Shihao Liang, Yining Ye, Kunlun Zhu, Lan                A benchmark for evaluating higher-order theory of
+  Yan, Yaxi Lu, Yankai Lin, Xin Cong, Xiangru Tang,                mind reasoning in large language models. In Find-
+  Bill Qian, Sihan Zhao, Lauren Hong, Runchu Tian,                 ings of the Association for Computational Linguistics:
+  Ruobing Xie, Jie Zhou, Mark Gerstein, Dahai Li,                  EMNLP 2023.
+  Zhiyuan Liu, and Maosong Sun. 2023. ToolLLM:
+  Facilitating large language models to master 16000+            Hainiu Xu, Runcong Zhao, Lixing Zhu, Jinhua Du, and
+  real-world APIs. Preprint, arXiv:2307.16789.                     Yulan He. 2024. OpenToM: A comprehensive bench-
+                                                                   mark for evaluating theory-of-mind reasoning capa-
+Matthew Riemer, Zahra Ashktorab, Djallel Bounef-                   bilities of large language models. In Proceedings
+ fouf, Payel Das, Miao Liu, Justin D. Weisz, and                   of the 62nd Annual Meeting of the Association for
+ Murray Campbell. 2025. Position: Theory of mind                   Computational Linguistics (Volume 1: Long Papers).
+ benchmarks are broken for large language models.
+                                                                 Faouzi El Yagoubi, Ranwa Al Mallah, and Godwin
+ Preprint, arXiv:2412.19726.
+                                                                   Badu-Marfo. 2026. Agentleak: A full-stack bench-
+                                                                   mark for privacy leakage in multi-agent llm systems.
+Melanie Sclar, Jane Yu, Maryam Fazel-Zarandi, Yulia                Preprint, arXiv:2602.11510.
+ Tsvetkov, Yonatan Bisk, Yejin Choi, and Asli Ce-
+ likyilmaz. 2024. Explore theory of mind: Program-               Jianzhu Yao, Kevin Wang, Ryan Hsieh, Haisu Zhou,
+ guided adversarial data generation for theory of mind              Tianqing Zou, Zerui Cheng, Zhangyang Wang, and
+ reasoning. Preprint, arXiv:2412.12175.                             P. Viswanath. 2025. Spin-bench: How well do llms
+                                                                    plan strategically and reason socially? Preprint,
+Joykirat Singh, Zaid Khan, Archiki Prasad, J. Chen, Ak-             arXiv:2503.12349.
+  shay Nambi, Hyunji Lee, Elias Stengel-Eskin, and
+  Mohit Bansal. 2026. Agent-brace: Decoupling be-                Yashwanth YS, Ruichen Wang, Shihua Zeng, Xuhui
+  liefs from actions in long-horizon tasks via verbalized          Zhou, Koichi Onoue, Vasudha Varadarajan, and
+  state uncertainty. Preprint, arXiv:2605.11436.                   Maarten Sap. 2026. SOTOPIA-TOM: Evaluating
+                                                                   information management in multi-agent interaction
+Youran Sun, Yixin Wen, and Haizhao Yang. 2026.                     with theory of mind. Preprint, arXiv:2605.02307.
+  Research: A multi-stage machine learning frame-
+  work for earth science data discovery. Preprint,               Jusheng Zhang, Yijia Fan, Kaitong Cai, Xiaofei Sun,
+  arXiv:2601.14176.                                                and Keze Wang. 2025a. Osc: Cognitive orchestra-
+                                                                   tion through dynamic knowledge alignment in multi-
+                                                                   agent llm collaboration. Preprint, arXiv:2509.04876.
+Raghav Thind, Youran Sun, Ling Liang, and Haizhao
+  Yang. 2025. Optimai: Optimization from natural                 Shaokun Zhang, Ming Yin, Jieyu Zhang, Jiale Liu,
+  language using llm-powered ai agents. Preprint,                  Zhiguang Han, Jingyang Zhang, Beibin Li, Chi
+  arXiv:2504.16918.                                                Wang, Huazheng Wang, Yiran Chen, and Qingyun
+                                                                   Wu. 2025b. Which agent causes task failures and
+Khanh-Tung Tran, Dung Dao, Minh-Duong                              when? on automated failure attribution of llm multi-
+  Nguyen, Quoc-Viet Pham, Barry O’Sullivan,                        agent systems. Preprint, arXiv:2505.00212.
+  and Hoang D. Nguyen. 2025. Multi-agent collab-
+  oration mechanisms: A survey of llms. Preprint,                Yuzhe Zhang, Feiran Liu, Yizhou Shan, Xinyi Huang,
+  arXiv:2501.06322.                                                Xin Yang, Yue Zhu, Xuxin Cheng, Cao Liu, Ke Zeng,
+
+
+                                                            11
+Terry Jingchen Zhang, and Wenyuan Jiang. 2026.
+Silo-bench: A scalable environment for evaluating
+distributed coordination in multi-agent llm systems.
+Preprint, arXiv:2603.01045.
+
+
+
+
+                                                       12
+Contents of Appendix
+Appendix A        Full Model Leaderboard . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .               13
+Appendix B        Additional Topology Details . . . . . . . . . . . . . . . . . . . . . . . . . . . .              13
+Appendix C        Few-Shot Prompting Ablation . . . . . . . . . . . . . . . . . . . . . . . . . . .                13
+Appendix D        Distractor-count Ablation . . . . . . . . . . . . . . . . . . . . . . . . . . . . .              14
+Appendix E        Scratchpad Ablation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .              15
+Appendix F        Reasoning Effort Ablation . . . . . . . . . . . . . . . . . . . . . . . . . . . . .              15
+Appendix G        Scorer Agreement with Human Labels . . . . . . . . . . . . . . . . . . . . . .                   16
+Appendix H        Role-Fragment Assignment Trivial Baselines . . . . . . . . . . . . . . . . . . .                 16
+Appendix I        Professional-Domain Coverage . . . . . . . . . . . . . . . . . . . . . . . . . .                 16
+Appendix J        Concrete Reference-Mapping Example . . . . . . . . . . . . . . . . . . . . . .                   17
+
+A    Full Model Leaderboard
+Table 8 reports the full model leaderboard used for the main experimental comparison. The combined
+score is the unweighted average of role-fragment assignment Strict pass and free-form prompt-writing
+Strict pass. Tables 9 and 10 report the score-consistency metrics for the two task formats.
+
+                  Company     Model                   Role-fragment assignment Free-form prompt writing Combined
+                  OpenAI      gpt-5.5                                 55.5%                    68.6%      62.0%
+                  DeepSeek    deepseek-v4-pro                         37.3%                    26.8%      32.0%
+                  Kimi        kimi-k2.6                               26.8%                    25.0%      25.9%
+                  DeepSeek    deepseek-v4-flash                       24.5%                    25.0%      24.8%
+                  Google      gemini-3.1-pro                          20.0%                    23.6%      21.8%
+                  Z.ai        glm-5                                   25.9%                    14.5%      20.2%
+                  Xiaomi      mimo-v2.5-pro                           25.0%                    15.0%      20.0%
+                  Anthropic   claude-opus-4-7                         24.1%                    14.1%      19.1%
+                  Qwen        qwen3.6-plus                            25.5%                     8.6%      17.0%
+                  Anthropic   claude-sonnet-4-6                        5.9%                    25.5%      15.7%
+                  xAI         grok-4.3                                16.4%                    14.5%      15.5%
+                  Kimi        kimi-k2.5                               13.6%                    16.8%      15.2%
+                  Qwen        qwen3.7-max                             20.0%                     8.6%      14.3%
+                  OpenAI      gpt-5.4                                 25.5%                     2.3%      13.9%
+                  Qwen        qwen3.5-9b                              16.4%                     9.1%      12.7%
+                  Xiaomi      mimo-v2.5                               14.1%                    11.4%      12.7%
+                  MiniMax     minimax-m2.7                            16.4%                     5.9%      11.1%
+                  Google      gemini-3.5-flash                        19.1%                     0.9%      10.0%
+                  Z.ai        glm-5.1                                  6.4%                    12.7%       9.5%
+                  Anthropic   claude-haiku-4-5                         3.2%                     8.2%       5.7%
+                  MiniMax     minimax-m2.5                             5.9%                     5.0%       5.5%
+                  xAI         grok-4.20                                1.4%                     8.6%       5.0%
+                  Google      gemini-3.1-flash-lite                    2.7%                     4.1%       3.4%
+                  Z.ai        glm-4.7-flash                            3.2%                     3.6%       3.4%
+                  Xiaomi      mimo-v2-flash                            3.6%                     1.8%       2.7%
+                  OpenAI      gpt-5.4-mini                             0.9%                     2.7%       1.8%
+                  OpenAI      gpt-5.4-nano                             0.0%                     0.9%       0.5%
+
+
+Table 8: Full PerspectiveGap leaderboard over all 27 evaluated commercial models. Models are sorted by combined
+pass rate.
+
+
+B   Additional Topology Details
+Table 11 lists the topology aliases used in the appendix tables and the number of roles in each template.
+Figure 5 reports the combined pass rate for each model and topology.
+
+C    Few-Shot Prompting Ablation
+This ablation asks whether few-shot examples improve accuracy on PerspectiveGap’s free-form prompt-
+writing task. We run it on gpt-5.4-mini, claude-haiku-4-5, and gemini-3.5-flash, where weak 0-shot
+performance leaves more room for few-shot examples to help. The comparison must avoid giving away
+the answer through superficial overlap. Several hand-written templates share role names or fragment
+wording, so we manually choose examples whose topology, roles, and content differ from the evaluation
+slice. The four settings are listed in Table 12; each setting evaluates the ten instances under one target
+
+                                                               13
+                            Model                                                                                              Strict pass Net match Required coverage Boundary precision Distractor leakage
+                            gpt-5.5                                                                                                        55.5%                                       92.6%                                                        96.2%                                                                         96.2%                                                                          2.3%
+                            deepseek-v4-pro                                                                                                37.3%                                       85.4%                                                        95.8%                                                                         93.4%                                                                         42.3%
+                            kimi-k2.6                                                                                                      26.8%                                       66.7%                                                        79.7%                                                                         92.0%                                                                         30.0%
+                            deepseek-v4-flash                                                                                              24.5%                                       77.6%                                                        94.9%                                                                         88.5%                                                                         17.7%
+                            gemini-3.1-pro                                                                                                 20.0%                                       60.9%                                                        63.8%                                                                         97.1%                                                                         24.1%
+                            glm-5                                                                                                          25.9%                                       80.2%                                                        94.1%                                                                         92.4%                                                                         32.7%
+                            mimo-v2.5-pro                                                                                                  25.0%                                       75.3%                                                        92.6%                                                                         87.7%                                                                         76.4%
+                            claude-opus-4-7                                                                                                24.1%                                       79.4%                                                        94.2%                                                                         90.1%                                                                        104.5%
+                            qwen3.6-plus                                                                                                   25.5%                                       80.5%                                                        93.3%                                                                         93.8%                                                                         59.5%
+                            claude-sonnet-4-6                                                                                               5.9%                                       67.5%                                                        89.9%                                                                         87.5%                                                                         83.6%
+                            grok-4.3                                                                                                       16.4%                                       68.6%                                                        87.0%                                                                         92.5%                                                                          7.3%
+                            kimi-k2.5                                                                                                      13.6%                                       73.6%                                                        92.9%                                                                         89.2%                                                                         88.2%
+                            qwen3.7-max                                                                                                    20.0%                                       73.7%                                                        86.2%                                                                         95.0%                                                                         55.0%
+                            gpt-5.4                                                                                                        25.5%                                       78.3%                                                        93.4%                                                                         91.6%                                                                         47.3%
+                            qwen3.5-9b                                                                                                     16.4%                                       66.3%                                                        86.5%                                                                         89.5%                                                                         51.4%
+                            mimo-v2.5                                                                                                      14.1%                                       69.3%                                                        89.5%                                                                         89.3%                                                                         50.9%
+                            minimax-m2.7                                                                                                   16.4%                                       50.8%                                                        62.5%                                                                         89.1%                                                                         32.7%
+                            gemini-3.5-flash                                                                                               19.1%                                       59.1%                                                        65.8%                                                                         87.3%                                                                        101.4%
+                            glm-5.1                                                                                                         6.4%                                       58.3%                                                        87.7%                                                                         85.0%                                                                         97.3%
+                            claude-haiku-4-5                                                                                                3.2%                                       40.1%                                                        77.1%                                                                         78.8%                                                                        133.6%
+                            minimax-m2.5                                                                                                    5.9%                                       52.6%                                                        80.0%                                                                         87.3%                                                                         57.3%
+                            grok-4.20                                                                                                       1.4%                                       56.2%                                                        92.0%                                                                         77.4%                                                                        184.5%
+                            glm-4.7-flash                                                                                                   3.2%                                       33.5%                                                        69.2%                                                                         66.3%                                                                        124.1%
+                            gemini-3.1-flash-lite                                                                                           2.7%                                       32.0%                                                        59.0%                                                                         70.9%                                                                        193.2%
+                            mimo-v2-flash                                                                                                   3.6%                                       39.3%                                                        83.6%                                                                         75.7%                                                                        130.9%
+                            gpt-5.4-mini                                                                                                    0.9%                                       21.4%                                                        77.6%                                                                         64.9%                                                                        174.5%
+                            gpt-5.4-nano                                                                                                    0.0%                                        7.9%                                                        35.3%                                                                         18.3%                                                                         29.5%
+
+
+       Table 9: Full score-consistency metrics for role-fragment assignment over all 27 evaluated models.
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                    90
+
+
+             cr     84          48              20             52                   9           36         45              11               16                  2             11         16             9          11        30           25           41               16               5             0              16            18                  7                 16                2              2              2         80
+
+            crp     84          50              41             70                 48            34         48              32               30               30               64         34           18           34        39           36           34               18              16           16               18            14              18                    18                7            14               0
+                                                                                                                                                                                                                                                                                                                                                                                                                                    70
+            dcr     86          45              39             25                 45            18         32              39               30               36               16         18           27           27          9           9             5              30               7             5                2             9                 9                   0               0              0              0
+                                                                                                                                                                                                                                                                                                                                                                                                                                    60
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                        Combined pass rate (%)
+           dcrp     75          52              20             34                 48            25         11              11               32               32               14         16           18           11        16           14             0              23               2             9                2             0                 0                   0               0              0              0
+
+            dpc     39             9            20                0                 2            7           0             20                 0                 9              2           2            0           0          2           2             0                7             11             0                0             2                 0                   0               0              0              0         50
+
+           dpcp     45          14                9               0               14             0           0                5               7                 7              0           0            2           0          0           0             0                0              0             0                0             0                 0                   0               0              0              0
+                                                                                                                                                                                                                                                                                                                                                                                                                                    40
+            scr     89          75              80             50                 48            52         50              68               43               25               39         59           66           45        27           30           30                 2             45           14                 9             0                 0                   0               9              0              0
+                                                                                                                                                                                                                                                                                                                                                                                                                                    30
+             tl     27             0            14                0                 2            7           0                2               0                 2              0           0            0           0          0           0             0                0              0             0                0             0                 0                   0               0              0              0
+
+            tlp     14             9              5               0                 2            0           2                0               2                 0              0           2            2           0          0           0             0                0              0             0                0             0                 0                   0               0              0              0         20
+
+            spl     77          18              11             16                   0           23         11                 2             11               14                9           5            0           9          5          11             2                5              9           14                 7             7                 0                   0               9              2              2         10
+                                                                              gemini-3.1-pro
+
+                                                                                               glm-5
+
+
+
+
+                                                                                                                                                                            grok-4.3
+                                              kimi-k2.6
+
+
+
+
+                                                                                                                                                        claude-sonnet-4-6
+
+
+
+                                                                                                                                                                                       kimi-k2.5
+
+
+
+
+                                                                                                                                                                                                                                                    minimax-m2.7
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                  grok-4.20
+                  gpt-5.5
+
+
+
+
+                                                                                                       mimo-v2.5-pro
+
+
+
+                                                                                                                                         qwen3.6-plus
+
+
+
+
+                                                                                                                                                                                                   qwen3.7-max
+
+                                                                                                                                                                                                                 gpt-5.4
+
+
+
+                                                                                                                                                                                                                                       qwen3.5-9b
+
+
+
+                                                                                                                                                                                                                                                                   gemini-3.5-flash
+
+                                                                                                                                                                                                                                                                                      glm-5.1
+
+
+
+                                                                                                                                                                                                                                                                                                                   minimax-m2.5
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                                                      glm-4.7-flash
+
+
+
+                                                                                                                                                                                                                                                                                                                                                                                                      gpt-5.4-mini
+
+                                                                                                                                                                                                                                                                                                                                                                                                                     gpt-5.4-nano
+                            deepseek-v4-pro
+
+
+
+                                                          deepseek-v4-flash
+
+
+
+
+                                                                                                                       claude-opus-4-7
+
+
+
+
+                                                                                                                                                                                                                           mimo-v2.5
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                              gemini-3.1-flash-lite
+
+
+
+                                                                                                                                                                                                                                                                                                                                                                                      mimo-v2-flash
+                                                                                                                                                                                                                                                                                                claude-haiku-4-5
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                    0
+
+
+
+
+        Figure 5: Combined pass rate by topology and model. Darker squares indicate higher pass rates.
+
+
+topology. The main benchmark has 10 topology templates, 100 instances, and 110 scenarios in total once
+the 10 hand-written templates are included. The 2-shot setting uses the same 5-role evaluation slice as
+1-shot-2, isolating whether a second example helps.
+   Figure 6 shows that the worked example helps gemini-3.5-flash in the smaller settings, with +80
+pp on 1-shot-1 and +30 pp on 1-shot-3. The same model gets little or no lift in the 5-role settings.
+For claude-haiku-4-5 and gpt-5.4-mini, no evaluated output crosses the strict pass threshold in any
+setting; this does not rule out sub-threshold improvements. The leakage panel shows why pass-rate lift
+alone is incomplete: gemini-3.5-flash reduces leakage on 1-shot-1, while claude-haiku-4-5 and
+gpt-5.4-mini leak more under the same intervention.
+
+D    Distractor-count Ablation
+To study how leakage changes as irrelevant context grows, we rerun role-fragment assignment with 0,
+1, 2, or 3 injected distractors on gpt-5.5, gpt-5.4, claude-opus-4-7, claude-sonnet-4-6, gemini-3.1-pro,
+and gemini-3.5-flash. We choose this six-model panel to cover flagship and fast models from OpenAI,
+Anthropic, and Google. Figure 7 plots the model-averaged distractor leakage and overall leakage at each
+distractor count. Both rates rise sharply after the first distractor; overall leakage continues to increase
+
+                                                                                                                                                                                                                        14
+               Model                   Strict pass Net match Required coverage Boundary precision Distractor leakage
+               gpt-5.5                    68.6%      91.5%              92.8%              99.0%               0.9%
+               deepseek-v4-pro            26.8%      82.7%              95.4%              92.2%              71.4%
+               kimi-k2.6                  25.0%      69.0%              80.8%              95.5%              32.7%
+               deepseek-v4-flash          25.0%      78.6%              94.4%              89.2%              33.2%
+               gemini-3.1-pro             23.6%      62.0%              63.9%              94.2%              48.6%
+               glm-5                      14.5%      70.9%              93.1%              85.1%             141.8%
+               mimo-v2.5-pro              15.0%      74.3%              89.9%              90.4%              51.8%
+               claude-opus-4-7            14.1%      82.3%              94.4%              92.7%              65.5%
+               qwen3.6-plus                8.6%      69.0%              82.7%              90.6%              90.9%
+               claude-sonnet-4-6          25.5%      80.3%              91.7%              95.6%              35.0%
+               grok-4.3                   14.5%      74.6%              88.7%              94.6%              12.3%
+               kimi-k2.5                  16.8%      72.0%              89.1%              89.1%             110.9%
+               qwen3.7-max                 8.6%      63.8%              85.7%              85.0%             177.3%
+               gpt-5.4                     2.3%      71.9%              95.6%              84.0%             174.5%
+               qwen3.5-9b                  9.1%      47.1%              65.7%              88.6%              46.8%
+               mimo-v2.5                  11.4%      69.6%              89.2%              90.6%              42.7%
+               minimax-m2.7                5.9%      33.5%              46.6%              88.6%              36.8%
+               gemini-3.5-flash            0.9%      51.3%              65.5%              80.3%             197.3%
+               glm-5.1                    12.7%      73.1%              88.8%              92.9%              54.5%
+               claude-haiku-4-5            8.2%      66.1%              84.4%              95.8%              16.4%
+               minimax-m2.5                5.0%      48.2%              70.1%              91.8%              30.0%
+               grok-4.20                   8.6%      67.9%              93.2%              82.2%             143.2%
+               glm-4.7-flash               3.6%      32.4%              61.7%              85.6%              76.8%
+               gemini-3.1-flash-lite       4.1%      34.9%              40.4%              82.6%              95.0%
+               mimo-v2-flash               1.8%      48.1%              78.3%              85.5%              73.6%
+               gpt-5.4-mini                2.7%      25.2%              58.2%              84.6%              35.5%
+               gpt-5.4-nano                0.9%      20.7%              48.4%              81.6%              24.1%
+
+
+      Table 10: Full score-consistency metrics for free-form prompt writing over all 27 evaluated models.
+
+                             Alias     Topology                                              Roles
+                             cr        coder_reviewer                                              2
+                             crp       coder_reviewer_pool                                         2
+                             dcr       dispatcher_coder_reviewer                                   3
+                             dcrp      dispatcher_coder_reviewer_pool                              3
+                             dpc       dispatcher_planloop_codeloop                                5
+                             dpcp      dispatcher_planloop_codeloop_pool                           6
+                             scr       dispatcher_scientist_coder_reviewer                         4
+                             dtc       dispatcher_theoryloop_codeloop                              5
+                             dtcp      dispatcher_theoryloop_codeloop_pool                         5
+                             spl       supervisor_phdstudent_librarian                             3
+
+              Table 11: Additional details for the 10 topology templates used in PerspectiveGap.
+
+
+through three distractors, reaching 122.3% on average.
+
+E   Scratchpad Ablation
+Prior work reports that giving models a scratchpad can improve accuracy on self-modeling tasks (Ack-
+erman, 2026). We test whether the same trick helps in PerspectiveGap’s free-form prompt-writing
+task.
+   We use the same model set as Appendix C: gpt-5.4-mini, claude-haiku-4-5, and gemini-3.5-flash. For
+each model, we rerun the task on all 110 scenarios. The treatment adds an instruction to first write a
+hidden scratchpad block listing which fragments each sub-agent needs and why. The scratchpad block is
+stripped before scoring, so the scorer checks only the final orchestra text.
+   Figure 8 shows that the scratchpad does not improve strict pass rate. It leaves claude-haiku-4-5
+unchanged at 2.7%, and moves gemini-3.5-flash and gpt-5.4-mini from 1.8% to 0.0%. The leakage effect
+is model-specific: gemini-3.5-flash drops from 42.7% to 0.9%, while claude-haiku-4-5 rises from 17.3%
+to 40.9% and gpt-5.4-mini rises from 44.5% to 83.6%. Scratchpads change how these small models
+handle distractors, but in this setting they do not solve free-form prompt writing.
+
+F   Reasoning Effort Ablation
+We ask how free-form prompt writing changes when the same model is given less or more reasoning effort.
+We compare gpt-5.5 and claude-sonnet-4-6 at low, medium, and high effort on the same 30-scenario
+
+                                                               15
+                                                                         gemini-3.5-flash         claude-haiku-4-5                       gpt-5.4-mini
+
+                                              80                                                                           75
+
+
+
+
+                       Few-shot 0-shot (pp)
+
+
+
+
+                                                                                                    0-shot few-shot (pp)
+                                              60                                                                           50
+
+                                              40                                                                           25
+                                                                                                                               0
+                                              20
+                                                                                                                           25
+                                              0
+                                                   1-shot-1   1-shot-2     1-shot-3     2-shot                                     1-shot-1    1-shot-2   1-shot-3   2-shot
+                                                    2 roles    5 roles      3 roles     5 roles                                     2 roles     5 roles    3 roles   5 roles
+
+
+Figure 6: Few-shot effects on free-form prompt writing. The left panel shows pass-rate lift, measured as few-shot
+minus 0-shot. The right panel shows leakage reduction, measured as 0-shot minus few-shot. Higher is better in both
+panels.
+
+                                                     Setting             Eval. topology                         Roles                Example topology
+                                                    1-shot-1             cr                                                2                    spl
+                                                    1-shot-2             dtcp                                              5                     cr
+                                                    1-shot-3             spl                                               3                    dpc
+                                                     2-shot              dtcp                                              5                   cr, spl
+
+Table 12: Few-shot settings used in the ablation. Each evaluation setting uses the ten instances under one target
+topology. Example topologies were selected manually to avoid shared topology, role names, and fragment wording
+with the evaluation topology. Topology aliases are listed in Table 11.
+
+
+subset used in Appendix C.
+   Figure 9 shows medium effort as the pass-rate sweet spot for both models. gpt-5.5 falls from 63.3% at
+medium effort to 53.3% at both low and high effort. claude-sonnet-4-6 rises from 0.0% at low effort to
+16.7% at medium effort, then drops to 6.7% at high effort. More effort also makes distractor use worse:
+gpt-5.5 leaks more at high effort than at medium effort, and claude-sonnet-4-6 leakage rises from 23.3%
+to 40.0% across the sweep.
+
+G    Scorer Agreement with Human Labels
+For the free-form prompt-writing task, the scorer test set contains 716 rows sampled from benchmark
+outputs and labeled by human annotators for fragment containment. It is used only to validate the rule
+scorer; the scorer itself reads only the benchmark reference mapping at evaluation time and does not
+consult any human labels.
+
+                                                                 Metric                                                                       Value
+                                                                 Percent agreement                                  99.44% (712/716)
+                                                                 F1 (pass class)                                             99.57%
+                                                                 Precision (pass)                                            99.78%
+                                                                 Recall (pass)                                               99.36%
+
+        Table 13: Scorer agreement with human labels on all 716 free-form prompt writing test-set rows.
+
+
+H    Role-Fragment Assignment Trivial Baselines
+To validate that the leaderboard is not driven by surface shortcuts, we analytically score three trivial
+baselines on the same role-fragment assignment set-equality scorer used in the main results. Table 14
+reports the results. All three baselines reach a 0.0% pass rate, so the nonzero leaderboard scores cannot be
+explained by copy-all, role-name keyword matching, or random assignment.
+
+I   Professional-Domain Coverage
+Table 15 summarizes the domains used in PerspectiveGap.
+
+                                                                                                   16
+                                                                                                  Distractor leakage                            Overall leakage
+
+
+
+
+                                                                  Mean leakage rate (%)
+                                                                                            0
+                                                                                           25
+                                                                                           50
+                                                                                           75
+                                                                                          100
+                                                                                          125
+                                                                                                 0       1         2       3
+                                                                                                     Number of distractors
+
+Figure 7: Role-fragment assignment leakage as the number of injected distractors increases. Downward bars indicate
+leakage. Each bar averages over a six-model panel: one flagship and one fast model from OpenAI, Anthropic, and
+Google.
+
+                                                                                                no scratchpad                                scratchpad
+
+                                         5                                                                                               0
+
+
+
+
+                                                                                                             Distractor leak rate (%)
+                                         4
+                                                                                                                                        20
+                         Pass rate (%)
+
+
+
+
+                                         3
+                                                                                                                                        40
+                                         2
+                                                                                                                                        60
+                                         1
+                                                                                                                                        80
+                                         0
+                                             gemini-3.5-flash claude-haiku-4-5 gpt-5.4-mini                                                  gemini-3.5-flash claude-haiku-4-5 gpt-5.4-mini
+
+
+Figure 8: Free-form prompt writing pass rate (left) and distractor leak rate (right) on three small models, with and
+without a hidden scratchpad block. Downward bars in the right panel indicate leakage.
+
+
+J   Concrete Reference-Mapping Example
+This appendix makes the reference policy auditable on an actual benchmark scenario. We use the
+dispatcher_theoryloop_codeloop scenario. It shows the background given to the model, the fragment
+headings, the “need-only” instruction, the reference assignment, and textual evidence for representative
+boundary decisions.
+
+       I need you to set up a 5-agent pipeline that solves mathematical optimization problems by developing theoretical
+       analysis and solver code in parallel, with each side informing the other. A problem arrives as a natural-language
+       statement in problem.md; read it before starting your part.
+       The five agents:
+       • dispatcher orchestrates the run by alternating one theory step with one code step and tracking progress. It
+          does no modeling, coding, or reviewing itself.
+
+        • theory loop — the theorist writes the theoretical analysis to THEORY.md; the theory-reviewer judges it. The
+          theorist reads SOLUTION.md on each revision pass to incorporate empirical evidence.
+
+       • code loop — the coder writes solver code and its results to SOLUTION.md; the code-reviewer judges them.
+         The coder reads THEORY.md on each revision pass to align the implementation with the latest theoretical
+         claims.
+       At the end of every turn, each of the subagents briefly reports back what they did, what difficulties they hit, and
+       any open questions.
+       The pipeline hands work off through three files:
+
+        • problem.md — the original problem, read-only. All four domain agents read it.
+
+        • THEORY.md — the theoretical analysis. Theorist writes; theory-reviewer reviews; coder and code-reviewer
+          read it to know which bounds and invariants the implementation must respect.
+
+        • SOLUTION.md — the solver code and its results. Coder writes; code-reviewer reviews; theorist and theory-
+          reviewer read it to ground the theory in observed numbers.
+
+        Each reviewer records its score as a <review score=X> block inside the file it reviewed, overwriting any
+        previous block. The dispatcher reads those scores to drive the loops.
+        Unlike a plan-then-code pipeline where the plan must converge before the code starts, here neither side ever
+        finishes first. Both loops alternate forever, capped at a fixed iteration count. Theory may tighten after seeing
+        code’s empirical numbers; code may correct after seeing theory’s refined bounds.
+
+
+
+                                                                                                           17
+                                                                         low         medium                           high
+
+
+                                                                                                                  0
+
+
+
+
+                                                                                      Distractor leak rate (%)
+                                                  60
+                                                                                                                 10
+
+
+
+
+                                  Pass rate (%)
+                                                  40
+                                                                                                                 20
+
+                                                  20                                                             30
+                                                                                                                 40
+                                                   0
+                                                        gpt-5.5      sonnet-4.6                                         gpt-5.5    sonnet-4.6
+
+
+Figure 9: Free-form prompt writing pass rate (left) and distractor leak rate (right) across three reasoning-effort
+levels. Each model has one bar for low, medium, and high effort; downward bars in the right panel indicate leakage.
+
+  Baseline                                                                                                                        Role-fragment assignment pass rate
+  Copy-all (every role gets every fragment)                                                                                                                       0.0%
+  Role-keyword (assign fragment to roles whose name token appears in its heading)                                                                                 0.0%
+  Random (each fragment to one uniform-random role, 20 random draws)                                                                                              0.0%
+
+                    Table 14: Three trivial baselines on the role-fragment assignment set-equality scorer.
+
+  Professional domain                                               Scenarios      Example role list (one scenario per domain)
+  Medical, clinical trials, regulatory safety                              14      care coordinator, diagnostician, diagnostic challenge physician, treatment planner,
+                                                                                   patient-safety reviewer
+  Litigation, criminal defense, appellate                                  13      docket coordinator, appellate strategist, red-team appellate counsel, brief drafter,
+                                                                                   opposing-counsel brief reviewer
+  Cultural heritage, provenance, authentication                            11      authentication case manager, provenance researcher, provenance skeptic, conserva-
+                                                                                   tion science examiner, forensic methods auditor
+  Intelligence, security operations, vulnerability research                10      secops director, threat modeler, security architect, red-teamer, vulnerability analyst
+  Tax law, IRS audit, forensic accounting                                   7      audit docket clerk, tax credit preparer, IRS examining agent
+  Civil and structural engineering, plan check                              7      project coordinator, structural scheme designer, design revision engineer, code-
+                                                                                   compliance examiner, calculation package engineer, independent structural re-
+                                                                                   viewer
+  Investigative journalism, editorial                                          7   assigning editor, investigative reporter, skeptical investigations editor, story writer,
+                                                                                   fact-checking editor
+  Finance, quant trading, M&A, risk                                            6   deal orchestrator, valuation strategist, investment committee skeptic, term-sheet
+                                                                                   drafter, due-diligence auditor
+  Drug discovery, pharmacology, toxicology                                     4   program director, pharmacologist, toxicology skeptic, trial designer, regulatory
+                                                                                   auditor
+  Environmental permitting, impact assessment                                  4   permitting coordinator, impact assessment lead, regulatory challenge reviewer, EIA
+                                                                                   report author, permit-compliance auditor
+  Aerospace mission operations, flight dynamics                                3   mission commander, astrodynamics architect, maneuver adjuster, orbital-
+                                                                                   mechanics reviewer, burn-sequence compiler, physics-simulator proxy
+  Patent law and IP                                                            3   patent attorney, patent examiner
+  Policy, campaign, legislation                                                3   policy coordinator, macro-theorist, intervention tuner, economic skeptic, legislation
+                                                                                   drafter, compliance stress-tester
+  Other (game and screen production, fire incident response,                   8   showrunner, narrative architect, plot-hole critic, scene writer, continuity auditor
+  mathematical proof verification, anomaly detection, culi-
+  nary operations)
+  Software engineering and research                                        10      coder, reviewer, dispatcher, scientist, theorist, phdstudent, librarian
+
+
+                                                   Table 15: Professional-domain coverage of PerspectiveGap.
+
+
+   The prompt then shows the fragment headings in Table 16. We omit the fragment bodies here, but
+keep the headings because they show how the scenario separates actor instructions, reviewer instructions,
+orchestration, and reporting.
+   After the fragment block, the prompt tells the model: “Each agent’s prompt should contain only the
+information that agent needs to do its job.” and the output format. Table 17 shows the resulting reference
+assignment.
+   The main boundary decisions in this example are not arbitrary. They follow from the stated role
+responsibilities:
+
+1. f12 belongs to all four domain agents because the background says “At the end of every turn, each of
+   the subagents briefly reports back what they did, what difficulties they hit, and any open questions.” It
+   does not belong to the dispatcher: the dispatcher receives those reports, but f12 tells domain agents
+   what to report.
+
+                                                                                    18
+                                          Fragment   Heading
+                                          f1         problem context
+                                          f2         theorist deliverable rule
+                                          f3         theory toolbox
+                                          f4         coder deliverable rule
+                                          f5         solution-doc writing rule
+                                          f6         theory-review rule
+                                          f7         code-review rule
+                                          f8         reviewer scoring rule
+                                          f9         dispatch rule
+                                          f10        theorist workflow
+                                          f11        coder workflow
+                                          f12        report-back instruction
+
+                Table 16: Fragment headings for the dispatcher_theoryloop_codeloop example.
+
+Role                    Reference fragments            Rationale
+Dispatcher              f9                             The background says the dispatcher “orchestrates the run by alter-
+                                                       nating one theory step with one code step and tracking progress”
+                                                       and “does no modeling, coding, or reviewing itself.” It therefore
+                                                       needs the dispatch rule only.
+Theorist                f1, f2, f3, f10, f12           The theorist needs the problem context, its deliverable rule, the
+                                                       theory toolbox, its workflow across turns, and the instruction to
+                                                       report back.
+Theory-reviewer         f1, f3, f6, f8, f12            The theory-reviewer needs the problem context, enough theory-tool
+                                                       context to judge the analysis, the theory-review rule, the reviewer
+                                                       scoring rule, and the instruction to report back.
+Coder                   f1, f4, f5, f11, f12           The coder needs the problem context, its deliverable rule, solution-
+                                                       document writing rules, its workflow across turns, and the instruc-
+                                                       tion to report back.
+Code-reviewer           f1, f7, f8, f12                The code-reviewer needs the problem context, the code-review rule,
+                                                       the reviewer scoring rule, and the instruction to report back.
+
+                  Table 17: Reference role-fragment assignment for one PerspectiveGap scenario.
+
+
+2. f6 belongs to the theory-reviewer, not to the theorist. Its first sentence is “Review THEORY.md against
+   problem.md and against the numbers reported in SOLUTION.md (if any).” Giving it to the theorist
+   leaks the critic’s instructions into the actor’s prompt.
+
+3. f2 belongs to the theorist, not to the theory-reviewer. It begins with “Produce the theoretical analysis
+   for the problem and write it to THEORY.md.” Although it is about theory, it specifies the actor’s
+   deliverable rather than the reviewer’s job.
+
+4. The code side follows the same boundary. f4 begins with “Read problem.md and THEORY.md, then
+   implement the solver:”; f5 says “Keep SOLUTION.md lean.”; and f11 says “The solver code and its
+   results live in SOLUTION.md, and you may be invoked on it more than once.” These are coder-side
+   instructions. By contrast, f7 begins with “Review SOLUTION.md against problem.md and against
+   THEORY.md,” and f8 says to “Score the work from 1 to 10”; those are reviewer-side instructions.
+
+
+
+
+                                                         19
+

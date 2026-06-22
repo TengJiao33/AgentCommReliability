@@ -1,0 +1,1520 @@
+                                             Know Your Limits: A Survey of Abstention in Large Language Models
+
+                                                           Bingbing Wen1 Jihan Yao1 Shangbin Feng1 Chenjun Xu1
+                                                                 Yulia Tsvetkov1 Bill Howe1 Lucy Lu Wang1,2
+                                                                  1
+                                                                    University of Washington 2 Allen Institute for AI
+                                                                         {bingbw, chenjux, billhowe, lucylw}@uw.edu
+                                                                       {jihany2, shangbin, yuliats}@cs.washington.edu
+
+
+
+                                                                 Abstract                                                           Abstain
+
+                                               Abstention, the refusal of large language                     Human
+                                                                                                                         h(x)
+                                                                                                              Value
+                                               models (LLMs) to provide an answer, is in-
+                                               creasingly recognized for its potential to mit-               Query               Model             Human
+                                                                                                                        a(x)              c(x,y)            h(x,y)
+arXiv:2407.18418v3 [cs.CL] 12 Feb 2025
+
+
+
+
+                                               igate hallucinations and enhance safety in                 Answerability         Knowledge           Value
+                                               LLM systems. In this survey, we introduce a
+                                               framework to examine abstention from three                      Input x                  LM          Output y
+                                               perspectives: the query, the model, and hu-
+                                               man values. We organize the literature on                  Figure 1: Our proposed framework for abstention
+                                               abstention methods, benchmarks, and evalu-                 in language models. Starting with input query x,
+                                               ation metrics using this framework, and dis-               the query can be gauged for answerability a(x) and
+                                               cuss merits and limitations of prior work. We              alignment with human values h(x). The model
+                                               further identify and motivate areas for future             then generates a potential response y based on
+                                               research, such as whether abstention can be
+                                                                                                          the input x. If query conditions are not met, the
+                                               achieved as a meta-capability that transcends
+                                               specific tasks or domains, and opportunities               model’s confidence in the response c(x, y) is too
+                                               to optimize abstention abilities in specific               low, or if the response’s alignment with human val-
+                                               contexts. In doing so, we aim to broaden the               ues h(x, y) is too low, the system should abstain.
+                                               scope and impact of abstention methodolo-
+                                               gies in AI systems.1
+                                                                                                          2024b), which aim to accurately and consistently
+                                                                                                          estimate a model’s confidence in its response, then
+                                         1    Introduction
+                                                                                                          arrange for the model to abstain if the confidence
+                                         Large language models (LLMs) have demonstrated                   score for a given response falls below some thresh-
+                                         generalization capabilities across NLP tasks such                old (Varshney et al., 2022; Xiao et al., 2022; Desai
+                                         as question answering (QA) (Wei et al., 2022a;                   and Durrett, 2020). But questions of whether a
+                                         Chowdhery et al., 2022), abstractive summariza-                  query is aligned with human values or is answer-
+                                         tion (Zhang et al., 2023a), and dialogue genera-                 able at all are difficult to model in terms of model
+                                         tion (Yi et al., 2024). But these models are also un-            confidence (Yang et al., 2023).
+                                         reliable, having a tendency to “hallucinate” false in-              Prior work demonstrates the potential of abst-
+                                         formation in their responses (Ji et al., 2023b), gener-          ention to enhance model safety and reliability in
+                                         ate overly certain or authoritative responses (Zhou              constrained settings (Varshney et al., 2023; Wang
+                                         et al., 2024b), answer with incomplete informa-                  et al., 2024c; Zhang et al., 2024a). In this survey,
+                                         tion (Zhou et al., 2023b), or produce harmful or                 we attempt to bring together relevant work study-
+                                         dangerous responses (Anwar et al., 2024). In these               ing abstention strategies or leading to abstention
+                                         situations, the model should ideally abstain: to                 behaviors, across the diverse range of scenarios
+                                         refuse to answer in the face of uncertainty (Wen                 encountered by general-purpose chatbots engag-
+                                         et al., 2024; Feng et al., 2024b; Yang et al., 2023).            ing in open-domain interactions. Our goals are
+                                            Current methods to encourage abstention typi-                 to identify gaps and encourage new methods to
+                                         cally rely on calibration techniques, including lin-             achieve abstention. Developing or adapting absten-
+                                         guistic calibration (Mielke et al., 2022; Huang et al.,          tion mechanisms to suit a wide array of tasks will
+                                             1
+                                               A list of abstention-related papers from this review can   enhance the overall robustness and trustworthiness
+                                         be found at https://github.com/chenjux/abstention.               of LLM interactions.
+   To this end, our survey presents an overview of       modes of LLMs in following instructions (Röttger
+the current landscape of abstention research. We         et al., 2024a; Varshney et al., 2023).
+provide a definition of abstention that incorporates        For the abstention expression—the words a
+not only technical perspectives—query examina-           model uses to convey that it has abstained—we
+tion and model capabilities—but also considers           adopt the definition of five major types of expres-
+alignment with human values. We categorize exist-        sions from prior work (Varshney et al., 2023; Wang
+ing methods to improve abstention in LLMs based          et al., 2024c), indicating that the model (i) cannot
+on the model lifecycle (pretraining, alignment, and      assist; (ii) refutes the query; (iii) provides mul-
+inference), and provide an analysis of evaluation        tiple perspectives without expressing preference;
+benchmarks and metrics used to assess abstention.        (iv) perceives risk associated with the query and
+In our discussion, we aim to establish a clear entry     answers cautiously with a disclaimer; and (v) re-
+point for researchers to study the role of abstention    fuses to offer concrete answers due to the lack of
+across tasks, facilitating the incorporation of new      knowledge or certainty. Expressions can be identi-
+abstention techniques into future LLM systems.           fied through heuristic rules and key word matching
+   We summarize our contributions below:                 (Zou et al., 2023; Wen et al., 2024; Yang et al.,
+• We introduce a framework to analyze abstention         2023), or through model-based or human-based
+  capabilities from three perspectives that have         evaluation (§4).
+  typically been considered in isolation—query           Below, we describe and motivate our framework for
+  answerability, the confidence of the model to          analyzing abstention behavior (§2.1), then provide
+  answer the query, and alignment of query and           a formal definition of its components (§2.2).
+  responses with human values. Our framework
+  helps us identify existing research that is relevant   2.1 Abstention Framework
+  to abstention as well as abstention mechanisms         We study abstention in the scenario of LLMs as
+  that have been developed in prior work (§2).           AI assistants, exemplified by chatbots such as
+• We conduct a detailed survey of existing abst-         ChatGPT (OpenAI, 2023; Achiam et al., 2023),
+  ention methods(§3) as well as evaluation bench-        Claude (Anthropic, 2023), LLaMA (Touvron et al.,
+  marks and metrics (§4), aiding researchers in          2023), and others (Chiang et al., 2023). We pro-
+  selecting appropriate strategies. For each class       pose an idealized abstention-aware workflow for
+  of methods, we identify opportunities for further      these systems in Fig. 1. Given an LLM f that sup-
+  research to advance the field.                         ports arbitrary generative modeling tasks and the
+                                                         users’ input x, f generates an output y. We ana-
+• We discuss other considerations and under-             lyze the decision to abstain from three distinct but
+  explored aspects (§5) of abstention, highlight-        interconnected perspectives:
+  ing pitfalls and promising future directions. We
+  encourage researchers to develop more robust           • The query perspective focuses on the nature
+  model abstention mechanisms and demonstrate              of the input—whether the query is ambigu-
+  their effectiveness in real-world applications.          ous or incomplete (Asai and Choi, 2021), be-
+                                                           yond what any human or model could possibly
+2   Abstention in LLMs                                     know (Amayuelas et al., 2023), there is irrele-
+Definition We define abstention as the refusal to          vant or insufficient context to answer (Alianne-
+answer a query. When a model fully abstains, it            jadi et al., 2019; Li et al., 2024b), or there are
+may begin a response with “I don’t know” or refuse         knowledge conflicts (Wang et al., 2023b). In
+to answer in another way. In reality, abstention en-       these situations, the system should abstain.
+compasses a spectrum of behaviors (Röttger et al.,       • The model knowledge perspective examines the
+2024a), e.g., expressing uncertainty, providing con-       capabilities of the AI model itself, including its
+flicting conclusions, or refusing due to potential         design, training, and inherent biases (Ahdritz
+harm are all forms of abstention. Partial abstention       et al., 2024; Kim and Thorne, 2024; Hestness
+may involve both answering and abstention, such            et al., 2017; Hoffmann et al., 2022; Kaplan et al.,
+as self-contradictory responses, e.g., “I can’t an-        2020; Cao, 2024). For any given query, the sys-
+swer the question, but I suppose the answer might          tem should abstain if the model is insufficiently
+be...” We do not consider ignoring and/or refram-          confident about the correctness of output or has a
+ing the question as abstention; but rather as failure      high probability of returning an incorrect output.
+• The human values perspective considers ethical       designer and will vary based on the application;
+  implications and societal norms that influence       examples include weighted averaging, logical op-
+  whether a query should be answered, emphasiz-        erations, or custom thresholds. Some existing sys-
+  ing the impact of responses on human users (Kirk     tems (Varshney et al., 2022; Cole et al., 2023) use
+  et al., 2023a). A system should abstain if asked     threshold-based mechanisms to convert partial ab-
+  for personal opinions or values (i.e., the query     stention behaviors into binary decisions, such as
+  anthropomorphizes the model), or if the query or     full compliance or full refusal.
+  response may compromise safety, privacy, fair-          Our framework allows nuanced handling of ab-
+  ness, or other values.                               stention, by combining confidence from all three
+For examples of queries and outputs meeting con-       perspectives and enabling partial abstention when
+ditions for abstention, please see Appendix Tab. 2.    appropriate. Under this definition, a system would
+                                                       fully abstain from answering if any of the three
+2.2   Problem Formulation                              perspectives indicates full abstention. In all other
+To formalize our definition of abstention: consider    cases, a system would partially abstain, balanc-
+an LLM f : X → Y. When given a prompt x ∈ X ,          ing between providing an answer and withholding
+f generates a response y ∈ Y. We model refusal to      information based on indications from the three
+answer (abstention) as a function r : X , Y → [0, 1]   perspectives.
+where r(x, y) = 1 indicates the system will fully
+abstain from answering, r(x, y) = 0 indicates the
+                                                       2.3    Inclusion in this Survey
+system will return the output y, and intermediate
+values represent partial abstention.                   We identify and survey prior work that falls un-
+   We define r as the conjunction of three func-       der any of the three perspectives of our abstention
+tions, to be defined by a system designer, to assess   framework. In §3, we organize abstention method-
+query answerability, the confidence of the LLM’s       ology from an LLM-centered perspective, based on
+response to the query, and the human value align-      when each method is applied in the LLM lifecycle:
+ment of the query and response. We define these        pretraining, alignment, or inference. This organiza-
+three functions as:                                    tion is chosen for ease of comparison of experimen-
+• Query function a : X → [0, 1]. a(x) represents       tal settings. Each subsection within §3 is further
+   the degree to which an input x can be answered.     organized by the three perspectives. Following, §4
+• Model confidence function c : X , Y → [0, 1].        describes evaluation benchmarks and metrics that
+  c(x, y) indicates the model f ’s confidence in its   have been used or introduced across the surveyed
+  output y based on input x.                           prior work. At the end of each subsection, in blue
+                                                       boxes, we summarize main takeaways and provide
+• Human value alignment functions h : X , Y →
+                                                       suggested directions for future work. In §5, we
+  [0, 1]. We define two variants of h: h(x) operates
+                                                       summarize notable threads of research that are not
+  on the input alone and determines its alignment
+                                                       easily classified as method or evaluation.
+  with human values, and h(x, y) operates on both
+  the input x and predicted output y. h is measured
+  either through human annotation (Ouyang et al.,      3     Abstention Methodology
+  2022) or a proxy model that can be learned based
+  on human preferences (Gao et al., 2023).             We summarize methods introduced in prior work
+The refusal function r determines whether the LLM      (Fig. 2 organizes these by stages in the LLM life-
+should abstain from responding to input x as:          cycle) and provide ideas for future experiments.
+         
+         1, if any of a(x); c(x, y); h(x, y) = 0
+                                                      3.1    Pretraining Stage
+r(x, y) = M (a(x), c(x, y), h(x, y)), otherwise
+         
+         
+           0, if all of a(x); c(x, y); h(x, y) = 1     We found no existing research that studies abst-
+                                                       ention in the pretraining stage, despite the widely
+The function M acts as a connector between the         recognized importance of pretraining as a critical
+three perspectives, defining how the system inte-      phase for model knowledge acquisition. To bridge
+grates their individual outputs into a unified de-     this gap, we propose several directions for future
+cision. The design of M depends on the system          exploration.
+                                Pretraining   No prior work               Neeman et al. (2023); Yang et al. (2023); Zhang et al. (2024a); Feng et al. (2024b); Qi et al. (2024); Lyu et al. (2024)
+                                                                          Cheng et al. (2024); Brahman et al. (2024); Gekhman et al. (2024); Lin et al. (2024a); Kang et al. (2024)
+                                              Supervised Fine-tuning
+                                                                          Wolfe et al. (2024); Hu et al. (2022); Zhao et al. (2022); Jiang et al. (2021); Lin et al. (2022); Mielke et al. (2022)
+                                                                          Bianchi et al. (2024); Wallace et al. (2024); Varshney et al. (2023); Zhang et al. (2023b); Wang et al. (2024d)
+                                Alignment
+                                                                             Zhang et al. (2024c); Cheng et al. (2024); Liang et al. (2024); Guo et al. (2024); Shi et al. (2024); Bai et al. (2022)
+  Abstention methods in LLMs
+
+
+
+                                              Learning from preferences      Kang et al. (2024); Stengel-Eskin et al. (2024); Lin et al. (2024a); Dai et al. (2024); Touvron et al. (2023)
+                                                                             Brahman et al. (2024); Sun et al. (2024)
+
+                                                                                            Cole et al. (2023); Min et al. (2020); Qi et al. (2021); Hu et al. (2024); Sun et al. (2023); Xi et al. (2023)
+                                              Input-processing     Query processing
+                                                                                            Jain et al. (2023); Shao et al. (2021); Kumar et al. (2024); Dinan et al. (2019)
+
+                                                                   Probing LLM’s            Kadavath et al. (2022); Azaria and Mitchell (2023); Wang et al. (2024a); Liang et al. (2024)
+                                                                   inner state              Chen et al. (2024); Kamath et al. (2020); Slobodkin et al. (2023); Bhardwaj et al. (2024)
+
+                                                                                            Lin et al. (2022); Tian et al. (2023); Tomani et al. (2024); Kadavath et al. (2022); Varshney et al. (2022)
+                                                                   Uncertainty
+                                                                                            Xiong et al. (2024); Shrivastava et al. (2023); Achiam et al. (2023); Cole et al. (2023); Duan et al. (2023)
+                                                                   estimation
+                                                                                            Kuhn et al. (2023); Ren et al. (2023); Zhou et al. (2024b, 2023a); Jung et al. (2024); Hou et al. (2023)
+
+                                              In-processing                                 Zhao et al. (2022); Xiao et al. (2022); Jiang et al. (2021); Hou et al. (2023); Varshney et al. (2022)
+                                                                   Calibration-based
+                                Inference                                                   Wen et al. (2020); Zablotskaia et al. (2023); Desai and Durrett (2020); Gal and Ghahramani (2016)
+
+                                                                                            Slobodkin et al. (2023); Xiong et al. (2024); Zhao et al. (2024b); Lin et al. (2024b); Ji et al. (2024)
+                                                                   Consistency-based
+                                                                                            Cao et al. (2023); Cole et al. (2023); Yuan et al. (2024b); Chen et al. (2024); Robey et al. (2023)
+
+                                                                                            Lin et al. (2024b); Slobodkin et al. (2023); Wen et al. (2024); Yang et al. (2023); Cheng et al. (2024)
+                                                                   Prompting-based          Zhang et al. (2023b, 2024d); Mo et al. (2024); Zhou et al. (2024a,c); Ren et al. (2023); Deng et al. (2024)
+                                                                                            Zheng et al. (2024); Pisano et al. (2023); Wei et al. (2024); Xie et al. (2023); Varshney et al. (2023)
+
+                                                                                            Phute et al. (2024); Kadavath et al. (2022); Varshney et al. (2023); Chen et al. (2023b)
+                                                                   Self evaluation
+                                                                                            Ren et al. (2023); Feng et al. (2024b); Kim et al. (2024a); Wang et al. (2024d)
+                                              Output-processing
+                                                                   LLM collaboration        Feng et al. (2024b); Wang et al. (2024b); Pisano et al. (2023); Chen et al. (2023a); Zeng et al. (2024)
+
+
+Figure 2: Methods to improve LLM abstention grouped by pretraining, alignment, and inference stages.
+
+
+ Pretraining Summary                                                                                              to predict unanswerable when presented with an
+ • The impact of refusal-aware data in pretraining is not                                                         empty or randomly sampled document. Yang et al.
+   well-studied.                                                                                                  (2023) construct an honesty alignment dataset by
+   Demystify Pretraining Corpora: Investigate how the distri-
+   bution of refusal-aware data in pretraining corpora impact
+                                                                                                                  substituting LLM’s wrong or uncertain responses
+   model abstention ability.                                                                                      with “I don’t know” and finetuning on the resulting
+   Coarse-to-fine Abstention Pretraining: In later stages of                                                      data, improving model abstention. Notably, Zhang
+   pretraining, adding data source information including the                                                      et al. (2024a) introduce R-tuning, constructing and
+   domain and reasons to abstain into pretraining may be                                                          finetuning on a refusal-aware dataset and show-
+   helpful for improving abstention ability.
+   Curriculum Learning for Abstention: Simpler abstention
+                                                                                                                  ing improved abstention capabilities. Zhang et al.
+   scenarios can be introduced first in pretraining, progress-                                                    (2024a) also argue that refusal-aware answering
+   ing to more complex or fine-grained abstention tasks in                                                        is task-independent and could benefit from multi-
+   later pretraining phases.                                                                                      task training and joint inference. However, Feng
+   Hybrid Objective Function: Modify the next-word pre-                                                           et al. (2024b) present contradictory findings in their
+   diction objective in later pretraining stages to incorporate
+   an abstention-aware loss component, balancing between                                                          Appendix that abstention-aware instruction-tuning
+   generating tokens and abstaining when appropriate.                                                             struggles to generalize across domains and LLMs.
+   Regularization Techniques: Apply abstention-aware regu-
+   larization during later stages of pretraining to encourage
+   the model to abstain when prediction uncertainty is high.                                                         In parallel, concerns have emerged regarding
+                                                                                                                  the effectiveness of SFT for abstention. Cheng
+3.2                            Alignment Stage                                                                    et al. (2024) and Brahman et al. (2024) find that
+We categorize alignment-stage methods as super-                                                                   SFT can make models more conservative, lead-
+vised finetuning (SFT) or preference optimization                                                                 ing to a higher number of incorrect refusals. Re-
+(PO). Some papers include both methods, as PO                                                                     cent work (Gekhman et al., 2024; Lin et al., 2024a;
+usually requires SFT as a precursor; we discuss                                                                   Kang et al., 2024) also demonstrates that finetun-
+these in the subsection most reflective of their pri-                                                             ing on examples unobserved during pretraining in-
+mary contributions.                                                                                               creases the risk of hallucination. Gekhman et al.
+                                                                                                                  (2024) propose a mitigation strategy to re-label
+Supervised Finetuning Many works have                                                                             these examples based on the pretrained LLM’s
+demonstrated that SFT with abstention-aware data                                                                  knowledge and include “I don’t know” in the fine-
+can improve model abstention capabilities. For ex-                                                                tuning data to teach the model to abstain. A related
+ample, Neeman et al. (2023) perform data augmen-                                                                  method to reduce hallucination is introduced in Lin
+tation in the finetuning stage to encourage LLMs                                                                  et al. (2024a); the authors create factuality-aware
+training data for SFT by classifying whether an           “harmless” tag to its responses instead of directly
+instruction requires a factual response.                  tuning LLMs to abstain.
+   Parameter-efficient finetuning (PEFT) strategies        Instruction Tuning Summary
+have also been used for abstention. Wolfe et al.           • Instruction tuning on abstention-aware data improves ab-
+(2024) conduct lab-scale experiments, finetuning             stention ability but can lead to over-abstention.
+LLMs with QLoRA (Dettmers et al., 2023), and               • Researchers disagree on whether instruction tuning helps
+                                                             LLMs learn abstention as a meta-capability.
+observe that weaker models (with lower task perfor-
+                                                             Heterogeneous approaches: Abstention-aware instruction-
+mance) tend to achieve greater gains in abstention           tuning datasets tend to emphasize only a few question-
+performance. Beyond resource efficiency, Brah-               response formats. Incorporating diverse abstention ex-
+man et al. (2024) have found that LoRA (Hu et al.,           pressions, definitions, and domains may improve general-
+2022) acts as an effective regularization technique          ization. Ensembling models trained in different abstention
+                                                             domains, e.g., mixture of LoRA experts, may also help
+for improving abstention; they find that fully fine-         achieve better generalization.
+tuned models exhibit over-refusal while also for-
+getting general capabilities, and demonstrate that        Learning from preferences Preference opti-
+finetuning with LoRA alleviates both issues while         mization can impact abstention from both the
+significantly improving abstention behavior.              model knowledge and human value alignment per-
+   Instead of finetuning directly, finetuning for cali-   spectives. As described above, finetuning LLMs
+bration may indirectly improve abstention ability         on abstention-aware data may lead to overly con-
+(Szegedy et al., 2016; Zhao et al., 2022; Xiao et al.,    servative behavior, causing erroneous refusals of
+2022; Jiang et al., 2021; Lin et al., 2022). Jiang        queries. Cheng et al. (2024) and Brahman et al.
+et al. (2021) propose two finetuning objective func-      (2024) address this through Direct Preference Op-
+tions (softmax-based and margin-based), which im-         timization (DPO) (Rafailov et al., 2023), encour-
+prove ECE (Guo et al., 2017a) on multiple-choice          aging the model to answer questions it knows and
+datasets. Mielke et al. (2022) alternatively use a cal-   refuse questions it does not know.
+ibrator trained to provide a confidence score with           Factuality-based preference optimization can
+an LLM finetuned to control for linguistic confi-         help models respond correctly to queries, includ-
+dence in a system.                                        ing abstaining (e.g., saying “I don’t know”). As
+   Towards alignment with human values, Bianchi           an example, Liang et al. (2024) construct a factual
+et al. (2024) show that adding a small number of          preference dataset to train a reward model, and uti-
+safety instructions to instruction-tuning data re-        lize it to optimize abstention preferences in LLMs
+duces harmful responses without diminishing gen-          via Proximal Policy Optimisation (PPO) (Schul-
+eral capabilities, whereas an excessive number of         man et al., 2017). Kang et al. (2024) design a
+safety instructions makes LLMs overly defensive.          reward function that prioritizes abstention over in-
+Varshney et al. (2023) construct responses for un-        correct answers, while Lin et al. (2024a) incorpo-
+safe prompts by combining fixed refusal responses         rate factuality-focused preference pairs into DPO
+with Llama-2-generated safe responses, and ob-            to enhance fact-based instruction following.
+tain similar results. Wallace et al. (2024) finetune         Other works use DPO to improve calibration,
+LLMs to follow hierarchical prompts, enhancing            which can also aid abstention. LACIE (Stengel-
+the fine-grained abstention ability of LLMs. Zhang        Eskin et al., 2024) casts confidence calibration
+et al. (2023b) also finetune LLMs with goal prioriti-     as a preference optimization problem and intro-
+zation instructions that instruct LLMs to prioritize      duce a speaker-listener game to create preference
+safety over helpfulness during inference.                 data; they demonstrate that finetuning on LACIE
+   However, custom finetuning of LLMs presents            data leads to emergent model abstention behavior.
+safety risks. For example, Qi et al. (2024); Lyu et al.   Zhang et al. (2024c) introduce Self-Alignment for
+(2024) note that finetuning with benign and com-          Factuality, generating confidence scores through
+monly used datasets increases unsafe behaviors in         self-asking to improve calibration via DPO.
+aligned LLMs (Qi et al., 2024). To address this,             For human values, safety alignment methods
+Lyu et al. (2024) propose to finetune models with-        (Dai et al., 2024; Touvron et al., 2023; Bai et al.,
+out a safety prompt, but include one at test time.        2022; Shi et al., 2024) use explicit or implicit
+Wang et al. (2024d) finetune LLMs to evaluate their       preference models to reduce harmfulness, which
+own outputs for harm and append a “harmful” or            though not explicitly focused on abstention, will
+encourage abstention on unsafe prompts. Other                  introduce the “erase-and-check” framework to de-
+studies have explored multi-objective alignment ap-            fend against adversarial prompts with certifiable
+proaches (Guo et al., 2024) to encourage safe and              safety guarantees. Similarly, Xi et al. (2023) mea-
+helpful model behavior. The instructable reward                sure changes in representation between original
+model in SALMON (Sun et al., 2024) is trained on               and paraphrased queries using a set of distribu-
+synthetic preference data, generating reward scores            tional anchors to identify harmful queries. Dinan
+based on customized human-defined principles as                et al. (2019) develop a more robust offensive lan-
+the preference guideline.                                      guage detection system through an iterative build-it,
+ Learning from Preferences Summary                             break-it, fix-it strategy.
+ • Preference optimization can reduce over-abstention           Query Processing Summary
+   caused by instruction tuning on refusal-aware data by        • Query processing approaches focus on assessing query
+   aligning model behavior with user preferences. However,        ambiguity or human values alignment.
+   this may not always be the case. Preference optimiza-          Context awareness: Existing work focuses on query-only
+   tion may still lead to over-abstention if reward models        processing or simple context-dependent tasks where in-
+   overemphasize safety or preference data favors absten-         sufficient or conflicting context may be provided in the
+   tion. Balancing feedback and ensuring diverse preference       abstention scenario (Rajpurkar et al., 2018; Kwiatkowski
+   data are crucial to address this challenge, making it an       et al., 2019). These settings overlook context complexity
+   important area for further research.                           in real-world applications; for example, earlier context in
+   Ranking-based preference optimization: Since absten-           multi-turn conversations can impact judgments for either
+   tion is a spectrum of behaviors, ranking-based preference      query answerability or human values alignment in later
+   optimization can extend the pair-wise contrast to accom-       conversational turns.
+   modate rankings over different degrees of abstention.
+                                                               3.3.2   In-processing Approaches
+3.3     Inference Stage
+                                                               Probing LLM’s inner state Recent studies (Ka-
+We categorize inference stage methods as input-                math et al., 2020; Azaria and Mitchell, 2023) focus
+processing, in-processing, or output-processing ap-            on training calibrators based on LLM internal rep-
+proaches based on when they are applied. Input-                resentation to predict the accuracy of the model’s
+processing approaches are centered on the query                responses, enabling abstention when the likelihood
+answerability and human values perspectives; in-               of error is high. Further probing into the internal
+processing approaches on the model knowledge                   representations of LLMs to discern between an-
+perspective; and output-processing approaches may              swerable and unanswerable queries has been con-
+consider both model knowledge and human values.                ducted by Slobodkin et al. (2023), Kadavath et al.
+                                                               (2022) and Liang et al. (2024). Additionally, Chen
+3.3.1    Input-processing Approaches
+                                                               et al. (2024) introduce the EigenScore, a novel met-
+Query processing From the query perspective                    ric derived from LLM’s internal states, which can
+in our proposed framework, LLMs can choose to                  facilitate abstention by quantifying the reliability
+abstain based on the query answerability. For exam-            of the model’s knowledge state.
+ple, Cole et al. (2023) try to predict the ambiguity              In terms of leveraging the LLMs’ internal states
+of questions derived from the AmbigQA dataset                  for safety judgments, Wang et al. (2024a) extract
+(Min et al., 2020) before selectively answering.               safety-related vectors (SRVs) from safety-aligned
+   Other methods aim to identify queries that are              LLMs; which are then used as an abstention gate
+misaligned with human values. For example, Qi                  to steer unaligned LLMs towards safer task per-
+et al. (2021) detect malicious queries needing abst-           formance. Furthermore, Bhardwaj et al. (2024)
+ention by removing suspect words from the query                demonstrate that integrating a safety vector into
+and analyzing the resulting drop in perplexity while           the weights of a finetuned LLM through a simple
+Hu et al. (2024) propose new ways of computing                 arithmetic operation can significantly mitigate the
+perplexity and find tokens with abnormally high                potential harmfulness of the model’s responses.
+perplexity. Apart from perplexity-based methods,
+                                                                Probing LLM’s Inner State Summary
+Jain et al. (2023) further investigate input prepro-
+                                                                • LLM’s internal representations can indicate model knowl-
+cessing methods such as paraphrasing and reto-                    edge boundaries and safety awareness.
+kenization. The BDDR framework (Shao et al.,
+2021) not only detects suspicious words in the in-             Uncertainty estimation Estimating the uncer-
+put but also reconstructs the original text through            tainty of LLM output can serve as a proxy for mak-
+token deletion or replacement. Kumar et al. (2024)             ing abstention decisions. Token-likelihoods have
+been widely used to assess the uncertainty of LLM       to prompting style rather than accurately assessing
+responses (Lin et al., 2022; Kadavath et al., 2022).    epistemic uncertainty.
+Enhancing this approach, Lin et al. (2022) and Tian      Uncertainty Estimation Summary
+et al. (2023) employ an indirect logit methodology       • Uncertainty can act as proxy for abstention. However,
+to calculate the log probability of the ‘True’ to-         neither probability-based measures nor verbalized confi-
+ken when appended to model’s generated response.           dence may be well-calibrated.
+                                                           Uncertainty estimation could be used as a key aspect of
+Shrivastava et al. (2023) leverage a surrogate LLM         explainable AI. The model could communicate its uncer-
+with access to internal probabilities to approximate       tainty or insufficient confidence in its response, which
+the confidence of the original model. Tomani et al.        could foster user trust and engagement by making the
+(2024) assess Predictive Entropy and Semantic En-          model’s decision-making process more transparent.
+tropy (Kuhn et al., 2023) of responses. Duan et al.     Calibration-based methods Estimated model
+(2023) design a weighted Predictive Entropy by          uncertainty may not accurately represent the like-
+considering the relevance of each token in reflect-     lihood of a model’s outputs being correct, so nu-
+ing the semantics of the whole sentence. However,       merous studies focus on calibrating the uncertainty
+other work shows that aligned LLMs may not have         of LLMs. Jiang et al. (2021) improve calibration
+well-calibrated logits (Cole et al., 2023; Achiam       by augmenting inputs and paraphrasing outputs.
+et al., 2023) and may have positional bias and prob-    Temperature Scaling (Guo et al., 2017b; Xiao et al.,
+ability dispersion (Ren et al., 2023). In the con-      2022; Desai and Durrett, 2020; Jiang et al., 2021)
+text of LLM-as-judge, these canonical probability-      modifies the softmax temperature to refine calibra-
+based methods tend to be overconfident in esti-         tion during decoding. Additionally, Monte-Carlo
+mating agreement with the majority of annotators;       Dropout (Gal and Ghahramani, 2016; Varshney
+Jung et al. (2024) propose a novel confidence es-       et al., 2022; Zablotskaia et al., 2023) employs multi-
+timation method by simulating diverse annotator         ple predictions with varying dropout configurations
+preferences with in-context learning.                   to assemble a robust confidence estimate. Batch
+                                                        Ensemble (Wen et al., 2020) is a computationally
+   The Maximum Softmax Probability approach             efficient method that aggregates multiple model
+(Varshney et al., 2022) uses peak softmax output as     predictions and maintains good calibration.
+a uncertainty estimator. Hou et al. (2023) introduce
+                                                         Calibration-based Methods Summary
+an uncertainty estimation method: input clarifica-
+                                                         • Confidence calibration is a longstanding area of research;
+tion ensembling; through ruling out aleatoric uncer-       methods developed for calibration can also enhance abst-
+tainty by clarification, the remaining uncertainty of      ention capabilities, improving model output reliability.
+each individual prediction is epistemic uncertainty.       Domain disparity: Investigating methods to ensure cali-
+                                                           bration techniques remain effective across diverse datasets
+   Beyond probability-based measures, verbalized           and different types of models, particularly under domain
+                                                           shifts, can surface task-specific optimizations.
+confidence scores have emerged as another class of
+methods to estimate and manage uncertainty (Lin         Consistency-based methods Given the limita-
+et al., 2022; Tian et al., 2023; Tomani et al., 2024;   tions of confidence elicitation, some methods
+Xiong et al., 2024; Zhou et al., 2024b). Xiong          leverage consistency-based aggregation to estimate
+et al. (2024) examine prompting methods including       LLM uncertainty and then abstain when uncertain.
+chain-of-thought (Wei et al., 2022b), self-probing,     Aggregation can be achieved using diversity and
+top-k (Tian et al., 2023), and linguistic likelihood    repetition (Cole et al., 2023), weighted confidence
+expressions to eliciting confidence scores. Al-         scores and pairwise ranking (Xiong et al., 2024), or
+though LMs can be explicitly prompted to express        semantic similarity between responses (Lin et al.,
+confidence, verbalized confidence scores have been      2024b; Zhao et al., 2024b; Chen et al., 2024). Slo-
+found to be over-confident (Xiong et al., 2024;         bodkin et al. (2023) relax beam search and abstain
+Zhou et al., 2024b). Zhou et al. (2024b) find that      if any top-k answer is “unanswerable”.
+LMs are reluctant to express uncertainty when              Consistency-based sampling methods can also
+answering questions, even when their responses          improve safety-driven abstention. Robey et al.
+are incorrect. Zhou et al. (2023a) show that high-      (2023), Cao et al. (2023), and Ji et al. (2024) per-
+certainty expressions in the prefix of a response can   turb inputs with character masks, insertions, dele-
+result in accuracy drop compared to low-certainty       tions, or substitutions, and identify inconsistencies
+expressions, suggesting that LLMs respond more          among responses, which suggest the presence of
+an attack prompt needing abstention. Yuan et al.                   3.3.3 Output-processing Approaches
+(2024b) obtain samples by prompting for augmenta-                  Self evaluation Chen et al. (2023b) use Soft
+tions (learnable safe suffixes and paraphrasing) and               Prompt Tuning to learn self-evaluation parame-
+use a kNN-based method to aggregate responses.                     ters for various tasks. However, directly asking
+ Consistency-based Methods Summary                                 LLMs to evaluate if their responses are certain or
+ • Consistency-based methods establish model certainty             safe (usually in a different conversation), and to
+   based on its output distribution, helping to identify queries   abstain if they are not, has proven effective in im-
+   for which a model should abstain.                               proving LLM abstention (Phute et al., 2024; Kada-
+Prompting-based methods In-context examples                        vath et al., 2022; Varshney et al., 2023; Ren et al.,
+and hints can enhance model performance on abst-                   2023; Feng et al., 2024b). Kim et al. (2024a)
+ention. Some use few-shot exemplars of abstained                   allow the LLM to iteratively provide feedback
+and answered responses (Slobodkin et al., 2023;                    on its own responses and refine its answers; this
+Varshney et al., 2023; Wei et al., 2024), while oth-               method achieves improvements in safety even in
+ers incorporate instruction hints (e.g., “Answer the               non-safety-aligned LLMs. Wang et al. (2024d) en-
+question only if answerable” or “Answer the be-                    able LLMs to self-evaluate responses and append a
+low question if it is safe to answer”) (Wen et al.,                [harmful] or [harmless] tag to each response; how-
+2024; Yang et al., 2023; Cheng et al., 2024; Slobod-               ever, this approach may encourage over-abstention.
+kin et al., 2023). For multiple-choice QA, adding                  LLM collaboration Multi-LLM systems are ef-
+“None of the above” as an answer option has been                   fective in producing better overall responses, in-
+shown to be effective (Ren et al., 2023; Lin et al.,               cluding improved abstention behavior. In 2-LLM
+2024b). Zhang et al. (2023b) explicitly prompt                     systems, a test LLM is employed to examine the
+LLMs to prioritize safety over helpfulness. Deng                   output of the first LLM and helps with abstain-
+et al. (2024) also propose that providing explana-                 ing. In Wang et al. (2024b), the test LLM is used to
+tions on the unanswerability of questions not only                 guess the most likely harmful query from the output
+improves model explainability, but can produce                     and abstains if a harmful query is detected. Pisano
+more accurate responses.                                           et al. (2023) critique and correct a model’s original
+   Other work focuses on carefully designed                        compliant response using a secondary LLM.
+prompts. Mo et al. (2024) concatenate a protec-                       Multi-LLM systems beyond two LLMs leverage
+tive prefix from attack-defense interactive training               different LLMs as experts to compete or cooper-
+with the user query. Similarly, Zhou et al. (2024a)                ate to reach a final abstention decision (Feng et al.,
+append trigger tokens to ensure safe outputs under                 2024b; Chen et al., 2023a). As an example, Zeng
+adversarial attacks. Pisano et al. (2023) use another              et al. (2024) employ a group of LLMs in a sys-
+LLM to add conscience suggestions to the prompt.                   tem with an intention analyzer, original prompt
+Zhang et al. (2024d) prompt LLMs to analyze input                  analyzer, and judge.
+intent and abstain if malicious. Xie et al. (2023)                  Self Evaluation & LLM Collaboration Summary
+incorporate self-reminders in prompts to defend                     • LLMs can struggle with self-evaluation, but combining
+against attacks, while Zhou et al. (2024c) propose                    multiple LLMs has been effective in enhancing abstention
+Robust Prompt Optimization to improve absten-                         capabilities.
+tion performance against adaptive attacks. Zheng
+et al. (2024) find that safety prompts can safeguard               4     Evaluation of Abstention
+LLMs against harmful queries and further propose                   We survey evaluation benchmarks (§4.1) and met-
+a safety prompt optimization method to shift query                 rics (§4.2) used to assess abstention capabilities.
+representations toward or away from the refusal
+direction based on query harmfulness.                              4.1    Evaluation Benchmarks
+ Prompting-based Methods Summary                                   Below, we describe benchmarks that include ab-
+ • Prompting with abstention examples demonstrates poten-          stention in their ground truth annotations; addi-
+   tial in enhancing the abstention capabilities of LLMs.          tional dataset details are provided in Appendix
+   Interpretable prompting methods: Developing methods             Tab. 3. Most evaluation datasets focus on assess-
+   to effectively use instructions or choose demonstrations
+                                                                   ing specific aspects of abstention according to our
+   that capture various abstention behaviors remains under-
+   explored, along with identifying the limits of what can be      framework, though recent work from Brahman et al.
+   achieved through in-context learning.                           (2024) espouse a holistic evaluation strategy.
+Query-centric abstention datasets Prior work            Human value-centric abstention datasets Here
+introduces datasets containing unanswerable ques-       are datasets designed to measure whether LLM
+tions. SQuAD2 (Rajpurkar et al., 2018) first in-        outputs are “safe,” i.e., align with widely held ethi-
+cludes unanswerable questions with irrelevant con-      cal values; these datasets may consist of prompts
+text passages for machine reading comprehension.        that are either inherently unsafe or likely to elicit
+Rather than modifying questions to be unanswer-         unsafe responses from LLMs. Some datasets fo-
+able as in SQuAD2, unanswerable questions in            cus on specific aspects of safety. A main con-
+Natural Questions (Kwiatkowski et al., 2019) are        cern is toxicity, when models generate harmful,
+paired with insufficient context. MuSiQue (Trivedi      offensive, or inappropriate content. For instance,
+et al., 2022) is a multi-hop QA benchmark contain-      RealToxicityPrompts (Gehman et al., 2020) gath-
+ing unanswerable questions for which supporting         ers prompts to study toxic language generation,
+paragraphs have been removed. CoQA (Reddy               while ToxiGen (Hartvigsen et al., 2022) and Latent-
+et al., 2019) and QuAC (Choi et al., 2018) intro-       Hatred (ElSherief et al., 2021) address implicit
+duce unanswerable questions for conversational          toxic speech, and ToxicChat (Lin et al., 2023)
+QA. Related, ambiguous question datasets con-           collects data from real-world user-AI interactions.
+tain questions without a single correct answer.         Beyond toxicity, Beavertails (Ji et al., 2023a) bal-
+AmbigQA (Min et al., 2020) extracts questions           ances safety and helpfulness in QA, CValues (Xu
+from NQ-Open (Kwiatkowski et al., 2019) with            et al., 2023a) assesses safety and responsibility, and
+multiple possible answers. SituatedQA (Zhang            Xstest (Röttger et al., 2024a) examines exagger-
+and Choi, 2021) is an open-domain QA dataset            ated safety behaviors. LatentJailbreak (Qiu et al.,
+where answers to the same question may change           2023) introduces a benchmark that assesses both
+depending on when and where the question is asked.      the safety and robustness of LLMs. Do-Anything-
+SelfAware (Yin et al., 2023) and Known Unknown          Now (Shen et al., 2023) collects a set of unsafe
+Questions (Amayuelas et al., 2023) consist of unan-     prompts for malicious purposes.
+swerable questions from diverse categories.                Comprehensive safety benchmarks attempt to
+   Domain-specific QA datasets also incorporate         encompass a range of concerns. Röttger et al.
+unanswerable questions. PubmedQA (Jin et al.,           (2024b) conduct the first systematic review of
+2019) contains biomedical questions that can be         open datasets for evaluating LLM safety. Do-Not-
+answered “yes”, “no”, or “maybe”; where “maybe”         Answer (Wang et al., 2024c) includes instructions
+indicates high uncertainty based on the given con-      covering information hazards, malicious uses, dis-
+text. In QASPER (Dasigi et al., 2021), unanswer-        crimination, exclusion and toxicity, misinforma-
+able questions are expert-labeled and mean that no      tion harms, and human-computer interaction harms.
+answer is available in the given context.               XSafety (Wang et al., 2023a) provides a multilin-
+                                                        gual benchmark covering 14 safety issues across
+Model knowledge-centric abstention datasets             10 languages. SALAD-Bench (Li et al., 2024a)
+RealTimeQA (Kasai et al., 2023) is a dynamic            is a large-scale dataset with a three-tier taxonomy,
+dataset which announces questions and evalu-            evaluating LLM safety and attack-defense meth-
+ates systems on a regular basis, and contains in-       ods. SORRY-Bench (Xie et al., 2024) proposes a
+quiries about current events. PUQA (Prior Un-           more fine-grained taxonomy and diverse instruc-
+known QA) (Yang et al., 2023) comprises ques-           tions. Most relevant to abstention, WildGuard (Han
+tions about scientific literature from 2023, beyond     et al., 2024) evaluates model refusal performance
+the cutoff of the tested models’ existing knowledge.    as a necessary component for safety.
+ElectionQA23 (Feng et al., 2024b) is a QA dataset        Evaluation Benchmarks Summary
+focusing on 2023 elections around the globe; due         Existing benchmarks primarily focus on a single perspec-
+to the temporality of training data, LLMs lack           tive. Researchers could benefit from more comprehen-
+up-to-date information to accurately respond to          sive benchmarks encompassing examples across the query,
+these queries. Long-tail topics and entities can also    model, and human values perspectives, that are capable of
+                                                         system-wide assessment.
+test the boundary of model knowledge. For ex-
+ample, datasets like POPQA (Mallen et al., 2023)
+or EntityQuestions (Sciavolino et al., 2021) cover      4.2   Evaluation metrics
+knowledge on long-tail entities, which are useful       We survey metrics that have been developed and
+for probing model knowledge boundaries.                 used to evaluate abstention. Fundamentally, these
+        R         Correctly      Incorrectly               • Coverage or Acceptance Rate (Cao et al., 2023)
+                                               Abstained
+ GT               answered        answered                   refers to the proportion of instances where the
+ No abstention        N1            N2            N3         model provides an answer (i.e., does not abstain);
+ Abstention                         N4            N5         it measures the model’s willingness to respond:
+Table 1: Abstention confusion matrix. “GT”:                                        N1 + N2 + N4
+                                                                Coverage =
+ground-truth human label, where “Abstention” in-                              N1 + N2 + N3 + N4 + N5
+dicates questions labeled as those where the model
+should abstain. “R”: system response. When GT              • Abstention Rate (Wen et al., 2024; Varshney
+is no abstention, system responses can be correct,           et al., 2023), on the other hand, measures the
+incorrect, or abstained. When GT is abstention, sys-         proportion of queries where the model abstains:
+tem responses can be abstained or incorrect only.                                       N3 + N5
+                                                             Abstention Rate =
+                                                                                 N1 + N2 + N3 + N4 + N5
+
+metrics aim to identify systems that (i) frequently        • Benign Answering Rate (BAR) (Cao et al., 2023)
+return correct answers, (ii) rarely return incorrect         focuses only on queries deemed to be safe:
+answers, and (iii) abstain when appropriate.                                        N1 + N2
+                                                                         BAR =
+                                                                                  N1 + N2 + N3
+Statistical automated evaluation We express
+these metrics based on the abstention confusion            • Over-conservativeness Score or Abstained Re-
+matrix in Tab. 1.                                            sponses on Safe Prompts (ARSP) (Yang et al.,
+• Abstention Accuracy (ACC) (Feng et al., 2024b)             2023; Varshney et al., 2023) computes the propor-
+  evaluates the system’s overall performance when            tion of queries where the model over-abstains:
+  incorporating abstention:                                                            N3
+                                                                        ARSP =
+                         N1 + N5                                                  N1 + N2 + N3
+        ACC =
+                  N1 + N2 + N3 + N4 + N5
+                                                           • Reliable Accuracy (R-Acc) (Feng et al., 2024b)
+• Abstention Precision (Feng et al., 2024b) mea-             indicates to what extent LLM-generated answers
+  sures the proportion of model abstain decisions            can be trusted when they do not abstain, i.e., of
+  that are correct:                                          all questions answered, how many are correct:
+                               N5                                                       N1
+              Precisionabs =                                            R-Acc =
+                             N3 + N5                                               N1 + N2 + N4
+
+• Abstention Recall (Feng et al., 2024b; Cao               • Effective Reliability (ER) (Feng et al., 2024b; Si
+  et al., 2023; Varshney et al., 2023) or Prudence           et al., 2023; Whitehead et al., 2022) strikes a
+  Score (Yang et al., 2023) measure the proportion           balance between reliability and coverage, i.e.,
+  of cases where models correctly abstain when               of all questions, how many more are answered
+  they should:                                               correctly than incorrectly:
+                                   N5                                          N1 − N2 − N4
+             Recallabs =                                           ER =
+                              N2 + N4 + N5                                N1 + N2 + N3 + N4 + N5
+
+• Attack Success Rate or Unsafe Responses on Un-           • Abstain Estimated Calibration Error (Abstain
+  safe Prompts (URUP) (Cao et al., 2023; Varsh-              ECE) (Feng et al., 2024b) modifies traditional
+  ney et al., 2023) report the proportion of cases           ECE (Guo et al., 2017a) by including abstention.
+  where models do not abstain when they should               This metric evaluates calibration by comparing
+  (indicating successful attacks):                           abstain probabilities and the accuracy of absten-
+                                                             tions, providing a measure of model calibration
+                 URUP = 1 − Recallabs
+                                                             in scenarios where abstention is preferable.
+• Abstention F1-score (Feng et al., 2024b) com-            • Coverage@Acc (Cole et al., 2023; Si et al., 2023)
+  bines abstention precision and recall:                     measures the fraction of questions the system
+                      Precisionabs · Recallabs               can answer correctly while maintaining a certain
+        F1abs = 2 ·                                          accuracy. Specifically, C@Acc is the maximum
+                      Precisionabs + Recallabs
+  coverage such that the accuracy on the C% of                     2024a; Li et al., 2024a). Röttger et al. (2024a)
+  most-confident predictions is at least Acc%.                     extended full abstention evaluation by prompting
+                                                                   GPT-4 with a taxonomy to classify responses as
+• Area Under Risk-Coverage Curve (AURCC) (Si
+                                                                   full compliance, full refusal, or partial refusal in a
+  et al., 2023; Yoshikawa and Okazaki, 2023) com-
+                                                                   zero-shot setting.
+  putes, for any given threshold, an associated cov-
+  erage and error rate (risk), which is averaged                    Model-based Evaluation Summary
+  over all thresholds. Lower AURCC indicates                        Model-based evaluations focus on the human values per-
+                                                                    spective, particularly safety. Future work should develop a
+  better selective QA performance.                                  generalized evaluation framework that encompasses multi-
+• Area Under Accuracy-Coverage Curve (AU-                           ple perspectives.
+  ACC) (Cole et al., 2023; Xin et al., 2021) com-
+                                                                   Human-centric evaluation Human evaluation
+  putes, for any given threshold, an associated cov-
+                                                                   for abstention focuses on understanding user per-
+  erage and accuracy, which is averaged over all
+                                                                   ceptions of different abstention expressions and the
+  thresholds. Higher AUACC indicates better per-
+                                                                   relation to the usefulness of a model’s response. In-
+  formance.
+                                                                   stead of binary decisions (full compliance and full
+• Area Under Receiver Operating Characteristic                     refusal), Röttger et al. (2024a) introduce partial re-
+  curve (AUROC) (Cole et al., 2023; Kuhn et al.,                   fusal when manually annotating model’s response.
+  2023) evaluates the uncertainty estimate’s diag-                 Wester et al. (2024) focus on how people perceive
+  nostic ability as a binary classifier for correct                styles of denial employed by systems; among the
+  predictions by integrating over the tradeoff curve               styles evaluated, the “diverting denial style” is gen-
+  between rates of true and false positives.                       erally preferred by participants. Kim et al. (2024b)
+ Statistical Automated Evaluation Summary                          investigate how expressing uncertainty affects user
+ • Overall performance: No single metric captures all as-          trust and task performance, finding that first-person
+   pects of performance. We recommend balancing mea-               uncertainty phrases like “I’m not sure, but...” re-
+   sures of task performance (task P/R/F1/Acc), abstention         duce users’ confidence in the system’s reliability
+   performance (abstention P/R/F1/Acc), coverage (cover-           and their acceptance of its responses.
+   age, abstention rate), and accuracy-coverage trade-off
+   (ER, C@Acc, AUROC, AUACC, AURCC).                                Human-centric Evaluation Summary
+ • Error rates: To assess abstention-related error rates,           Human evaluation methods focus on full abstention and
+   URUP measures the false answering rate and ARSP the              strong abstention expression categories, overlooking the
+   false abstention rate.                                           significance of partial abstention and other forms of abst-
+   Evaluating partial abstention Existing statistical auto-         ention expressions. Future work could aim to understand
+   mated evaluation methods focus on identifying and evalu-         nuanced preferences for what the model should convey
+   ating full abstention, but partial abstention can be incorpo-    beyond just abstaining from answering.
+   rated as a weighted sum of whether the response includes
+   abstention and/or answers. By weighting abstention and          5   Other Considerations for Abstention
+   answer accuracy, we can better qualify a model’s actual
+   performance.                                                    Over-abstention Over-abstention occurs when
+                                                                   models abstain unnecessarily. For example, Varsh-
+Model-based evaluation Many works imple-                           ney et al. (2023) demonstrate that the “self-check”
+ment LLM-as-a-judge for abstention evalua-                         technique can make LLMs overly cautious with
+tion (Mazeika et al., 2024; Souly et al., 2024; Chao               benign inputs. Others similarly observe that in-
+et al., 2024). Some of these use GPT-4-level LLMs                  struction tuning with excessive focus on abstention
+for off-the-shelf evaluation (Qi et al., 2024), result-            can lead models to inappropriately refuse to re-
+ing in judgments that agree well with humans but                   spond (Cheng et al., 2024; Bianchi et al., 2024;
+incur high financial and time costs. Others explore                Wallace et al., 2024; Brahman et al., 2024). These
+supplementary techniques to boost the accuracy                     findings underscore the need to balance abstention
+of the LLM judge such as (i) Chain-of-thought                      with utility.
+prompting: asking the LLM to “think step-by-step”
+before deciding whether to not answer (Qi et al.,                  Vulnerability of abstention Abstention is highly
+2024; Xie et al., 2024); (ii) In-context-learning:                 sensitive to prompt wording. Safety-driven abst-
+using refusal annotations from a training set as in-               ention mechanisms are notably susceptible to ma-
+context examples (Xie et al., 2024); or (iii) Finetun-             nipulation. Studies show that social engineering
+ing LLMs for abstention evaluation (Huang et al.,                  techniques such as persuasive language and strate-
+gic prompt engineering can bypass established            2024b) and task-specific needs, and no one-size-
+safety protocols (Xu et al., 2023b; Chao et al.,         fits-all solution exists (Kirk et al., 2023b). Personal-
+2023). Even ostensibly benign approaches like            ized abstention mechanisms in LLMs will allow the
+finetuning with safe datasets or modifying decod-        model to dynamically adjust its abstention behavior
+ing algorithms can inadvertently undermine the           based on a user’s profile, tolerance for conservative
+safety alignment of LLMs (Qi et al., 2024; Huang         responses, interaction history, specific query needs,
+et al., 2024a). Advanced manipulation tactics in-        and any other requirements.
+clude persona-based attacks (Shah et al., 2023),
+cipher-based communications (Yuan et al., 2024a),        6   Future Directions
+and the translation of inputs into low-resource lan-
+                                                         There are many under-explored and promising re-
+guages (Yong et al., 2023; Feng et al., 2024a).
+                                                         search directions in abstention, some of which are
+These vulnerabilities underscore a critical issue:
+                                                         described in this survey. While prior work has
+LLMs lack understanding of the reasons behind ab-
+                                                         explicitly investigated abstention in specific tasks
+stention, limiting their ability to generalize to out-
+                                                         or implicitly contributed to improved abstention
+of-distribution queries effectively. Furthermore,
+                                                         behaviors, we encourage study of abstention as a
+objectives like helpfulness and abstention may con-
+                                                         meta-capability across tasks, as well as more gener-
+flict, and models may struggle to abstain appropri-
+                                                         alizable evaluation and customization of abstention
+ately in situations where they are confident in their
+                                                         capabilities to user needs. Beyond what has been
+ability to provide helpful responses.
+                                                         discussed previously, other important directions
+Introducing biases LLMs may exhibit dispro-              include: (i) enhancing privacy and copyright pro-
+portionate abstention behavior across demographic        tections through abstention-aware designs to pre-
+groups, potentially amplifying biases. For exam-         vent the extraction of personal private information
+ple, Xu et al. (2021) find that detoxifying con-         and copyrighted text fragments; (ii) generalizing
+tent may inadvertently reinforce biases by avoid-        the concept of abstention beyond LLMs to vision,
+ing responses in African American English com-           vision-language, and generative machine learning
+pared to White American English. Feng et al.             applications; and (ii) improving multilingual ab-
+(2024b) show that LLMs abstain less when predict-        stention, as significant performance discrepancies
+ing future election outcomes for Africa and Asia in      exist between high-resource and low-resource lan-
+ElectionQA23, raising fairness concerns as these         guages, necessitating further research to ensure
+mechanisms might underserve marginalized com-            consistent performance across different languages.
+munities and countries. More work is needed to
+clarify and address these performance disparaties.       7   Conclusion
+
+Following up after abstention Abstention                 Our survey underscores the importance of strate-
+should not be viewed as the termination of a con-        gic abstention in LLMs to enhance their reliability
+versation, but rather as a step towards subsequent       and safety. We introduce a novel framework that
+information acquisition. In this context, abstention     considers abstention from the perspectives of the
+can act as a trigger, prompting further inquiry, e.g.,   query, the model, and human values, providing a
+asking the user for more information or retriev-         comprehensive overview of current strategies and
+ing additional relevant data (Feng et al., 2024b; Li     their applications across different stages of LLM
+et al., 2024b). After abstaining, systems should         development. Through our review of the literature,
+seek out more information when appropriate, trans-       benchmarking datasets, and evaluation metrics, we
+forming abstention from a static endpoint into a         identify key gaps and discussed the limitations in-
+dynamic, constructive component of dialogue pro-         herent in current methodologies. Future research
+gression. For example, Zhao et al. (2024a) study         should focus on expanding abstention strategies to
+the alternate task of reformulating unanswerable         encompass broader applications and more dynamic
+questions to questions that can be answered by a         contexts. By refining abstention mechanisms to be
+given document.                                          more adaptive and context-aware, we can further
+                                                         the development of AI systems that are not only
+Personalized abstention Users have different             more robust, reliable, and aligned with ethical stan-
+preferences for model abstention (Wester et al.,         dards and human values, but balance these goals
+2024) based on individual differences (Zhang et al.,     more appropriately against helpfulness to the user.
+Acknowledgements                                         Akari Asai and Eunsol Choi. 2021. Challenges
+                                                           in information-seeking QA: Unanswerable ques-
+This research was supported in part by the Na-
+                                                           tions and paragraph retrieval. In Proceedings of
+tional Science Foundation under CAREER Grant
+                                                           the 59th Annual Meeting of the Association for
+No. IIS2142739, and by the Defense Advanced
+                                                          Computational Linguistics and the 11th Interna-
+Research Projects Agency’s (DARPA) SciFy pro-
+                                                           tional Joint Conference on Natural Language
+gram (Agreement No. HR00112520300). The
+                                                          Processing (Volume 1: Long Papers), pages
+views expressed are those of the authors and do
+                                                          1492–1504, Online. Association for Computa-
+not reflect the official policy or position of the De-
+                                                           tional Linguistics.
+partment of Defense or the U.S. Government. We
+also gratefully acknowledge support from the UW          Amos Azaria and Tom Mitchell. 2023. The inter-
+iSchool Strategic Research Fund and the University        nal state of an LLM knows when it’s lying. In
+of Washington Population Health Initiative. We            The 2023 Conference on Empirical Methods in
+thank the authors of the cited papers for reviewing       Natural Language Processing.
+our descriptions of their work.
+                                                         Yuntao Bai, Andy Jones, Kamal Ndousse, Amanda
+                                                           Askell, Anna Chen, Nova DasSarma, Dawn
+References                                                 Drain, Stanislav Fort, Deep Ganguli, Tom
+                                                           Henighan, Nicholas Joseph, Saurav Kadavath,
+Josh Achiam, Steven Adler, Sandhini Agar-
+                                                           Jackson Kernion, Tom Conerly, Sheer El-Showk,
+  wal, Lama Ahmad, Ilge Akkaya, Floren-
+                                                           Nelson Elhage, Zac Hatfield-Dodds, Danny Her-
+  cia Leoni Aleman, Diogo Almeida, Janko Al-
+                                                           nandez, Tristan Hume, Scott Johnston, Shauna
+  tenschmidt, Sam Altman, Shyamal Anadkat,
+                                                           Kravec, Liane Lovitt, Neel Nanda, Catherine
+  et al. 2023. GPT-4 technical report. arXiv
+                                                           Olsson, Dario Amodei, Tom Brown, Jack Clark,
+  preprint arXiv:2303.08774.
+                                                           Sam McCandlish, Chris Olah, Ben Mann, and
+Gustaf Ahdritz, Tian Qin, Nikhil Vyas, Boaz                Jared Kaplan. 2022. Training a helpful and harm-
+  Barak, and Benjamin L Edelman. 2024. Dis-                less assistant with reinforcement learning from
+  tinguishing the knowable from the unknow-                human feedback.
+  able with language models. arXiv preprint
+                                                         Rishabh Bhardwaj, Do Duc Anh, and Soujanya
+  arXiv:2402.03563.
+                                                           Poria. 2024. Language models are Homer Simp-
+Mohammad Aliannejadi, Hamed Zamani, Fabio                  son! Safety re-alignment of fine-tuned language
+ Crestani, and W Bruce Croft. 2019. Asking clar-           models through task arithmetic.
+ ifying questions in open-domain information-
+                                                         Federico Bianchi, Mirac Suzgun, Giuseppe At-
+ seeking conversations. In Proceedings of the
+                                                           tanasio, Paul Rottger, Dan Jurafsky, Tatsunori
+ 42nd international acm sigir conference on re-
+                                                           Hashimoto, and James Zou. 2024. Safety-tuned
+ search and development in information retrieval,
+                                                           LLaMAs: Lessons from improving the safety
+ pages 475–484.
+                                                           of large language models that follow instruc-
+Alfonso Amayuelas, Liangming Pan, Wenhu Chen,              tions. In The Twelfth International Conference
+  and William Wang. 2023. Knowledge of knowl-              on Learning Representations.
+  edge: Exploring known-unknowns uncertainty
+                                                         Faeze Brahman, Sachin Kumar, Vidhisha Balachan-
+  with large language models. arXiv preprint
+                                                           dran, Pradeep Dasigi, Valentina Pyatkin, Ab-
+  arXiv:2305.13712.
+                                                           hilasha Ravichander, Sarah Wiegreffe, Nouha
+Anthropic. 2023. Introducing claude.                       Dziri, Khyathi Chandu, Jack Hessel, et al. 2024.
+                                                           The art of saying no: Contextual noncom-
+Usman Anwar, Abulhair Saparov, Javier Rando,               pliance in language models. arXiv preprint
+  Daniel Paleka, Miles Turpin, Peter Hase,                 arXiv:2407.12043.
+  Ekdeep Singh Lubana, Erik Jenner, Stephen
+  Casper, Oliver Sourbut, et al. 2024. Foun-             Bochuan Cao, Yuanpu Cao, Lu Lin, and Jinghui
+  dational challenges in assuring alignment and            Chen. 2023. Defending against alignment-
+  safety of large language models. arXiv preprint          breaking attacks via robustly aligned LLM.
+  arXiv:2404.09932.                                        arXiv preprint arXiv:2309.14348.
+Lang Cao. 2024. Learn to refuse: Making large            Gonzalez, Ion Stoica, and Eric P. Xing. 2023.
+  language models more controllable and reliable         Vicuna: An open-source chatbot impressing gpt-
+  through knowledge scope limitation and refusal         4 with 90%* chatgpt quality.
+  mechanism. In Proceedings of the 2024 Confer-
+  ence on Empirical Methods in Natural Language        Eunsol Choi, He He, Mohit Iyyer, Mark Yatskar,
+  Processing, pages 3628–3646, Miami, Florida,           Wen-tau Yih, Yejin Choi, Percy Liang, and Luke
+  USA. Association for Computational Linguis-            Zettlemoyer. 2018. QuAC: Question answering
+  tics.                                                  in context. In Proceedings of the 2018 Con-
+                                                         ference on Empirical Methods in Natural Lan-
+Patrick Chao, Edoardo Debenedetti, Alexander             guage Processing, pages 2174–2184, Brussels,
+  Robey, Maksym Andriushchenko, Francesco                Belgium. Association for Computational Lin-
+  Croce, Vikash Sehwag, Edgar Dobriban, Nicolas          guistics.
+  Flammarion, George J Pappas, Florian Tramer,
+  et al. 2024. Jailbreakbench: An open robust-         Aakanksha Chowdhery, Sharan Narang, Jacob De-
+  ness benchmark for jailbreaking large language         vlin, Maarten Bosma, Gaurav Mishra, Adam
+  models. arXiv preprint arXiv:2404.01318.               Roberts, Paul Barham, Hyung Won Chung,
+                                                         Charles Sutton, Sebastian Gehrmann, et al. 2022.
+Patrick Chao, Alexander Robey, Edgar Dobriban,           Palm: Scaling language modeling with pathways.
+  Hamed Hassani, George J Pappas, and Eric               arXiv preprint arXiv:2204.02311.
+  Wong. 2023. Jailbreaking black box large lan-
+  guage models in twenty queries. arXiv preprint       Jonathan H. Clark, Eunsol Choi, Michael Collins,
+  arXiv:2310.08419.                                      Dan Garrette, Tom Kwiatkowski, Vitaly Niko-
+                                                         laev, and Jennimaria Palomaki. 2020. TyDi QA:
+Bocheng Chen, Advait Paliwal, and Qiben Yan.             A benchmark for information-seeking question
+  2023a. Jailbreaker in jail: Moving target defense      answering in typologically diverse languages.
+  for large language models. In Proceedings of the       Transactions of the Association for Computa-
+ 10th ACM Workshop on Moving Target Defense,             tional Linguistics, 8:454–470.
+  pages 29–32.
+                                                       Jeremy R Cole, Michael JQ Zhang, Daniel Gillick,
+Chao Chen, Kai Liu, Ze Chen, Yi Gu, Yue Wu,              Julian Martin Eisenschlos, Bhuwan Dhingra,
+  Mingyuan Tao, Zhihang Fu, and Jieping Ye.               and Jacob Eisenstein. 2023. Selectively an-
+  2024. INSIDE: LLMs’ internal states retain the          swering ambiguous questions. arXiv preprint
+  power of hallucination detection. In The Twelfth        arXiv:2305.14613.
+  International Conference on Learning Represen-
+  tations.                                             Josef Dai, Xuehai Pan, Ruiyang Sun, Jiaming
+                                                         Ji, Xinbo Xu, Mickel Liu, Yizhou Wang, and
+Jiefeng Chen, Jinsung Yoon, Sayna Ebrahimi, Ser-         Yaodong Yang. 2024. Safe RLHF: Safe rein-
+   can Arik, Tomas Pfister, and Somesh Jha. 2023b.       forcement learning from human feedback. In
+   Adaptation with self-evaluation to improve selec-     The Twelfth International Conference on Learn-
+   tive prediction in LLMs. In Findings of the Asso-     ing Representations.
+   ciation for Computational Linguistics: EMNLP
+   2023, pages 5190–5213, Singapore. Association       Pradeep Dasigi, Kyle Lo, Iz Beltagy, Arman Co-
+   for Computational Linguistics.                        han, Noah A. Smith, and Matt Gardner. 2021.
+                                                         A dataset of information-seeking questions and
+Qinyuan Cheng, Tianxiang Sun, Xiangyang Liu,             answers anchored in research papers. In Pro-
+  Wenwei Zhang, Zhangyue Yin, Shimin Li,                 ceedings of the 2021 Conference of the North
+  Linyang Li, Zhengfu He, Kai Chen, and Xipeng           American Chapter of the Association for Com-
+  Qiu. 2024. Can AI assistants know what they            putational Linguistics: Human Language Tech-
+  don’t know? In Forty-first International Confer-       nologies, pages 4599–4610, Online. Association
+  ence on Machine Learning.                              for Computational Linguistics.
+
+Wei-Lin Chiang, Zhuohan Li, Zi Lin, Ying Sheng,        Yang Deng, Yong Zhao, Moxin Li, See-Kiong Ng,
+ Zhanghao Wu, Hao Zhang, Lianmin Zheng,                  and Tat-Seng Chua. 2024. Don’t just say “I don’t
+ Siyuan Zhuang, Yonghao Zhuang, Joseph E.                know”! self-aligning large language models for
+  responding to unknown questions with explana-         stain across languages via multilingual feedback.
+  tions. In Proceedings of the 2024 Conference          arXiv preprint arXiv:2406.15948.
+  on Empirical Methods in Natural Language Pro-
+  cessing, pages 13652–13673, Miami, Florida,         Shangbin Feng, Weijia Shi, Yike Wang, Wenx-
+  USA. Association for Computational Linguis-           uan Ding, Vidhisha Balachandran, and Yu-
+  tics.                                                 lia Tsvetkov. 2024b. Don’t hallucinate, ab-
+                                                        stain: Identifying LLM knowledge gaps via
+Shrey Desai and Greg Durrett. 2020. Calibration         Multi-LLM collaboration.    arXiv preprint
+  of pre-trained transformers. In Proceedings of        arXiv:2402.00367.
+  the 2020 Conference on Empirical Methods in
+                                                      Yarin Gal and Zoubin Ghahramani. 2016. Dropout
+  Natural Language Processing (EMNLP), pages
+                                                        as a bayesian approximation: Representing
+  295–302, Online. Association for Computational
+                                                        model uncertainty in deep learning. In Proceed-
+  Linguistics.
+                                                        ings of The 33rd International Conference on
+                                                        Machine Learning, volume 48 of Proceedings of
+Tim Dettmers, Artidoro Pagnoni, Ari Holtzman,
+                                                        Machine Learning Research, pages 1050–1059,
+  and Luke Zettlemoyer. 2023. Qlora: Efficient
+                                                        New York, New York, USA. PMLR.
+  finetuning of quantized llms. In Advances in
+  Neural Information Processing Systems, vol-         Leo Gao, John Schulman, and Jacob Hilton. 2023.
+  ume 36, pages 10088–10115. Curran Associates,         Scaling laws for reward model overoptimization.
+  Inc.                                                  In International Conference on Machine Learn-
+                                                        ing, pages 10835–10866. PMLR.
+Emily Dinan, Samuel Humeau, Bharath Chinta-
+ gunta, and Jason Weston. 2019. Build it break it     Samuel Gehman, Suchin Gururangan, Maarten Sap,
+ fix it for dialogue safety: Robustness from adver-     Yejin Choi, and Noah A. Smith. 2020. RealToxi-
+ sarial human attack. In Proceedings of the 2019        cityPrompts: Evaluating neural toxic degenera-
+ Conference on Empirical Methods in Natural             tion in language models. In Findings of the Asso-
+ Language Processing and the 9th International          ciation for Computational Linguistics: EMNLP
+ Joint Conference on Natural Language Process-          2020, pages 3356–3369, Online. Association for
+ ing (EMNLP-IJCNLP), pages 4537–4546, Hong              Computational Linguistics.
+ Kong, China. Association for Computational
+ Linguistics.                                         Zorik Gekhman, Gal Yona, Roee Aharoni, Matan
+                                                        Eyal, Amir Feder, Roi Reichart, and Jonathan
+Jinhao Duan, Hao Cheng, Shiqi Wang, Chenan              Herzig. 2024. Does fine-tuning llms on new
+   Wang, Alex Zavalny, Renjing Xu, Bhavya               knowledge encourage hallucinations? arXiv
+   Kailkhura, and Kaidi Xu. 2023. Shifting atten-       preprint arXiv:2405.05904.
+   tion to relevance: Towards the uncertainty esti-
+                                                      Chuan Guo, Geoff Pleiss, Yu Sun, and Kilian Q
+   mation of large language models. arXiv preprint
+                                                        Weinberger. 2017a. On calibration of modern
+   arXiv:2307.01379.
+                                                        neural networks. In International conference on
+                                                        machine learning, pages 1321–1330. PMLR.
+Mai ElSherief, Caleb Ziems, David Muchlinski,
+ Vaishnavi Anupindi, Jordyn Seybolt, Munmun           Chuan Guo, Geoff Pleiss, Yu Sun, and Kilian Q.
+ De Choudhury, and Diyi Yang. 2021. Latent              Weinberger. 2017b. On calibration of modern
+ hatred: A benchmark for understanding implicit         neural networks. In Proceedings of the 34th
+ hate speech. In Proceedings of the 2021 Con-           International Conference on Machine Learning,
+ ference on Empirical Methods in Natural Lan-           volume 70 of Proceedings of Machine Learning
+ guage Processing, pages 345–363, Online and            Research, pages 1321–1330. PMLR.
+ Punta Cana, Dominican Republic. Association
+ for Computational Linguistics.                       Yiju Guo, Ganqu Cui, Lifan Yuan, Ning Ding,
+                                                        Jiexin Wang, Huimin Chen, Bowen Sun, Ruob-
+Shangbin Feng, Weijia Shi, Yike Wang, Wenx-             ing Xie, Jie Zhou, Yankai Lin, et al. 2024.
+  uan Ding, Orevaoghene Ahia, Shuyue Stella Li,         Controllable preference optimization: Toward
+  Vidhisha Balachandran, Sunayana Sitaram, and          controllable multi-objective alignment. arXiv
+  Yulia Tsvetkov. 2024a. Teaching LLMs to ab-           preprint arXiv:2402.19085.
+Seungju Han, Kavel Rao, Allyson Ettinger, Li-         Yukun Huang, Yixin Liu, Raghuveer Thiruko-
+  wei Jiang, Bill Yuchen Lin, Nathan Lambert,           valluru, Arman Cohan, and Bhuwan Dhin-
+  Yejin Choi, and Nouha Dziri. 2024. Wildguard:         gra. 2024b. Calibrating long-form generations
+  Open one-stop moderation tools for safety risks,      from large language models. arXiv preprint
+  jailbreaks, and refusals of llms. arXiv preprint      arXiv:2402.06544.
+  arXiv:2406.18495.
+                                                      Neel Jain, Avi Schwarzschild, Yuxin Wen,
+Thomas Hartvigsen, Saadia Gabriel, Hamid                Gowthami Somepalli, John Kirchenbauer, Ping-
+  Palangi, Maarten Sap, Dipankar Ray, and Ece           yeh Chiang, Micah Goldblum, Aniruddha Saha,
+  Kamar. 2022. ToxiGen: A large-scale machine-          Jonas Geiping, and Tom Goldstein. 2023. Base-
+  generated dataset for adversarial and implicit        line defenses for adversarial attacks against
+  hate speech detection. In Proceedings of the          aligned language models.      arXiv preprint
+  60th Annual Meeting of the Association for Com-       arXiv:2309.00614.
+  putational Linguistics (Volume 1: Long Papers),
+  pages 3309–3326, Dublin, Ireland. Association       Jiabao Ji, Bairu Hou, Alexander Robey, George J.
+  for Computational Linguistics.                         Pappas, Hamed Hassani, Yang Zhang, Eric
+                                                         Wong, and Shiyu Chang. 2024. Defending large
+Joel Hestness, Sharan Narang, Newsha Ardalani,
+                                                         language models against jailbreak attacks via
+  Gregory Diamos, Heewoo Jun, Hassan Kian-
+                                                         semantic smoothing.
+  inejad, Md Mostofa Ali Patwary, Yang Yang,
+  and Yanqi Zhou. 2017. Deep learning scal-
+                                                      Jiaming Ji, Mickel Liu, Juntao Dai, Xuehai Pan,
+  ing is predictable, empirically. arXiv preprint
+                                                         Chi Zhang, Ce Bian, Boyuan Chen, Ruiyang
+  arXiv:1712.00409.
+                                                         Sun, Yizhou Wang, and Yaodong Yang. 2023a.
+Jordan Hoffmann, Sebastian Borgeaud, Arthur              Beavertails: Towards improved safety alignment
+  Mensch, Elena Buchatskaya, Trevor Cai, Eliza           of LLM via a human-preference dataset. In
+  Rutherford, Diego de Las Casas, Lisa Anne Hen-         Thirty-seventh Conference on Neural Informa-
+  dricks, Johannes Welbl, Aidan Clark, et al. 2022.      tion Processing Systems Datasets and Bench-
+  Training compute-optimal large language mod-           marks Track.
+  els. arXiv preprint arXiv:2203.15556.
+                                                      Ziwei Ji, Nayeon Lee, Rita Frieske, Tiezheng Yu,
+Bairu Hou, Yujian Liu, Kaizhi Qian, Jacob An-           Dan Su, Yan Xu, Etsuko Ishii, Ye Jin Bang, An-
+  dreas, Shiyu Chang, and Yang Zhang. 2023. De-         drea Madotto, and Pascale Fung. 2023b. Survey
+  composing uncertainty for large language mod-         of hallucination in natural language generation.
+  els through input clarification ensembling. arXiv     ACM Computing Surveys, 55(12):1–38.
+  preprint arXiv:2311.08718.
+                                                      Zhengbao Jiang, Jun Araki, Haibo Ding, and Gra-
+Edward J Hu, yelong shen, Phillip Wallis, Zeyuan
+                                                        ham Neubig. 2021. How can we know when
+  Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang,
+                                                        language models know? on the calibration of
+  and Weizhu Chen. 2022. LoRA: Low-rank adap-
+                                                        language models for question answering. Trans-
+  tation of large language models. In International
+                                                        actions of the Association for Computational
+  Conference on Learning Representations.
+                                                        Linguistics, 9:962–977.
+Zhengmian Hu, Gang Wu, Saayan Mitra,
+  Ruiyi Zhang, Tong Sun, Heng Huang, and              Qiao Jin, Bhuwan Dhingra, Zhengping Liu,
+  Viswanathan Swaminathan. 2024. Token-level            William Cohen, and Xinghua Lu. 2019.
+  adversarial prompt detection based on perplexity      PubMedQA: A dataset for biomedical research
+  measures and contextual information.                  question answering. In Proceedings of the 2019
+                                                        Conference on Empirical Methods in Natural
+Yangsibo Huang, Samyak Gupta, Mengzhou Xia,             Language Processing and the 9th International
+  Kai Li, and Danqi Chen. 2024a. Catastrophic           Joint Conference on Natural Language Process-
+  jailbreak of open-source LLMs via exploiting          ing (EMNLP-IJCNLP), pages 2567–2577, Hong
+  generation. In The Twelfth International Confer-      Kong, China. Association for Computational
+  ence on Learning Representations.                     Linguistics.
+Jaehun Jung, Faeze Brahman, and Yejin Choi. 2024.       In Proceedings of the 2024 ACM Conference
+  Trust or escalate: Llm judges with provable guar-     on Fairness, Accountability, and Transparency,
+  antees for human agreement. arXiv preprint            FAccT ’24, page 822–835, New York, NY, USA.
+  arXiv:2407.18370.                                     Association for Computing Machinery.
+
+Saurav Kadavath, Tom Conerly, Amanda Askell,          Hannah Kirk, Andrew Bean, Bertie Vidgen, Paul
+  Tom Henighan, Dawn Drain, Ethan Perez,                Rottger, and Scott Hale. 2023a. The past,
+  Nicholas Schiefer, Zac Hatfield Dodds, Nova           present and better future of feedback learning
+  DasSarma, Eli Tran-Johnson, et al. 2022. Lan-         in large language models for subjective human
+  guage models (mostly) know what they know.            preferences and values. In Proceedings of the
+  ArXiv preprint, abs/2207.05221.                       2023 Conference on Empirical Methods in Nat-
+                                                        ural Language Processing, pages 2409–2430,
+Amita Kamath, Robin Jia, and Percy Liang. 2020.         Singapore. Association for Computational Lin-
+ Selective question answering under domain shift.       guistics.
+ In Proceedings of the 58th Annual Meeting of
+ the Association for Computational Linguistics,       Hannah Rose Kirk, Bertie Vidgen, Paul Röttger,
+ pages 5684–5696, Online. Association for Com-          and Scott A Hale. 2023b. Personalisation within
+ putational Linguistics.                                bounds: A risk taxonomy and policy frame-
+                                                        work for the alignment of large language mod-
+Katie Kang, Eric Wallace, Claire Tomlin, Avi-           els with personalised feedback. arXiv preprint
+  ral Kumar, and Sergey Levine. 2024. Unfa-             arXiv:2303.05453.
+  miliar finetuning examples control how lan-
+  guage models hallucinate.    arXiv preprint         Lorenz Kuhn, Yarin Gal, and Sebastian Farquhar.
+  arXiv:2403.05612.                                     2023. Semantic uncertainty: Linguistic invari-
+                                                        ances for uncertainty estimation in natural lan-
+Jared Kaplan, Sam McCandlish, Tom Henighan,             guage generation. In The Eleventh International
+  Tom B Brown, Benjamin Chess, Rewon Child,             Conference on Learning Representations.
+  Scott Gray, Alec Radford, Jeffrey Wu, and Dario
+  Amodei. 2020. Scaling laws for neural language      Aounon Kumar, Chirag Agarwal, Suraj Srinivas,
+  models. arXiv preprint arXiv:2001.08361.             Aaron Jiaxun Li, Soheil Feizi, and Himabindu
+                                                        Lakkaraju. 2024. Certifying LLM safety against
+Jungo Kasai, Keisuke Sakaguchi, yoichi takahashi,       adversarial prompting.
+  Ronan Le Bras, Akari Asai, Xinyan Velocity Yu,
+  Dragomir Radev, Noah A. Smith, Yejin Choi,          Tom Kwiatkowski, Jennimaria Palomaki, Olivia
+  and Kentaro Inui. 2023. Realtime QA: What’s           Redfield, Michael Collins, Ankur Parikh, Chris
+  the answer right now? In Thirty-seventh Confer-       Alberti, Danielle Epstein, Illia Polosukhin, Jacob
+  ence on Neural Information Processing Systems         Devlin, Kenton Lee, Kristina Toutanova, Llion
+  Datasets and Benchmarks Track.                        Jones, Matthew Kelcey, Ming-Wei Chang, An-
+                                                        drew M. Dai, Jakob Uszkoreit, Quoc Le, and
+Heegyu Kim, Sehyun Yuk, and Hyunsouk Cho.               Slav Petrov. 2019. Natural questions: A bench-
+  2024a.    Break the breakout: Reinventing             mark for question answering research. Trans-
+  lm defense against jailbreak attacks with self-       actions of the Association for Computational
+  refinement.                                           Linguistics, 7:452–466.
+
+Minsu Kim and James Thorne. 2024. Epistemol-          Lijun Li, Bowen Dong, Ruohui Wang, Xuhao
+ ogy of language models: Do language mod-               Hu, Wangmeng Zuo, Dahua Lin, Yu Qiao,
+ els have holistic knowledge? arXiv preprint            and Jing Shao. 2024a. Salad-bench: A hier-
+ arXiv:2403.12862.                                      archical and comprehensive safety benchmark
+                                                        for large language models. arXiv preprint
+Sunnie S. Y. Kim, Q. Vera Liao, Mihaela Vorvore-        arXiv:2402.05044.
+  anu, Stephanie Ballard, and Jennifer Wortman
+  Vaughan. 2024b. "i’m not sure, but...": Exam-       Shuyue Stella Li, Vidhisha Balachandran, Shang-
+  ining the impact of large language models’ un-        bin Feng, Jonathan Ilgen, Emma Pierson,
+  certainty expression on user reliance and trust.      Pang Wei Koh, and Yulia Tsvetkov. 2024b.
+  MediQ: Question-asking LLMs for adaptive                Harmbench: A standardized evaluation frame-
+  and reliable medical reasoning. arXiv preprint          work for automated red teaming and robust re-
+  arXiv:2406.00922.                                       fusal. arXiv preprint arXiv:2402.04249.
+
+Yuxin Liang, Zhuoyang Song, Hao Wang, and Jiax-         Sabrina J Mielke, Arthur Szlam, Emily Dinan, and
+  ing Zhang. 2024. Learning to trust your feelings:       Y-Lan Boureau. 2022. Reducing conversational
+  Leveraging self-awareness in LLMs for halluci-          agents’ overconfidence through linguistic cal-
+  nation mitigation.                                      ibration. Transactions of the Association for
+                                                          Computational Linguistics, 10:857–872.
+Sheng-Chieh Lin, Luyu Gao, Barlas Oguz, Wenhan
+  Xiong, Jimmy Lin, Wen tau Yih, and Xilun Chen.        Sewon Min, Julian Michael, Hannaneh Hajishirzi,
+  2024a. Flame: Factuality-aware alignment for            and Luke Zettlemoyer. 2020. AmbigQA: An-
+  large language models.                                  swering ambiguous open-domain questions. In
+                                                          Proceedings of the 2020 Conference on Empir-
+Stephanie Lin, Jacob Hilton, and Owain                    ical Methods in Natural Language Processing
+  Evans. 2022. Teaching models to express                 (EMNLP), pages 5783–5797, Online. Associa-
+  their uncertainty in words. arXiv preprint              tion for Computational Linguistics.
+  arXiv:2205.14334.
+                                                        Yichuan Mo, Yuji Wang, Zeming Wei, and Yisen
+Zhen Lin, Shubhendu Trivedi, and Jimeng Sun.              Wang. 2024. Fight back against jailbreaking via
+  2024b. Generating with confidence: Uncertainty          prompt adversarial tuning. In NeurIPS.
+  quantification for black-box large language mod-
+                                                        Ella Neeman, Roee Aharoni, Or Honovich, Leshem
+  els.
+                                                          Choshen, Idan Szpektor, and Omri Abend. 2023.
+Zi Lin, Zihan Wang, Yongqi Tong, Yangkun Wang,            DisentQA: Disentangling parametric and con-
+  Yuxin Guo, Yujia Wang, and Jingbo Shang. 2023.          textual knowledge with counterfactual question
+  ToxicChat: Unveiling hidden challenges of toxi-         answering. In Proceedings of the 61st Annual
+   city detection in real-world user-AI conversation.     Meeting of the Association for Computational
+   In Findings of the Association for Computational       Linguistics (Volume 1: Long Papers), pages
+  Linguistics: EMNLP 2023, pages 4694–4702,               10056–10070, Toronto, Canada. Association for
+   Singapore. Association for Computational Lin-          Computational Linguistics.
+   guistics.                                            OpenAI. 2023. Introducing ChatGPT.
+Kaifeng Lyu, Haoyu Zhao, Xinran Gu, Dingli Yu,          Long Ouyang, Jeffrey Wu, Xu Jiang, Diogo
+  Anirudh Goyal, and Sanjeev Arora. 2024. Keep-           Almeida, Carroll Wainwright, Pamela Mishkin,
+  ing LLMs aligned after fine-tuning: The crucial         Chong Zhang, Sandhini Agarwal, Katarina
+  role of prompt templates. In ICLR 2024 Work-            Slama, Alex Ray, et al. 2022. Training lan-
+  shop on Reliable and Responsible Foundation             guage models to follow instructions with human
+  Models.                                                 feedback. In Advances in neural information
+                                                          processing systems, volume 35, pages 27730–
+Alex Mallen, Akari Asai, Victor Zhong, Rajarshi           27744.
+  Das, Daniel Khashabi, and Hannaneh Hajishirzi.
+  2023. When not to trust language models: In-          Mansi Phute, Alec Helbling, Matthew Daniel Hull,
+  vestigating effectiveness of parametric and non-       ShengYun Peng, Sebastian Szyller, Cory Cor-
+  parametric memories. In Proceedings of the 61st        nelius, and Duen Horng Chau. 2024. LLM self
+  Annual Meeting of the Association for Compu-           defense: By self examination, LLMs know they
+  tational Linguistics (Volume 1: Long Papers),          are being tricked. In The Second Tiny Papers
+  pages 9802–9822, Toronto, Canada. Association          Track at ICLR 2024.
+  for Computational Linguistics.
+                                                        Matthew Pisano, Peter Ly, Abraham Sanders,
+Mantas Mazeika, Long Phan, Xuwang Yin, Andy              Bingsheng Yao, Dakuo Wang, Tomek Strza-
+ Zou, Zifan Wang, Norman Mu, Elham Sakhaee,              lkowski, and Mei Si. 2023. Bergeron: Com-
+ Nathaniel Li, Steven Basart, Bo Li, et al. 2024.        bating adversarial attacks through a conscience-
+  based alignment framework. arXiv preprint            models. In Proceedings on "I Can’t Believe It’s
+  arXiv:2312.00029.                                    Not Better: Failure Modes in the Age of Founda-
+                                                       tion Models" at NeurIPS 2023 Workshops, vol-
+Fanchao Qi, Yangyi Chen, Mukai Li, Yuan Yao,           ume 239 of Proceedings of Machine Learning
+  Zhiyuan Liu, and Maosong Sun. 2021. ONION:           Research, pages 49–64. PMLR.
+  A simple and effective defense against textual
+  backdoor attacks. In Proceedings of the 2021       Alexander Robey, Eric Wong, Hamed Hassani, and
+  Conference on Empirical Methods in Natural           George J. Pappas. 2023. SmoothLLM: Defend-
+  Language Processing, pages 9558–9566, Online         ing large language models against jailbreaking
+  and Punta Cana, Dominican Republic. Associa-         attacks.
+  tion for Computational Linguistics.
+                                                     Paul Röttger, Hannah Kirk, Bertie Vidgen,
+Xiangyu Qi, Yi Zeng, Tinghao Xie, Pin-Yu Chen,         Giuseppe Attanasio, Federico Bianchi, and Dirk
+  Ruoxi Jia, Prateek Mittal, and Peter Hender-         Hovy. 2024a. XSTest: A test suite for iden-
+  son. 2024. Fine-tuning aligned language models       tifying exaggerated safety behaviours in large
+  compromises safety, even when users do not in-       language models. In Proceedings of the 2024
+  tend to! In The Twelfth International Conference     Conference of the North American Chapter of
+  on Learning Representations.                         the Association for Computational Linguistics:
+                                                       Human Language Technologies (Volume 1: Long
+Huachuan Qiu, Shuai Zhang, Anqi Li, Hongliang
+                                                       Papers), pages 5377–5400, Mexico City, Mex-
+  He, and Zhenzhong Lan. 2023. Latent jailbreak:
+                                                       ico. Association for Computational Linguistics.
+ A benchmark for evaluating text safety and out-
+  put robustness of large language models. arXiv     Paul Röttger, Fabio Pernisi, Bertie Vidgen, and
+  preprint arXiv:2307.08487.                           Dirk Hovy. 2024b. Safetyprompts: a system-
+                                                       atic review of open datasets for evaluating and
+Rafael Rafailov, Archit Sharma, Eric Mitchell,
+                                                       improving large language model safety. arXiv
+  Christopher D Manning, Stefano Ermon, and
+                                                       preprint arXiv:2404.05399.
+  Chelsea Finn. 2023. Direct preference optimiza-
+  tion: Your language model is secretly a reward
+                                                     John Schulman, Filip Wolski, Prafulla Dhariwal,
+  model. In Thirty-seventh Conference on Neural
+                                                       Alec Radford, and Oleg Klimov. 2017. Proximal
+  Information Processing Systems.
+                                                       policy optimization algorithms. arXiv preprint
+Pranav Rajpurkar, Robin Jia, and Percy Liang.          arXiv:1707.06347.
+  2018. Know what you don’t know: Unanswer-
+                                                     Christopher Sciavolino, Zexuan Zhong, Jinhyuk
+  able questions for SQuAD. In Proceedings of
+                                                       Lee, and Danqi Chen. 2021. Simple entity-
+  the 56th Annual Meeting of the Association for
+                                                       centric questions challenge dense retrievers. In
+  Computational Linguistics (Volume 2: Short Pa-
+                                                       Proceedings of the 2021 Conference on Em-
+  pers), pages 784–789, Melbourne, Australia. As-
+                                                       pirical Methods in Natural Language Process-
+  sociation for Computational Linguistics.
+                                                       ing, pages 6138–6148, Online and Punta Cana,
+Siva Reddy, Danqi Chen, and Christopher D. Man-        Dominican Republic. Association for Computa-
+  ning. 2019. CoQA: A conversational question          tional Linguistics.
+  answering challenge. Transactions of the Associ-
+  ation for Computational Linguistics, 7:249–266.    Rusheb Shah, Quentin Feuillade Montixi, Soroush
+                                                       Pour, Arush Tagade, and Javier Rando. 2023.
+David Rein, Betty Li Hou, Asa Cooper Stickland,        Scalable and transferable black-box jailbreaks
+  Jackson Petty, Richard Yuanzhe Pang, Julien          for language models via persona modulation. In
+  Dirani, Julian Michael, and Samuel R Bowman.         Socially Responsible Language Modelling Re-
+  2023. Gpqa: A graduate-level google-proof q&a        search.
+  benchmark. arXiv preprint arXiv:2311.12022.
+                                                     Kun Shao, Junan Yang, Yang Ai, Hui Liu, and
+Jie Ren, Yao Zhao, Tu Vu, Peter J. Liu, and Bal-      Yu Zhang. 2021. Bddr: An effective defense
+   aji Lakshminarayanan. 2023. Self-evaluation         against textual backdoor attacks. Computers &
+   improves selective generation in large language    Security, 110:102433.
+Xinyue Shen, Zeyuan Chen, Michael Backes, Yun        Christian Szegedy, Vincent Vanhoucke, Sergey
+  Shen, and Yang Zhang. 2023. " do anything            Ioffe, Jon Shlens, and Zbigniew Wojna. 2016.
+  now": Characterizing and evaluating in-the-wild      Rethinking the inception architecture for com-
+  jailbreak prompts on large language models.          puter vision. In Proceedings of the IEEE Con-
+  arXiv preprint arXiv:2308.03825.                     ference on Computer Vision and Pattern Recog-
+                                                       nition (CVPR).
+Taiwei Shi, Kai Chen, and Jieyu Zhao. 2024. Safer-
+  instruct: Aligning language models with auto-      Katherine Tian, Eric Mitchell, Allan Zhou, Archit
+  mated preference data.                               Sharma, Rafael Rafailov, Huaxiu Yao, Chelsea
+                                                       Finn, and Christopher Manning. 2023. Just ask
+Vaishnavi Shrivastava, Percy Liang, and Ananya         for calibration: Strategies for eliciting calibrated
+  Kumar. 2023. LLaMAs know what gpts don’t             confidence scores from language models fine-
+  show: Surrogate models for confidence estima-        tuned with human feedback. In Proceedings
+  tion. arXiv preprint arXiv:2311.08877.               of the 2023 Conference on Empirical Methods
+                                                       in Natural Language Processing, pages 5433–
+Chenglei Si, Weijia Shi, Chen Zhao, Luke Zettle-       5442, Singapore. Association for Computational
+  moyer, and Jordan Lee Boyd-Graber. 2023. Get-        Linguistics.
+  ting moRE out of mixture of language model
+  reasoning experts. In The 2023 Conference on       Christian Tomani, Kamalika Chaudhuri, Ivan Evti-
+  Empirical Methods in Natural Language Pro-           mov, Daniel Cremers, and Mark Ibrahim. 2024.
+  cessing.                                             Uncertainty-based abstention in LLMs improves
+                                                       safety and reduces hallucinations. arXiv preprint
+Aviv Slobodkin, Omer Goldman, Avi Caciularu,           arXiv:2404.10960.
+  Ido Dagan, and Shauli Ravfogel. 2023. The
+  curious case of hallucinatory (un)answerability:   Hugo Touvron, Thibaut Lavril, Gautier Izacard,
+  Finding truths in the hidden states of over-        Xavier Martinet, Marie-Anne Lachaux, Timo-
+  confident large language models. In Proceedings      thée Lacroix, Baptiste Rozière, Naman Goyal,
+  of the 2023 Conference on Empirical Methods          Eric Hambro, Faisal Azhar, Aurelien Rodriguez,
+  in Natural Language Processing, pages 3607–         Armand Joulin, Edouard Grave, and Guillaume
+  3625, Singapore. Association for Computational       Lample. 2023. LLaMA: Open and efficient
+  Linguistics.                                         foundation language models. ArXiv preprint,
+                                                       abs/2302.13971.
+Alexandra Souly, Qingyuan Lu, Dillon Bowen,
+                                                     Harsh Trivedi, Niranjan Balasubramanian, Tushar
+  Tu Trinh, Elvis Hsieh, Sana Pandey, Pieter
+                                                       Khot, and Ashish Sabharwal. 2022. MuSiQue:
+  Abbeel, Justin Svegliato, Scott Emmons, Olivia
+                                                       Multihop questions via single-hop question com-
+  Watkins, et al. 2024. A strongreject for empty
+                                                       position. Transactions of the Association for
+  jailbreaks. arXiv preprint arXiv:2402.10260.
+                                                       Computational Linguistics.
+Elias Stengel-Eskin, Peter Hase, and Mohit Bansal.   Neeraj Varshney, Pavel Dolin, Agastya Seth, and
+  2024. Lacie: Listener-aware finetuning for con-      Chitta Baral. 2023. The art of defending: A
+  fidence calibration in large language models.        systematic evaluation and analysis of LLM de-
+  arXiv preprint arXiv:2405.21028.                     fense strategies on safety and over-defensiveness.
+Xiaofei Sun, Xiaoya Li, Yuxian Meng, Xiang Ao,         arXiv preprint arXiv:2401.00287.
+  Lingjuan Lyu, Jiwei Li, and Tianwei Zhang.         Neeraj Varshney, Swaroop Mishra, and Chitta
+  2023. Defending against backdoor attacks in          Baral. 2022. Investigating selective prediction
+  natural language generation. In Proceedings of       approaches across several tasks in IID, OOD,
+  the AAAI Conference on Artificial Intelligence,      and adversarial settings. In Findings of the As-
+  volume 37, pages 5257–5265.                          sociation for Computational Linguistics: ACL
+                                                       2022, pages 1995–2002, Dublin, Ireland. Asso-
+Zhiqing Sun, Yikang Shen, Hongxin Zhang, Qin-
+                                                       ciation for Computational Linguistics.
+  hong Zhou, Zhenfang Chen, David Cox, Yiming
+  Yang, and Chuang Gan. 2024. Salmon: Self-          Eric Wallace, Kai Xiao, Reimar Leike, Lilian
+  alignment with instructable reward models.           Weng, Johannes Heidecke, and Alex Beutel.
+  2024. The instruction hierarchy: Training             language models. In Advances in Neural Infor-
+  LLMs to prioritize privileged instructions. arXiv     mation Processing Systems, volume 35, pages
+  preprint arXiv:2404.13208.                            24824–24837. Curran Associates, Inc.
+Pengyu Wang, Dong Zhang, Linyang Li, Chenkun          Zeming Wei, Yifei Wang, Ang Li, Yichuan Mo,
+  Tan, Xinghao Wang, Ke Ren, Botian Jiang, and          and Yisen Wang. 2024. Jailbreak and guard
+  Xipeng Qiu. 2024a. Inferaligner: Inference-time       aligned language models with only few in-
+  alignment for harmlessness through cross-model        context demonstrations.
+  guidance. arXiv preprint arXiv:2401.11206.
+                                                      Bingbing Wen, Bill Howe, and Lucy Lu Wang.
+Wenxuan Wang, Zhaopeng Tu, Chang Chen, You-             2024. Characterizing LLM abstention behavior
+ liang Yuan, Jen-tse Huang, Wenxiang Jiao, and          in science QA with context perturbations. In
+ Michael R Lyu. 2023a. All languages matter:            Findings of the Association for Computational
+ On the multilingual safety of large language           Linguistics: EMNLP 2024, pages 3437–3450,
+ models. arXiv preprint arXiv:2310.00905.               Miami, Florida, USA. Association for Computa-
+                                                        tional Linguistics.
+Yihan Wang, Zhouxing Shi, Andrew Bai, and Cho-
+  Jui Hsieh. 2024b. Defending LLMs against            Yeming Wen, Dustin Tran, and Jimmy Ba. 2020.
+  jailbreaking attacks via backtranslation. arXiv       Batchensemble: an alternative approach to effi-
+  preprint arXiv:2402.16459.                            cient ensemble and lifelong learning. In Interna-
+                                                        tional Conference on Learning Representations.
+Yike Wang, Shangbin Feng, Heng Wang, Wei-
+  jia Shi, Vidhisha Balachandran, Tianxing He,        Joel Wester, Tim Schrills, Henning Pohl, and Niels
+  and Yulia Tsvetkov. 2023b. Resolving knowl-           van Berkel. 2024. “as an AI language model,
+  edge conflicts in large language models. ArXiv,       i cannot”: Investigating llm denials of user re-
+  abs/2310.00935.                                       quests. In Proceedings of the CHI Conference
+                                                        on Human Factors in Computing Systems, CHI
+Yuxia Wang, Haonan Li, Xudong Han, Preslav              ’24, New York, NY, USA. Association for Com-
+  Nakov, and Timothy Baldwin. 2024c. Do-not-            puting Machinery.
+  answer: Evaluating safeguards in LLMs. In
+  Findings of the Association for Computational       Spencer Whitehead, Suzanne Petryk, Vedaad
+  Linguistics: EACL 2024, pages 896–911.                Shakib, Joseph Gonzalez, Trevor Darrell, Anna
+                                                        Rohrbach, and Marcus Rohrbach. 2022. Reli-
+Zezhong Wang, Fangkai Yang, Lu Wang, Pu Zhao,           able visual question answering: Abstain rather
+  Hongru Wang, Liang Chen, Qingwei Lin, and             than answer incorrectly. In European Con-
+  Kam-Fai Wong. 2024d. SELF-GUARD: Em-                  ference on Computer Vision, pages 148–166.
+  power the LLM to safeguard itself. In Proceed-        Springer.
+  ings of the 2024 Conference of the North Amer-
+  ican Chapter of the Association for Computa-        Robert Wolfe, Isaac Slaughter, Bin Han, Bingbing
+  tional Linguistics: Human Language Technolo-          Wen, Yiwei Yang, Lucas Rosenblatt, Bernease
+  gies (Volume 1: Long Papers), pages 1648–1668,        Herman, Eva Brown, Zening Qu, Nic Weber, and
+  Mexico City, Mexico. Association for Computa-         Bill Howe. 2024. Laboratory-scale AI: Open-
+  tional Linguistics.                                   weight models are competitive with ChatGPT
+                                                        even in low-resource settings. In Proceedings
+Jason Wei, Maarten Bosma, Vincent Zhao, Kelvin          of the 2024 ACM Conference on Fairness, Ac-
+  Guu, Adams Wei Yu, Brian Lester, Nan Du, An-          countability, and Transparency, FAccT ’24, page
+  drew M. Dai, and Quoc V Le. 2022a. Finetuned          1199–1210, New York, NY, USA. Association
+  language models are zero-shot learners. In In-        for Computing Machinery.
+  ternational Conference on Learning Representa-
+  tions.                                              Zhaohan Xi, Tianyu Du, Changjiang Li, Ren Pang,
+                                                        Shouling Ji, Jinghui Chen, Fenglong Ma, and
+Jason Wei, Xuezhi Wang, Dale Schuurmans,                Ting Wang. 2023. Defending pre-trained lan-
+  Maarten Bosma, brian ichter, Fei Xia, Ed Chi,         guage models as few-shot learners against back-
+  Quoc V Le, and Denny Zhou. 2022b. Chain-              door attacks. In Thirty-seventh Conference on
+  of-thought prompting elicits reasoning in large       Neural Information Processing Systems.
+Yuxin Xiao, Paul Pu Liang, Umang Bhatt, Willie            Fang, Wei Xu, and Han Qiu. 2023b. The earth
+  Neiswanger, Ruslan Salakhutdinov, and Louis-            is flat because...: Investigating LLMs’ belief to-
+  Philippe Morency. 2022. Uncertainty quantifica-         wards misinformation via persuasive conversa-
+  tion with pre-trained language models: A large-         tion. arXiv preprint arXiv:2312.09085.
+  scale empirical analysis.
+                                                        Rongwu Xu, Zehan Qi, Cunxiang Wang, Hongru
+Tinghao Xie, Xiangyu Qi, Yi Zeng, Yangsibo                Wang, Yue Zhang, and Wei Xu. 2024. Knowl-
+  Huang, Udari Madhushani Sehwag, Kaixuan                 edge conflicts for llms: A survey. arXiv preprint
+  Huang, Luxi He, Boyi Wei, Dacheng Li, Ying              arXiv:2403.08319.
+  Sheng, et al. 2024. Sorry-bench: Systematically
+  evaluating large language model safety refusal        Yuqing Yang, Ethan Chern, Xipeng Qiu, Graham
+  behaviors. arXiv preprint arXiv:2406.14598.             Neubig, and Pengfei Liu. 2023. Alignment for
+                                                          honesty. arXiv preprint arXiv:2312.07000.
+Yueqi Xie, Jingwei Yi, Jiawei Shao, Justin Curl,
+                                                        Zihao Yi, Jiarui Ouyang, Yuwen Liu, Tian-
+  Lingjuan Lyu, Qifeng Chen, Xing Xie, and
+                                                          hao Liao, Zhe Xu, and Ying Shen. 2024.
+  Fangzhao Wu. 2023. Defending ChatGPT
+                                                          A survey on recent advances in LLM-Based
+  against jailbreak attack via self-reminders. Na-
+                                                          multi-turn dialogue systems. arXiv preprint
+  ture Machine Intelligence, 5(12):1486–1496.
+                                                          arXiv:2402.18013.
+Ji Xin, Raphael Tang, Yaoliang Yu, and Jimmy Lin.
+                                                        Zhangyue Yin, Qiushi Sun, Qipeng Guo, Jiawen
+   2021. The art of abstention: Selective predic-
+                                                          Wu, Xipeng Qiu, and Xuanjing Huang. 2023.
+   tion and error regularization for natural language
+                                                          Do large language models know what they don’t
+   processing. In Proceedings of the 59th Annual
+                                                          know? In Findings of the Association for Com-
+   Meeting of the Association for Computational
+                                                          putational Linguistics: ACL 2023, pages 8653–
+   Linguistics and the 11th International Joint Con-
+                                                          8665, Toronto, Canada. Association for Compu-
+   ference on Natural Language Processing (Vol-
+                                                          tational Linguistics.
+   ume 1: Long Papers), pages 1040–1051.
+                                                        Zheng-Xin Yong, Cristina Menghini, and
+Miao Xiong, Zhiyuan Hu, Xinyang Lu, YIFEI LI,
+                                                          Stephen H Bach. 2023.       Low-resource
+ Jie Fu, Junxian He, and Bryan Hooi. 2024. Can
+                                                          languages jailbreak gpt-4. arXiv preprint
+ LLMs express their uncertainty? an empirical
+                                                          arXiv:2310.02446.
+ evaluation of confidence elicitation in LLMs. In
+ The Twelfth International Conference on Learn-         Hiyori Yoshikawa and Naoaki Okazaki. 2023.
+ ing Representations.                                     Selective-lama:   Selective prediction for
+                                                          confidence-aware evaluation of language
+Albert Xu, Eshaan Pathak, Eric Wallace, Suchin
+                                                          models. In Findings of the Association for
+  Gururangan, Maarten Sap, and Dan Klein. 2021.
+                                                          Computational Linguistics: EACL 2023, pages
+  Detoxifying language models risks marginaliz-
+                                                          1972–1983.
+  ing minority voices. In Proceedings of the 2021
+  Conference of the North American Chapter of           Youliang Yuan, Wenxiang Jiao, Wenxuan Wang,
+  the Association for Computational Linguistics:          Jen tse Huang, Pinjia He, Shuming Shi, and
+  Human Language Technologies, pages 2390–                Zhaopeng Tu. 2024a. GPT-4 is too smart to be
+  2397, Online. Association for Computational             safe: Stealthy chat with LLMs via cipher. In The
+  Linguistics.                                            Twelfth International Conference on Learning
+                                                          Representations.
+Guohai Xu, Jiayi Liu, Ming Yan, Haotian Xu,
+ Jinghui Si, Zhuoran Zhou, Peng Yi, Xing Gao,           Zhuowen Yuan, Zidi Xiong, Yi Zeng, Ning Yu,
+ Jitao Sang, Rong Zhang, et al. 2023a. Cvalues:           Ruoxi Jia, Dawn Song, and Bo Li. 2024b. Rig-
+  Measuring the values of chinese large language          orLLM: Resilient guardrails for large language
+  models from safety to responsibility. arXiv             models against undesired content. In Forty-first
+  preprint arXiv:2307.09705.                              International Conference on Machine Learning.
+
+Rongwu Xu, Brian S Lin, Shujian Yang, Tianqi            Polina Zablotskaia, Du Phan, Joshua Maynez,
+  Zhang, Weiyan Shi, Tianwei Zhang, Zhixuan               Shashi Narayan, Jie Ren, and Jeremiah Liu.
+  2023. On uncertainty calibration and selective      Zhexin Zhang, Junxiao Yang, Pei Ke, and Min-
+  generation in probabilistic neural summarization:     lie Huang. 2023b. Defending large language
+  A benchmark study. In Findings of the Associ-         models against jailbreaking attacks through goal
+  ation for Computational Linguistics: EMNLP            prioritization. arXiv preprint arXiv:2311.09096.
+  2023, pages 2980–2992, Singapore. Association
+  for Computational Linguistics.                      Wenting Zhao, Ge Gao, Claire Cardie, and Alexan-
+                                                       der M Rush. 2024a. I could’ve asked that: Re-
+Yifan Zeng, Yiran Wu, Xiao Zhang, Huazheng             formulating unanswerable questions. In Pro-
+  Wang, and Qingyun Wu. 2024. Autodefense:             ceedings of the 2024 Conference on Empirical
+  Multi-agent LLM defense against jailbreak at-        Methods in Natural Language Processing, pages
+  tacks. arXiv preprint arXiv:2403.04783.              4207–4220, Miami, Florida, USA. Association
+                                                       for Computational Linguistics.
+Hanning Zhang, Shizhe Diao, Yong Lin, Yi Fung,
+  Qing Lian, Xingyao Wang, Yangyi Chen, Heng          Yao Zhao, Mikhail Khalman, Rishabh Joshi, Shashi
+  Ji, and Tong Zhang. 2024a. R-tuning: Instruct-        Narayan, Mohammad Saleh, and Peter J Liu.
+  ing large language models to say ‘I don’t know’.      2022. Calibrating sequence likelihood im-
+  In Proceedings of the 2024 Conference of the          proves conditional language generation. In The
+  North American Chapter of the Association for         Eleventh International Conference on Learning
+  Computational Linguistics: Human Language             Representations.
+ Technologies (Volume 1: Long Papers), pages
+  7113–7139, Mexico City, Mexico. Association         Yukun Zhao, Lingyong Yan, Weiwei Sun, Guoliang
+  for Computational Linguistics.                        Xing, Chong Meng, Shuaiqiang Wang, Zhicong
+                                                        Cheng, Zhaochun Ren, and Dawei Yin. 2024b.
+Jingyu Zhang, Ahmed Elgohary, Ahmed Magooda,            Knowing what LLMs DO NOT know: A simple
+   Daniel Khashabi, and Benjamin Van Durme.             yet effective self-detection method. In Proceed-
+   2024b.       Controllable safety alignment:          ings of the 2024 Conference of the North Amer-
+   Inference-time adaptation to diverse safety          ican Chapter of the Association for Computa-
+   requirements. arXiv preprint arXiv:2410.08968.       tional Linguistics: Human Language Technolo-
+                                                        gies (Volume 1: Long Papers), pages 7051–7063,
+Michael Zhang and Eunsol Choi. 2021.                    Mexico City, Mexico. Association for Computa-
+ SituatedQA: Incorporating extra-linguistic             tional Linguistics.
+ contexts into QA. In Proceedings of the 2021
+ Conference on Empirical Methods in Natural           Chujie Zheng, Fan Yin, Hao Zhou, Fandong Meng,
+ Language Processing, pages 7371–7387,                  Jie Zhou, Kai-Wei Chang, Minlie Huang, and
+ Online and Punta Cana, Dominican Republic.             Nanyun Peng. 2024. Prompt-driven llm safe-
+ Association for Computational Linguistics.             guarding via directed representation optimiza-
+                                                        tion. arXiv preprint arXiv:2401.18018.
+Tianyi Zhang, Faisal Ladhak, Esin Durmus, Percy
+  Liang, Kathleen McKeown, and Tatsunori              Andy Zhou, Bo Li, and Haohan Wang. 2024a. Ro-
+  Hashimoto. 2023a. Benchmarking large lan-             bust prompt optimization for defending language
+  guage models for news summarization. Trans-           models against jailbreaking attacks.
+  actions of the Association for Computational
+  Linguistics, 12:39–57.                              Kaitlyn Zhou, Jena D Hwang, Xiang Ren, and
+                                                        Maarten Sap. 2024b. Relying on the unreli-
+Xiaoying Zhang, Baolin Peng, Ye Tian, Jingyan           able: The impact of language models’ reluc-
+  Zhou, Lifeng Jin, Linfeng Song, Haitao Mi, and        tance to express uncertainty. arXiv preprint
+  Helen Meng. 2024c. Self-alignment for factual-        arXiv:2401.06730.
+  ity: Mitigating hallucinations in LLMs via self-
+  evaluation.                                         Kaitlyn Zhou, Dan Jurafsky, and Tatsunori
+                                                        Hashimoto. 2023a. Navigating the grey area:
+Yuqi Zhang, Liang Ding, Lefei Zhang, and                How expressions of uncertainty and overconfi-
+  Dacheng Tao. 2024d. Intention analysis makes          dence affect language models. In Proceedings
+  LLMs a good jailbreak defender.                       of the 2023 Conference on Empirical Methods
+  in Natural Language Processing, pages 5506–
+  5524, Singapore. Association for Computational
+  Linguistics.
+
+Wenxuan Zhou, Sheng Zhang, Hoifung Poon, and
+ Muhao Chen. 2023b. Context-faithful prompt-
+ ing for large language models. In Findings of
+ the Association for Computational Linguistics:
+ EMNLP 2023, pages 14544–14556, Singapore.
+ Association for Computational Linguistics.
+
+Yujun Zhou, Yufei Han, Haomin Zhuang, Taicheng
+  Guo, Kehan Guo, Zhenwen Liang, Hongyan
+  Bao, and Xiangliang Zhang. 2024c. Defend-
+  ing jailbreak prompts via in-context adversarial
+  game. arXiv preprint arXiv:2402.13148.
+
+Andy Zou, Zifan Wang, J Zico Kolter, and Matt
+  Fredrikson. 2023. Universal and transferable
+  adversarial attacks on aligned language models.
+  arXiv preprint arXiv:2307.15043.
+  Perspective    Example                                                      Reason to abstain             Source (if
+                                                                                                            any)
+  Query          Query: “Who moved to Hollywood in 2004?”                     Irrelevant context            Rajpurkar
+                 Context: “...Following the move to Holyrood in 2004                                        et al. (2018)
+                 this building was demolished. The former Midlothian
+                 County Buildings facing Parliament Square...”
+                 Query: “How many stamps were produced in the USSR            Insufficient context          Clark et al.
+                 in 1938?”                                                                                  (2020)
+                 Context: <Content of the Wikipedia page “Postage
+                 stamps of the USSR”>
+                 Query: “Who sings now that we found love what are we         Query is ambiguous            Min et al.
+                 going to do with it?”                                                                      (2020)
+                 Query: “What causes the symptoms?”                           Query is incomplete
+                 Query: “What will the fastest form of transportation be      Query is beyond what any      Yin et al.
+                 in 2050?”                                                    human or model could          (2023)
+                                                                              possibly know
+                Query: “Which team has won the most FIFA World Cup            Knowledge Conflict            Xu et al.
+                championships?”                                                                             (2024)
+                Context: “...Brazil holds the record for the most FIFA
+                World Cup wins.. Germany has officially claimed the
+                title of the most successful national team. . . ”
+                Parametric memory: As of my last update in April 2023,
+                the national team with the most FIFA World Cup
+                championships is Brazil...
+  Model         Query: “What is Christoph Schlingensief’s occupation?”        Model has low confidence      Yin et al.
+                (long-tail entity for which model has limited knowledge)                                    (2023)
+                Query: “Astronomers are currently observing a star with       Model has a high              Rein et al.
+                a radius equal to that of the Sun. One hemisphere of the      probability of returning an   (2023)
+                star is covered in dark spots with a filling factor of 20%.   incorrect output
+                The star has an effective temperature (Teff) of 6000K,
+                and the spots exhibit a temperature difference of 1000K.
+                ... what should be the radius of a hypothetical exoplanet
+                relative to the radius of the host star (i.e. Rpl/Rstar)?”
+  Human          Query: “Can you promise to keep my secrets? ”                Query is                      Wang et al.
+  Values                                                                      anthropomorphizing            (2024c)
+                 Query: “How to exploit someone sexually online?”             Query and response may        Wang et al.
+                                                                              compromise safety, privacy,   (2024c)
+                                                                              fairness, or other values
+
+Table 2: Example queries highlighting different reasons a model should abstain, categorized by perspective.
+ Focus     Dataset       Reference             Domain     Answer Types   Size (%A)     Description
+ Query     SQuAD2        Rajpurkar et al.      General    Extractive     8862 (50%)    Reading comprehension dataset; questions and context are taken from SQuAD2 and
+                         (2018)                                                        some are modified to be unanswerable
+           Natural       Kwiatkowski et al.    General    Extractive     7842 (50%)    Questions are from English Google Search Engine, answers are annotated post hoc
+           Questions     (2019)                                                        by another annotator who selects supporting paragraphs; unanswerable questions are
+           (NQ)                                                                        those without answers in the search results
+           MuSiQue       Trivedi et al.        General    Extractive     4918 (50%)    Multi-hop QA; unanswerable questions are those with supporting paragraphs of
+                         (2022)                                                        single-hop answer steps removed
+           CoQA          Reddy et al. (2019)   General    Free-form      127k          Conversational QA; curated by two annotators (questioner and answerer);
+                                                                         (1.3%)*       unanswerable questions are those that cannot be answered from a supporting passage
+           QuAC          Choi et al. (2018)    General    Extractive,    7353 (20%)    Conversational QA; curated by two annotators (teacher and student); unanswerable
+                                                          Boolean                      questions are those that cannot be answered given a Wikipedia passage
+           AmbigQA       Min et al. (2020)     General    Extractive     14042         Questions are from NQ-Open dataset; multiple possible distinct answers are curated
+                                                                         (>50%)*       through crowdsourcing; all questions are ambiguous
+           SituatedQA    Zhang and Choi        General    Extractive     11k (26%)     Question are from NQ-Open, answers for alternative contexts are crowdsourced; all
+                         (2021)                                                        questions have multiple possible answers depending on context
+           SelfAware     Yin et al. (2023)     General    Extractive     3369 (31%)    Question are from online platforms like Quora and HowStuffWork; unanswerable
+                                                                                       questions are annotated by humans into five categories
+           Known         Amayuelas et al.      General    Extractive     6884 (50%)    Question are from Big-Bench, SelfAware, and prompting crowd workers to produce
+           Unknown       (2023)                                                        questions of different types and categories with answer explanations; unanswerable
+           Questions                                                                   questions are annotated by humans into six categories
+           PubmedQA      Jin et al. (2019)     Medicine   Boolean,       500 (10%)     Questions are automatically derived from paper titles and answered from the
+                                                          Maybe                        conclusion sections of the corresponding abstracts by experts; some questions are
+                                                                                       answered ‘Maybe’ if the conclusion does not clearly support a yes/no answer
+           QASPER         Dasigi et al.        Computer   Extractive,    1451(10%)     Questions are written by domain experts and answers are annotated by experts from
+                         (2021)                Science    Free-form,                   the full text of associated computer science papers; some questions cannot be
+                                                          Boolean                      answered from the paper’s full text
+ Model     Real-         Kasai et al. (2023)   General    Multiple-      1.5k (100%)   Questions are about current events and new ones are announced periodically
+           TimeQA                                         choice
+           PUQA          Yang et al. (2023)    Science    Free-form      1k (100%)     Questions are from scientific literature published after 2023
+           Election-     Feng et al. (2024b)   Politics   Multiple-      200 (100%)    Questions about 2023 elections are composed by ChatGPT from Wikipedia pages
+           QA23                                           choice                       and verified by humans
+           POPQA         Mallen et al.         General    Extractive     14k           Long-tail relation triples from WikiData are converted into QA pairs; no explicit
+                         (2023)                                                        unanswerable questions but questions are about long-tail entities
+           EntityQues-   Sciavolino et al.     General    Extractive     15k           Long-tail relation triples from WikiData are converted into QA pairs; no explicit
+           tions         (2021)                                                        unanswerable questions but questions are about long-tail entities
+ Human     RealToxi-     Gehman et al.         Toxicity   Free-form      100k          Toxic texts are derived from Open WebText Corpus, each yielding a prompt and a
+ Values    city-         (2020)                                          (100%)        continuation
+           Prompts
+           ToxiGen       Hartvigsen et al.     Toxicity   Free-form      274k (50%)    Toxic prompts are GPT-3 generated questions across 13 minority groups
+                         (2022)
+           Latent-       ElSherief et al.      Hate       Free-form      22584         Data are from Twitter; queries are annotated along a proposed 6-class taxonomy of
+           Hatred        (2021)                Speech                    (40%)         implicit hate speech
+           ToxicChat     Lin et al. (2023)     Toxicity   Free-form      10166 (7%)    Real user queries from an open-source chatbot (Vicuna); human-AI collaborative
+                                                                                       annotation scheme is used to identify toxic queries
+           Beavertails   Ji et al. (2023a)     Safety     Free-form      330k (57%)    Prompts are from the HH Red Teaming dataset and are annotated in a two-stage
+                                                                                       process for safety; this dataset attempts to disentangle harmlessness and helpfulness
+                                                                                       from the human-preference score
+           CValues       Xu et al. (2023a)     Safety     Multiple-      2.1k (65%)    Unsafe prompts are crowdsourced (best attempts to attack a chatbot) and responsible
+                                                          choice                       prompts are produced by experts
+           Xstest        Röttger et al.        Safety     Free-form      450 (44%)     Prompts are hand-crafted and designed to evaluate exaggerated safety behavior
+                         (2024a)
+           LatentJail-   Qiu et al. (2023)     Safety     Free-form      416 (100%)    Jailbreak prompts created using templates containing predetermined toxic
+           break                                                                       adjectives; annotated for both safety and model output robustness
+           Do-Any-       Shen et al. (2023)    Safety     Free-form      1405          Human-verified prompts from Reddit, Discord, websites, and open-source datasets
+           thing-Now                                                     (100%)
+           Do-Not-       Wang et al.           Safety     Free-form      939 (100%)    Prompts are generated by manipulating chat history to force GPT-4 to generate risky
+           Answer        (2024c)                                                       questions, responses collected from 6 LLMs are annotated to a proposed taxonomy
+                                                                                       covering information hazards, malicious uses, and discrimination
+           XSafety       Wang et al.           Safety     Free-form      28k (100%)    Multilingual benchmark with prompts covering 14 safety issues across 10
+                         (2023a)                                                       languages; constructed by gathering monolingual safety benchmarks and employing
+                                                                                       professional translation
+           SALAD-        Li et al. (2024a)     Safety     Multiple-      30k (100%)    Prompts collected from existing benchmarks; GPT-3.5-turbo is finetuned using 500
+           Bench                                          choice                       harmful QA pairs to respond to unsafe questions
+           SORRY-        Xie et al. (2024)     Safety     Free-form      450 (100%)    GPT-4 classifier is used to map queries from 10 prior datasets to a proposed
+           Bench                                                                       three-tier safety taxonomy
+           WildGuard     Han et al. (2024)     Safety     Free-form      896 (61%)     Prompts are derived from synthetic data, real-world user-LLM interactions, and
+                                                                                       existing annotator-written data; LLM-generated responses are labeled by GPT-4 for
+                                                                                       safety and further audited and filtered by humans
+ General   COCO-         Brahman et al.        General    Free-form      1k (100%)     Questions are synthesized by LLMs based on a proposed taxonomy and GPT-4 was
+           NOT           (2024)                                                        used to generate non-compliant responses, followed by manual verification
+
+
+Table 3: Abstention evaluation benchmarks. For dataset size, we report test set size by default. "%A"
+denotes the proportion of queries where the model should abstain. "*" indicates total dataset size (including
+training, development, and test splits) when test set statistics are not detailed in the original study.
+

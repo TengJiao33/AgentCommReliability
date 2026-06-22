@@ -1,0 +1,15 @@
+{
+  "rows": 9,
+  "strict": 8,
+  "strict_rate": 0.8888888888888888,
+  "base_rows": 3,
+  "base_strict_rate": 0.6666666666666666,
+  "perturbation_rows": 6,
+  "perturbation_strict_rate": 1.0,
+  "slot_recall": 0.7962962962962963,
+  "extra_final_card_count": 10,
+  "scope_violations_prevented": 3,
+  "invalid_support_prevented": 1,
+  "budget_rejections": 0,
+  "forced_commitment_rate": 0.5555555555555556
+}

@@ -1,6 +1,6 @@
 ---
 name: research-story-synthesis
-description: Project-level skill for judging and shaping research-paper stories from reproduced evidence. Use when Codex needs to decide whether observations support a solid root-cause story, a genuinely novel angle, a live diagnostic handle, or only a known limitation; to perform external-pressure or literature-collision audits from full-paper evidence; to align motivation, contribution shape, ablations, qualitative cases, quantitative results, and caveats into a paper or mentor narrative without inventing claims.
+description: Project-level skill for judging and shaping research-paper stories from reproduced evidence. Use when Codex needs to decide whether observations support a solid root-cause story, a genuinely novel angle, an A-conference mechanism-improvement route, a benchmark/evaluation route, a live diagnostic handle, or only a known limitation; to perform external-pressure or literature-collision audits from full-paper evidence; to align motivation, contribution shape, ablations, qualitative cases, quantitative results, and caveats into a paper or mentor narrative without inventing claims.
 ---
 
 # Research Story Synthesis
@@ -76,6 +76,35 @@ Do not accept a story if it only says:
 - B exists, but C does not actually target, expose, or measure B.
 - Qualitative cases look nice, but they are not tied to quantitative or
   diagnostic evidence.
+
+## A-Conference Mechanism Calibration
+
+When judging an A-conference route, do not reduce the question to "does it beat
+SOTA." First ask what kind of paper the evidence has earned:
+
+- a method-improvement paper, if C improves the task and reduces the diagnosed
+  failure;
+- a diagnostic / compiler paper, if C mainly makes the failure executable,
+  inspectable, and controllable;
+- a benchmark / stress-test paper, if the main contribution is the measurable
+  failure object and evaluator;
+- a mechanism microscope, if the evidence explains failures but cannot carry
+  the main claim.
+
+Use templates as taste, not as checklists. PAL says to separate model proposal
+from reliable execution; ReAct says to make trajectories inspectable;
+Decomposed Prompting says named interfaces matter; Sparse communication says
+quality and cost should be read together; benchmark papers say a failure object
+can be a contribution when the evaluator and baselines are clean.
+
+Strong baselines should narrow the claim, not automatically kill it. Losing to
+a transparent baseline may still leave a diagnostic or benchmark contribution.
+Beating only weak prompt baselines is not enough for a method claim.
+
+For this project, favor tables that reveal the contrast between free-form or
+direct behavior, structured/model-only behavior, executor-assisted behavior,
+transparent heuristics, and oracle controls. Include mechanism metrics, not
+only final task success.
 
 ## Solid Versus Novel
 
@@ -262,6 +291,11 @@ The experiment section should close the story loop:
 If the experiments only show that C is better but do not show why, the story is
 performance-first, not insight-first.
 
+For compiler, executor, or admission stories, prefer paired evidence: the same
+model proposal with and without hard execution, a transparent baseline or clear
+reason it is absent, and diagnostics showing which failure was prevented. Task
+success alone is too thin.
+
 ## Story Shape
 
 Prefer a story that preserves tension over one that sounds complete.
@@ -284,8 +318,9 @@ parser/answer-contract confounds. Treat them as vocabulary, not a checklist.
 
 1. Re-read the relevant top-level evidence rows and recent reports.
 2. Separate facts, active interpretations, hypotheses, and caveats.
-3. Classify the candidate as solid, novel, live diagnostic, known limitation,
-   or stale/not ready.
+3. Classify the candidate as solid method route, diagnostic/compiler route,
+   benchmark/stress-test route, mechanism microscope, known limitation, live
+   diagnostic, or stale/not ready.
 4. If literature pressure is involved, perform the full-paper collision audit
    before judging novelty or declaring a neighboring paper threatening.
 5. Name A, B, C, M, and D: baseline, diagnosed cause, contribution shape,

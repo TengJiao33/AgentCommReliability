@@ -1,0 +1,10 @@
+{
+  "rows": 40,
+  "ok_rows": 40,
+  "error_rows": 0,
+  "scope_violations_prevented": 0,
+  "invalid_support_prevented": 0,
+  "budget_rejections": 219,
+  "forced_commitment_rate": 0.275,
+  "downstream_ok": 0.725
+}

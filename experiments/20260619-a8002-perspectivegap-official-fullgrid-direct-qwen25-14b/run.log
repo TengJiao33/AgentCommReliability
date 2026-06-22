@@ -1,0 +1,53 @@
+[perspectivegap-fullgrid] run_id=20260619-a8002-perspectivegap-official-fullgrid-direct-qwen25-14b
+[perspectivegap-fullgrid] workspace=/data/xuhaoming/yfy/research_workspace
+[perspectivegap-fullgrid] upstream=/data/xuhaoming/yfy/research_workspace/baselines/PerspectiveGap/upstream
+[perspectivegap-fullgrid] model=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct served=qwen2.5-14b-perspectivegap-official-fullgrid gpu=7 port=8081
+[perspectivegap-fullgrid] tasks=both seeds=1,42 scenarios=all
+[perspectivegap-fullgrid] max_model_len=32768 gpu_memory_utilization=0.85 run_timeout=28800
+[perspectivegap-fullgrid] predictions=/data/xuhaoming/yfy/research_workspace/experiments/20260619-a8002-perspectivegap-official-fullgrid-direct-qwen25-14b/predictions_official_fullgrid.jsonl
+[perspectivegap-fullgrid] scores=/data/xuhaoming/yfy/research_workspace/experiments/20260619-a8002-perspectivegap-official-fullgrid-direct-qwen25-14b/scores_official_fullgrid.jsonl
+[perspectivegap-fullgrid] gpu before:
+0, NVIDIA A800-SXM4-80GB, 10617, 70536, 45
+1, NVIDIA A800-SXM4-80GB, 69595, 11557, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+[perspectivegap-fullgrid] server_pid=1017935
+[perspectivegap-fullgrid] vLLM ready after 24 checks
+[perspectivegap-fullgrid] running official PerspectiveGap full grid
+[perspectivegap-fullgrid] runner_status=0
+[perspectivegap-fullgrid] scoring official predictions
+[perspectivegap-fullgrid] validation:
+{
+  "prediction_rows": 440,
+  "score_rows": 440,
+  "unique_prediction_keys": 440,
+  "unique_score_keys": 440,
+  "tasks": {
+    "role_assignment": 220,
+    "prompt_writing": 220
+  },
+  "status": {
+    "ok": 440
+  },
+  "models": [
+    "qwen2.5-14b-perspectivegap-official-fullgrid"
+  ],
+  "scenario_count": 110,
+  "seeds": [
+    1,
+    42
+  ]
+}
+[perspectivegap-fullgrid] gpu after runner before cleanup:
+0, NVIDIA A800-SXM4-80GB, 10617, 70536, 45
+1, NVIDIA A800-SXM4-80GB, 69595, 11557, 0
+2, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+3, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+4, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+5, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+6, NVIDIA A800-SXM4-80GB, 4, 81149, 0
+7, NVIDIA A800-SXM4-80GB, 67453, 13699, 0

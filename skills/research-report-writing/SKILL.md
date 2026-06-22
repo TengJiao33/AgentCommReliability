@@ -143,6 +143,23 @@ Prefer the stronger structure:
 我们的 C 不是泛泛补丁，而是直接让 B 可见、可控或可被压力测试。
 ```
 
+## A-Conference Status Reporting
+
+When reporting whether the project is "A-conference shaped", name the route
+before judging strength: method improvement, diagnostic / compiler discipline,
+benchmark / stress test, or mechanism microscope.
+
+Do not say "no result" when the evidence has only failed to earn a method
+claim. Instead name the downgrade:
+
+```text
+这还不是方法提升结果；它目前更像一个诊断/执行边界结果。
+```
+
+When a strong transparent baseline beats or matches the proposed method, report
+that near the claim. Then state whether the remaining value is diagnostic,
+benchmark-facing, or only historical background.
+
 ## Experiment Reporting
 
 When explaining an experiment, separate purpose from result.

@@ -1,0 +1,35 @@
+{
+  "strategy": "visible_verified_blocker_completion",
+  "prediction_rows": 33,
+  "rows_with_added_units": 2,
+  "added_unit_count": 2,
+  "added_by_packet": {
+    "hiddenbench_evacuation_east_town__hb03_base_verified_role_scoped__hsa_v0": [
+      {
+        "unit_id": "auto_visible_blocker_0_hb03_hidden_2",
+        "card_id": "hb03_hidden_2",
+        "source_role": "verified_route_notice",
+        "evidence_type": "blocker",
+        "verification_state": "verified",
+        "recipient_scope": [
+          "route_checker",
+          "final_decider"
+        ]
+      }
+    ],
+    "hiddenbench_evacuation_east_town__hb03_north_mudslide_no_final_scope__hsa_v0": [
+      {
+        "unit_id": "auto_visible_blocker_0_hb03_hidden_2",
+        "card_id": "hb03_hidden_2",
+        "source_role": "verified_route_notice",
+        "evidence_type": "blocker",
+        "verification_state": "verified",
+        "recipient_scope": [
+          "route_checker",
+          "final_decider"
+        ]
+      }
+    ]
+  },
+  "parse_errors": []
+}

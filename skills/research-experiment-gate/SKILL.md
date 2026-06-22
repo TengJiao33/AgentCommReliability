@@ -47,6 +47,31 @@ note, or a packet README:
 
 If these cannot be stated, do not call the run decisive.
 
+## Paper-Facing Mechanism Gate
+
+For A-conference mechanism-improvement runs, record the table role before
+launch. The run should know whether it is a direct baseline, structured/model
+only baseline, executor-assisted method row, transparent heuristic, oracle, or
+ablation.
+
+Record the fairness contract: same backbone or explicit cross-model reference,
+same packet rows and evaluator, compatible budget/cost accounting, and no
+prediction-time leakage of evaluator-only fields.
+
+For compiler, executor, or admission claims, prefer paired artifacts: model-only
+outputs, executed/compiled outputs over the same proposals, and a paired delta.
+If a strong transparent baseline or oracle smoke is absent, say why.
+
+Do not treat final task success as sufficient. Predeclare the diagnostic
+metrics that would show the mechanism changed the right failure surface, such
+as coverage, precision, leakage, budget pass, rejection, forced commitment,
+cost, or slot completeness.
+
+Benchmark construction is allowed when existing benchmarks cannot measure the
+target failure. In that case, the run must include executable scorer paths,
+direct controls, oracle controls, and a failure taxonomy plan; otherwise treat
+the artifact as a diagnostic packet rather than a benchmark claim.
+
 ## Gold And Parser Gate
 
 For parser-sensitive tasks, audit gold before trusting any metric.
