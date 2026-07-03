@@ -5,6 +5,12 @@ __pycache__/
 .env
 .env.*
 .tmp/
+envs/
+pip_cache/
+hf_home/
+torch_home/
+modelscope_cache/
+data/
 
 # Experiment outputs
 logs/*

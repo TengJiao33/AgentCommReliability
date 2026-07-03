@@ -64,6 +64,33 @@ reports/
 README.md
 ```
 
+## Prepared Benchmark Data
+
+Last prepared: `2026-07-03`.
+
+Remote location:
+
+```text
+/data/xuhaoming/yfy/research_workspace/data/benchmarks
+```
+
+Prepared under the project root only. Hugging Face access from `A800_2` was
+unavailable during preparation, so the benchmark JSONL files were generated
+locally and transferred into the project folder. The MMLU-Pro source parquet
+snapshot was also copied to:
+
+```text
+/data/xuhaoming/yfy/research_workspace/data/source_repos/MMLU-Pro
+```
+
+| Benchmark | Source | Splits | Rows |
+| --- | --- | --- | ---: |
+| `mmlu_pro` | `TIGER-Lab/MMLU-Pro` | `test`, `validation` | 12,102 |
+| `gsm8k` | `openai/gsm8k`, config `main` | `train`, `test` | 8,792 |
+| `math500` | `HuggingFaceH4/MATH-500` | `test` | 500 |
+| `aime24` | `HuggingFaceH4/aime_2024` | `train` | 30 |
+| `aime25` | `math-ai/aime25` | `test` | 30 |
+
 ## Shared Resource Rules
 
 - Keep project files under the project root.
