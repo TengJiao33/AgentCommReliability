@@ -1,8 +1,0 @@
-[pact-field] run_id=20260615-1655-a8002-pact-public-state-field-qwen25-14b
-[pact-field] model=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct served=qwen2.5-14b-pact-field gpu=7 port=8034
-[pact-field] packet=/data/xuhaoming/yfy/research_workspace/experiments/20260615-local-pact-public-state-field-packet/field_packet.jsonl
-[pact-field] vLLM ready after 26 checks
-[pact-field] running packet -> /data/xuhaoming/yfy/research_workspace/experiments/20260615-1655-a8002-pact-public-state-field-qwen25-14b
-[pact-field] evaluating -> /data/xuhaoming/yfy/research_workspace/experiments/20260615-1655-a8002-pact-public-state-field-qwen25-14b/evaluation
-[pact-field] completed 20260615-1655-a8002-pact-public-state-field-qwen25-14b
-[pact-field] outputs=/data/xuhaoming/yfy/research_workspace/experiments/20260615-1655-a8002-pact-public-state-field-qwen25-14b

@@ -30,7 +30,7 @@ ssh A800_2 "nvidia-smi --query-gpu=index,name,memory.used,memory.free,utilizatio
 Check project root:
 
 ```bash
-ssh A800_2 "mkdir -p /data/xuhaoming/yfy/research_workspace/{baselines,data,envs,logs,results,scripts} && ls -ld /data/xuhaoming/yfy/research_workspace"
+ssh A800_2 "mkdir -p /data/xuhaoming/yfy/research_workspace/{baselines,data,envs,logs,results} && ls -ld /data/xuhaoming/yfy/research_workspace"
 ```
 
 ## Falcon Entry

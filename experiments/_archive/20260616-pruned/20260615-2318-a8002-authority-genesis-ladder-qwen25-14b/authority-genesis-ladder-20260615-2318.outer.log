@@ -1,8 +1,0 @@
-[authority-genesis-ladder] run_id=20260615-2318-a8002-authority-genesis-ladder-qwen25-14b
-[authority-genesis-ladder] model=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct served=qwen2.5-14b-authority-genesis-ladder gpu=7 port=8038
-[authority-genesis-ladder] packet=/data/xuhaoming/yfy/research_workspace/experiments/20260615-local-authority-genesis-ladder-packet/authority_genesis_ladder_packet.jsonl
-[authority-genesis-ladder] vLLM ready after 23 checks
-[authority-genesis-ladder] running packet -> /data/xuhaoming/yfy/research_workspace/experiments/20260615-2318-a8002-authority-genesis-ladder-qwen25-14b
-[authority-genesis-ladder] evaluating -> /data/xuhaoming/yfy/research_workspace/experiments/20260615-2318-a8002-authority-genesis-ladder-qwen25-14b/evaluation
-[authority-genesis-ladder] completed 20260615-2318-a8002-authority-genesis-ladder-qwen25-14b
-[authority-genesis-ladder] outputs=/data/xuhaoming/yfy/research_workspace/experiments/20260615-2318-a8002-authority-genesis-ladder-qwen25-14b

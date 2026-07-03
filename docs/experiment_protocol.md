@@ -1,36 +1,38 @@
 # Experiment Protocol
 
+This is a neutral template for future work. It does not preserve any old experiment line.
+
 ## Principle
 
-Every experiment should be returnable by another person from the notes alone. A result without model, code commit, command, resource, and log path is hard to revisit.
-
-Use `docs/evidence_register.md` only for observations or claims that outlive a single run. Keep ordinary facts in the run note or `docs/project_log.md`.
+Every future run should be understandable from its own notes. A result without task, code state, command, resource, output path, and caveat is not a durable result.
 
 ## Run ID Format
 
 Use:
 
 ```text
-YYYYMMDD-HHMM-<machine>-<method>-<model>-<task>-<short-note>
+YYYYMMDD-HHMM-<machine>-<task>-<short-note>
 ```
 
-Examples:
-
-```text
-20260628-1430-a8002-madmm-qwen25-gsm8k-memory-mask-smoke
-20260629-1015-a8002-moc-qwen25-synthetic-khop-topology-ablation
-```
-
-## Run Metadata
+## Required Run Note
 
 Create one note per run under `experiments/<run-id>/README.md`.
-
-Template:
 
 ```markdown
 # <run-id>
 
-## What We Tried
+## Question
+
+What are we trying to decide?
+
+## Scope
+
+- Task:
+- Method or intervention:
+- Baseline:
+- Model:
+- Dataset or input source:
+- Sample count:
 
 ## Machine
 
@@ -41,23 +43,15 @@ Template:
 
 ## Code
 
-- Baseline repo:
+- Repo or script:
 - Commit:
 - Local modifications:
 
 ## Environment
 
 - Python:
-- PyTorch:
-- Transformers:
-- LLM/API backend:
-
-## Data / Task
-
-- Dataset:
-- Size:
-- Split:
-- Preprocessing:
+- Key packages:
+- Backend:
 
 ## Command
 
@@ -66,7 +60,8 @@ Template:
 
 ## Outputs
 
-- Log:
+- Remote directory:
+- Logs:
 - Raw results:
 - Summary:
 
@@ -74,108 +69,31 @@ Template:
 
 - Status:
 - Main metric:
-- Token cost:
 - Wall time:
-
-## Notes
-
-- Failure:
-- Fix:
-- Caveat:
-- Loose thread:
-```
-
-## Small Variant Menu
-
-When variants feel useful, keep the first grid small so the run remains understandable.
-
-| Axis | Values |
-| --- | --- |
-| agents | 1, 2, 3 |
-| rounds | 1, 2, 3 |
-| communication | none, full, masked |
-| message type | answer only, evidence, full reasoning |
-| judge | none, majority, verifier |
-| memory noise | clean, injected wrong memory |
-
-## Minimum Logging Schema
-
-Store one JSON object per problem instance.
-
-```json
-{
-  "run_id": "",
-  "instance_id": "",
-  "method": "",
-  "model": "",
-  "task": "",
-  "agent_count": 0,
-  "rounds": 0,
-  "communication_mode": "",
-  "message_type": "",
-  "judge_mode": "",
-  "memory_noise": "",
-  "final_answer": "",
-  "gold_answer": "",
-  "correct": false,
-  "token_input": 0,
-  "token_output": 0,
-  "round_logs": [],
-  "conflicts": [],
-  "judge_trace": "",
-  "error": ""
-}
-```
-
-## Observation Prompts
-
-For any run or variant, optionally ask:
-
-- Did performance change or only token cost change?
-- Did communication change the final answer?
-- Did agents copy a wrong memory?
-- Did any agent correct another agent?
-- Did the judge follow evidence or majority?
-- Is the gain explained by extra samples rather than communication?
-- Is the setup deterministic enough to return to later?
-
-## Report Structure
-
-Use report templates only when they help preserve the encounter. A compact shape is:
-
-```markdown
-# Title
-
-## Short Answer
-
-## Setup
-
-## What Reproduced
-
-## What Failed
-
-## Ablations
-
-## Observations
+- Token or compute cost:
 
 ## Caveats
 
-## Loose Threads
+- 
+
+## Cleanup
+
+- Keep:
+- Delete:
 ```
 
-## Evidence Language
+## Status Values
 
-Preferred wording:
+Use one of:
 
-- "This run reproduces the code path under a small controlled setup."
-- "This is smoke evidence, not benchmark evidence."
-- "The observed trend holds for this model/task subset."
-- "This looks like something to return to later."
+- `PREPARED`
+- `RUNNING`
+- `COMPLETED`
+- `FAILED_NO_RESULT`
+- `FAILED_EVALUATION`
+- `STOPPED_BY_RESOURCE`
+- `ARCHIVED`
 
-Avoid:
+## Report Rule
 
-- "This proves communication is useful."
-- "This method is better."
-- "The paper is wrong."
-- "The model understands the debate."
-- "This must be the next research direction."
+Most facts stay in the run README. Write a top-level report only when a result changes what to do next.

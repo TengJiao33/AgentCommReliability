@@ -18,7 +18,7 @@ This document intentionally records only operational facts and rules. It must no
 | --- | --- |
 | `D:\develop\RA-Internship-Tasks` | Source of current machine rules, EasyEdit RA worklogs, and command snippets. |
 | `D:\develop\ArXiv_Daily_Digest` | Paper radar; use it for paper discovery and mentor brief generation. |
-| `D:\develop\AgentCommReliability` | This project; local documentation, harness plans, experiment notes. |
+| `D:\develop\AgentCommReliability` | This project; local scaffold plus machine and resource notes. |
 
 ## Remote File Placement For This Project
 
@@ -41,7 +41,6 @@ Suggested layout:
   envs/
   logs/
   results/
-  scripts/
 ```
 
 Existing RA paths on Falcon:
@@ -78,7 +77,6 @@ Suggested layout:
   envs/
   logs/
   results/
-  scripts/
 ```
 
 Existing useful paths:
@@ -220,7 +218,7 @@ Example single-GPU pattern:
 
 ```bash
 export CUDA_VISIBLE_DEVICES=1
-timeout 30m python scripts/run_xxx.py --config configs/small.yaml
+timeout 30m python path/to/new_runner.py --config path/to/config.yaml
 ```
 
 ## Environment Rules
@@ -293,12 +291,12 @@ Only run this after deciding which machine to use.
 
 ```bash
 # A800_2 example
-ssh A800_2 "mkdir -p /data/xuhaoming/yfy/research_workspace/{baselines,data,envs,logs,results,scripts}"
+ssh A800_2 "mkdir -p /data/xuhaoming/yfy/research_workspace/{baselines,data,envs,logs,results}"
 ssh A800_2 "ls -ld /data/xuhaoming/yfy/research_workspace"
 ```
 
-Then record the setup in:
+Then record durable resource facts in:
 
 ```text
-docs/project_log.md
+docs/server_resource_inventory.md
 ```

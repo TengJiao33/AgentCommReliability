@@ -1,18 +1,22 @@
 # <Report Title>
 
-## What We Tried
+## Decision
 
-State the encounter or bounded question, without forcing a contribution claim.
+What changed after this result?
+
+## Question
+
+- Original question:
+- Expected decision boundary:
 
 ## Scope
 
-- question:
-- compared methods:
-- model:
-- dataset/task:
-- sample size:
-- seeds:
-- evidence level:
+- Task:
+- Compared methods:
+- Model:
+- Dataset or input source:
+- Sample size:
+- Evidence level:
 
 ## Sources
 
@@ -22,25 +26,17 @@ State the encounter or bounded question, without forcing a contribution claim.
 
 ## Results
 
-| Method | Model | Dataset | Seed | Samples | Main Metric | Tokens | Wall Time | Evidence |
-| --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- |
-|  |  |  |  |  |  |  |  |  |
+| Method | Model | Task | Samples | Main Metric | Cost | Status |
+| --- | --- | --- | ---: | ---: | ---: | --- |
+|  |  |  |  |  |  |  |
 
 ## Observations
 
-Use this section for facts visible in logs, traces, code, or paper text.
-
-- Observation:
-  - source:
-  - caveat:
+Facts visible in logs, outputs, code, or reviewer-visible artifacts.
 
 ## Interpretation
 
-Use this section for plausible language around what happened. Keep wording conditional.
-
-- Interpretation:
-  - supported by:
-  - still untested:
+Conditional explanation of what the result suggests.
 
 ## Alternative Explanations
 
@@ -50,12 +46,6 @@ Use this section for plausible language around what happened. Keep wording condi
 
 - 
 
-## Evidence Register Updates
+## Next Action
 
-| Claim ID | Action | Note |
-| --- | --- | --- |
-|  | add/update/challenge/retire/none |  |
-
-## Loose Threads
-
-List things that might be worth returning to. They do not have to become the next action.
+What should happen less, more, or differently because of this report?

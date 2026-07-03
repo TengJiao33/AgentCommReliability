@@ -1,78 +1,0 @@
-/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:
-No module named 'vllm._version'
-  from vllm.version import __version__ as VLLM_VERSION
-INFO 06-19 00:16:34 api_server.py:528] vLLM API server version dev
-INFO 06-19 00:16:34 api_server.py:529] args: Namespace(host='127.0.0.1', port=8073, uvicorn_log_level='info', allow_credentials=False, allowed_origins=['*'], allowed_methods=['*'], allowed_headers=['*'], api_key=None, lora_modules=None, prompt_adapters=None, chat_template=None, response_role='assistant', ssl_keyfile=None, ssl_certfile=None, ssl_ca_certs=None, ssl_cert_reqs=0, root_path=None, middleware=[], return_tokens_as_token_ids=False, disable_frontend_multiprocessing=False, enable_auto_tool_choice=False, tool_call_parser=None, tool_parser_plugin='', model='/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct', tokenizer=None, skip_tokenizer_init=False, revision=None, code_revision=None, tokenizer_revision=None, tokenizer_mode='auto', trust_remote_code=False, download_dir=None, load_format='auto', config_format='auto', dtype='bfloat16', kv_cache_dtype='auto', quantization_param_path=None, max_model_len=16384, guided_decoding_backend='outlines', distributed_executor_backend=None, worker_use_ray=False, pipeline_parallel_size=1, tensor_parallel_size=1, max_parallel_loading_workers=None, ray_workers_use_nsight=False, block_size=16, enable_prefix_caching=False, disable_sliding_window=False, use_v2_block_manager=True, num_lookahead_slots=0, seed=0, swap_space=4, cpu_offload_gb=0, gpu_memory_utilization=0.9, num_gpu_blocks_override=None, max_num_batched_tokens=None, max_num_seqs=256, max_logprobs=20, disable_log_stats=False, quantization=None, rope_scaling=None, rope_theta=None, enforce_eager=False, max_context_len_to_capture=None, max_seq_len_to_capture=8192, disable_custom_all_reduce=False, tokenizer_pool_size=0, tokenizer_pool_type='ray', tokenizer_pool_extra_config=None, limit_mm_per_prompt=None, mm_processor_kwargs=None, enable_lora=False, max_loras=1, max_lora_rank=16, lora_extra_vocab_size=256, lora_dtype='auto', long_lora_scaling_factors=None, max_cpu_loras=None, fully_sharded_loras=False, enable_prompt_adapter=False, max_prompt_adapters=1, max_prompt_adapter_token=0, device='auto', num_scheduler_steps=1, multi_step_stream_outputs=True, scheduler_delay_factor=0.0, enable_chunked_prefill=None, speculative_model=None, speculative_model_quantization=None, num_speculative_tokens=None, speculative_disable_mqa_scorer=False, speculative_draft_tensor_parallel_size=None, speculative_max_model_len=None, speculative_disable_by_batch_size=None, ngram_prompt_lookup_max=None, ngram_prompt_lookup_min=None, spec_decoding_acceptance_method='rejection_sampler', typical_acceptance_sampler_posterior_threshold=None, typical_acceptance_sampler_posterior_alpha=None, disable_logprobs_during_spec_decoding=None, model_loader_extra_config=None, ignore_patterns=[], preemption_mode=None, served_model_name=['qwen2.5-14b-sseac-v0-pg40'], qlora_adapter_name_or_path=None, otlp_traces_endpoint=None, collect_detailed_traces=None, disable_async_output_proc=False, override_neuron_config=None, scheduling_policy='fcfs', disable_log_requests=True, max_log_len=None, disable_fastapi_docs=False)
-INFO 06-19 00:16:34 api_server.py:166] Multiprocessing frontend to use ipc:///tmp/c9968d55-3c18-4bdd-a481-24930ee380ff for IPC Path.
-INFO 06-19 00:16:34 api_server.py:179] Started engine process with PID 2489347
-/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:
-No module named 'vllm._version'
-  from vllm.version import __version__ as VLLM_VERSION
-INFO 06-19 00:16:41 llm_engine.py:237] Initializing an LLM engine (vdev) with config: model='/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct', speculative_config=None, tokenizer='/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, rope_scaling=None, rope_theta=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=16384, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=qwen2.5-14b-sseac-v0-pg40, use_v2_block_manager=True, num_scheduler_steps=1, chunked_prefill_enabled=False multi_step_stream_outputs=True, enable_prefix_caching=False, use_async_output_proc=True, use_cached_outputs=True, mm_processor_kwargs=None)
-INFO 06-19 00:16:43 model_runner.py:1060] Starting to load model /mnt/quarkfs/share_model/Qwen2.5-14B-Instruct...
-Loading safetensors checkpoint shards:   0% Completed | 0/8 [00:00<?, ?it/s]
-Loading safetensors checkpoint shards:  12% Completed | 1/8 [00:10<01:14, 10.60s/it]
-Loading safetensors checkpoint shards:  25% Completed | 2/8 [00:21<01:05, 10.88s/it]
-Loading safetensors checkpoint shards:  38% Completed | 3/8 [00:32<00:55, 11.03s/it]
-Loading safetensors checkpoint shards:  50% Completed | 4/8 [00:44<00:44, 11.15s/it]
-Loading safetensors checkpoint shards:  62% Completed | 5/8 [00:56<00:34, 11.56s/it]
-Loading safetensors checkpoint shards:  75% Completed | 6/8 [01:09<00:23, 11.97s/it]
-Loading safetensors checkpoint shards:  88% Completed | 7/8 [01:22<00:12, 12.25s/it]
-Loading safetensors checkpoint shards: 100% Completed | 8/8 [01:28<00:00, 10.26s/it]
-Loading safetensors checkpoint shards: 100% Completed | 8/8 [01:28<00:00, 11.01s/it]
-
-INFO 06-19 00:18:11 model_runner.py:1071] Loading model weights took 27.5680 GB
-INFO 06-19 00:18:14 gpu_executor.py:122] # GPU blocks: 17179, # CPU blocks: 1365
-INFO 06-19 00:18:14 gpu_executor.py:126] Maximum concurrency for 16384 tokens per request: 16.78x
-Process SpawnProcess-1:
-Traceback (most recent call last):
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
-    self.run()
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/multiprocessing/process.py", line 108, in run
-    self._target(*self._args, **self._kwargs)
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/engine/multiprocessing/engine.py", line 392, in run_mp_engine
-    engine = MQLLMEngine.from_engine_args(engine_args=engine_args,
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/engine/multiprocessing/engine.py", line 141, in from_engine_args
-    return cls(
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/engine/multiprocessing/engine.py", line 78, in __init__
-    self.engine = LLMEngine(*args,
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/engine/llm_engine.py", line 349, in __init__
-    self._initialize_kv_caches()
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/engine/llm_engine.py", line 497, in _initialize_kv_caches
-    self.model_executor.initialize_cache(num_gpu_blocks, num_cpu_blocks)
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/executor/gpu_executor.py", line 129, in initialize_cache
-    self.driver_worker.initialize_cache(num_gpu_blocks, num_cpu_blocks)
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/worker/worker.py", line 270, in initialize_cache
-    self._init_cache_engine()
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/worker/worker.py", line 275, in _init_cache_engine
-    self.cache_engine = [
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/worker/worker.py", line 276, in <listcomp>
-    CacheEngine(self.cache_config, self.model_config,
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/worker/cache_engine.py", line 63, in __init__
-    self.gpu_cache = self._allocate_kv_cache(
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/worker/cache_engine.py", line 82, in _allocate_kv_cache
-    torch.zeros(kv_cache_shape,
-torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 1.05 GiB. GPU 0 has a total capacity of 79.25 GiB of which 877.31 MiB is free. Including non-PyTorch memory, this process has 72.13 GiB memory in use. Process 2577843 has 6.25 GiB memory in use. Of the allocated memory 71.63 GiB is allocated by PyTorch, and 4.27 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
-Traceback (most recent call last):
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/runpy.py", line 196, in _run_module_as_main
-    return _run_code(code, main_globals, None,
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/runpy.py", line 86, in _run_code
-    exec(code, run_globals)
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/entrypoints/openai/api_server.py", line 585, in <module>
-    uvloop.run(run_server(args))
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/uvloop/__init__.py", line 69, in run
-    return loop.run_until_complete(wrapper())
-  File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/uvloop/__init__.py", line 48, in wrapper
-    return await main
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/entrypoints/openai/api_server.py", line 552, in run_server
-    async with build_async_engine_client(args) as engine_client:
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/contextlib.py", line 199, in __aenter__
-    return await anext(self.gen)
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/entrypoints/openai/api_server.py", line 107, in build_async_engine_client
-    async with build_async_engine_client_from_engine_args(
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/contextlib.py", line 199, in __aenter__
-    return await anext(self.gen)
-  File "/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/entrypoints/openai/api_server.py", line 194, in build_async_engine_client_from_engine_args
-    raise RuntimeError(
-RuntimeError: Engine process failed to start

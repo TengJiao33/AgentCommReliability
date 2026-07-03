@@ -1,4 +1,0 @@
-interface:
-  display_name: "Research Story Synthesis"
-  short_description: "Judge paper stories, mechanisms, and novelty pressure."
-  default_prompt: "Use this skill to distinguish method-improvement routes, diagnostic/compiler routes, benchmark routes, live handles, stale limitations, and true literature collisions from full-paper evidence; build an A/B/C evidence story without inventing claims."

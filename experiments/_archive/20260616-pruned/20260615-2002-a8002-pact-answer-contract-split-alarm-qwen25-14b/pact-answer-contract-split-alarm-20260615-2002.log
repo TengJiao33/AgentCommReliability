@@ -1,8 +1,0 @@
-[answer-contract-split-alarm] run_id=20260615-2002-a8002-pact-answer-contract-split-alarm-qwen25-14b
-[answer-contract-split-alarm] model=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct served=qwen2.5-14b-answer-contract-split-alarm gpu=7 port=8035
-[answer-contract-split-alarm] packet=/data/xuhaoming/yfy/research_workspace/experiments/20260615-local-pact-answer-contract-split-alarm-packet/split_alarm_packet.jsonl
-[answer-contract-split-alarm] vLLM ready after 23 checks
-[answer-contract-split-alarm] running packet -> /data/xuhaoming/yfy/research_workspace/experiments/20260615-2002-a8002-pact-answer-contract-split-alarm-qwen25-14b
-[answer-contract-split-alarm] evaluating -> /data/xuhaoming/yfy/research_workspace/experiments/20260615-2002-a8002-pact-answer-contract-split-alarm-qwen25-14b/evaluation
-[answer-contract-split-alarm] completed 20260615-2002-a8002-pact-answer-contract-split-alarm-qwen25-14b
-[answer-contract-split-alarm] outputs=/data/xuhaoming/yfy/research_workspace/experiments/20260615-2002-a8002-pact-answer-contract-split-alarm-qwen25-14b

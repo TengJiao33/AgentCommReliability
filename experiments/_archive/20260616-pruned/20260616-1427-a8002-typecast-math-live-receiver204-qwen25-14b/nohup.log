@@ -1,9 +1,0 @@
-[typecast-arena] run_id=20260616-1427-a8002-typecast-math-live-receiver204-qwen25-14b
-[typecast-arena] model=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct served=qwen2.5-14b-typecast-receiver204 gpu=7 port=8045
-[typecast-arena] packet=/data/xuhaoming/yfy/research_workspace/experiments/20260616-local-typecast-arena-math-live-receiver-packet-sender12/typecast_math_receiver_packet.jsonl
-[typecast-arena] max_tokens=768 request_timeout=420 run_timeout=7200 limit=all
-[typecast-arena] vLLM ready after 23 checks
-[typecast-arena] running packet -> /data/xuhaoming/yfy/research_workspace/experiments/20260616-1427-a8002-typecast-math-live-receiver204-qwen25-14b
-[typecast-arena] evaluating -> /data/xuhaoming/yfy/research_workspace/experiments/20260616-1427-a8002-typecast-math-live-receiver204-qwen25-14b/evaluation
-[typecast-arena] completed 20260616-1427-a8002-typecast-math-live-receiver204-qwen25-14b
-[typecast-arena] outputs=/data/xuhaoming/yfy/research_workspace/experiments/20260616-1427-a8002-typecast-math-live-receiver204-qwen25-14b

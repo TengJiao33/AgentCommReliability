@@ -1,9 +1,0 @@
-model=qwen2.5-14b-hsa-v0-sseac
-packet=/data/xuhaoming/yfy/research_workspace/experiments/20260619-a8002-hsa-v0-sseac-limit3-qwen25-14b/packet_limit3.jsonl
-evaluations=3
-temperature=0.0
-max_tokens=2048
-completed=0
-[1/3] hsa_v0_sseac hiddenbench_emergency_supply_drop__hb10_base_verified_role_scoped__hsa_v0
-[2/3] hsa_v0_sseac hiddenbench_emergency_supply_drop__hb10_b_hazard_quarantined__hsa_v0
-[3/3] hsa_v0_sseac hiddenbench_emergency_supply_drop__hb10_c_enabler_no_final_scope__hsa_v0

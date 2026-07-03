@@ -1,83 +1,30 @@
 # AgentCommReliability
 
-Multi-agent communication reliability, kept as an open-ended reproduction notebook.
+Clean scaffold for future work around agent communication reliability.
 
-## Authority
+As of 2026-07-03, the live workspace has been reset: previous research lines, experiment outputs, logs, scripts, baseline checkouts, paper caches, schemas, and project-local skills have been removed from the working tree. If an old artifact is needed for audit only, recover it from Git history instead of restoring it to the live surface.
 
-The project posture is defined by five top-level skills:
+## What Remains
 
-```text
-skills/reproduction-first-research/SKILL.md
-skills/research-story-synthesis/SKILL.md
-skills/repro-friction-memory/SKILL.md
-skills/research-experiment-gate/SKILL.md
-skills/research-report-writing/SKILL.md
-```
+- `active/README.md`: current active-route status.
+- `docs/`: machine, server, sync, and workspace management notes.
+- `experiments/_templates/`: templates for future run records.
+- `reports/_templates/`: templates for future reports.
+- `baselines/_templates/`: templates for future baseline notes.
 
-The short version:
+## Current State
 
-```text
-paper summary -> not enough contact
-reproduce code -> sit with logs, failures, traces, and odd details
-record before explaining
-synthesize late, but judge story taste: solid root-cause insight or real novelty
-remember solved reproduction friction
-make claim-bearing runs earn the GPU before launch
-report in clear Chinese with claim-evidence discipline
-```
+There is no active experiment, paper story, benchmark spine, or claim-bearing evidence surface.
 
-## Top-Level Attitude
+New work should start from a fresh intake and should create only the files it needs. Scripts, data, logs, baselines, papers, schemas, and custom skills should be recreated deliberately, not inherited from the retired workspace.
 
-This project does not need a narrowed research question before it can proceed.
+## Operational Metadata
 
-We reproduce in a deliberately open state:
+The retained operational source of truth is:
 
-- no demand that every run justify itself as an idea;
-- no forced funnel from paper to benchmark to claim;
-- no premature declaration of the "real" problem;
-- no need to make confusion productive too early.
-
-The basic practice is to enter runnable systems, reproduce what we can, notice what feels strange, and leave enough trace that the encounter can be returned to later.
-
-MAD-MM, DAR, MOC, RuleArena, and future baselines are objects on the table, not a fixed agenda. We can follow whichever one currently invites contact.
-
-## Core Files
-
-- `active/README.md`: current physical entry point for active routes.
-- `docs/current_evidence_ledger.md`: current evidence status, result grade, and next pressure point.
-- `docs/remote_sync_manifest.md`: local-to-A800_2 sync checklist before any remote run.
-- `docs/project_physical_management.md`: directory roles, run-record rules, and archive policy.
-- `skills/reproduction-first-research/SKILL.md`: top-level posture and reproduction practice.
-- `skills/research-story-synthesis/SKILL.md`: solid/novel story judgment, root-cause motivation, and motivation-method-experiment coupling after evidence exists.
-- `skills/repro-friction-memory/SKILL.md`: reusable memory for solved operational reproduction blockers.
-- `skills/research-experiment-gate/SKILL.md`: preflight, packet audit, result triage, and record gate for claim-bearing experiments.
-- `skills/research-report-writing/SKILL.md`: Chinese oral updates and reports with paragraph flow, reviewer-style self-audit, and claim-evidence discipline.
-- `docs/active_research_map.md`: current live spine, pruned branches, and cleanup boundary.
-- `docs/project_log.md`: chronological facts.
-- `docs/evidence_register.md`: durable observations and claims, only when something is worth carrying forward.
-- `docs/experiment_protocol.md`: run-note metadata and logging shape.
-- `docs/machine_quickstart.md`: remote machine and GPU checklist.
-- `docs/comm_trace_schema.md`: unified trace fields for MAD-MM, DAR, and MOC.
-- `papers/reading_queue.md`: paper radar.
-- `baselines/<method>/`: source and reproduction notes.
-- `experiments/<run-id>/README.md`: exact run records.
-- `reports/`: interpreted but bounded reports.
-
-## Remote Source Of Truth
-
-Local machines change. Remote runtime should use:
-
-```text
-A800_2:/data/xuhaoming/yfy/research_workspace
-```
-
-Project source, patches, submodules, scripts, and notes stay in this repository.
-Large outputs stay under remote `results/` and are referenced from run notes.
-
-## Guardrails
-
-- No broad survey writing as a substitute for contact with code and runs.
-- No full benchmark matrix just to create a result table.
-- No obligation to turn every observation into a mechanism or proposal.
-- No large model or dataset download without a recorded reason.
-- No shared-environment or shared-model-folder edits.
+- `docs/machine_quickstart.md`
+- `docs/machine_handbook.md`
+- `docs/server_resource_inventory.md`
+- `docs/remote_sync_manifest.md`
+- `docs/project_physical_management.md`
+- `docs/experiment_protocol.md`
