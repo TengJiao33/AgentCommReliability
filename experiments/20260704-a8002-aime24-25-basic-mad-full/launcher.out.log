@@ -1,0 +1,270 @@
+INFO 07-04 15:14:43 llm_engine.py:237] Initializing an LLM engine (vdev) with config: model='/mnt/quarkfs/share_model/Qwen2.5-1.5B-Instruct', speculative_config=None, tokenizer='/mnt/quarkfs/share_model/Qwen2.5-1.5B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, rope_scaling=None, rope_theta=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=4096, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=7, served_model_name=/mnt/quarkfs/share_model/Qwen2.5-1.5B-Instruct, use_v2_block_manager=True, num_scheduler_steps=1, chunked_prefill_enabled=False multi_step_stream_outputs=True, enable_prefix_caching=False, use_async_output_proc=True, use_cached_outputs=False, mm_processor_kwargs=None)
+INFO 07-04 15:14:44 model_runner.py:1060] Starting to load model /mnt/quarkfs/share_model/Qwen2.5-1.5B-Instruct...
+INFO 07-04 15:14:54 model_runner.py:1071] Loading model weights took 2.8875 GB
+INFO 07-04 15:14:55 gpu_executor.py:122] # GPU blocks: 141088, # CPU blocks: 9362
+INFO 07-04 15:14:55 gpu_executor.py:126] Maximum concurrency for 4096 tokens per request: 551.12x
+INFO 07-04 15:14:57 model_runner.py:1402] Capturing the model for CUDA graphs. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI.
+INFO 07-04 15:14:57 model_runner.py:1406] CUDA graphs can take additional 1~3 GiB memory per GPU. If you are running out of memory, consider decreasing `gpu_memory_utilization` or enforcing eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 07-04 15:15:05 model_runner.py:1530] Graph capturing finished in 8 secs.
+{
+  "agents": 3,
+  "benchmark": "aime24",
+  "counts": {
+    "direct_correct": 1,
+    "direct_parse_fail": 2,
+    "mad_correct": 1,
+    "mad_parse_fail": 0,
+    "majority_ties": 11,
+    "total": 30
+  },
+  "debate_temperature": 0.7,
+  "direct_temperature": 0.0,
+  "elapsed_seconds": 113.93846487998962,
+  "gpu_id": "7",
+  "max_model_len": 4096,
+  "max_tokens": 1024,
+  "metrics": {
+    "agent_final_accuracy": [
+      0.03333333333333333,
+      0.03333333333333333,
+      0.03333333333333333
+    ],
+    "direct_accuracy": 0.03333333333333333,
+    "direct_parse_fail_rate": 0.06666666666666667,
+    "mad_accuracy": 0.03333333333333333,
+    "mad_parse_fail_rate": 0.0,
+    "majority_tie_rate": 0.36666666666666664
+  },
+  "model_key": "aime24-qwen25-1_5b-instruct",
+  "model_path": "/mnt/quarkfs/share_model/Qwen2.5-1.5B-Instruct",
+  "records_path": "/data/xuhaoming/yfy/research_workspace/experiments/20260704-a8002-aime24-25-basic-mad-full/aime24-qwen25-1_5b-instruct/records.jsonl",
+  "rounds": 1,
+  "rows": 30,
+  "run_id": "20260704-a8002-aime24-25-basic-mad-full",
+  "split": "train"
+}
+INFO 07-04 15:16:42 llm_engine.py:237] Initializing an LLM engine (vdev) with config: model='/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct', speculative_config=None, tokenizer='/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, rope_scaling=None, rope_theta=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=4096, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=7, served_model_name=/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct, use_v2_block_manager=True, num_scheduler_steps=1, chunked_prefill_enabled=False multi_step_stream_outputs=True, enable_prefix_caching=False, use_async_output_proc=True, use_cached_outputs=False, mm_processor_kwargs=None)
+INFO 07-04 15:16:43 model_runner.py:1060] Starting to load model /mnt/quarkfs/share_model/Qwen2.5-7B-Instruct...
+INFO 07-04 15:17:13 model_runner.py:1071] Loading model weights took 14.2487 GB
+INFO 07-04 15:17:13 gpu_executor.py:122] # GPU blocks: 57166, # CPU blocks: 4681
+INFO 07-04 15:17:13 gpu_executor.py:126] Maximum concurrency for 4096 tokens per request: 223.30x
+INFO 07-04 15:17:16 model_runner.py:1402] Capturing the model for CUDA graphs. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI.
+INFO 07-04 15:17:16 model_runner.py:1406] CUDA graphs can take additional 1~3 GiB memory per GPU. If you are running out of memory, consider decreasing `gpu_memory_utilization` or enforcing eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 07-04 15:17:24 model_runner.py:1530] Graph capturing finished in 8 secs.
+{
+  "agents": 3,
+  "benchmark": "aime24",
+  "counts": {
+    "direct_correct": 4,
+    "direct_parse_fail": 0,
+    "mad_correct": 3,
+    "mad_parse_fail": 0,
+    "majority_ties": 7,
+    "total": 30
+  },
+  "debate_temperature": 0.7,
+  "direct_temperature": 0.0,
+  "elapsed_seconds": 240.29664421081543,
+  "gpu_id": "7",
+  "max_model_len": 4096,
+  "max_tokens": 1024,
+  "metrics": {
+    "agent_final_accuracy": [
+      0.1,
+      0.1,
+      0.06666666666666667
+    ],
+    "direct_accuracy": 0.13333333333333333,
+    "direct_parse_fail_rate": 0.0,
+    "mad_accuracy": 0.1,
+    "mad_parse_fail_rate": 0.0,
+    "majority_tie_rate": 0.23333333333333334
+  },
+  "model_key": "aime24-qwen25-7b-instruct",
+  "model_path": "/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct",
+  "records_path": "/data/xuhaoming/yfy/research_workspace/experiments/20260704-a8002-aime24-25-basic-mad-full/aime24-qwen25-7b-instruct/records.jsonl",
+  "rounds": 1,
+  "rows": 30,
+  "run_id": "20260704-a8002-aime24-25-basic-mad-full",
+  "split": "train"
+}
+INFO 07-04 15:20:47 llm_engine.py:237] Initializing an LLM engine (vdev) with config: model='/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct', speculative_config=None, tokenizer='/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, rope_scaling=None, rope_theta=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=4096, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=7, served_model_name=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct, use_v2_block_manager=True, num_scheduler_steps=1, chunked_prefill_enabled=False multi_step_stream_outputs=True, enable_prefix_caching=False, use_async_output_proc=True, use_cached_outputs=False, mm_processor_kwargs=None)
+INFO 07-04 15:20:49 model_runner.py:1060] Starting to load model /mnt/quarkfs/share_model/Qwen2.5-14B-Instruct...
+INFO 07-04 15:21:58 model_runner.py:1071] Loading model weights took 27.5680 GB
+INFO 07-04 15:21:59 gpu_executor.py:122] # GPU blocks: 12158, # CPU blocks: 1365
+INFO 07-04 15:21:59 gpu_executor.py:126] Maximum concurrency for 4096 tokens per request: 47.49x
+INFO 07-04 15:22:01 model_runner.py:1402] Capturing the model for CUDA graphs. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI.
+INFO 07-04 15:22:01 model_runner.py:1406] CUDA graphs can take additional 1~3 GiB memory per GPU. If you are running out of memory, consider decreasing `gpu_memory_utilization` or enforcing eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 07-04 15:22:11 model_runner.py:1530] Graph capturing finished in 10 secs.
+{
+  "agents": 3,
+  "benchmark": "aime24",
+  "counts": {
+    "direct_correct": 3,
+    "direct_parse_fail": 0,
+    "mad_correct": 4,
+    "mad_parse_fail": 0,
+    "majority_ties": 6,
+    "total": 30
+  },
+  "debate_temperature": 0.7,
+  "direct_temperature": 0.0,
+  "elapsed_seconds": 422.7050075531006,
+  "gpu_id": "7",
+  "max_model_len": 4096,
+  "max_tokens": 1024,
+  "metrics": {
+    "agent_final_accuracy": [
+      0.13333333333333333,
+      0.13333333333333333,
+      0.13333333333333333
+    ],
+    "direct_accuracy": 0.1,
+    "direct_parse_fail_rate": 0.0,
+    "mad_accuracy": 0.13333333333333333,
+    "mad_parse_fail_rate": 0.0,
+    "majority_tie_rate": 0.2
+  },
+  "model_key": "aime24-qwen25-14b-instruct",
+  "model_path": "/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct",
+  "records_path": "/data/xuhaoming/yfy/research_workspace/experiments/20260704-a8002-aime24-25-basic-mad-full/aime24-qwen25-14b-instruct/records.jsonl",
+  "rounds": 1,
+  "rows": 30,
+  "run_id": "20260704-a8002-aime24-25-basic-mad-full",
+  "split": "train"
+}
+INFO 07-04 15:27:55 llm_engine.py:237] Initializing an LLM engine (vdev) with config: model='/mnt/quarkfs/share_model/Qwen2.5-1.5B-Instruct', speculative_config=None, tokenizer='/mnt/quarkfs/share_model/Qwen2.5-1.5B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, rope_scaling=None, rope_theta=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=4096, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=7, served_model_name=/mnt/quarkfs/share_model/Qwen2.5-1.5B-Instruct, use_v2_block_manager=True, num_scheduler_steps=1, chunked_prefill_enabled=False multi_step_stream_outputs=True, enable_prefix_caching=False, use_async_output_proc=True, use_cached_outputs=False, mm_processor_kwargs=None)
+INFO 07-04 15:27:56 model_runner.py:1060] Starting to load model /mnt/quarkfs/share_model/Qwen2.5-1.5B-Instruct...
+INFO 07-04 15:28:05 model_runner.py:1071] Loading model weights took 2.8875 GB
+INFO 07-04 15:28:06 gpu_executor.py:122] # GPU blocks: 141088, # CPU blocks: 9362
+INFO 07-04 15:28:06 gpu_executor.py:126] Maximum concurrency for 4096 tokens per request: 551.12x
+INFO 07-04 15:28:08 model_runner.py:1402] Capturing the model for CUDA graphs. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI.
+INFO 07-04 15:28:08 model_runner.py:1406] CUDA graphs can take additional 1~3 GiB memory per GPU. If you are running out of memory, consider decreasing `gpu_memory_utilization` or enforcing eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 07-04 15:28:16 model_runner.py:1530] Graph capturing finished in 8 secs.
+{
+  "agents": 3,
+  "benchmark": "aime25",
+  "counts": {
+    "direct_correct": 0,
+    "direct_parse_fail": 0,
+    "mad_correct": 0,
+    "mad_parse_fail": 0,
+    "majority_ties": 13,
+    "total": 30
+  },
+  "debate_temperature": 0.7,
+  "direct_temperature": 0.0,
+  "elapsed_seconds": 112.92170643806458,
+  "gpu_id": "7",
+  "max_model_len": 4096,
+  "max_tokens": 1024,
+  "metrics": {
+    "agent_final_accuracy": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "direct_accuracy": 0.0,
+    "direct_parse_fail_rate": 0.0,
+    "mad_accuracy": 0.0,
+    "mad_parse_fail_rate": 0.0,
+    "majority_tie_rate": 0.43333333333333335
+  },
+  "model_key": "aime25-qwen25-1_5b-instruct",
+  "model_path": "/mnt/quarkfs/share_model/Qwen2.5-1.5B-Instruct",
+  "records_path": "/data/xuhaoming/yfy/research_workspace/experiments/20260704-a8002-aime24-25-basic-mad-full/aime25-qwen25-1_5b-instruct/records.jsonl",
+  "rounds": 1,
+  "rows": 30,
+  "run_id": "20260704-a8002-aime24-25-basic-mad-full",
+  "split": "test"
+}
+INFO 07-04 15:29:53 llm_engine.py:237] Initializing an LLM engine (vdev) with config: model='/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct', speculative_config=None, tokenizer='/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, rope_scaling=None, rope_theta=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=4096, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=7, served_model_name=/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct, use_v2_block_manager=True, num_scheduler_steps=1, chunked_prefill_enabled=False multi_step_stream_outputs=True, enable_prefix_caching=False, use_async_output_proc=True, use_cached_outputs=False, mm_processor_kwargs=None)
+INFO 07-04 15:29:54 model_runner.py:1060] Starting to load model /mnt/quarkfs/share_model/Qwen2.5-7B-Instruct...
+INFO 07-04 15:30:28 model_runner.py:1071] Loading model weights took 14.2487 GB
+INFO 07-04 15:30:29 gpu_executor.py:122] # GPU blocks: 57166, # CPU blocks: 4681
+INFO 07-04 15:30:29 gpu_executor.py:126] Maximum concurrency for 4096 tokens per request: 223.30x
+INFO 07-04 15:30:32 model_runner.py:1402] Capturing the model for CUDA graphs. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI.
+INFO 07-04 15:30:32 model_runner.py:1406] CUDA graphs can take additional 1~3 GiB memory per GPU. If you are running out of memory, consider decreasing `gpu_memory_utilization` or enforcing eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 07-04 15:30:51 model_runner.py:1530] Graph capturing finished in 19 secs.
+{
+  "agents": 3,
+  "benchmark": "aime25",
+  "counts": {
+    "direct_correct": 1,
+    "direct_parse_fail": 1,
+    "mad_correct": 1,
+    "mad_parse_fail": 0,
+    "majority_ties": 8,
+    "total": 30
+  },
+  "debate_temperature": 0.7,
+  "direct_temperature": 0.0,
+  "elapsed_seconds": 253.75742626190186,
+  "gpu_id": "7",
+  "max_model_len": 4096,
+  "max_tokens": 1024,
+  "metrics": {
+    "agent_final_accuracy": [
+      0.03333333333333333,
+      0.06666666666666667,
+      0.03333333333333333
+    ],
+    "direct_accuracy": 0.03333333333333333,
+    "direct_parse_fail_rate": 0.03333333333333333,
+    "mad_accuracy": 0.03333333333333333,
+    "mad_parse_fail_rate": 0.0,
+    "majority_tie_rate": 0.26666666666666666
+  },
+  "model_key": "aime25-qwen25-7b-instruct",
+  "model_path": "/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct",
+  "records_path": "/data/xuhaoming/yfy/research_workspace/experiments/20260704-a8002-aime24-25-basic-mad-full/aime25-qwen25-7b-instruct/records.jsonl",
+  "rounds": 1,
+  "rows": 30,
+  "run_id": "20260704-a8002-aime24-25-basic-mad-full",
+  "split": "test"
+}
+INFO 07-04 15:34:11 llm_engine.py:237] Initializing an LLM engine (vdev) with config: model='/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct', speculative_config=None, tokenizer='/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, rope_scaling=None, rope_theta=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=4096, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=7, served_model_name=/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct, use_v2_block_manager=True, num_scheduler_steps=1, chunked_prefill_enabled=False multi_step_stream_outputs=True, enable_prefix_caching=False, use_async_output_proc=True, use_cached_outputs=False, mm_processor_kwargs=None)
+INFO 07-04 15:34:13 model_runner.py:1060] Starting to load model /mnt/quarkfs/share_model/Qwen2.5-14B-Instruct...
+INFO 07-04 15:35:21 model_runner.py:1071] Loading model weights took 27.5680 GB
+INFO 07-04 15:35:21 gpu_executor.py:122] # GPU blocks: 12158, # CPU blocks: 1365
+INFO 07-04 15:35:21 gpu_executor.py:126] Maximum concurrency for 4096 tokens per request: 47.49x
+INFO 07-04 15:35:23 model_runner.py:1402] Capturing the model for CUDA graphs. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI.
+INFO 07-04 15:35:23 model_runner.py:1406] CUDA graphs can take additional 1~3 GiB memory per GPU. If you are running out of memory, consider decreasing `gpu_memory_utilization` or enforcing eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+INFO 07-04 15:35:33 model_runner.py:1530] Graph capturing finished in 10 secs.
+{
+  "agents": 3,
+  "benchmark": "aime25",
+  "counts": {
+    "direct_correct": 3,
+    "direct_parse_fail": 0,
+    "mad_correct": 3,
+    "mad_parse_fail": 0,
+    "majority_ties": 3,
+    "total": 30
+  },
+  "debate_temperature": 0.7,
+  "direct_temperature": 0.0,
+  "elapsed_seconds": 409.972145318985,
+  "gpu_id": "7",
+  "max_model_len": 4096,
+  "max_tokens": 1024,
+  "metrics": {
+    "agent_final_accuracy": [
+      0.1,
+      0.1,
+      0.1
+    ],
+    "direct_accuracy": 0.1,
+    "direct_parse_fail_rate": 0.0,
+    "mad_accuracy": 0.1,
+    "mad_parse_fail_rate": 0.0,
+    "majority_tie_rate": 0.1
+  },
+  "model_key": "aime25-qwen25-14b-instruct",
+  "model_path": "/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct",
+  "records_path": "/data/xuhaoming/yfy/research_workspace/experiments/20260704-a8002-aime24-25-basic-mad-full/aime25-qwen25-14b-instruct/records.jsonl",
+  "rounds": 1,
+  "rows": 30,
+  "run_id": "20260704-a8002-aime24-25-basic-mad-full",
+  "split": "test"
+}
