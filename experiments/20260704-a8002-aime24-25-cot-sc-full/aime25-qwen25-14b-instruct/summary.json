@@ -1,0 +1,35 @@
+{
+  "benchmark": "aime25",
+  "cot_temperature": 0.0,
+  "counts": {
+    "cot_correct": 2,
+    "cot_parse_fail": 0,
+    "sc_correct": 5,
+    "sc_majority_ties": 2,
+    "sc_parse_fail": 0,
+    "sc_sample_parse_fail": 1,
+    "sc_total_samples": 480,
+    "total": 30
+  },
+  "elapsed_seconds": 252.55004906654358,
+  "gpu_id": "7",
+  "max_model_len": 4096,
+  "max_tokens": 1024,
+  "metrics": {
+    "cot_accuracy": 0.06666666666666667,
+    "cot_parse_fail_rate": 0.0,
+    "sc_accuracy": 0.16666666666666666,
+    "sc_majority_tie_rate": 0.06666666666666667,
+    "sc_parse_fail_rate": 0.0,
+    "sc_sample_parse_fail_rate": 0.0020833333333333333
+  },
+  "model_key": "aime25-qwen25-14b-instruct",
+  "model_path": "/mnt/quarkfs/share_model/Qwen2.5-14B-Instruct",
+  "records_path": "/data/xuhaoming/yfy/research_workspace/experiments/20260704-a8002-aime24-25-cot-sc-full/aime25-qwen25-14b-instruct/records.jsonl",
+  "rows": 30,
+  "run_id": "20260704-a8002-aime24-25-cot-sc-full",
+  "sc_samples": 16,
+  "sc_temperature": 0.7,
+  "split": "test",
+  "top_p": 0.95
+}
