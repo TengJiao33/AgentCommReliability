@@ -32,14 +32,15 @@ echo "== resources =="
 nvidia-smi --query-gpu=index,name,memory.used,memory.free,utilization.gpu --format=csv,noheader,nounits
 df -h /data /mnt/quarkfs
 
-for benchmark in aime24 aime25; do
+for bench_split in "aime24 train" "aime25 test"; do
+  read -r benchmark split <<<"$bench_split"
   for strategy in naive subjective objective; do
-    echo "== run ${benchmark} ${strategy} =="
+    echo "== run ${benchmark} ${split} ${strategy} =="
     "$PYTHON" scripts/run_mad_mm.py \
       --work-dir "$WORK_DIR" \
       --run-id "$RUN_ID" \
       --benchmark "$benchmark" \
-      --split test \
+      --split "$split" \
       --model-key qwen25-7b-instruct \
       --model-path "$MODEL_PATH" \
       --gpu-id "$GPU_ID" \

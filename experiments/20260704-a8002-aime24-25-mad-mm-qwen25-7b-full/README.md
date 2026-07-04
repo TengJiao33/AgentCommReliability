@@ -51,9 +51,9 @@ Prepared a full AIME24/AIME25 reproduction slice for MAD-M2 with Qwen2.5-7B-Inst
 ## Data
 
 - Data paths:
-  - `/data/xuhaoming/yfy/research_workspace/data/benchmarks/aime24/test/canonical.jsonl`
+  - `/data/xuhaoming/yfy/research_workspace/data/benchmarks/aime24/train/canonical.jsonl`
   - `/data/xuhaoming/yfy/research_workspace/data/benchmarks/aime25/test/canonical.jsonl`
-- Split: test.
+- Split: AIME24 `train`, AIME25 `test`.
 - Sampling: full split, no `--limit`.
 
 ## Command
@@ -80,6 +80,7 @@ bash experiments/20260704-a8002-aime24-25-mad-mm-qwen25-7b-full/run_remote.sh
 ## Status Timeline
 
 - `2026-07-04`: prepared.
+- `2026-07-04 16:45 CST`: first launcher failed before generation because it looked for `aime24/test/canonical.jsonl`; no result was produced.
 
 ## Caveats
 
