@@ -15,6 +15,7 @@ data/
 # Experiment outputs
 logs/*
 experiments/*.log
+experiments/**/launcher.pid
 reports/generated/*
 experiments/**/outputs/
 experiments/**/runs/

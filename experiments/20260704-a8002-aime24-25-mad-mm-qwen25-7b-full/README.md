@@ -8,7 +8,7 @@ Prepared a full AIME24/AIME25 reproduction slice for MAD-M2 with Qwen2.5-7B-Inst
 
 - Method: MAD-M2 memory masking (`naive`, `subjective`, `objective`).
 - Model: Qwen2.5-7B-Instruct.
-- Dataset: AIME24 test and AIME25 test.
+- Dataset: AIME24 train split and AIME25 test split.
 - Seed: 42.
 - Samples: all rows in both splits, 30 + 30.
 - Comparison target: same-run naive MAD, plus earlier local AIME basic MAD and CoT-SC runs as contextual references.
@@ -30,7 +30,7 @@ Prepared a full AIME24/AIME25 reproduction slice for MAD-M2 with Qwen2.5-7B-Inst
 - Remote work dir: `/data/xuhaoming/yfy/research_workspace`.
 - GPU IDs: planned GPU 7 if free.
 - Timeout: 12h launcher timeout.
-- Expected duration: several hours for all six method/dataset jobs.
+- Expected duration: about 45-60 minutes for all six method/dataset jobs.
 - Started by: Codex.
 
 ## Code
@@ -43,10 +43,10 @@ Prepared a full AIME24/AIME25 reproduction slice for MAD-M2 with Qwen2.5-7B-Inst
 ## Environment
 
 - Env path: `/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063`.
-- Python: to be recorded after launch.
-- vLLM: expected 0.6.3.
-- PyTorch: to be recorded after launch.
-- Transformers: to be recorded after launch.
+- Python: 3.10.20.
+- vLLM: 0.6.3.
+- PyTorch: 2.4.0.
+- Transformers: 4.46.2.
 
 ## Data
 
@@ -71,24 +71,44 @@ bash experiments/20260704-a8002-aime24-25-mad-mm-qwen25-7b-full/run_remote.sh
 
 ## What Happened
 
-- Status: PREPARED.
-- Accuracy: pending.
-- Memory retention: pending.
-- Evaluation time: pending.
-- Wall time: pending.
+- Status: COMPLETED.
+- Accuracy: same-run masking did not improve final correct count over same-run naive MAD on the combined 60 AIME questions.
+- Memory retention: subjective retained 176/180 memories; objective retained 60/180 memories.
+- Evaluation time: per job 421-505 seconds after model initialization.
+- Wall time: about 47 minutes for the successful full launcher, `2026-07-04 16:55:21 CST` to `2026-07-04 17:42:05 CST`.
+
+| Dataset | Split | Method | Correct | Accuracy | Initial Majority | Tie Rate | Memory Retention | Subjective Labels |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| AIME24 | train | naive | 4/30 | 0.1333 | 0.1000 | 0.3667 | 1.0000 | - |
+| AIME24 | train | subjective | 4/30 | 0.1333 | 0.1000 | 0.3000 | 0.9667 | yes 80, not sure 7, no 3 |
+| AIME24 | train | objective | 3/30 | 0.1000 | 0.1000 | 0.0667 | 0.3333 | - |
+| AIME25 | test | naive | 1/30 | 0.0333 | 0.0333 | 0.2667 | 1.0000 | - |
+| AIME25 | test | subjective | 1/30 | 0.0333 | 0.0333 | 0.2333 | 0.9889 | yes 83, not sure 6, no 1 |
+| AIME25 | test | objective | 1/30 | 0.0333 | 0.0333 | 0.0000 | 0.3333 | - |
+
+Combined over AIME24 train + AIME25 test:
+
+| Method | Correct | Accuracy | Tie Rate | Memory Retention |
+| --- | ---: | ---: | ---: | ---: |
+| naive | 5/60 | 0.0833 | 0.3167 | 1.0000 |
+| subjective | 5/60 | 0.0833 | 0.2667 | 0.9778 |
+| objective | 4/60 | 0.0667 | 0.0333 | 0.3333 |
 
 ## Status Timeline
 
 - `2026-07-04`: prepared.
 - `2026-07-04 16:45 CST`: first launcher failed before generation because it looked for `aime24/test/canonical.jsonl`; no result was produced.
 - `2026-07-04 16:53 CST`: second launcher failed before writing result summaries because the local runner referenced `context["parsed"]` before storing that field; no claim-bearing result was produced.
+- `2026-07-04 16:55 CST`: successful full launcher started on A800_2 GPU 7.
+- `2026-07-04 17:42 CST`: successful full launcher completed; GPU 7 returned to 4 MiB used memory.
 
 ## Caveats
 
 - This run follows the upstream code behavior for objective masking rather than only the paper prose description.
 - AIME has only 60 total questions across the two sets, so differences should be treated as diagnostic until replicated or expanded.
 - The local numeric evaluator is appropriate for AIME integer answers but is not a full symbolic MATH evaluator.
+- Subjective masking barely pruned memory in this setting, so this run mainly tests the overhead and tie-rate effect of the subjective judge rather than a strong filtering intervention.
 
 ## Loose Threads
 
-- If 7B shows a real signal, extend to Qwen2.5-14B-Instruct or the upstream math-specialized model if available.
+- If we want stronger pressure, run the same local runner on MATH500 or a larger model, or make subjective pruning strict so `NOT SURE` is masked.
