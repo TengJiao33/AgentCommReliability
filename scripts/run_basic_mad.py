@@ -142,13 +142,89 @@ def find_answer_text(text: str) -> str | None:
     gsm_matches = re.findall(r"####\s*(.+)", text)
     if gsm_matches:
         return gsm_matches[-1].strip()
+    boxed = extract_boxed_answer(text)
+    if boxed is not None:
+        return boxed.strip()
     number_matches = re.findall(r"-?\d[\d,]*(?:\.\d+)?(?:\s*/\s*-?\d[\d,]*(?:\.\d+)?)?", text)
     if number_matches:
         return number_matches[-1].strip()
     return None
 
 
-def normalize_numeric(answer: Any) -> str | None:
+_LATEX2SYMPY_LOADED = False
+_LATEX2SYMPY: Any = None
+
+
+def _get_latex2sympy() -> Any:
+    global _LATEX2SYMPY_LOADED, _LATEX2SYMPY
+    if not _LATEX2SYMPY_LOADED:
+        _LATEX2SYMPY_LOADED = True
+        try:
+            from latex2sympy2 import latex2sympy
+
+            _LATEX2SYMPY = latex2sympy
+        except Exception:
+            _LATEX2SYMPY = None
+    return _LATEX2SYMPY
+
+
+def _command_contents(text: str, command: str) -> list[str]:
+    marker = f"\\{command}" + "{"
+    contents: list[str] = []
+    start = 0
+    while True:
+        pos = text.find(marker, start)
+        if pos < 0:
+            break
+        brace_pos = pos + len(marker) - 1
+        depth = 0
+        for idx in range(brace_pos, len(text)):
+            char = text[idx]
+            if char == "{":
+                depth += 1
+            elif char == "}":
+                depth -= 1
+                if depth == 0:
+                    contents.append(text[brace_pos + 1 : idx])
+                    start = idx + 1
+                    break
+        else:
+            break
+    return contents
+
+
+def extract_boxed_answer(text: Any) -> str | None:
+    if text is None:
+        return None
+    raw = str(text)
+    for command in ("boxed", "fbox"):
+        contents = _command_contents(raw, command)
+        if contents:
+            return contents[-1]
+    return None
+
+
+def _replace_text_commands(text: str) -> str:
+    previous = None
+    current = text
+    pattern = re.compile(r"\\(?:text|mathrm|operatorname)\{([^{}]*)\}")
+    while previous != current:
+        previous = current
+        current = pattern.sub(r"\1", current)
+    return current
+
+
+def _replace_latex_fracs(text: str) -> str:
+    previous = None
+    current = text
+    pattern = re.compile(r"\\(?:dfrac|tfrac|frac)\{([^{}]+)\}\{([^{}]+)\}")
+    while previous != current:
+        previous = current
+        current = pattern.sub(r"((\1)/(\2))", current)
+    return current
+
+
+def _clean_answer_text(answer: Any) -> str | None:
     if answer is None:
         return None
     text = str(answer).strip()
@@ -156,22 +232,104 @@ def normalize_numeric(answer: Any) -> str | None:
         return None
     if "####" in text:
         text = text.split("####")[-1].strip()
-    final = find_answer_text(text)
-    if final is not None:
-        text = final
-    text = text.replace(",", "").replace("$", "").strip()
-    text = re.sub(r"\\boxed\{([^{}]+)\}", r"\1", text)
-    match = re.search(r"-?\d+(?:\.\d+)?(?:\s*/\s*-?\d+(?:\.\d+)?)?", text)
-    if not match:
-        return None
-    value = match.group(0).replace(" ", "")
+    boxed = extract_boxed_answer(text)
+    if boxed is not None:
+        text = boxed.strip()
+    elif re.search(r"Final answer\s*:", text, flags=re.IGNORECASE):
+        final = find_answer_text(text)
+        if final is not None and final.strip() != text:
+            text = final.strip()
+    text = text.strip().strip("$").strip()
+    text = re.sub(r"^\\\(|\\\)$", "", text).strip()
+    text = re.sub(r"^\\\[|\\\]$", "", text).strip()
+    text = _replace_text_commands(text)
+    text = text.replace("\\left", "").replace("\\right", "")
+    text = text.replace("\\,", "").replace("\\!", "").replace("\\;", "").replace("\\:", "")
+    text = text.replace("\\dfrac", "\\frac").replace("\\tfrac", "\\frac")
+    text = re.sub(r"\^\s*\{?\\*circ\}?", "", text)
+    text = text.replace("°", "")
+    text = text.replace("%", "").replace("\\%", "")
+    text = text.replace("$", "").strip()
+    text = text.rstrip(".")
+    return text.strip() or None
+
+
+def _ascii_math_text(text: str) -> str:
+    value = _replace_latex_fracs(text)
+    value = value.replace("\\pi", "pi")
+    value = value.replace("\\infty", "oo")
+    value = value.replace("\\cdot", "*").replace("\\times", "*")
+    value = value.replace("^", "**")
+    value = value.replace("{", "(").replace("}", ")")
+    value = value.replace("\\", "")
+    value = value.replace(",", ", ")
+    value = re.sub(r"(?<=\d)i\b", "*I", value)
+    value = re.sub(r"\bi\b", "I", value) if re.search(r"\d\s*\*?I\b", value) else value
+    return value.strip()
+
+
+def _sympy_canonical(text: str) -> str | None:
     try:
-        return str(Fraction(value))
+        import sympy as sp
+    except Exception:
+        return None
+
+    candidates = [text]
+    latex2sympy = _get_latex2sympy()
+    if latex2sympy is not None and "\\" in text:
+        try:
+            expr = latex2sympy(text)
+            return "expr:" + sp.sstr(sp.simplify(expr))
+        except Exception:
+            pass
+    candidates.append(_ascii_math_text(text))
+    for candidate in candidates:
+        if not candidate:
+            continue
+        try:
+            expr = sp.sympify(candidate, evaluate=True)
+        except Exception:
+            continue
+        try:
+            expr = sp.simplify(expr)
+        except Exception:
+            pass
+        return "expr:" + sp.sstr(expr)
+    return None
+
+
+def _numeric_canonical(text: str) -> str | None:
+    value = text.replace(",", "").replace("$", "").strip()
+    value = _replace_latex_fracs(value)
+    matches = re.findall(r"-?\d+(?:\.\d+)?(?:\s*/\s*-?\d+(?:\.\d+)?)?", value)
+    if not matches:
+        return None
+    token = matches[-1].replace(" ", "")
+    try:
+        return "expr:" + str(Fraction(token))
     except Exception:
         try:
-            return str(Fraction(float(value)).limit_denominator(1000000))
+            return "expr:" + str(Fraction(float(token)).limit_denominator(1000000))
         except Exception:
-            return value
+            return "str:" + token
+
+
+def _string_canonical(text: str) -> str | None:
+    value = text.lower().strip()
+    value = _replace_text_commands(value)
+    value = value.replace("\\left", "").replace("\\right", "")
+    value = value.replace("\\,", "").replace("\\!", "")
+    value = re.sub(r"\s+", "", value)
+    value = value.strip("$")
+    value = value.rstrip(".")
+    return ("str:" + value) if value else None
+
+
+def normalize_numeric(answer: Any) -> str | None:
+    text = _clean_answer_text(answer)
+    if not text:
+        return None
+    return _sympy_canonical(text) or _numeric_canonical(text) or _string_canonical(text)
 
 
 def is_correct(prediction: Any, gold: Any) -> bool:

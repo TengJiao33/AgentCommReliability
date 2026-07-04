@@ -73,7 +73,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def prepare_question(question: str, benchmark: str) -> str:
-    if benchmark in {"math", "aime24", "aime25"}:
+    if benchmark in {"math", "math500", "aime24", "aime25"}:
         return "### Please provide your final answer in the format of \\boxed{} format. ###\n" + question
     if benchmark == "mmlu_pro":
         return "### Please DIRECTLY provide the option letter in your final answer. ###\n" + question
