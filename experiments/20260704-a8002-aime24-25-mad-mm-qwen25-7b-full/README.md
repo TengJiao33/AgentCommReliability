@@ -81,6 +81,7 @@ bash experiments/20260704-a8002-aime24-25-mad-mm-qwen25-7b-full/run_remote.sh
 
 - `2026-07-04`: prepared.
 - `2026-07-04 16:45 CST`: first launcher failed before generation because it looked for `aime24/test/canonical.jsonl`; no result was produced.
+- `2026-07-04 16:53 CST`: second launcher failed before writing result summaries because the local runner referenced `context["parsed"]` before storing that field; no claim-bearing result was produced.
 
 ## Caveats
 

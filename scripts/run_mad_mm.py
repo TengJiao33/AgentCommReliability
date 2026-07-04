@@ -87,12 +87,22 @@ def cot_prompt(question: str) -> str:
 def debate_prompt(question: str, contexts: list[dict[str, Any]]) -> str:
     if not contexts:
         return cot_prompt(question)
-    context_text = "\n".join(str(context["parsed"]) for context in contexts)
+    context_text = "\n".join(str(memory_payload(context)) for context in contexts)
     return DEBATE_PROMPT.format(question=question, context=context_text) + RESPONSE_FORMAT
 
 
 def prune_prompt(question: str, context: dict[str, Any]) -> str:
-    return PRUNE_PROMPT.format(question=question, solution=str(context["parsed"]))
+    return PRUNE_PROMPT.format(question=question, solution=str(memory_payload(context)))
+
+
+def memory_payload(context: dict[str, Any]) -> dict[str, Any]:
+    parsed = context.get("parsed")
+    if isinstance(parsed, dict):
+        return parsed
+    return {
+        "think": context.get("output", ""),
+        "answer": context.get("parsed_answer"),
+    }
 
 
 def extract_xml_answer(text: str) -> str | None:
@@ -150,6 +160,10 @@ def generate_outputs(llm: Any, prompts: list[str], sampling_params: Any, batch_s
             outputs.append(
                 {
                     "output": text,
+                    "parsed": {
+                        "think": text,
+                        "answer": answer,
+                    },
                     "parsed_answer": answer,
                     "normalized_answer": normalize_numeric(answer),
                     "mean_selected_logprob": (sum(logprobs) / len(logprobs)) if logprobs else None,
