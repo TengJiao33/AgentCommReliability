@@ -4,7 +4,7 @@ This is a neutral template for future work. It does not preserve any old experim
 
 ## Principle
 
-Every future run should be understandable from its own notes. A result without task, code state, command, resource, output path, and caveat is not a durable result.
+Every future run should be understandable from its own notes. A result without task, code state, command, resource, output path, and note is not a durable result.
 
 ## Run ID Format
 
@@ -71,10 +71,6 @@ What are we trying to decide?
 - Main metric:
 - Wall time:
 - Token or compute cost:
-
-## Caveats
-
-- 
 
 ## Cleanup
 

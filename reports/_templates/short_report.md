@@ -15,6 +15,4 @@
 
 ## Failures / Friction
 
-## Caveats
-
 ## Loose Threads

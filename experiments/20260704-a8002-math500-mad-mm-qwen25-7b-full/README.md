@@ -78,9 +78,3 @@ Subjective label counts:
 The MATH-500 run gives a clearer diagnostic than AIME because the benchmark is larger and the corrected evaluator handles common boxed LaTeX, symbolic, tuple, text, unit, mixed-number, and complex answers. In this setting, `naive` MAD-MM/MAD-M2 style debate performed best. `subjective` masking retained 1481/1500 memories, so it mostly behaved like `naive` and landed slightly lower. `objective` masking reduced ties almost completely and retained exactly one memory per row, but it did not improve over the initial majority baseline.
 
 This is diagnostic evidence for the local Qwen2.5-7B setting, not a broad claim about MAD-MM. The most useful current conclusion is that permissive subjective masking does not add much filtering pressure on MATH-500, while objective masking is a real intervention but too lossy here.
-
-## Caveats
-
-- MATH-500 contains symbolic, text, tuple, angle, and numeric answers. The corrected evaluator is stronger than the previous local normalizer, but it is still a lightweight local evaluator rather than the official MATH verifier.
-- Treat small deltas as diagnostic until concrete rows are inspected.
-- `naive` and permissive `subjective` memory use can push an A800 80GB card close to its memory ceiling with 24k context and batch size 8.

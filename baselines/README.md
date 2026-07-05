@@ -1,8 +1,6 @@
 # Baselines
 
-No baseline implementation is currently checked out.
-
-This directory keeps only templates for future baseline notes. Reintroduce a baseline only when a new task explicitly needs it, and keep large repositories, generated outputs, caches, and virtual environments out of the live workspace unless approved.
+This directory keeps baseline templates and source notes.
 
 Templates:
 
@@ -17,5 +15,4 @@ For any future baseline, record:
 - smallest runnable command;
 - expected output;
 - required environment;
-- known caveats;
 - cleanup policy.

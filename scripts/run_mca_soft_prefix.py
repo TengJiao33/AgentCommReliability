@@ -547,7 +547,7 @@ def main() -> int:
         for question in questions:
             for agent_idx in range(args.agents):
                 if args.initial_prompt_style == "standard-mad":
-                    initial_prompts.append(cot_prompt(question))
+                    initial_prompts.append(_render_prompt(tokenizer, [{"role": "user", "content": cot_prompt(question)}]))
                 else:
                     initial_prompts.append(_render_prompt(tokenizer, independent_prompt(question, agent_idx)))
         initial_flat = generate_hf_outputs(

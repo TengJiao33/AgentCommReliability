@@ -38,14 +38,6 @@ Facts visible in logs, outputs, code, or reviewer-visible artifacts.
 
 Conditional explanation of what the result suggests.
 
-## Alternative Explanations
-
-- 
-
-## Caveats
-
-- 
-
 ## Next Action
 
 What should happen less, more, or differently because of this report?

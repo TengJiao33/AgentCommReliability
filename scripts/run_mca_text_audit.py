@@ -38,7 +38,7 @@ from run_consensus_quarantine import (
     transition_label,
 )
 from run_cpac_dcac import analyze_candidate_pool, decision_payload
-from run_mad_mm import extract_xml_answer, prepare_question
+from run_mad_mm import cot_prompt, extract_xml_answer, prepare_question
 from run_mca_text import (
     CueAtom,
     FilteredCue,
@@ -101,6 +101,12 @@ def parse_args() -> argparse.Namespace:
         help="Only run cue audit for this CPAC pool state; others keep initial majority.",
     )
     parser.add_argument("--input-records", default="", help="Optional existing records.jsonl to reuse initial outputs.")
+    parser.add_argument(
+        "--initial-prompt-style",
+        choices=("mca", "standard-mad"),
+        default="mca",
+        help="Prompt family for newly sampled initial answers when --input-records is not used.",
+    )
     parser.add_argument("--overlap-threshold", type=float, default=0.72)
     parser.add_argument("--temperature", type=float, default=0.8)
     parser.add_argument("--cue-temperature", type=float, default=0.2)
@@ -337,7 +343,10 @@ def main() -> int:
         initial_prompts: list[str] = []
         for question in questions:
             for agent_idx in range(args.agents):
-                initial_prompts.append(prompt_from_messages(tokenizer, independent_prompt(question, agent_idx)))
+                if args.initial_prompt_style == "standard-mad":
+                    initial_prompts.append(prompt_from_messages(tokenizer, [{"role": "user", "content": cot_prompt(question)}]))
+                else:
+                    initial_prompts.append(prompt_from_messages(tokenizer, independent_prompt(question, agent_idx)))
         initial_flat = generate_outputs(llm, initial_prompts, initial_sampling, args.batch_size, use_tqdm=use_tqdm)
         initial_by_row = reshape(initial_flat, len(rows), args.agents)
 
@@ -568,6 +577,7 @@ def main() -> int:
         "min_change_certificates": args.min_change_certificates,
         "pool_state_scope": args.pool_state_scope,
         "input_records": args.input_records or None,
+        "initial_prompt_style": args.initial_prompt_style,
         "temperature": args.temperature,
         "cue_temperature": args.cue_temperature,
         "audit_temperature": args.audit_temperature,

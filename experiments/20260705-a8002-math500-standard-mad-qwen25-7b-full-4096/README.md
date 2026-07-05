@@ -18,13 +18,11 @@
 - 最大上下文长度：24064。
 - 评测器：当前本地 MATH 归一化评测器。
 
-## 实验门禁
+## 验收项
 
 主要用途是为新主实验矩阵建立标准 MAD 基线。本 run 使用 4096 输出预算和 24064 上下文预算。
 
 支持信号：运行完整 500 题，解析失败率正常，输出 `summary.json` 与 `records.jsonl`。
-
-失效条件：输出目录碰撞、MATH-500 行数不是 500、GPU 绑定错误、运行超时或崩溃、最终解析失败率异常。
 
 ## 机器
 
@@ -67,7 +65,3 @@
 - `math500-qwen25-7b-instruct-naive/summary.json`
 - `math500-qwen25-7b-instruct-naive/summary.md`
 - `run_remote.nohup.log`
-
-## 边界
-
-该 run 是 4096 输出预算主口径。非此口径的废弃尝试不进入主比较。

@@ -46,19 +46,6 @@
 
 The main signal is that this faithful small reproduction path runs end to end, but the AIME result does not support scaling this exact setting as a promising method claim. Subjective masking behaved too permissively under the non-strict setting, so it mostly reproduced naive MAD with small tie-rate changes. Objective masking applied a much stronger filter, but the retained single memory per row was not reliably better for final correctness.
 
-## Alternative Explanations
-
-- AIME has only 60 total rows here, so one or two cases can change the apparent direction.
-- Qwen2.5-7B-Instruct may be too weak or too unstable on AIME for memory masking to help cleanly.
-- The local runner follows the upstream code behavior for objective masking, where retention is based on above-median exponentiated selected-token logprob.
-- The upstream paper uses broader benchmark tables; this run only covers a single model and the prepared AIME splits.
-
-## Caveats
-
-- This is diagnostic evidence, not a general negative result for MAD-M2.
-- AIME24 is stored locally as `train`, while AIME25 is stored as `test`; both are full 30-row splits.
-- The runner's numeric evaluator is suitable for AIME integer answers, but it is not a full symbolic evaluator for MATH.
-
 ## Next Action
 
 Use this run as the local MAD-M2 integration baseline. If we continue, the sharpest next test is either strict subjective masking on the same AIME packet or a MATH500 run with a stronger evaluator, rather than immediately expanding the same permissive subjective setting to more models.

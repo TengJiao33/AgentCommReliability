@@ -49,10 +49,6 @@ One sentence on what happened when we tried to launch or inspect it.
 | --- | --- | --- | --- |
 |  |  |  |  |
 
-## Caveats
-
-- 
-
 ## Loose Threads
 
-- 
+-

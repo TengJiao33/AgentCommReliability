@@ -2,7 +2,7 @@
 
 ## 目的
 
-按当前标准口径重新运行 MCA-P，不复用任何旧 records，避免非标准旧池污染当前横向比较。该 run 自己重新采样 3 路初始答案，但初始 prompt 使用 Standard MAD prompt family，目标是使初始多数落在当前标准 MAD 水平附近。
+按当前标准口径重新运行 MCA-P。该 run 自己重新采样 3 路初始答案，初始 prompt 使用 Standard MAD prompt family。
 
 ## 设计
 
@@ -26,13 +26,11 @@
 - cue-only 重新求解最大输出长度：4096。
 - 最大上下文长度：24064。
 
-## 实验门禁
+## 验收项
 
-主要用途是生成当前标准口径下的 MCA-P full diagnostic，与 Standard MAD 4096 / MAD-MM 362-level records 分开读。
+主要用途是生成当前标准口径下的 MCA-P full diagnostic。
 
 支持信号：本 run initial majority 接近当前标准 MAD 水平，最终正确率高于同一 run initial majority，且错误初始多数恢复比例高于正确初始多数伤害比例。
-
-失效条件：初始多数显著偏离当前标准 MAD 水平、输出目录碰撞、MATH-500 行数不是 500、GPU 绑定错误、运行超时或崩溃、最终解析失败率异常、同一输出目录被多个进程同时写入。
 
 ## 机器
 
@@ -64,7 +62,3 @@
 - `math500-qwen25-7b-instruct-mca-soft-prefix-cue-all/summary.json`
 - `math500-qwen25-7b-instruct-mca-soft-prefix-cue-all/summary.md`
 - `run_remote.nohup.log`
-
-## 边界
-
-这是标准口径 MCA-P 诊断，不复用旧候选池。若 initial majority 没有回到当前标准 MAD 附近，该 run 应先作为 prompt/backend mismatch 诊断，而不是机制结论。

@@ -40,7 +40,7 @@ from run_consensus_quarantine import (
     reshape,
     transition_label,
 )
-from run_mad_mm import prepare_question
+from run_mad_mm import cot_prompt, prepare_question
 
 
 CLAIM_FORMAT = (
@@ -107,6 +107,12 @@ def parse_args() -> argparse.Namespace:
         choices=("listwise", "keep"),
         default="listwise",
         help="How CPAC handles no-majority candidate pools.",
+    )
+    parser.add_argument(
+        "--initial-prompt-style",
+        choices=("cpac", "standard-mad"),
+        default="cpac",
+        help="Prompt family for newly sampled initial answers.",
     )
     parser.add_argument("--dcac-min-flip-certificates", type=int, default=2)
     parser.add_argument("--temperature", type=float, default=0.8)
@@ -762,7 +768,10 @@ def main() -> int:
     initial_prompts = []
     for question in questions:
         for agent_idx in range(args.agents):
-            initial_prompts.append(prompt_from_messages(tokenizer, independent_prompt(question, agent_idx)))
+            if args.initial_prompt_style == "standard-mad":
+                initial_prompts.append(prompt_from_messages(tokenizer, [{"role": "user", "content": cot_prompt(question)}]))
+            else:
+                initial_prompts.append(prompt_from_messages(tokenizer, independent_prompt(question, agent_idx)))
     initial_flat = generate_outputs(llm, initial_prompts, initial_sampling, args.batch_size, use_tqdm=use_tqdm)
     initial_by_row = reshape(initial_flat, len(rows), args.agents)
 
@@ -1062,6 +1071,7 @@ def main() -> int:
         "claim_temperature": args.claim_temperature,
         "certificate_temperature": args.certificate_temperature,
         "listwise_temperature": args.listwise_temperature,
+        "initial_prompt_style": args.initial_prompt_style,
         "top_p": args.top_p,
         "max_tokens": args.max_tokens,
         "max_model_len": args.max_model_len,

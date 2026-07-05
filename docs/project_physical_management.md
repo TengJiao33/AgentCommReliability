@@ -4,31 +4,31 @@
 
 ## 当前状态
 
-项目已重置为最小骨架。旧研究路线、实验目录、日志、脚本、baseline 实体、论文缓存、schema、harness 和项目技能都已从 live workspace 移除。
+项目已重置为当前研究骨架。
 
-旧材料如需审计，从 Git 历史读取，不恢复到当前目录面。
+旧材料从 Git 历史读取。
 
 ## 目录职责
 
 | 目录 | 当前职责 |
 | --- | --- |
-| `active/` | 记录是否存在活跃路线；当前为空入口。 |
+| `active/` | 当前活跃机制线。 |
 | `docs/` | 机器、服务器、同步、目录管理和实验协议。 |
-| `experiments/` | 只保留 `_templates/` 和 README；未来新 run 一 run 一目录。 |
-| `reports/` | 只保留 `_templates/` 和 README；未来只有改变判断的报告才进入。 |
-| `baselines/` | 只保留 `_templates/` 和 README；未来按需重新接入。 |
+| `experiments/` | 实验 run 记录、日志和结果文件。 |
+| `reports/` | 报告、术语表和文献吸收表。 |
+| `baselines/` | baseline 来源、模板和复现记录。 |
 
-## 当前不保留的 live 目录
+## 当前 live 目录
 
-以下目录已清空或删除，除非有新任务明确需要，否则不应自动重建：
+当前目录面围绕以下入口组织：
 
 - `scripts/`
-- `logs/`
-- `papers/`
-- `data/`
-- `harness/`
-- `schemas/`
-- `skills/`
+- `tests/`
+- `active/`
+- `docs/`
+- `experiments/`
+- `reports/`
+- `baselines/`
 
 ## 新工作准入
 
@@ -40,5 +40,3 @@
 - 输出放在本地还是远程；
 - 失败后哪些文件可以删除；
 - 哪些结果会改变下一步判断。
-
-不要为了延续旧脉络而恢复旧脚本、旧报告或旧实验目录。

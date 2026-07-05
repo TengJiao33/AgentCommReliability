@@ -78,9 +78,3 @@ GPU_ID=7 nohup bash "$WORK/experiments/$RUN_ID/run_remote.sh" \
 | `qwen25-14b-instruct` | 60 | 5/60 = 0.0833 | 9/60 = 0.1500 | +0.0667 |
 
 CoT-SC gives a visible combined gain for the 14B model in this run. It does not consistently help every model or split: 7B improves on AIME24 but drops on AIME25, and 1.5B stays at floor.
-
-## Caveats
-
-- AIME has only 30 rows per year here, so per-year deltas are noisy.
-- CoT-SC uses 16 samples; this is stronger than the single CoT baseline and more expensive than one direct pass.
-- This run does not change the existing MAD runner.

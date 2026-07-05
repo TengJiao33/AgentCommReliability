@@ -21,7 +21,7 @@ State what made this code worth touching now.
 - expected output:
 - expected resource:
 
-## Installation Notes
+## Installation Details
 
 - environment:
 - core dependencies:
@@ -31,7 +31,7 @@ State what made this code worth touching now.
 
 ## Code Map
 
-| Component | File / Function | Notes |
+| Component | File / Function | Details |
 | --- | --- | --- |
 | prompt templates |  |  |
 | agent loop |  |  |
@@ -41,10 +41,6 @@ State what made this code worth touching now.
 | judge/verifier |  |  |
 | evaluation |  |  |
 
-## Known Caveats
-
-- 
-
 ## Loose Threads
 
-- 
+-

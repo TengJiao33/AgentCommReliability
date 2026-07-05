@@ -1,33 +1,35 @@
 # Active
 
-当前有一条活跃研究路线：MATH 多 agent reasoning 中的 candidate-pool state diagnosis 与证书化共识机制。
+当前有两条活跃机制线。两条线共享同一个诊断问题：候选答案、局部认知 cue 和最终聚合之间，哪一层才是多 agent reasoning 的可靠性瓶颈。
 
-## 核心问题
+## 机制线 A：CPAC/DCAC/guard
 
-当前证据指向一个分解：多 agent 失败不只来自 agent 是否会 debate，还来自候选池状态是否适配后续决策协议。
+`CPAC` 是外层候选池状态控制器。它先诊断初始答案池，再选择后续协议：
 
-- `unique=1`：候选池 collapse。若全体同错，CQG/DCAC 这类分歧机制没有可用抓手。
-- `unique=2`：majority/minority。当前 CQG 证明这里有可恢复空间，但也会释放错误 minority。
-- `unique=3+`：no-majority conflict。当前 CQG 基本没有处理这一块。
+- `unique=1`：候选池 collapse。若全体同错，纯 CQG/DCAC 没有分歧抓手。
+- `unique=2`：majority/minority。这里对应 minority-bearing 分支。
+- `unique=3+`：no-majority conflict。需要 listwise 或其他识别动作。
 
-## 当前机制假说
+`DCAC` 是 CPAC 在 `unique=2` 状态下的证书化翻案分支。`guard` 是 DCAC 的保守准入层，用来降低 MaC_to_W harm。
 
-`CPAC` 可以作为外层控制器：先诊断候选池状态，再决定使用哪个协议。
+## 机制线 B：MCA
 
-`DCAC` 可以作为 CPAC 的 `unique=2` 分支：只有当 minority 通过由 answer delta 生成的 discriminant certificate，才允许推翻 majority。
+`MCA` 是 metacognitive communication/activation 总框架，目标是传递“这题该注意什么”的认知 cue，而不是传递最终答案。
 
-`MCE` 可以作为 CPAC 的通信动作：当答案候选本身不可靠时，交换 answer-free 的认知 cue，用来测试局部认知贡献是否能被其他 agent 吸收。
+当前四个实现版本：
 
-## 证据状态
+- `MCA-T`：显式 text cue，用于快速验证 cue 是否有行为信号。
+- `MCA-P`：soft prefix / continuous cue，是当前最适合作为底层主实现的版本。
+- `MCA-KV`：hidden state / KV cache transfer。
+- `MCA-S`：activation steering，更像推理倾向控制，适合作为 extension/ablation。
 
-- CQG full MATH-500：记录内 same-run initial majority 320/500，CQG final 337/500，净增 17 题。
-- CQG 的增益不能归因于 appeal gate：valid appeal rate 只有 35/189，抽样恢复更多来自 blind re-solve/review。
-- CPAC+DCAC full MATH-500：记录内 same-run initial majority 320/500，CPAC+DCAC final 325/500，净增 5 题。分支分解显示正净值来自 no-majority listwise 分支，DCAC 分支本身为负。
-- Candidate-space 调查显示，初始 3-agent 池有 `unique=1/2/3` 三态；`unique=2` 和 `unique=3` 都存在 identification 空间，`unique=1` 中存在 coverage collapse。
-- MAD-MM/MATH500 复现没有支持 memory masking 优于 naive debate。
+`MCE` 指 Metacognitive Cue Exchange，是 MCA 中的 cue exchange 协议对象名；`MCA-P` 指 soft-prefix 实现版本。
 
-## 边界
+## 当前材料
 
-当前路线已有 CPAC+DCAC diagnostic full run，但还没有支持方法 claim 的结果。CQG 是已实现并跑过 full split 的诊断基线；CPAC+DCAC 已有 `scripts/run_cpac_dcac.py` runner 和 full-run 记录；MCE 仍是由 CQG 失败模式和候选池调查推出来的机制草图。
-
-当前 evaluator 对 representation-risk 格式仍需统一口径，尤其是 `\pi`、矩阵/列向量、base notation、函数表达式等答案类型。
+- `reports/2026-07-05-current-mechanism-taxonomy.md`
+- `reports/2026-07-05-mad-mechanism-improvement-table.md`
+- `experiments/20260705-a8002-math500-standard-mad-qwen25-7b-full-4096/`
+- `experiments/20260705-a8002-math500-cpac-dcac-guard-v1-standard-qwen25-7b-full-4096/`
+- `experiments/20260705-a8002-math500-mca-text-audit-standard-qwen25-7b-full-4096/`
+- `experiments/20260705-a8002-math500-mca-soft-prefix-standard-qwen25-7b-full-4096/`

@@ -20,7 +20,7 @@ The method directly extends multi-agent debate by evaluating the previous round'
 - expected output: `experiments/<run-id>/<benchmark>-<model>-<strategy>/summary.json` and `records.jsonl`.
 - expected resource: one A800 GPU, vLLM 0.6.3 environment already prepared.
 
-## Installation Notes
+## Installation Details
 
 - environment: `/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063`.
 - core dependencies: vLLM, torch, transformers; no extra dependency is needed for AIME numeric evaluation in this local runner.
@@ -30,7 +30,7 @@ The method directly extends multi-agent debate by evaluating the previous round'
 
 ## Code Map
 
-| Component | File / Function | Notes |
+| Component | File / Function | Details |
 | --- | --- | --- |
 | prompt templates | upstream `src/prompts.py`; local `scripts/run_mad_mm.py` | CoT, debate, and prune prompts mirror upstream text. |
 | agent loop | upstream `src/reasoning_models.py::MultiAgentDebate`; local `main` loop | Default is 3 agents and 2 total debate rounds. |
@@ -38,12 +38,6 @@ The method directly extends multi-agent debate by evaluating the previous round'
 | memory/context | `rounds[].memory_mask` in `records.jsonl` | Per-row masks and retained counts are persisted. |
 | routing/filtering | `subjective_mask`, `objective_mask`, `naive_mask` | Subjective keeps YES and, unless strict, NOT SURE. Objective follows upstream code behavior by retaining responses above the median sequence score. |
 | evaluation | imported numeric evaluator from `run_basic_mad.py` | Suited for GSM8K/AIME numeric answers; MMLU-Pro is not the first reproduction target. |
-
-## Known Caveats
-
-- The local runner is a faithful small reproduction path, not a vendored copy of the whole upstream project.
-- The upstream paper describes objective masking as low-perplexity retention, while the inspected code computes an exponentiated mean selected-token logprob and keeps values above the median.
-- The first run targets one upstream model family member, Qwen2.5-7B-Instruct, before expanding to other model sizes.
 
 ## Loose Threads
 

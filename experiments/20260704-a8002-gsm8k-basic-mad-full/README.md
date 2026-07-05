@@ -66,13 +66,6 @@ GPU_ID=7 nohup bash "$WORK/scripts/run_basic_mad_gsm8k_full.sh" \
 
 All three local Qwen2.5 instruct sizes showed a positive MAD majority-vote delta on the full GSM8K test split.
 
-## Caveats
-
-- This is a basic MAD reproduction, not the exact implementation from any specific paper.
-- Agent diversity comes from role prompts and sampling temperature, not separate model weights.
-- GSM8K parsing uses numeric answer normalization; inspect concrete rows before treating small deltas as meaningful.
-- Llama path on A800_2 looked incomplete at preflight, so it is not in the first model set.
-
 ## Cleanup
 
 - Keep: script, run README, summaries, records.

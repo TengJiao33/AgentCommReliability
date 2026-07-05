@@ -13,7 +13,7 @@ One sentence on what we attempted and what happened.
 - Samples:
 - Comparison target, if any:
 
-## Resource Notes
+## Resource Details
 
 - Machine:
 - GPU IDs:
@@ -66,10 +66,6 @@ One sentence on what we attempted and what happened.
 - `YYYY-MM-DD HH:MM`: launched
 - `YYYY-MM-DD HH:MM`: completed/stopped/failed
 
-## Caveats
-
-- 
-
 ## Loose Threads
 
-- 
+-

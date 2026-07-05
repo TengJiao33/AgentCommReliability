@@ -24,7 +24,7 @@ Prepared a full AIME24/AIME25 reproduction slice for MAD-M2 with Qwen2.5-7B-Inst
 - Invalidation conditions: missing rows, wrong gold labels, broken XML/answer parsing, model path mismatch, output truncation, GPU interruption, or accidental non-full `--limit`.
 - Expected artifacts: this README, `run_remote.sh`, per-method `summary.json`, `summary.md`, and `records.jsonl` under this experiment directory.
 
-## Resource Notes
+## Resource Details
 
 - Machine: A800_2.
 - Remote work dir: `/data/xuhaoming/yfy/research_workspace`.
@@ -101,13 +101,6 @@ Combined over AIME24 train + AIME25 test:
 - `2026-07-04 16:53 CST`: second launcher failed before writing result summaries because the local runner referenced `context["parsed"]` before storing that field; no claim-bearing result was produced.
 - `2026-07-04 16:55 CST`: successful full launcher started on A800_2 GPU 7.
 - `2026-07-04 17:42 CST`: successful full launcher completed; GPU 7 returned to 4 MiB used memory.
-
-## Caveats
-
-- This run follows the upstream code behavior for objective masking rather than only the paper prose description.
-- AIME has only 60 total questions across the two sets, so differences should be treated as diagnostic until replicated or expanded.
-- The local numeric evaluator is appropriate for AIME integer answers but is not a full symbolic MATH evaluator.
-- Subjective masking barely pruned memory in this setting, so this run mainly tests the overhead and tie-rate effect of the subjective judge rather than a strong filtering intervention.
 
 ## Loose Threads
 

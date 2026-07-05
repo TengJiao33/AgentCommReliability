@@ -79,9 +79,3 @@ GPU_ID=7 nohup bash "$WORK/experiments/$RUN_ID/run_remote.sh" \
 | `qwen25-14b-instruct` | 60 | 6/60 = 0.1000 | 7/60 = 0.1167 | +0.0167 |
 
 The AIME run gives a much less saturated baseline than GSM8K. Scores are low and per-year deltas are noisy because each split has only 30 rows.
-
-## Caveats
-
-- AIME has only 30 rows per year here, so individual-year deltas can be noisy.
-- The evaluator is numeric, which matches AIME integer answers but does not generalize to symbolic MATH500 answers.
-- This reuses the existing MAD prompt and runner without benchmark-specific prompt tuning.
