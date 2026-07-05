@@ -2,10 +2,10 @@
   "agents": 3,
   "benchmark": "math500",
   "counts": {
-    "final_correct": 315,
+    "final_correct": 369,
     "final_majority_ties": 14,
     "final_parse_fail": 0,
-    "initial_majority_correct": 310,
+    "initial_majority_correct": 362,
     "retained_memories": 1481,
     "total": 500,
     "total_mask_decisions": 1500
@@ -16,14 +16,14 @@
   "max_tokens": 4096,
   "metrics": {
     "agent_final_accuracy": [
-      0.738,
-      0.74,
-      0.726
+      0.744,
+      0.744,
+      0.728
     ],
-    "final_accuracy": 0.63,
+    "final_accuracy": 0.738,
     "final_majority_tie_rate": 0.028,
     "final_parse_fail_rate": 0.0,
-    "initial_majority_accuracy": 0.62,
+    "initial_majority_accuracy": 0.724,
     "memory_retention_rate": 0.9873333333333333
   },
   "model_key": "qwen25-7b-instruct",

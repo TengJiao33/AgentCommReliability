@@ -16,6 +16,7 @@ data/
 logs/*
 experiments/*.log
 experiments/**/launcher.pid
+experiments/**/run_remote.pid
 reports/generated/*
 experiments/**/outputs/
 experiments/**/runs/

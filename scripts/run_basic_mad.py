@@ -49,6 +49,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dtype", default="auto")
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--limit", type=int, default=0, help="0 means full split.")
+    parser.add_argument(
+        "--disable-tqdm",
+        action="store_true",
+        help="Disable vLLM progress bars; useful for remote nohup/CI runs.",
+    )
     return parser.parse_args()
 
 
@@ -153,6 +158,15 @@ def find_answer_text(text: str) -> str | None:
 
 _LATEX2SYMPY_LOADED = False
 _LATEX2SYMPY: Any = None
+_CANONICAL_PREFIXES = ("expr:", "str:")
+_PLACEHOLDER_STRINGS = {
+    "yourfinalansweronly",
+    "yourfinalansweronlynoothertext",
+    "thefinalanswer",
+    "finalanswer",
+    "youranswer",
+    "answer",
+}
 
 
 def _get_latex2sympy() -> Any:
@@ -224,6 +238,33 @@ def _replace_latex_fracs(text: str) -> str:
     return current
 
 
+def _expand_latex_frac_shorthand(text: str) -> str:
+    return re.sub(r"\\(?:dfrac|tfrac|frac)\s*([+-]?\d+)\s*([+-]?\d+)", r"\\frac{\1}{\2}", text)
+
+
+def _replace_latex_mixed_fracs(text: str) -> str:
+    def replace(match: re.Match[str]) -> str:
+        whole = match.group(1)
+        numerator = match.group(2)
+        denominator = match.group(3)
+        if whole.startswith("-"):
+            return f"(-{whole[1:]} - (({numerator})/({denominator})))"
+        return f"(({whole}) + (({numerator})/({denominator})))"
+
+    pattern = re.compile(r"(?<![\w.])(-?\d+)\s+\\(?:dfrac|tfrac|frac)\{([^{}]+)\}\{([^{}]+)\}")
+    return pattern.sub(replace, text)
+
+
+def _replace_latex_sqrts(text: str) -> str:
+    previous = None
+    current = text
+    pattern = re.compile(r"\\sqrt\{([^{}]+)\}")
+    while previous != current:
+        previous = current
+        current = pattern.sub(r"sqrt(\1)", current)
+    return re.sub(r"\\sqrt\s*([A-Za-z0-9]+)", r"sqrt(\1)", current)
+
+
 def _clean_answer_text(answer: Any) -> str | None:
     if answer is None:
         return None
@@ -248,6 +289,7 @@ def _clean_answer_text(answer: Any) -> str | None:
     text = text.replace("\\dfrac", "\\frac").replace("\\tfrac", "\\frac")
     text = re.sub(r"\^\s*\{?\\*circ\}?", "", text)
     text = text.replace("°", "")
+    text = text.replace("\\$", "")
     text = text.replace("%", "").replace("\\%", "")
     text = text.replace("$", "").strip()
     text = text.rstrip(".")
@@ -255,7 +297,10 @@ def _clean_answer_text(answer: Any) -> str | None:
 
 
 def _ascii_math_text(text: str) -> str:
-    value = _replace_latex_fracs(text)
+    value = _expand_latex_frac_shorthand(text)
+    value = _replace_latex_mixed_fracs(value)
+    value = _replace_latex_sqrts(value)
+    value = _replace_latex_fracs(value)
     value = value.replace("\\pi", "pi")
     value = value.replace("\\infty", "oo")
     value = value.replace("\\cdot", "*").replace("\\times", "*")
@@ -268,13 +313,79 @@ def _ascii_math_text(text: str) -> str:
     return value.strip()
 
 
+def _already_canonical(text: str) -> str | None:
+    stripped = text.strip()
+    if not stripped.startswith(_CANONICAL_PREFIXES):
+        return None
+    prefix, payload = stripped.split(":", 1)
+    payload = payload.strip()
+    if not payload:
+        return None
+    if prefix == "expr" and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", payload) and payload not in {"E", "I", "oo", "pi"}:
+        return "str:" + payload.lower()
+    if prefix == "str":
+        return "str:" + re.sub(r"\s+", "", payload.lower())
+    if prefix == "expr":
+        simple_numeric = _simple_numeric_canonical(payload)
+        if simple_numeric is not None:
+            return simple_numeric
+        symbolic = _sympy_canonical(payload)
+        return symbolic or stripped
+    return None
+
+
+def _simple_numeric_canonical(text: str) -> str | None:
+    value = text.replace("\\$", "").replace("$", "").strip()
+    match = re.fullmatch(
+        r"(-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:\s*/\s*-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?)?)"
+        r"(?:\s+[A-Za-z][A-Za-z\s]*)?",
+        value,
+    )
+    if not match:
+        return None
+    token = match.group(1).replace(",", "").replace(" ", "")
+    try:
+        return "expr:" + str(Fraction(token))
+    except Exception:
+        try:
+            return "expr:" + str(Fraction(float(token)).limit_denominator(1000000))
+        except Exception:
+            return None
+
+
+def _mixed_fraction_canonical(text: str) -> str | None:
+    expanded = _expand_latex_frac_shorthand(text)
+    mixed = _replace_latex_mixed_fracs(expanded)
+    if mixed == expanded:
+        return None
+    return _sympy_canonical(mixed)
+
+
+def _looks_like_symbolic_math(text: str) -> bool:
+    return bool(re.search(r"sqrt\(|\b(?:pi|oo|I)\b|[+\-*/^(),]", text))
+
+
+def _has_non_math_words(text: str) -> bool:
+    allowed_words = {"sqrt", "pi", "oo", "I"}
+    return any(len(word) > 1 and word not in allowed_words for word in re.findall(r"[A-Za-z_]+", text))
+
+
 def _sympy_canonical(text: str) -> str | None:
     try:
         import sympy as sp
+        from sympy.parsing.sympy_parser import (
+            convert_xor,
+            implicit_multiplication_application,
+            parse_expr,
+            standard_transformations,
+        )
     except Exception:
         return None
 
-    candidates = [text]
+    ascii_text = _ascii_math_text(text)
+    candidates = [ascii_text]
+    if ascii_text != text:
+        candidates.append(text)
     latex2sympy = _get_latex2sympy()
     if latex2sympy is not None and "\\" in text:
         try:
@@ -282,24 +393,44 @@ def _sympy_canonical(text: str) -> str | None:
             return "expr:" + sp.sstr(sp.simplify(expr))
         except Exception:
             pass
-    candidates.append(_ascii_math_text(text))
+    transformations = standard_transformations + (implicit_multiplication_application, convert_xor)
+    local_dict = {"sqrt": sp.sqrt, "pi": sp.pi, "oo": sp.oo, "I": sp.I}
     for candidate in candidates:
         if not candidate:
             continue
-        try:
-            expr = sp.sympify(candidate, evaluate=True)
-        except Exception:
+        if not _looks_like_symbolic_math(candidate):
             continue
+        if _has_non_math_words(candidate):
+            continue
+        try:
+            expr = parse_expr(
+                candidate,
+                local_dict=local_dict,
+                transformations=transformations,
+                evaluate=True,
+            )
+        except Exception:
+            try:
+                expr = sp.sympify(candidate, evaluate=True)
+            except Exception:
+                continue
         try:
             expr = sp.simplify(expr)
         except Exception:
             pass
+        if getattr(expr, "is_number", False):
+            try:
+                expr = sp.nsimplify(expr)
+            except Exception:
+                pass
         return "expr:" + sp.sstr(expr)
     return None
 
 
 def _numeric_canonical(text: str) -> str | None:
     value = text.replace(",", "").replace("$", "").strip()
+    value = _expand_latex_frac_shorthand(value)
+    value = _replace_latex_mixed_fracs(value)
     value = _replace_latex_fracs(value)
     matches = re.findall(r"-?\d+(?:\.\d+)?(?:\s*/\s*-?\d+(?:\.\d+)?)?", value)
     if not matches:
@@ -322,6 +453,10 @@ def _string_canonical(text: str) -> str | None:
     value = re.sub(r"\s+", "", value)
     value = value.strip("$")
     value = value.rstrip(".")
+    if value in _PLACEHOLDER_STRINGS:
+        return None
+    if not re.search(r"[a-z0-9]", value):
+        return None
     return ("str:" + value) if value else None
 
 
@@ -329,6 +464,15 @@ def normalize_numeric(answer: Any) -> str | None:
     text = _clean_answer_text(answer)
     if not text:
         return None
+    canonical = _already_canonical(text)
+    if canonical is not None:
+        return canonical
+    simple_numeric = _simple_numeric_canonical(text)
+    if simple_numeric is not None:
+        return simple_numeric
+    mixed_fraction = _mixed_fraction_canonical(text)
+    if mixed_fraction is not None:
+        return mixed_fraction
     return _sympy_canonical(text) or _numeric_canonical(text) or _string_canonical(text)
 
 
@@ -354,11 +498,18 @@ def majority_vote(agent_answers: list[str | None]) -> tuple[str | None, bool]:
     return winners[0], True
 
 
-def generate_texts(llm: Any, prompts: list[str], sampling_params: Any, batch_size: int) -> list[str]:
+def generate_texts(
+    llm: Any,
+    prompts: list[str],
+    sampling_params: Any,
+    batch_size: int,
+    *,
+    use_tqdm: bool,
+) -> list[str]:
     outputs: list[str] = []
     for start in range(0, len(prompts), batch_size):
         batch = prompts[start : start + batch_size]
-        for result in llm.generate(batch, sampling_params, use_tqdm=True):
+        for result in llm.generate(batch, sampling_params, use_tqdm=use_tqdm):
             outputs.append(result.outputs[0].text)
     return outputs
 
@@ -403,13 +554,14 @@ def main() -> int:
 
     questions = [str(row.get("question") or "") for row in rows]
     direct_prompts = [prompt_from_messages(tokenizer, direct_prompt(question)) for question in questions]
-    direct_outputs = generate_texts(llm, direct_prompts, direct_sampling, args.batch_size)
+    use_tqdm = not args.disable_tqdm
+    direct_outputs = generate_texts(llm, direct_prompts, direct_sampling, args.batch_size, use_tqdm=use_tqdm)
 
     initial_prompts = []
     for question in questions:
         for agent_idx in range(args.agents):
             initial_prompts.append(prompt_from_messages(tokenizer, initial_agent_prompt(question, agent_idx)))
-    initial_flat = generate_texts(llm, initial_prompts, debate_sampling, args.batch_size)
+    initial_flat = generate_texts(llm, initial_prompts, debate_sampling, args.batch_size, use_tqdm=use_tqdm)
     initial_by_row = [
         initial_flat[i * args.agents : (i + 1) * args.agents]
         for i in range(len(rows))
@@ -431,7 +583,7 @@ def main() -> int:
                         revision_prompt(question, agent_idx, current_by_row[row_idx][agent_idx], peer_answers),
                     )
                 )
-        revised_flat = generate_texts(llm, revision_prompts, debate_sampling, args.batch_size)
+        revised_flat = generate_texts(llm, revision_prompts, debate_sampling, args.batch_size, use_tqdm=use_tqdm)
         current_by_row = [
             revised_flat[i * args.agents : (i + 1) * args.agents]
             for i in range(len(rows))
