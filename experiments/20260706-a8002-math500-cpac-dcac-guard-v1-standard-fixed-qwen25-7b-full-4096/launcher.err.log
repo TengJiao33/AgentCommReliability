@@ -1,0 +1,9 @@
+/data/xuhaoming/yfy/research_workspace/envs/mad-mm-vllm063/lib/python3.10/site-packages/vllm/connections.py:8: RuntimeWarning: Failed to read commit hash:
+No module named 'vllm._version'
+  from vllm.version import __version__ as VLLM_VERSION
+Loading safetensors checkpoint shards:   0% Completed | 0/4 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:  25% Completed | 1/4 [00:09<00:27,  9.04s/it]
+Loading safetensors checkpoint shards:  50% Completed | 2/4 [00:17<00:17,  8.91s/it]
+Loading safetensors checkpoint shards:  75% Completed | 3/4 [00:26<00:08,  8.87s/it]
+Loading safetensors checkpoint shards: 100% Completed | 4/4 [00:34<00:00,  8.44s/it]
+Loading safetensors checkpoint shards: 100% Completed | 4/4 [00:34<00:00,  8.61s/it]

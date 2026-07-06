@@ -2,7 +2,7 @@
 
 ## 目的
 
-按当前标准口径重新运行 MCA-P。该 run 自己重新采样 3 路初始答案，初始 prompt 使用 Standard MAD prompt family。
+按当前标准口径重新运行 MCA-P，不复用任何旧 records，避免非标准旧池污染当前横向比较。该 run 自己重新采样 3 路初始答案，但初始 prompt 使用 Standard MAD prompt family，目标是使初始多数落在当前标准 MAD 水平附近。
 
 ## 设计
 
@@ -26,9 +26,9 @@
 - cue-only 重新求解最大输出长度：4096。
 - 最大上下文长度：24064。
 
-## 验收项
+## 实验门禁
 
-主要用途是生成当前标准口径下的 MCA-P full diagnostic。
+主要用途是生成当前标准口径下的 MCA-P full diagnostic，与 Standard MAD 4096 / MAD-MM 362-level records 分开读。
 
 支持信号：本 run initial majority 接近当前标准 MAD 水平，最终正确率高于同一 run initial majority，且错误初始多数恢复比例高于正确初始多数伤害比例。
 
