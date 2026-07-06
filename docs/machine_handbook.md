@@ -1,126 +1,71 @@
-# Machine Handbook
+# 机器手册
 
-> Source: distilled from `D:\develop\RA-Internship-Tasks`.
-> Purpose: make machine access, file placement, and resource rules explicit before any experiment is launched.
+> 目的：在启动任何实验前，明确机器访问、文件放置和资源使用规则。
 
-This document intentionally records only operational facts and rules. It must not contain passwords, private keys, tokens, proxy config contents, or private contact details.
+快速连通、磁盘、GPU 检查命令见 `docs/machine_quickstart.md`。本文保留完整规则和背景。
 
-## Machine Summary
+## 机器概览
 
-| Machine | Role | Status |
+| 机器 | 角色 | 状态 |
 | --- | --- | --- |
-| Falcon | Original RA server, 3 x A800 80GB observed. Often busy. | Use only when the reverse tunnel works and resources are free. |
-| A800_2 | Alternate compute host from Herman, 8 x A800-SXM4-80GB observed. | Preferred for controlled small experiments when available. |
+| Falcon | 原 RA 服务器，观察到 3 张 A800 80GB，常处于繁忙状态。 | 仅在反向隧道可用且资源空闲时使用。 |
+| A800_2 | 徐浩铭师兄提供的备用计算主机，观察到 8 张 A800-SXM4-80GB。 | 可用时优先用于受控小实验。 |
 
-## Local Source Projects
+### Falcon 放置规则
 
-| Local Path | Role |
-| --- | --- |
-| `D:\develop\RA-Internship-Tasks` | Source of current machine rules, EasyEdit RA worklogs, and command snippets. |
-| `D:\develop\ArXiv_Daily_Digest` | Paper radar; use it for paper discovery and mentor brief generation. |
-| `D:\develop\AgentCommReliability` | This project; local scaffold plus machine and resource notes. |
-
-## Remote File Placement For This Project
-
-Use a project-specific subdirectory. Do not mix this project into existing EasyEdit task roots without a reason.
-
-### Falcon
-
-Preferred project root:
+首选项目根目录：
 
 ```bash
 /mnt/20t/xuhaoming/yfy/research_workspace
 ```
 
-Suggested layout:
+规则：
 
-```text
-/mnt/20t/xuhaoming/yfy/research_workspace/
-  baselines/
-  data/
-  envs/
-  logs/
-  results/
-```
+- 共享模型目录保持只读。
+- 不要把项目文件放在 `/home/xhm` 下。
+- 不要修改 `/mnt/20t/xuhaoming/CCKS-archive` 或 `/mnt/20t/xuhaoming`。
+- 不要复用无关的脏 checkout。
 
-Existing RA paths on Falcon:
+### A800_2 放置规则
 
-```text
-/mnt/20t/xuhaoming/yfy/EasyEdit
-/mnt/20t/xuhaoming/yfy/conda_envs/easyedit-pr670
-/mnt/20t/xuhaoming/yfy/conda_envs/easyedit-qwen35
-/mnt/20t/xuhaoming/models/Qwen2.5-1.5B
-/mnt/20t/xuhaoming/models/Qwen3.5-9B
-```
-
-Rules:
-
-- Keep shared model directories read-only.
-- Do not put project files under `/home/xhm`.
-- Do not modify `/mnt/20t/xuhaoming/CCKS-archive` or `/mnt/20t/xuhaoming`.
-- Do not reuse an unrelated dirty checkout.
-
-### A800_2
-
-Preferred project root:
+首选项目根目录：
 
 ```bash
 /data/xuhaoming/yfy/research_workspace
 ```
 
-Suggested layout:
+规则：
 
-```text
-/data/xuhaoming/yfy/research_workspace/
-  baselines/
-  data/
-  envs/
-  logs/
-  results/
-```
+- 本项目优先使用 `/data/xuhaoming/yfy/research_workspace`。
+- 将 `/mnt/quarkfs/share_model` 视为只读目录。
+- 不要覆盖 `/data/xuhaoming/EasyEdit`；该目录此前被观察为旧且脏。
+- 使用 `/data/xuhaoming/yfy` 下的任务局部缓存和环境，不使用共享环境。
 
-Existing useful paths:
+## 进入机器
 
-```text
-/data/xuhaoming/yfy/EasyEdit
-/data/xuhaoming/yfy/conda_envs/easyedit-qwen35
-/mnt/quarkfs/share_model
-/mnt/quarkfs/share_model/Qwen2.5-1.5B
-/mnt/quarkfs/share_model/Qwen3.5-9B
-```
+### Falcon 默认路由
 
-Rules:
-
-- Prefer `/data/xuhaoming/yfy/research_workspace` for this project.
-- Treat `/mnt/quarkfs/share_model` as read-only.
-- Do not overwrite `/data/xuhaoming/EasyEdit`; it was previously observed as old/dirty.
-- Use `/data/xuhaoming/yfy` task-local caches and environments, not shared environments.
-
-## Entering Machines
-
-### Falcon Default Route
-
-Configured alias:
+已配置别名：
 
 ```bash
 ssh falcon-rev
 ```
 
-Expected route:
+预期路由：
 
 ```text
 local machine -> aliyun -> 127.0.0.1:2222 on aliyun -> falcon
 ```
 
-Basic check:
+基础检查：
 
 ```bash
 ssh -o BatchMode=yes -o ConnectTimeout=8 falcon-rev hostname
 ```
 
-If it fails with `channel 0: open failed: connect failed: Connection refused`, the jump host may be reachable but the reverse tunnel from Falcon to Aliyun is down.
+如果失败信息包含 `channel 0: open failed: connect failed: Connection refused`，说明跳板机可能可达，但 Falcon 到 Aliyun 的反向隧道已断开。
 
-Diagnostics:
+诊断命令：
 
 ```bash
 ssh -G falcon-rev
@@ -128,26 +73,26 @@ ssh aliyun "hostname && (ss -ltnp 2>/dev/null || netstat -ltnp 2>/dev/null) | gr
 ssh -vvv -o BatchMode=yes -o ConnectTimeout=8 falcon-rev hostname
 ```
 
-Do not change credentials, proxy configs, or server-side SSH keys as a guess. Ask the server owner to restore the tunnel if needed.
+不要凭猜测修改凭证、代理配置或服务器端 SSH key。需要时请服务器所有者恢复隧道。
 
-### Falcon Temporary Alternate Port
+### Falcon 临时备用端口
 
-On 2026-06-06, port `48175` was verified to reach Falcon as `xhm` when `2222` was down.
+2026-06-06 曾验证端口 `48175` 可以在 `2222` 不可用时以 `xhm` 身份进入 Falcon。
 
-Temporary command:
+临时命令：
 
 ```bash
 ssh -o HostKeyAlias=falcon-rev-48175 -J aliyun -p 48175 xhm@127.0.0.1
 ```
 
-Status rule:
+状态规则：
 
-- Treat `48175` as temporary unless Herman or the server owner confirms it is stable.
-- Use it only after the default route fails and the alternate route is checked.
+- 除非 Herman 或服务器所有者确认稳定，否则将 `48175` 视为临时入口。
+- 只有在默认路由失败且备用路由检查通过后才使用。
 
-### A800_2
+### A800_2 入口
 
-SSH config:
+SSH 配置：
 
 ```text
 Host A800_2
@@ -156,29 +101,21 @@ Host A800_2
     Port 10622
 ```
 
-Preferred check:
+首选检查：
 
 ```bash
 ssh -o BatchMode=yes -o ConnectTimeout=10 A800_2 "hostname; whoami; pwd"
 ```
 
-Direct form if local SSH config is not updated:
+如果本地 SSH 配置未更新，使用直连形式：
 
 ```bash
 ssh -o BatchMode=yes -o ConnectTimeout=10 -p 10622 xuhaoming@124.128.251.61 "hostname; whoami; pwd"
 ```
 
-Observed first-check facts from RA docs:
+## GPU 运行前检查
 
-- Host reported `10-116-90-20`.
-- 8 x A800-SXM4-80GB.
-- `/data` had about `1.5T` free at first check.
-- `/mnt/quarkfs` had about `9.5T` free at first check.
-- `Qwen2.5-1.5B` and `Qwen3.5-9B` existed under `/mnt/quarkfs/share_model`.
-
-## Preflight Before Any GPU Run
-
-Always run checks before launching a job:
+启动任何任务前都要检查：
 
 ```bash
 nvidia-smi --query-gpu=index,name,memory.used,memory.free,utilization.gpu --format=csv,noheader,nounits
@@ -186,50 +123,48 @@ df -h
 pgrep -af 'python|torchrun|accelerate|run_' || true
 ```
 
-For A800_2 through SSH:
+通过 SSH 检查 A800_2：
 
 ```bash
 ssh -o BatchMode=yes -o ConnectTimeout=10 A800_2 "nvidia-smi --query-gpu=index,name,memory.used,memory.free,utilization.gpu --format=csv,noheader,nounits"
 ssh -o BatchMode=yes -o ConnectTimeout=10 A800_2 "df -h /data /mnt/quarkfs"
 ```
 
-Before a project-specific run, record:
+项目任务启动前记录：
 
-- method;
-- target machine;
-- target GPU;
-- expected command;
-- timeout;
-- output path;
-- whether any download or install is needed.
+- 方法；
+- 目标机器；
+- 目标 GPU；
+- 预期命令；
+- 超时时间；
+- 输出路径；
+- 是否需要下载或安装。
 
-## GPU Rules
+## GPU 规则
 
-- GPU use is permitted, but only with controlled jobs.
-- Always set `CUDA_VISIBLE_DEVICES`.
-- Use explicit timeouts for long runs.
-- Do not kill or disturb other users' processes.
-- If a run is interrupted, only clean up the process started for this project.
-- Start with small models, small datasets, and small round counts.
-- Prefer one GPU for first reproductions.
-- Do not launch full matrices until a smoke run passes.
+- 可以使用 GPU，但只能运行受控任务。
+- 必须设置 `CUDA_VISIBLE_DEVICES`。
+- 长任务必须显式设置超时。
+- 不要杀掉或干扰其他用户的进程。
+- 如果运行被中断，只清理本项目启动的进程。
+- 首次复现优先使用单 GPU。
 
-Example single-GPU pattern:
+单 GPU 示例：
 
 ```bash
 export CUDA_VISIBLE_DEVICES=1
 timeout 30m python path/to/new_runner.py --config path/to/config.yaml
 ```
 
-## Environment Rules
+## 环境规则
 
-- Do not install into shared conda environments unless explicitly approved.
-- Create task-local envs under:
-  - Falcon: `/mnt/20t/xuhaoming/yfy/research_workspace/envs/`
-  - A800_2: `/data/xuhaoming/yfy/research_workspace/envs/`
-- Use task-local caches:
+- 除非明确获准，不要安装到共享 conda 环境。
+- 在任务局部目录创建环境：
+  - Falcon：`/mnt/20t/xuhaoming/yfy/research_workspace/envs/`
+  - A800_2：`/data/xuhaoming/yfy/research_workspace/envs/`
+- 使用任务局部缓存。
 
-Falcon:
+Falcon：
 
 ```bash
 export HF_HOME=/mnt/20t/xuhaoming/yfy/research_workspace/hf_home
@@ -237,7 +172,7 @@ export TORCH_HOME=/mnt/20t/xuhaoming/yfy/research_workspace/torch_home
 export PIP_CACHE_DIR=/mnt/20t/xuhaoming/yfy/research_workspace/pip_cache
 ```
 
-A800_2:
+A800_2：
 
 ```bash
 export HF_HOME=/data/xuhaoming/yfy/research_workspace/hf_home
@@ -245,57 +180,45 @@ export TORCH_HOME=/data/xuhaoming/yfy/research_workspace/torch_home
 export PIP_CACHE_DIR=/data/xuhaoming/yfy/research_workspace/pip_cache
 ```
 
-Prefer local model loading:
+优先使用本地模型加载：
 
 ```python
 local_files_only=True
 ```
 
-## Network And Downloads
+## 网络和下载
 
-- Check disk before downloading.
-- Record every new dataset/model download in the active experiment note.
-- Prefer existing local models.
-- Do not download large online models unless there is a clear experiment need and resource approval.
-- On Falcon, GitHub access may need server-side proxy `http://127.0.0.1:7890`; do not read or copy proxy configuration.
+- 下载前检查磁盘。
+- 每次新增数据集或模型下载，都记录到当前实验说明中。
+- 优先使用已有本地模型。
+- 没有明确实验需要和资源许可时，不要下载大型在线模型。
+- Falcon 上 GitHub 访问可能需要服务器侧代理 `http://127.0.0.1:7890`；不要读取或复制代理配置。
 
-## Git Rules
+## Git 规则
 
-- Use clean task-specific clones under the project root.
-- Check branch and dirty state before editing:
+- 在项目根目录下使用干净的任务专属 clone。
+- 编辑前检查分支和脏状态：
 
 ```bash
 git status --short --branch
 git log --oneline --decorate -3
 ```
 
-- Stage explicit files only.
-- Avoid `git add .`.
-- Do not reset, clean, or switch branches inside unrelated repositories.
+- 只 stage 明确文件。
+- 避免 `git add .`。
+- 不要在无关仓库里 reset、clean 或切换分支。
 
-## Evidence Levels
+## 本项目首次远程设置检查清单
 
-Use precise wording:
-
-| Evidence | What It Proves | What It Does Not Prove |
-| --- | --- | --- |
-| import check | package imports | method works |
-| smoke run | code path executes | quality or robustness |
-| small dataset run | integration path and metrics writing | benchmark-level result |
-| ablation with repeated seeds | local trend under controlled setup | general claim |
-| full benchmark | stronger empirical claim | theoretical guarantee |
-
-## First Remote Setup Checklist For This Project
-
-Only run this after deciding which machine to use.
+只在决定使用哪台机器后运行。
 
 ```bash
-# A800_2 example
+# A800_2 示例
 ssh A800_2 "mkdir -p /data/xuhaoming/yfy/research_workspace/{baselines,data,envs,logs,results}"
 ssh A800_2 "ls -ld /data/xuhaoming/yfy/research_workspace"
 ```
 
-Then record durable resource facts in:
+然后把可长期复核的资源事实记录到：
 
 ```text
 docs/server_resource_inventory.md

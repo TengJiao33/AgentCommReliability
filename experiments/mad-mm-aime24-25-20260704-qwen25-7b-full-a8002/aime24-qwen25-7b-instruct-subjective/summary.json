@@ -1,0 +1,45 @@
+{
+  "agents": 3,
+  "benchmark": "aime24",
+  "counts": {
+    "final_correct": 4,
+    "final_majority_ties": 9,
+    "final_parse_fail": 0,
+    "initial_majority_correct": 3,
+    "retained_memories": 87,
+    "total": 30,
+    "total_mask_decisions": 90
+  },
+  "elapsed_seconds": 480.3311858177185,
+  "gpu_id": "7",
+  "max_model_len": 24064,
+  "max_tokens": 4096,
+  "metrics": {
+    "agent_final_accuracy": [
+      0.13333333333333333,
+      0.1,
+      0.13333333333333333
+    ],
+    "final_accuracy": 0.13333333333333333,
+    "final_majority_tie_rate": 0.3,
+    "final_parse_fail_rate": 0.0,
+    "initial_majority_accuracy": 0.1,
+    "memory_retention_rate": 0.9666666666666667
+  },
+  "model_key": "qwen25-7b-instruct",
+  "model_path": "/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct",
+  "prune_strategy": "subjective",
+  "records_path": "/data/xuhaoming/yfy/research_workspace/experiments/mad-mm-aime24-25-20260704-qwen25-7b-full-a8002/aime24-qwen25-7b-instruct-subjective/records.jsonl",
+  "rounds": 2,
+  "rows": 30,
+  "run_id": "mad-mm-aime24-25-20260704-qwen25-7b-full-a8002",
+  "split": "train",
+  "strict": false,
+  "subjective_label_counts": {
+    "no": 3,
+    "not sure": 7,
+    "yes": 80
+  },
+  "temperature": 1.0,
+  "top_p": 1.0
+}

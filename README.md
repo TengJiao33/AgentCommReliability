@@ -4,8 +4,6 @@
 
 ## 当前问题
 
-核心问题是：多 agent 推理失败到底来自候选答案覆盖不足、候选识别失败，还是通信/聚合协议把有用分歧处理坏了。
-
 当前保留两条机制线：
 
 - `CPAC/DCAC/guard`：候选池状态诊断与受控翻案。先判断 `unique=1/2/3+` 候选池状态，再决定早停、证书化 minority 翻案、listwise 识别或其他动作。
@@ -15,10 +13,10 @@
 
 ## 当前证据
 
-- 标准 MAD 4096 输出预算基线：`experiments/20260705-a8002-math500-standard-mad-qwen25-7b-full-4096/`。
-- CPAC/DCAC guard-v1 标准配置诊断：`experiments/20260705-a8002-math500-cpac-dcac-guard-v1-standard-qwen25-7b-full-4096/`。
-- MCA-T audit 标准配置诊断：`experiments/20260705-a8002-math500-mca-text-audit-standard-qwen25-7b-full-4096/`。
-- MCA-P soft-prefix 标准配置诊断：`experiments/20260705-a8002-math500-mca-soft-prefix-standard-qwen25-7b-full-4096/`。
+- 标准 MAD 4096 输出预算基线：`experiments/standard-mad-math500-20260705-qwen25-7b-full-4096-a8002/`。
+- CPAC/DCAC guard-v1 标准配置诊断：`experiments/cpac-dcac-guard-v1-math500-20260705-standard-qwen25-7b-full-4096-a8002/`。
+- MCA-T audit 标准配置诊断：`experiments/mca-text-audit-math500-20260705-standard-qwen25-7b-full-4096-a8002/`。
+- MCA-P soft-prefix 标准配置诊断：`experiments/mca-soft-prefix-math500-20260705-standard-qwen25-7b-full-4096-a8002/`。
 
 ## 入口
 

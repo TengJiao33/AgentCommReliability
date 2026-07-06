@@ -1,57 +1,57 @@
-# Machine Quickstart
+# 机器快速检查
 
-Use this as the checklist before remote work. Keep project files under the project-specific remote root.
+这是远程工作前的短命令清单。完整机器规则、文件放置、环境、下载和安全边界见 `docs/machine_handbook.md`。
 
-## Preferred Remote Project Roots
+## 远端项目根目录
 
 ```text
 Falcon: /mnt/20t/xuhaoming/yfy/research_workspace
 A800_2: /data/xuhaoming/yfy/research_workspace
 ```
 
-## A800_2 Entry
+## A800_2
+
+连通性检查：
 
 ```bash
 ssh -o BatchMode=yes -o ConnectTimeout=10 A800_2 "hostname; whoami; pwd"
 ```
 
-Direct form:
+如果本地 SSH 配置不可用，使用直连形式：
 
 ```bash
 ssh -o BatchMode=yes -o ConnectTimeout=10 -p 10622 xuhaoming@124.128.251.61 "hostname; whoami; pwd"
 ```
 
-Check GPUs:
+资源检查：
 
 ```bash
-ssh A800_2 "nvidia-smi --query-gpu=index,name,memory.used,memory.free,utilization.gpu --format=csv,noheader,nounits"
+ssh -o BatchMode=yes -o ConnectTimeout=10 A800_2 "date -Is; df -h /data /mnt/quarkfs; nvidia-smi --query-gpu=index,name,memory.used,memory.free,utilization.gpu --format=csv,noheader,nounits"
 ```
 
-Check project root:
+项目根目录检查：
 
 ```bash
 ssh A800_2 "mkdir -p /data/xuhaoming/yfy/research_workspace/{baselines,data,envs,logs,results} && ls -ld /data/xuhaoming/yfy/research_workspace"
 ```
 
-## Falcon Entry
+## Falcon
 
-Default:
+默认入口：
 
 ```bash
 ssh -o BatchMode=yes -o ConnectTimeout=8 falcon-rev hostname
 ```
 
-If default reverse tunnel is down, temporary alternate from 2026-06-06:
+默认反向隧道不可用时，先确认 `docs/machine_handbook.md` 中的备用入口规则，再使用：
 
 ```bash
 ssh -o HostKeyAlias=falcon-rev-48175 -J aliyun -p 48175 xhm@127.0.0.1 "hostname; whoami; pwd"
 ```
 
-Use the alternate only after checking that the default route fails.
+## GPU 任务启动前
 
-## Before Launching A GPU Job
-
-Record these in an experiment note:
+先记录最低信息：
 
 ```text
 machine:
@@ -65,28 +65,15 @@ timeout:
 output path:
 ```
 
-Then run:
+再按单 GPU 方式启动：
 
 ```bash
 export CUDA_VISIBLE_DEVICES=<one-visible-gpu>
 timeout 30m <python> <script> <args>
 ```
 
-## Do Not
+## 规则入口
 
-- Do not put project files under `/home/xhm`.
-- Do not modify shared model folders.
-- Do not overwrite `/data/xuhaoming/EasyEdit`.
-- Do not modify `/mnt/20t/xuhaoming/CCKS-archive` or `/mnt/20t/xuhaoming`.
-- Do not install into shared conda envs.
-- Do not run jobs without `CUDA_VISIBLE_DEVICES`.
-- Do not kill other users' processes.
-- Do not record passwords, private keys, tokens, or proxy config contents.
-
-## Environment Rules
-
-- Use task-local envs under `/data/xuhaoming/yfy/research_workspace/envs/`.
-- Treat `/mnt/quarkfs/share_model` as read-only.
-- Prefer one GPU for first reproductions.
-- Use explicit `timeout` wrappers for model jobs.
-- Record every new dataset/model download in the active run note.
+- 文件放置、共享目录、禁止事项：见 `docs/machine_handbook.md`。
+- 资源台账和模型/数据缓存：见 `docs/server_resource_inventory.md`。
+- 实验记录格式：见 `docs/experiment_protocol.md`。

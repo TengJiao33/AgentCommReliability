@@ -1,0 +1,41 @@
+{
+  "agents": 3,
+  "benchmark": "math500",
+  "counts": {
+    "final_correct": 360,
+    "final_majority_ties": 1,
+    "final_parse_fail": 0,
+    "initial_majority_correct": 362,
+    "retained_memories": 500,
+    "total": 500,
+    "total_mask_decisions": 1500
+  },
+  "elapsed_seconds": 3940.077239751816,
+  "gpu_id": "1",
+  "max_model_len": 24064,
+  "max_tokens": 4096,
+  "metrics": {
+    "agent_final_accuracy": [
+      0.716,
+      0.726,
+      0.72
+    ],
+    "final_accuracy": 0.72,
+    "final_majority_tie_rate": 0.002,
+    "final_parse_fail_rate": 0.0,
+    "initial_majority_accuracy": 0.724,
+    "memory_retention_rate": 0.3333333333333333
+  },
+  "model_key": "qwen25-7b-instruct",
+  "model_path": "/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct",
+  "prune_strategy": "objective",
+  "records_path": "/data/xuhaoming/yfy/research_workspace/experiments/mad-mm-math500-20260704-qwen25-7b-full-a8002/math500-qwen25-7b-instruct-objective/records.jsonl",
+  "rounds": 2,
+  "rows": 500,
+  "run_id": "mad-mm-math500-20260704-qwen25-7b-full-a8002",
+  "split": "test",
+  "strict": false,
+  "subjective_label_counts": {},
+  "temperature": 1.0,
+  "top_p": 1.0
+}

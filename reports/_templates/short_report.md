@@ -1,18 +1,12 @@
-# <Topic>
+# <主题>
 
-## What We Tried
+## 尝试内容
 
-## Setup
+## 设置
 
-## Runs Compared
+## 实际结果
 
-## What Happened
-
-| Method | Model | Dataset | Seed | Samples | Accuracy | Tokens | Time |
+| 方法 | 模型 | 数据集 | 种子 | 样本数 | 准确率 | 令牌 | 时间 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 
-## Things Noticed
-
-## Failures / Friction
-
-## Loose Threads
+## 观察

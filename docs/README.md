@@ -1,4 +1,4 @@
-# Docs Index
+# 文档索引
 
 日期：2026-07-03
 
@@ -12,6 +12,7 @@
 - `remote_sync_manifest.md`：当前最小远程同步规则。
 - `project_physical_management.md`：清场后的目录职责。
 - `experiment_protocol.md`：以后重新开实验时的记录格式。
+- `benchmark_preparation.md`：基准数据准备方式。
 
 ## 新文档类型
 

@@ -25,11 +25,11 @@
 
 `MCE` 指 Metacognitive Cue Exchange，是 MCA 中的 cue exchange 协议对象名；`MCA-P` 指 soft-prefix 实现版本。
 
-## 当前材料
+## 材料
 
 - `reports/2026-07-05-current-mechanism-taxonomy.md`
 - `reports/2026-07-05-mad-mechanism-improvement-table.md`
-- `experiments/20260705-a8002-math500-standard-mad-qwen25-7b-full-4096/`
-- `experiments/20260705-a8002-math500-cpac-dcac-guard-v1-standard-qwen25-7b-full-4096/`
-- `experiments/20260705-a8002-math500-mca-text-audit-standard-qwen25-7b-full-4096/`
-- `experiments/20260705-a8002-math500-mca-soft-prefix-standard-qwen25-7b-full-4096/`
+- `experiments/standard-mad-math500-20260705-qwen25-7b-full-4096-a8002/`
+- `experiments/cpac-dcac-guard-v1-math500-20260705-standard-qwen25-7b-full-4096-a8002/`
+- `experiments/mca-text-audit-math500-20260705-standard-qwen25-7b-full-4096-a8002/`
+- `experiments/mca-soft-prefix-math500-20260705-standard-qwen25-7b-full-4096-a8002/`

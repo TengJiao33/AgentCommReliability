@@ -1,86 +1,86 @@
-# Experiment Protocol
+# 实验协议
 
-This is a neutral template for future work. It does not preserve any old experiment line.
+这是未来工作的中性模板，不继承任何旧实验线。
 
-## Principle
+## 原则
 
-Every future run should be understandable from its own notes. A result without task, code state, command, resource, output path, and note is not a durable result.
+每次运行都应该能只靠自己的记录被理解。缺少任务、代码状态、命令、资源、输出路径和说明的结果，不是可长期复核的结果。
 
-## Run ID Format
+## 运行 ID 格式
 
-Use:
+使用：
 
 ```text
 YYYYMMDD-HHMM-<machine>-<task>-<short-note>
 ```
 
-## Required Run Note
+## 必需运行记录
 
-Create one note per run under `experiments/<run-id>/README.md`.
+每个 run 在 `experiments/<run-id>/README.md` 下创建一份记录。
 
-```markdown
+````markdown
 # <run-id>
 
-## Question
+## 问题
 
-What are we trying to decide?
+这次运行要帮助判断什么？
 
-## Scope
+## 范围
 
-- Task:
-- Method or intervention:
-- Baseline:
-- Model:
-- Dataset or input source:
-- Sample count:
+- 任务：
+- 方法或干预：
+- 基线：
+- 模型：
+- 数据集或输入来源：
+- 样本数：
 
-## Machine
+## 机器
 
-- Host:
-- GPU:
-- Free memory before launch:
-- Work dir:
+- 主机：
+- GPU：
+- 启动前空闲显存：
+- 工作目录：
 
-## Code
+## 代码
 
-- Repo or script:
-- Commit:
-- Local modifications:
+- 仓库或脚本：
+- 提交：
+- 本地改动：
 
-## Environment
+## 环境
 
-- Python:
-- Key packages:
-- Backend:
+- Python：
+- 关键包：
+- 后端：
 
-## Command
+## 命令
 
 ```bash
 ```
 
-## Outputs
+## 输出
 
-- Remote directory:
-- Logs:
-- Raw results:
-- Summary:
+- 远端目录：
+- 日志：
+- 原始结果：
+- 摘要：
 
-## Result
+## 结果
 
-- Status:
-- Main metric:
-- Wall time:
-- Token or compute cost:
+- 状态：
+- 主指标：
+- 墙钟时间：
+- 令牌或计算成本：
 
-## Cleanup
+## 清理
 
-- Keep:
-- Delete:
-```
+- 保留：
+- 删除：
+````
 
-## Status Values
+## 状态值
 
-Use one of:
+使用以下之一：
 
 - `PREPARED`
 - `RUNNING`
@@ -90,6 +90,6 @@ Use one of:
 - `STOPPED_BY_RESOURCE`
 - `ARCHIVED`
 
-## Report Rule
+## 报告规则
 
-Most facts stay in the run README. Write a top-level report only when a result changes what to do next.
+大多数事实保留在 run README 中。只有当结果改变当前判断或后续安排时，才写顶层报告。

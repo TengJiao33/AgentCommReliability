@@ -1,43 +1,29 @@
-# <Report Title>
+# <报告标题>
 
-## Decision
+## 问题
 
-What changed after this result?
+- 问题：
 
-## Question
+## 范围
 
-- Original question:
-- Expected decision boundary:
+- 任务：
+- 对比方法：
+- 模型：
+- 数据集或输入来源：
+- 样本量：
 
-## Scope
+## 证据来源
 
-- Task:
-- Compared methods:
-- Model:
-- Dataset or input source:
-- Sample size:
-- Evidence level:
-
-## Sources
-
-| Source | Type | Path / Link |
+| 来源 | 类型 | 路径/链接 |
 | --- | --- | --- |
 |  |  |  |
 
-## Results
+## 结果
 
-| Method | Model | Task | Samples | Main Metric | Cost | Status |
+| 方法 | 模型 | 任务 | 样本数 | 主指标 | 成本 | 状态 |
 | --- | --- | --- | ---: | ---: | ---: | --- |
 |  |  |  |  |  |  |  |
 
-## Observations
+## 观察
 
-Facts visible in logs, outputs, code, or reviewer-visible artifacts.
-
-## Interpretation
-
-Conditional explanation of what the result suggests.
-
-## Next Action
-
-What should happen less, more, or differently because of this report?
+记录日志、输出、代码或可审阅产物中直接可见的事实
