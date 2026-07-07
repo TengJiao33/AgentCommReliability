@@ -466,8 +466,15 @@ def load_input_record_rows(path: Path, limit: int) -> tuple[list[dict[str, Any]]
                 continue
             record = json.loads(line)
             protocol = record.get("cpac") or record.get("cqg")
-            if not isinstance(protocol, dict) or "initial_outputs" not in protocol:
-                raise SystemExit(f"input record lacks cpac/cqg initial_outputs: {record.get('id')}")
+            if isinstance(protocol, dict) and "initial_outputs" in protocol:
+                row_initial_outputs = protocol["initial_outputs"]
+            else:
+                mad_mm = record.get("mad_mm")
+                rounds = mad_mm.get("rounds") if isinstance(mad_mm, dict) else None
+                first_round = rounds[0] if isinstance(rounds, list) and rounds else None
+                row_initial_outputs = first_round.get("agent_outputs") if isinstance(first_round, dict) else None
+            if not isinstance(row_initial_outputs, list):
+                raise SystemExit(f"input record lacks reusable initial outputs: {record.get('id')}")
             rows.append(
                 {
                     "index": record.get("index", len(rows)),
@@ -476,7 +483,7 @@ def load_input_record_rows(path: Path, limit: int) -> tuple[list[dict[str, Any]]
                     "answer": record.get("gold_answer"),
                 }
             )
-            initial_outputs.append(protocol["initial_outputs"])
+            initial_outputs.append(row_initial_outputs)
             if limit and len(rows) >= limit:
                 break
     return rows, initial_outputs

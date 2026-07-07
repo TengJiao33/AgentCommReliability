@@ -27,9 +27,9 @@
 
 ## 材料
 
-- `reports/2026-07-05-current-mechanism-taxonomy.md`
-- `reports/2026-07-05-mad-mechanism-improvement-table.md`
+- `reports/mad-mechanism-improvement-table.md`
+- `reports/2026-07-06-cpac-dcac-guard-v1-standard-fixed.md`
 - `experiments/standard-mad-math500-20260705-qwen25-7b-full-4096-a8002/`
-- `experiments/cpac-dcac-guard-v1-math500-20260705-standard-qwen25-7b-full-4096-a8002/`
-- `experiments/mca-text-audit-math500-20260705-standard-qwen25-7b-full-4096-a8002/`
-- `experiments/mca-soft-prefix-math500-20260705-standard-qwen25-7b-full-4096-a8002/`
+- `experiments/cpac-dcac-guard-v1-math500-20260706-standard-fixed-qwen25-7b-full-4096-a8002/`
+- 远端 MCA-T audit aligned：`A800_2:/data/xuhaoming/yfy/research_workspace/experiments/20260706-a8002-math500-mca-text-audit-standard-madmm-aligned-qwen25-7b-full/`
+- 远端 MCA-P soft-prefix aligned：`A800_2:/data/xuhaoming/yfy/research_workspace/experiments/20260706-a8002-math500-mca-soft-prefix-standard-madmm-aligned-qwen25-7b-full/`

@@ -1,6 +1,8 @@
 import sys
 import unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
+import json
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
@@ -11,6 +13,7 @@ from run_mca_text import (
     contains_candidate_answer,
     filter_cues,
     is_generic_cue,
+    load_input_record_rows,
     parse_cue_atoms,
     parse_cue_id_list,
     parse_cue_resolve_output,
@@ -143,6 +146,38 @@ class MCATextTest(unittest.TestCase):
         self.assertEqual(parsed.normalized_answer, "expr:42")
         self.assertEqual(parsed.used_cues, ("S1C1", "S3C2"))
         self.assertEqual(parsed.ignored_cues, ())
+
+    def test_load_input_record_rows_accepts_mad_mm_round_one_outputs(self) -> None:
+        record = {
+            "index": 7,
+            "id": "case-7",
+            "question": "Question?",
+            "gold_answer": "42",
+            "mad_mm": {
+                "rounds": [
+                    {
+                        "round": 1,
+                        "agent_outputs": [
+                            {"parsed_answer": "42", "normalized_answer": "expr:42", "output": "a"},
+                            {"parsed_answer": "43", "normalized_answer": "expr:43", "output": "b"},
+                        ],
+                    },
+                    {
+                        "round": 2,
+                        "agent_outputs": [
+                            {"parsed_answer": "99", "normalized_answer": "expr:99", "output": "final"},
+                        ],
+                    },
+                ]
+            },
+        }
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "records.jsonl"
+            path.write_text(json.dumps(record) + "\n", encoding="utf-8")
+            rows, initial_outputs = load_input_record_rows(path, limit=0)
+
+        self.assertEqual(rows[0]["id"], "case-7")
+        self.assertEqual([item["parsed_answer"] for item in initial_outputs[0]], ["42", "43"])
 
 
 if __name__ == "__main__":

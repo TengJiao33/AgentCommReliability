@@ -45,7 +45,7 @@
 
 ## 状态
 
-`RUNNING_GPU1`。
+`NO_LOCAL_SUMMARY`。
 
 `2026-07-05T22:22+08:00` 启动完整运行：
 
@@ -55,6 +55,14 @@
 - GPU：`1`。
 - 启动后检查：evaluator smoke 与 import smoke 通过，MATH-500 行数为 500；模型权重已开始加载。
 - 运行命令不传 `--input-records`，显式使用 `--initial-prompt-style standard-mad`、主生成/cue/resolve `max_tokens=4096`、`max_model_len=24064`，temperature/top-p 均为 1.0。
+
+本地目录没有 `summary.json` 或 `records.jsonl`。2026-07-06 远端另有 aligned MCA-P soft-prefix 运行：
+
+```text
+A800_2:/data/xuhaoming/yfy/research_workspace/experiments/20260706-a8002-math500-mca-soft-prefix-standard-madmm-aligned-qwen25-7b-full/
+```
+
+最近一次只读检查时，该 aligned run 仍在 GPU 6 上运行，尚未看到 summary。
 
 ## 预期输出
 

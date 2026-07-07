@@ -1,0 +1,63 @@
+{
+  "benchmark": "math500",
+  "packets": [
+    {
+      "benchmark": "math500",
+      "canonical_jsonl": "data/benchmarks/math500/mca_disagreement_v1/canonical.jsonl",
+      "counts": {
+        "dropped": 279,
+        "minority_bearing": 134,
+        "no_majority_conflict": 87,
+        "selected": 221,
+        "source_records": 500
+      },
+      "packet_type": "label_free_disagreement",
+      "row_key": [
+        "id",
+        "index"
+      ],
+      "rows": 221,
+      "selection_uses_gold": false,
+      "selection_uses_mca_outputs": false,
+      "source_records": "D:\\develop\\AgentCommReliability\\experiments\\standard-mad-math500-20260705-qwen25-7b-full-4096-a8002\\math500-qwen25-7b-instruct-naive\\records.jsonl",
+      "split": "mca_disagreement_v1"
+    },
+    {
+      "benchmark": "math500",
+      "canonical_jsonl": "data/benchmarks/math500/mca_gold_contrast_v1/canonical.jsonl",
+      "counts": {
+        "dropped": 358,
+        "majority_correct_minority_wrong": 84,
+        "majority_wrong_minority_correct": 20,
+        "no_majority_mixed": 38,
+        "selected": 142,
+        "source_records": 500
+      },
+      "packet_type": "gold_stratified_diagnostic",
+      "row_key": [
+        "id",
+        "index"
+      ],
+      "rows": 142,
+      "selection_uses_gold": true,
+      "selection_uses_mca_outputs": false,
+      "source_records": "D:\\develop\\AgentCommReliability\\experiments\\standard-mad-math500-20260705-qwen25-7b-full-4096-a8002\\math500-qwen25-7b-instruct-naive\\records.jsonl",
+      "split": "mca_gold_contrast_v1"
+    }
+  ],
+  "runner_readiness": {
+    "existing_runners_can_consume_packet_splits": true,
+    "full_abcd_matrix_ready": false,
+    "missing_conditions": [
+      "no_channel_first_outputs_to_mad_final"
+    ],
+    "needs_local_seed_recording": true,
+    "notes": [
+      "Use --benchmark math500 with --split mca_disagreement_v1 or mca_gold_contrast_v1.",
+      "run_mca_pre_kv_then_mad.py currently produces no-channel first, Pre-KV first, and Pre-KV-fed MAD final, but not no-channel-fed MAD final.",
+      "Current runners use a global run seed; matrix comparisons remain sensitive to generation order until per-row/per-condition/per-agent seeds are recorded."
+    ]
+  },
+  "run_id": "20260707-mca-packet-matrix-prep",
+  "source_records": "D:\\develop\\AgentCommReliability\\experiments\\standard-mad-math500-20260705-qwen25-7b-full-4096-a8002\\math500-qwen25-7b-instruct-naive\\records.jsonl"
+}

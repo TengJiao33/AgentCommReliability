@@ -53,6 +53,10 @@ PREFIX_RESOLVE_FORMAT = (
 )
 
 
+def _progress(message: str) -> None:
+    print(f"[mca-soft-prefix] {time.strftime('%Y-%m-%dT%H:%M:%S')} {message}", flush=True)
+
+
 @dataclass(frozen=True)
 class ParsedSoftPrefixResolve:
     output: str
@@ -311,6 +315,78 @@ def generate_hf_outputs(
     ]
 
 
+def generate_hf_outputs_with_progress(
+    model: Any,
+    tokenizer: Any,
+    prompts: list[str],
+    *,
+    label: str,
+    max_new_tokens: int,
+    temperature: float,
+    top_p: float,
+    batch_size: int,
+    max_model_len: int,
+) -> list[dict[str, Any]]:
+    outputs: list[dict[str, Any]] = []
+    total = len(prompts)
+    if not prompts:
+        _progress(f"{label}: skipped, prompts=0")
+        return outputs
+    _progress(f"{label}: start, prompts={total}, batch_size={batch_size}, max_new_tokens={max_new_tokens}")
+    for start in range(0, total, batch_size):
+        batch = prompts[start : start + batch_size]
+        outputs.extend(
+            generate_hf_outputs(
+                model,
+                tokenizer,
+                batch,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                batch_size=len(batch),
+                max_model_len=max_model_len,
+            )
+        )
+        _progress(f"{label}: completed {len(outputs)}/{total}")
+    return outputs
+
+
+def generate_hf_texts_with_progress(
+    model: Any,
+    tokenizer: Any,
+    prompts: list[str],
+    *,
+    label: str,
+    max_new_tokens: int,
+    temperature: float,
+    top_p: float,
+    batch_size: int,
+    max_model_len: int,
+) -> list[str]:
+    outputs: list[str] = []
+    total = len(prompts)
+    if not prompts:
+        _progress(f"{label}: skipped, prompts=0")
+        return outputs
+    _progress(f"{label}: start, prompts={total}, batch_size={batch_size}, max_new_tokens={max_new_tokens}")
+    for start in range(0, total, batch_size):
+        batch = prompts[start : start + batch_size]
+        outputs.extend(
+            generate_hf_texts(
+                model,
+                tokenizer,
+                batch,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                batch_size=len(batch),
+                max_model_len=max_model_len,
+            )
+        )
+        _progress(f"{label}: completed {len(outputs)}/{total}")
+    return outputs
+
+
 def make_soft_prefix_embeddings(
     model: Any,
     tokenizer: Any,
@@ -403,6 +479,12 @@ def generate_with_soft_prefixes(
     eos_token_id = tokenizer.eos_token_id
 
     with torch.inference_mode():
+        total = len(prompt_texts)
+        completed = 0
+        _progress(
+            f"soft-prefix resolve: start, prompts={total}, batch_size={batch_size}, "
+            f"max_new_tokens={max_new_tokens}, prefix_mode={prefix_mode}"
+        )
         for start in range(0, len(prompt_texts), batch_size):
             batch_prompts = prompt_texts[start : start + batch_size]
             batch_prefix_texts = prefix_texts[start : start + batch_size]
@@ -460,6 +542,8 @@ def generate_with_soft_prefixes(
             for row_idx, sequence in enumerate(generated):
                 outputs.append(tokenizer.decode(sequence, skip_special_tokens=True))
                 metadata.append(batch_metadata[row_idx])
+                completed += 1
+                _progress(f"soft-prefix resolve: completed {completed}/{total}")
     return outputs, metadata
 
 
@@ -508,6 +592,10 @@ def main() -> int:
         "output dir",
     )
     output_dir.mkdir(parents=True, exist_ok=True)
+    _progress(
+        f"run start run_id={args.run_id} benchmark={args.benchmark}/{args.split} "
+        f"prefix_mode={args.prefix_mode} limit={args.limit}"
+    )
 
     if args.input_records:
         rows, initial_by_row = load_input_record_rows(resolve_inside(Path(args.input_records), work_dir, "input records"), args.limit)
@@ -519,6 +607,7 @@ def main() -> int:
         )
         rows = load_rows(data_path, args.limit)
         initial_by_row = []
+    _progress(f"loaded rows={len(rows)} input_records={'yes' if args.input_records else 'no'}")
 
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -540,6 +629,7 @@ def main() -> int:
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
     model.eval()
+    _progress(f"model loaded device={device} dtype={args.dtype} model_path={model_path}")
 
     questions = [prepare_question(str(row.get("question") or ""), args.benchmark) for row in rows]
     if not initial_by_row:
@@ -550,10 +640,11 @@ def main() -> int:
                     initial_prompts.append(_render_prompt(tokenizer, [{"role": "user", "content": cot_prompt(question)}]))
                 else:
                     initial_prompts.append(_render_prompt(tokenizer, independent_prompt(question, agent_idx)))
-        initial_flat = generate_hf_outputs(
+        initial_flat = generate_hf_outputs_with_progress(
             model,
             tokenizer,
             initial_prompts,
+            label="initial answers",
             max_new_tokens=args.max_tokens,
             temperature=args.temperature,
             top_p=args.top_p,
@@ -561,6 +652,8 @@ def main() -> int:
             max_model_len=args.max_model_len,
         )
         initial_by_row = reshape(initial_flat, len(rows), args.agents)
+    else:
+        _progress(f"initial answers: reused {sum(len(item) for item in initial_by_row)} outputs")
 
     cards_by_row = [build_candidate_cards(outputs) for outputs in initial_by_row]
     decisions = [
@@ -581,12 +674,14 @@ def main() -> int:
         for agent_idx, output in enumerate(outputs):
             cue_prompts.append(_render_prompt(tokenizer, cue_extraction_prompt(question, output, cue_k=args.cue_k)))
             cue_owners.append((row_idx, agent_idx))
+    _progress(f"cue extraction prompts={len(cue_prompts)}")
 
     cue_texts = (
-        generate_hf_texts(
+        generate_hf_texts_with_progress(
             model,
             tokenizer,
             cue_prompts,
+            label="cue extraction",
             max_new_tokens=args.cue_max_tokens,
             temperature=args.cue_temperature,
             top_p=args.top_p,
@@ -643,6 +738,7 @@ def main() -> int:
             prefix_source_texts.append(source_text)
             prefix_source_ids.append(source_ids)
             prefix_owners.append(row_idx)
+    _progress(f"soft-prefix resolve prompts={len(prefix_prompt_texts)}")
 
     prefix_outputs, prefix_metadata = (
         generate_with_soft_prefixes(
@@ -677,6 +773,7 @@ def main() -> int:
     pool_state_metrics: dict[str, Counter[str]] = {}
 
     with records_path.open("w", encoding="utf-8", newline="\n") as handle:
+        _progress(f"writing records to {records_path}")
         for idx, row in enumerate(rows):
             gold = row.get("answer")
             decision = decisions[idx]
@@ -778,6 +875,8 @@ def main() -> int:
             }
             handle.write(json.dumps(record, ensure_ascii=False, sort_keys=True))
             handle.write("\n")
+            if (idx + 1) % 25 == 0 or idx + 1 == len(rows):
+                _progress(f"records written {idx + 1}/{len(rows)}")
 
     elapsed = time.time() - started_at
     total = max(1, summary_counts["total"])
@@ -849,6 +948,7 @@ def main() -> int:
         handle.write(f"- Wrong-majority recovery rate: {summary['metrics']['wrong_majority_recovery_rate']:.4f}\n")
         handle.write(f"- Correct-majority harm rate: {summary['metrics']['correct_majority_harm_rate']:.4f}\n")
         handle.write(f"- Elapsed seconds: {elapsed:.1f}\n")
+    _progress(f"run complete elapsed_seconds={elapsed:.1f}")
     print(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True))
     return 0
 

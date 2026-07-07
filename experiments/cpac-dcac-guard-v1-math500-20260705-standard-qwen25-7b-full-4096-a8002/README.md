@@ -33,7 +33,7 @@
 
 ## 状态
 
-`RUNNING_GPU5`。
+`REMOTE_COMPLETED_LOCAL_SUMMARY_NOT_SYNCED`。
 
 2026-07-05 23:07 CST 启动。
 
@@ -46,6 +46,19 @@
 - 日志：`/data/xuhaoming/yfy/research_workspace/experiments/cpac-dcac-guard-v1-math500-20260705-standard-qwen25-7b-full-4096-a8002/run_remote.nohup.log`。
 - 启动检查：evaluator smoke 和 guard smoke 通过；Qwen2.5-7B 以 `max_seq_len=24064` 加载；KV cache 初始化为 30177 个 GPU blocks；CUDA graph capture 完成。
 - 第一次失败日志归档为 `run_remote.oom-gpu6-2307.log`。
+
+远端在 `A800_2:/data/xuhaoming/yfy/research_workspace/experiments/20260705-a8002-math500-cpac-dcac-guard-v1-standard-qwen25-7b-full-4096/` 有 summary：
+
+- Rows：500。
+- Initial majority：313/500 = 0.626。
+- Final correct：327/500 = 0.654。
+- Final majority ties：4/500 = 0.008。
+- Final parse fail：0。
+- Answer changed：52/500 = 0.104。
+- CPAC pool states：collapse 201，minority-bearing 183，no-majority conflict 116。
+- DCAC flips：7；guard blocked flips：6；guard rejected certificates：183。
+
+该 run 的 initial majority 明显低于当前 Standard MAD 主基线的 364/500，因此只能作为旧 guard-v1 诊断，不能作为当前 standard-fixed 横向主对照。
 
 ## 预期输出
 
