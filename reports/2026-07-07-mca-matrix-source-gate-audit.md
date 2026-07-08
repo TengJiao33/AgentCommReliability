@@ -1,13 +1,6 @@
-# MCA matrix source gate audit
+# MCA Matrix Source Gate 审计
 
 日期：2026-07-07
-
-## 原本要回答的问题
-
-本轮实验要回答两个层次的问题：
-
-1. 在同一第一轮生成参数下，question-only Pre-KV 是否改善第一轮答案。
-2. 如果第一轮有改善，这个改善是否能传递到一轮 Standard MAD 文本讨论后的 final majority。
 
 对应矩阵为：
 
@@ -17,11 +10,6 @@
 | B | Pre-KV first | 第一轮 Pre-KV 效果 |
 | C | no-channel first + MAD | 无通道进入 MAD 后的 final |
 | D | Pre-KV first + MAD | Pre-KV 进入 MAD 后的 final |
-
-主比较：
-
-- `B - A`：固定参数下 Pre-KV 是否改善第一轮；
-- `D - C`：固定参数下 Pre-KV 是否改善 MAD final。
 
 ## 已停止的 partial run
 
@@ -34,7 +22,7 @@
 
 - `experiments/20260707-a8002-mca-packet-matrix-serial-gpu7-qwen25-7b/`
 
-该 run 在 `mca_disagreement_v1` 上写出 partial records 后停止。它不能作为 `B - A` 或 `D - C` 的证据。
+该 run 在 `mca_disagreement_v1` 上写出 partial records 后停止。
 
 停止原因是源码口径不满足唯一变量要求：
 
@@ -117,8 +105,6 @@ keep_past_key_values=True
 
 - 142 rows；
 - 使用 gold 筛掉全对/全错；
-- 适合解释救回和伤害来源；
-- 不适合作为主效果声明。
 
 ### Gold smoke
 
@@ -133,12 +119,9 @@ keep_past_key_values=True
 
 在修正后的 runner 和 packet 上，结果可以回答：
 
-- 在筛选出的分歧题上，Pre-KV 是否稳定改善第一轮多数答案；
-- Pre-KV 对第一轮的救回和伤害比例；
 - no-channel 第一轮经过一轮 MAD 后的变化；
 - Pre-KV 第一轮经过一轮 MAD 后的变化；
 - `D - C` 是否为正，即 Pre-KV 是否给 MAD final 带来同口径增益；
-- gold-contrast packet 中，救回/伤害主要发生在哪类题。
 
 ## 这个矩阵不能回答什么
 

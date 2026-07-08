@@ -19,9 +19,6 @@
 - 单位：benchmark row/question。
 - 主要对比：`subjective` 与 `objective` 的 final accuracy 对比 `naive` final accuracy；模型、prompt、temperature、seed、agent count 和 round count 相同。
 - 次要对比：initial-round majority accuracy、final tie rate、memory retention rate、subjective label distribution。
-- 支持信号：任一 masking 策略在合并 60 道 AIME 题上提高 final accuracy，且没有明显 parser failure。
-- 失败信号：masking 持平或落后 naive MAD，或收益可由 parser/gold 问题解释。
-- 失效条件：缺行、gold label 错误、XML/answer parsing 损坏、模型路径不一致、输出截断、GPU 中断、误用非全量 `--limit`。
 - 预期产物：本 README、`run_remote.sh`，以及各方法目录下的 `summary.json`、`summary.md`、`records.jsonl`。
 
 ## 资源

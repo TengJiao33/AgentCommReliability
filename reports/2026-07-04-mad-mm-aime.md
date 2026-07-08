@@ -2,7 +2,6 @@
 
 ## 问题
 
-- 原本问题：MAD-M2 的 memory masking 是否能在更难的 AIME 设置上，相对同一 runner 的 `naive` MAD 提升。
 
 ## 配置
 

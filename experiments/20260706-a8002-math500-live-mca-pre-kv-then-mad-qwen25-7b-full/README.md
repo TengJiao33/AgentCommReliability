@@ -51,7 +51,6 @@
 
 - 完整 `MCA-Pre-KV question_only`：baseline 341/500，Pre-KV final 362/500。
 - Standard MAD 主基线：initial 364/500，final 378/500。
-
 ## 机器
 
 - 主机：`A800_2`
@@ -118,7 +117,6 @@
   - debate final：19/25；
   - 第一轮 transition：`BaC_to_C=14`，`BaC_to_W=2`，`BaW_to_C=6`，`BaW_to_W=3`；
   - debate transition：`PKC_to_C=19`，`PKC_to_W=1`，`PKW_to_W=5`。
-- 该切片只用于健康检查，不作为效果结论。
 - 按当前约 50 秒/题的速度，预计完整 500 题在 2026-07-07 03:00-03:30 +08:00 附近结束。
 
 2026-07-06 21:25 +08:00 复查：
@@ -135,7 +133,6 @@
   - debate 相对 no-channel：+7；
   - 第一轮 transition：`BaC_to_C=61`，`BaC_to_W=6`，`BaW_to_C=10`，`BaW_to_W=18`；
   - debate transition：`PKC_to_C=69`，`PKC_to_W=2`，`PKW_to_C=5`，`PKW_to_W=19`。
-- 该切片仍只用于健康检查，不作为全量效果结论。
 - 按当前速度估算，完整 500 题大约在 2026-07-07 02:30-03:00 +08:00 结束。
 
 ## 完成结果
@@ -164,10 +161,3 @@
 
 - 完整 `MCA-Pre-KV question_only`：baseline 341/500，Pre-KV final 362/500。
 - Standard MAD 主基线：initial 364/500，final 378/500。
-
-解释边界：
-
-- 本运行完成且流程有效，但 final 363/500 低于 Standard MAD final 378/500。
-- Pre-KV 第一轮仅比同进程 no-channel 第一轮高 2 题，明显弱于此前完整 `MCA-Pre-KV question_only` 的 +21。
-- 95 题阶段切片较乐观；全量结果回落，因此不能把阶段切片作为效果结论。
-- 本运行支持的结论是：当前 bridge 设计没有把 Pre-KV 转化为强于 Standard MAD 的 final；它不否定潜状态通信本身，但削弱了“直接把 Pre-KV 第一轮接到文本 Standard MAD 即可胜出”的版本。

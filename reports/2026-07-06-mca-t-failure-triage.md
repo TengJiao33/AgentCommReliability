@@ -1,79 +1,164 @@
-# MCA-T failure triage
+# MCA-T 运行结果分诊
 
-Date: 2026-07-06
+日期：2026-07-06
 
 ## Run
 
-Remote output:
+远程输出：
 
 ```text
 A800_2:/data/xuhaoming/yfy/research_workspace/experiments/20260706-a8002-math500-mca-text-audit-standard-madmm-aligned-qwen25-7b-full/math500-qwen25-7b-instruct-mca-text-audit-all/
 ```
 
-Configuration from `run_remote.sh`:
+配置：
 
-- Model: `/mnt/quarkfs/share_model/Qwen2.5-7B-Instruct`
-- Benchmark: MATH500, 500 rows
-- Initial sampling: `--initial-prompt-style standard-mad`, `--temperature 1.0`, `--max-tokens 4096`
-- MCA-T audit: `--cue-k 2`, `--min-change-certificates 2`, `--pool-state-scope all`, `--audit-temperature 0.2`
-- Important caveat: this run did not use `--input-records`; it is prompt/config aligned with Standard MAD, not same-initial-pool aligned.
+```text
+model = /mnt/quarkfs/share_model/Qwen2.5-7B-Instruct
+benchmark = MATH500, 500 rows
+initial_prompt_style = standard-mad
+temperature = 1.0
+max_tokens = 4096
+cue_k = 2
+min_change_certificates = 2
+pool_state_scope = all
+audit_temperature = 0.2
+```
 
-## Aggregate result
+这次 run 没用 `--input-records`，所以是 prompt/config aligned with Standard MAD，不是 same-initial-pool aligned。
 
-Summary:
+## 总结果
 
-- Initial majority accuracy: 364/500 = 0.728
-- Final accuracy: 357/500 = 0.714
-- Accepted changes: 17/500 = 0.034
-- Admissible change certificates: 81/1458 = 0.0556
-- Transitions: `MaC_to_C=356`, `MaC_to_W=8`, `MaW_to_C=1`, `MaW_to_W=135`
-- Correct-majority harm: 8/364 = 0.0220
-- Wrong-majority recovery: 1/136 = 0.00735
+```text
+initial majority accuracy = 364/500 = 0.728
+final accuracy            = 357/500 = 0.714
+accepted changes          = 17/500 = 0.034
+admissible certificates   = 81/1458 = 0.0556
+```
 
-Pool-state split:
+transition：
 
-- `collapse`: 279 rows, no accepted changes; accuracy stayed 264/279 = 0.946
-- `minority_bearing`: 134 rows, 10 accepted changes; 7 harms and 0 recoveries; accuracy fell 86/134 to 79/134
-- `no_majority_conflict`: 87 rows, 7 accepted changes; 1 harm and 1 recovery; accuracy stayed 14/87
+```text
+MaC_to_C = 356
+MaC_to_W = 8
+MaW_to_C = 1
+MaW_to_W = 135
+```
 
-## What failed
+关键比率：
 
-MCA-T did not fail by changing too often. It failed because it changed rarely, and the rare accepted changes had poor precision.
+```text
+correct-majority harm = 8/364 = 0.0220
+wrong-majority recovery = 1/136 = 0.00735
+```
 
-The audit gate produced 46 rows with at least one admissible-change certificate, 25 rows with at least two, and 17 rows where at least two certificates supported the same normalized alternative answer. Those 17 accepted changes split as:
+pool-state split：
 
-- 1 useful correction: `MaW_to_C`
-- 8 harmful flips: `MaC_to_W`
-- 8 wrong-to-wrong flips: `MaW_to_W`
+```text
+collapse:
+  279 rows
+  no accepted changes
+  accuracy = 264/279
 
-The implementation aggregates certificate votes by normalized alternative answer, and ignores alternatives equal to the initial answer. That aggregation is working as coded. The weak link is certificate validity: `parse_audit_certificate` accepts the model's own `<initial>fail</initial>` and `<alternative>pass</alternative>` labels as proof. There is no external verifier for the calculation.
+minority_bearing:
+  134 rows
+  10 accepted changes
+  7 harms
+  0 recoveries
+  accuracy = 86/134 -> 79/134
 
-## Concrete failure modes
+no_majority_conflict:
+  87 rows
+  7 accepted changes
+  1 harm
+  1 recovery
+  accuracy = 14/87 -> 14/87
+```
 
-1. Correct majority overturned by false audit certificates.
+## Accepted changes 精度
 
-Examples:
+MCA-T 的 accepted changes 数量较少，且正确占比低。
 
-- Index 120: gold `even`, initial `even`, final `odd`. Three certificates claimed the odd alternative passes a parity substitution test.
-- Index 145: gold `-2`, initial `-2`, final `130496`. Two certificates accepted a Fibonacci-style alternative that is not the target expression value.
-- Index 238: gold `-4`, initial `-4`, final `none`. Three certificates claimed the quadratics have no common root, but they do share `-4`.
-- Index 323: gold `1/3`, initial `1/3`, final `1/2`. Two certificates used a flawed cyclic-order probability check.
-- Index 351: gold `1/16`, initial `1/16`, final `1/8`. Two certificates accepted a wrong cosine-product simplification.
+audit gate 产生：
 
-2. Wrong majority usually stayed wrong.
+```text
+rows with >=1 admissible-change certificate = 46
+rows with >=2 certificates = 25
+accepted changes with same normalized alternative = 17
+```
 
-Among 136 initial-wrong rows, only 9 accepted changes occurred, and only one landed on gold. Many wrong rows had either no admissible certificates or only one certificate. Some had multiple certificates, but they supported different wrong answers or the same wrong initial answer, so the aggregator correctly kept the initial answer.
+这 17 次 accepted changes：
 
-3. Minority-bearing cases are especially dangerous.
+```text
+useful correction = 1
+harmful flip      = 8
+wrong-to-wrong    = 8
+```
 
-`minority_bearing` is where the method should be most valuable, but this run shows 7 harms and 0 recoveries there. The cue/audit pipeline is not distinguishing "minority has a real correction" from "minority supplied a tempting but false check."
+实现里的 normalized alternative 聚合逻辑按设计工作：忽略等于 initial answer 的 alternative，并按 normalized alternative 计票。
 
-4. This is not a vLLM slowness issue.
+certificate validity 是主要误差来源。`parse_audit_certificate` 接受模型自己写的：
 
-MCA-T completed in about 3042 seconds and wrote complete records. The observed failure is behavioral/evaluator design: the audit certificate is self-attested by the same model, not independently checked.
+```text
+<initial>fail</initial>
+<alternative>pass</alternative>
+```
 
-## Interpretation
+这等于让同一个模型自证 alternative 更好，没有外部计算校验。
 
-This result should be treated as a diagnostic failure of the current MCA-T audit contract, not as evidence that text metacognitive cues cannot help. The current rule is conservative in rate but not conservative enough in validity: two self-certified reviewers can jointly promote the same hallucinated alternative.
+## 具体变化类型
 
-The next MCA-T variant should require externally checkable or cross-agent-independent validation before a change can override a majority, especially in `minority_bearing` cases.
+### 1. 正确 majority 被假 certificate 推翻
+
+例子：
+
+- index 120：gold `even`，initial `even`，final `odd`。三个 certificates 声称 odd alternative 通过 parity substitution test。
+- index 145：gold `-2`，initial `-2`，final `130496`。两个 certificates 接受 Fibonacci-style alternative，但它不是目标表达式值。
+- index 238：gold `-4`，initial `-4`，final `none`。三个 certificates 声称二次方程没有 common root，但它们共享 `-4`。
+- index 323：gold `1/3`，initial `1/3`，final `1/2`。两个 certificates 使用错误 cyclic-order probability check。
+- index 351：gold `1/16`，initial `1/16`，final `1/8`。两个 certificates 接受错误 cosine-product simplification。
+
+### 2. 错误 majority 基本留在错误状态
+
+136 个 initial-wrong rows 里，只有 9 次 accepted changes，只有 1 次落到 gold。
+
+很多 wrong rows 没有 admissible certificates，或者只有一个 certificate；有些有多个 certificates，但支持不同错误答案，或者支持原来的错误 initial answer，所以 aggregator 保持 initial answer。
+
+### 3. minority_bearing
+
+`minority_bearing` 的结果：
+
+```text
+7 harms
+0 recoveries
+```
+
+cue/audit pipeline 没有区分：
+
+```text
+minority 真的有修正
+minority 给了诱人的假检查
+```
+
+### 4. 运行状态
+
+MCA-T 完整跑完，耗时约 3042 秒，records 写完。
+
+## 结果摘要
+
+当前 MCA-T audit contract 的观测结果：
+
+```text
+两个 self-certified reviewers 可以共同推高同一个 hallucinated alternative。
+```
+
+变化率低；accepted changes 中 `MaW_to_C=1`、`MaC_to_W=8`、`MaW_to_W=8`。
+
+## 后续方向
+
+下一版 MCA-T 的待测修改：
+
+```text
+加入可执行校验、符号/数值 verifier，或独立 verifier branch；
+记录 majority override 的证据来源；
+单独统计 `minority_bearing` 的 accepted changes。
+```

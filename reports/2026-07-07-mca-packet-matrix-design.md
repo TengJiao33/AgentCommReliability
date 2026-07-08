@@ -1,4 +1,4 @@
-# MCA packet matrix design
+# MCA Packet Matrix 设计
 
 日期：2026-07-07
 
@@ -6,17 +6,9 @@
 
 本记录定义下一轮 MCA/Pre-KV + MAD 诊断实验的 packet 口径。
 
-当前要回答的问题不是一轮 `MCA-Pre-KV question_only` 能否直接超过两轮 Standard MAD，而是：
-
-```text
-在固定第一轮生成参数后，question-only Pre-KV 是否改善第一轮答案；若改善，该改善是否能传递到 MAD 文本讨论后的 final majority。
-```
-
-## 已知问题
-
 旧 `MCA-Pre-KV question_only` 完整 run 的结果为 baseline 341/500，Pre-KV final 362/500，净增 +21。
 
-该 +21 不是干净的同口径通道效应，因为旧 run 的 baseline 和 receiver 生成参数不同：
+旧 run 的 baseline 和 receiver 生成参数不同：
 
 - baseline：`temperature=1.0`，`max_tokens=4096`；
 - Pre-KV receiver：`resolve_temperature=0.2`，`resolve_max_tokens=1536`。
@@ -26,13 +18,7 @@
 - no-channel first：`temperature=0.2`，`first_round_max_tokens=1536`；
 - Pre-KV first：`temperature=0.2`，`first_round_max_tokens=1536`。
 
-该 run 的第一轮结果为 no-channel 347/500，Pre-KV 349/500，净增 +2。逐题统计显示 Pre-KV 改变了 138 题，其中救回 36 题、伤害 34 题。
-
-因此，下一轮需要把三类因素拆开：
-
-- 低温短输出本身的稳定化效果；
-- question-only KV 的额外贡献；
-- 第一轮变化是否能进入 MAD final。
+该 run 的第一轮结果为 no-channel 347/500，Pre-KV 349/500，净增 +2。逐题统计显示 Pre-KV 改变了 138 题，其中 `BaW_to_C=36`，`BaC_to_W=34`。
 
 ## Packet 类型
 
@@ -50,17 +36,9 @@
 - `no_majority_conflict`：三个非空答案互不相同；
 - `parse_gap`：存在无法解析答案，同时还有至少一个可解析答案。
 
-该 packet 可用于较干净地诊断：
-
 ```text
 在 Standard MAD 第一轮已经存在分歧的题上，Pre-KV 是否改变第一轮和 final。
 ```
-
-解释边界：
-
-- 它不是完整 MATH500；
-- 不能直接报告为整体 benchmark accuracy；
-- 可以报告为分歧子集上的 conditional effect。
 
 ### Gold-stratified diagnostic packet
 
@@ -78,13 +56,6 @@
 - `no_majority_mixed`：无多数且正误混合；
 - `mixed_other`：其他正误混合。
 
-该 packet 用于诊断救回和伤害来源，尤其是 `BaW_to_C` 与 `BaC_to_W`。
-
-解释边界：
-
-- 该 packet 使用 gold 筛选，因此不是 claim-bearing 主包；
-- 它适合解释机制，不适合单独声明超过 Standard MAD。
-
 ## 最小矩阵
 
 第一轮先固定低温短输出，构造四个条件：
@@ -99,8 +70,8 @@
 主比较：
 
 ```text
-B - A：固定参数下 Pre-KV 是否改善第一轮。
-D - C：固定参数下 Pre-KV 是否改善 MAD final。
+B - A：Pre-KV first 减 no-channel first。
+D - C：Pre-KV + MAD 减 no-channel + MAD。
 ```
 
 次要比较：

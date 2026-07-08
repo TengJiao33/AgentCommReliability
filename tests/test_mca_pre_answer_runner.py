@@ -6,6 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
 from mca_pre_answer_runner import (  # noqa: E402
+    _pre_state_token_budget,
     _source_indices,
     _transition_label,
     parse_answer_output,
@@ -29,6 +30,11 @@ class MCAPreAnswerRunnerTests(unittest.TestCase):
         self.assertEqual(len(prompt), 1)
         self.assertIn("Please solve the problem step by step", prompt[0]["content"])
         self.assertIn("<answer>", prompt[0]["content"])
+
+    def test_pre_state_token_budget(self):
+        self.assertEqual(_pre_state_token_budget("question_only", 64), 0)
+        self.assertEqual(_pre_state_token_budget("early_plan", 64), 64)
+        self.assertEqual(_pre_state_token_budget("early_plan", 0), 1)
 
     def test_parse_answer_output_uses_last_answer_tag(self):
         parsed = parse_answer_output("<answer>1</answer>\n<answer>2</answer>")

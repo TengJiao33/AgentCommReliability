@@ -21,6 +21,9 @@
 - `2026-07-06-mca-kv-s-implementation-notes.md`：MCA-KV/S 实现说明。
 - `2026-07-06-mca-t-failure-triage.md`：MCA-T 失败诊断。
 - `2026-07-06-mca-p-running-diagnostic.md`：MCA-P soft-prefix 运行诊断。
+- `2026-07-07-mca-packet-matrix-design.md`：MCA packet matrix 设计与 A/B/C/D 对照口径。
+- `2026-07-07-mca-matrix-source-gate-audit.md`：MCA matrix source gate 审计。
+- `2026-07-07-pre-kv-null-result-and-next-implementation.md`：question-only Pre-KV 与 early-plan 实现记录。
 
 ## 模板
 

@@ -58,8 +58,6 @@
 - CPAC pool states：collapse 201，minority-bearing 183，no-majority conflict 116。
 - DCAC flips：7；guard blocked flips：6；guard rejected certificates：183。
 
-该 run 的 initial majority 明显低于当前 Standard MAD 主基线的 364/500，因此只能作为旧 guard-v1 诊断，不能作为当前 standard-fixed 横向主对照。
-
 ## 预期输出
 
 - `math500-qwen25-7b-instruct-cpac-dcac/records.jsonl`

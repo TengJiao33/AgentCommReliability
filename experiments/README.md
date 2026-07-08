@@ -9,7 +9,7 @@
 
 ## 本地启动记录，远端状态需另查
 
-- `cpac-dcac-guard-v1-math500-20260705-standard-qwen25-7b-full-4096-a8002/`：旧 CPAC/DCAC guard-v1 标准配置诊断。本地只有启动记录；远端 summary 显示 initial majority 313/500，final 327/500，不适合作为当前 Standard MAD 横向主对照。
+- `cpac-dcac-guard-v1-math500-20260705-standard-qwen25-7b-full-4096-a8002/`：旧 CPAC/DCAC guard-v1 标准配置诊断。本地只有启动记录；远端 summary 显示 initial majority 313/500，final 327/500。
 - `mca-text-audit-math500-20260705-standard-qwen25-7b-full-4096-a8002/`：MCA-T audit 启动记录。本地无 summary。
 - `mca-soft-prefix-math500-20260705-standard-qwen25-7b-full-4096-a8002/`：MCA-P soft-prefix 启动记录。本地无 summary。
 

@@ -30,8 +30,6 @@
 
 主要用途是生成当前标准口径下的 MCA-P full diagnostic，与 Standard MAD 4096 和 MAD-MM 362-level records 分开读。
 
-支持信号：本 run initial majority 接近当前 Standard MAD 水平，最终正确率高于同一 run initial majority，且错误初始多数恢复比例高于正确初始多数伤害比例。
-
 ## 机器
 
 - 主机：`A800_2`。

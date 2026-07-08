@@ -1,0 +1,92 @@
+{
+  "generated_at_utc": "2026-07-08T03:39:22.841010+00:00",
+  "source_dir": "D:\\develop\\AgentCommReliability\\papers",
+  "text_dir": "D:\\develop\\AgentCommReliability\\papers\\text",
+  "force": false,
+  "papers": [
+    {
+      "pdf": "beyond-tokens-latent-communication-2606.05711.pdf",
+      "text": "beyond-tokens-latent-communication-2606.05711.txt",
+      "pages_json": "beyond-tokens-latent-communication-2606.05711.pages.json",
+      "bytes": 8259242,
+      "source_mtime_utc": "2026-07-08T03:16:57.819757+00:00",
+      "source_sha256": "ff3c958c1abcd6f688c0149cb6532335b7d3004af795b0d5fb3bb9cea49e5eec",
+      "pages": 21,
+      "title": "Beyond tokens: a unified framework for latent communication in LLM-based multi-agent systems",
+      "author": "Yingzhuo Liu",
+      "subject": "",
+      "extracted_chars": 64995,
+      "cached": true
+    },
+    {
+      "pdf": "ciphers-embedding-debate-2310.06272.pdf",
+      "text": "ciphers-embedding-debate-2310.06272.txt",
+      "pages_json": "ciphers-embedding-debate-2310.06272.pages.json",
+      "bytes": 5145500,
+      "source_mtime_utc": "2026-07-08T03:13:31.968796+00:00",
+      "source_sha256": "73f2b92dbc12a9697e8f2815b80f1a68a1e540ab025f8af978946b7869ffc044",
+      "pages": 30,
+      "title": "",
+      "author": "",
+      "subject": "",
+      "extracted_chars": 91192,
+      "cached": true
+    },
+    {
+      "pdf": "coconut-continuous-latent-reasoning-2412.06769.pdf",
+      "text": "coconut-continuous-latent-reasoning-2412.06769.txt",
+      "pages_json": "coconut-continuous-latent-reasoning-2412.06769.pages.json",
+      "bytes": 3289091,
+      "source_mtime_utc": "2026-07-08T03:16:32.318309+00:00",
+      "source_sha256": "6eb32c71eaa571b727ee95bce20396243fd70dc1ee8a37f91a7de717790d5b46",
+      "pages": 18,
+      "title": "Training Large Language Models to Reason in a Continuous Latent Space",
+      "author": "Shibo Hao; Sainbayar Sukhbaatar; DiJia Su; Xian Li; Zhiting Hu; Jason Weston; Yuandong Tian",
+      "subject": "",
+      "extracted_chars": 57260,
+      "cached": true
+    },
+    {
+      "pdf": "kvcomm-cross-context-2510.12872.pdf",
+      "text": "kvcomm-cross-context-2510.12872.txt",
+      "pages_json": "kvcomm-cross-context-2510.12872.pages.json",
+      "bytes": 16020388,
+      "source_mtime_utc": "2026-07-08T03:17:48.845815+00:00",
+      "source_sha256": "3acffcc4468b17cf5193a64ec998c6517af42acb247fc230171da92f0f9eb8df",
+      "pages": 40,
+      "title": "KVCOMM: Online Cross-context KV-cache Communication for Efficient LLM-based Multi-agent Systems",
+      "author": "Hancheng Ye; Zhengqi Gao; Mingyuan Ma; Qinsi Wang; Yuzhe Fu; Ming-Yu Chung; Yueqian Lin; Zhijian Liu; Jianyi Zhang; Danyang Zhuo; Yiran Chen",
+      "subject": "",
+      "extracted_chars": 122484,
+      "cached": true
+    },
+    {
+      "pdf": "kvcomm-selective-kv-sharing-2510.03346.pdf",
+      "text": "kvcomm-selective-kv-sharing-2510.03346.txt",
+      "pages_json": "kvcomm-selective-kv-sharing-2510.03346.pages.json",
+      "bytes": 4445040,
+      "source_mtime_utc": "2026-07-08T03:08:51.920909+00:00",
+      "source_sha256": "48b9ee8f1b46e58d729140666243f24f211ea7c55aa85ad9f767cf24cd9f5e9a",
+      "pages": 28,
+      "title": "KVComm: Enabling Efficient LLM Communication through Selective KV Sharing",
+      "author": "Xiangyu Shi; Marco Chiesa; Gerald Q. Maguire Jr. au2; Dejan Kostic",
+      "subject": "",
+      "extracted_chars": 89308,
+      "cached": true
+    },
+    {
+      "pdf": "state-delta-trajectory-2506.19209.pdf",
+      "text": "state-delta-trajectory-2506.19209.txt",
+      "pages_json": "state-delta-trajectory-2506.19209.pages.json",
+      "bytes": 742953,
+      "source_mtime_utc": "2026-07-08T03:08:59.183075+00:00",
+      "source_sha256": "3be622362fba548fd941d3acdf442bdedfe6013c711aaca4ccf41da0bcad34a3",
+      "pages": 22,
+      "title": "Augmenting Multi-Agent Communication with State Delta Trajectory",
+      "author": "Yichen Tang; Weihang Su; Yujia Zhou; Yiqun Liu; Min Zhang; Shaoping Ma; Qingyao Ai",
+      "subject": "",
+      "extracted_chars": 78152,
+      "cached": true
+    }
+  ]
+}

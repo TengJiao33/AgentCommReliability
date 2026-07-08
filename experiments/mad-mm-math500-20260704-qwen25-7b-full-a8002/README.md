@@ -69,11 +69,3 @@ Subjective label counts：
 | `yes` | 1224 |
 | `not sure` | 257 |
 | `no` | 19 |
-
-## 解释
-
-MATH-500 比 AIME 给出了更清楚的诊断，因为 benchmark 更大，且修正后的评测器能处理常见 boxed LaTeX、symbolic、tuple、text、unit、mixed-number 和 complex answers。该设置下，`naive` MAD-MM/MAD-M2 风格 debate 表现最好。
-
-`subjective` masking 保留 1481/1500 条 memories，因此大体接近 `naive`，最终略低。`objective` masking 几乎消除了 ties，并且每题严格保留一条 memory，但没有超过 initial majority baseline。
-
-这是本地 Qwen2.5-7B 设置下的诊断证据，不是关于 MAD-MM 的泛化结论。当前最有用的结论是：宽松 subjective masking 在 MATH-500 上没有提供多少过滤压力，而 objective masking 是真实干预，但在这里过于有损。
