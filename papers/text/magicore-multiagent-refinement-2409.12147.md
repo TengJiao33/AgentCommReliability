@@ -1,0 +1,1566 @@
+# magicore-multiagent-refinement-2409.12147
+
+- Source PDF: `magicore-multiagent-refinement-2409.12147.pdf`
+- Extracted at UTC: `2026-07-10T01:25:45.039547+00:00`
+- Pages: 24
+- Title: MAgICoRe: Multi-Agent, Iterative, Coarse-to-Fine Refinement for Reasoning
+- SHA256: `ab502e170df731382269711c5bf63a05a05878c9c55c37897a0d2f406fadcb74`
+
+## Page 1
+
+MAGICORE: Multi-Agent, Iterative, Coarse-to-Fine
+Refinement for Reasoning
+Justin Chih-Yao Chen, Archiki Prasad, Swarnadeep Saha,
+Elias Stengel-Eskin, Mohit Bansal
+UNC Chapel Hill
+Abstract problems, deciding how much effort to budget for
+each one (Son and Metcalfe, 2000; Dodeen, 2015).
+Large language model (LLM) reasoning can To maximize their score, the student would likely
+be improved by scaling test-time compute with
+spend minimal time on the easy problems and fo-
+aggregation, i.e., generating multiple samples
+cus more on the harder ones, refining their answers
+and aggregating over them. While improving
+performance, this strategy often reaches a satu- where needed. Misallocating effort could not only
+ration point beyond which additional compute waste time but even lower their score, as overthink-
+provides no return. Refinement offers an al- ing simple problems might lead to mistakes; sim-
+ternative by using model-generated feedback ilarly failing to dedicate enough thought to hard
+to improve answer quality. However, refine-
+problems will lead to poor results. For Large Lan-
+ment faces three key challenges: (1) Excessive
+guage Models (LLMs) performing reasoning tasks,
+refinement: Uniformly refining all instances
+several test-time approaches dedicate more compu-
+can cause over-correction and reduce overall
+tation to improve performance. These approaches
+performance. (2) Inability to localize and ad-
+dress errors: LLMs struggle to identify and sample multiple solutions to the same question and
+correct their own mistakes. (3) Insufficient re- aggregate over the resulting answers (e.g. Self-
+finement: Stopping refinement too soon could Consistency (SC; Wang et al., 2022), Best-of-k
+leave errors unaddressed. To tackle these is-
+sampling (Lightman et al., 2023; Sun et al., 2024;
+sues, we propose MAGICORE, a framework
+Wang et al., 2023)). However, applying aggrega-
+for Multi-Agent Iteration for Coarse-to-fine
+tion strategies uniformly may waste computation
+Refinement. MAGICORE mitigates excessive
+on easier problems where the performance satu-
+refinement by categorizing problems as easy
+or hard, solving easy problems with coarse- rates quickly, and has diminishing gains on the
+grained aggregation, and solving the hard ones harder problems even when more samples are gen-
+with fine-grained multi-agent refinement. To erated. Refinement – where solutions are instead
+better localize errors, we incorporate external critiqued and improved upon during resampling –
+step-wise reward model scores, and to ensure
+offers a possible avenue for breaking out of the
+sufficient refinement, we iteratively refine the
+aggregation rut. This mirrors human reasoning,
+solutions using a multi-agent setup. We eval-
+where incorporating feedback (rather than simply
+uate MAGICORE on Llama-3-8B and GPT-
+retrying) can improve answers, often in an itera-
+3.5 and show its effectiveness across seven
+reasoning datasets. One iteration of MAGI- tive fashion. For example, a teacher might improve
+CORE beats Self-Consistency by 3.4%, Best- a student’s understanding by providing multiple
+of-k by 3.2%, and Self-Refine by 4.0% even rounds of feedback on a test (Pan and Sana, 2021;
+when these baselines use k = 120, and MAGI-
+Roediger and Karpicke, 2006; Wojcikowski and
+CORE uses less than 50% of the compute. 1
+Kirk, 2013).
+While refinement seems promising, it faces three
+1 Introduction key challenges that current work has yet to fully
+address, as outlined in Fig. 1: (1) Excessive re-
+Imagine a person taking a math exam with prob-
+finement: the LLM must know when to refine and
+lems of varying difficulty; even before answering
+when not to. While refinement can help on in-
+any question, an effective exam-taker might first
+correctly solved problems, uniformly refining all
+distinguish between easier and more challenging
+instances can cause over-refinement, where solu-
+1Code: https://github.com/dinobby/MAgICoRe tions that were already correct before refinement
+5202
+peS
+71
+]LC.sc[
+2v74121.9042:viXra
+
+## Page 2
+
+Issue 1: Excessive Refinement Issue 2: Inability to Localize & Address Errors Issue 3: Insufficient Refinement Issue 3: Conflating Roles
+Uniform refinement on all instances can hurt performance Only refining once may not suffice Lack of specialization hurts refinement
+Q: James decides to run 3 sprints 3 times
+a week. He runs 60 meters each sprint. Generate Solution
+How many total meters does he run a week? Iter = 1
+Feedback
+Questions Bette S r o / lv W er orse S 3 S 9 t * t * e 3 e 6 p = p 0 9 = 1 2 7 : t : 1 i 0 S H m m o e e e s h t s e e p a r r r s i w u n e n t e s s k R H a r m e e u e f w n t i r e s e n u e r 3 e n k s , * d s 6 3 s 0 s o o s = l p h u r 1 e t i 8 i n 0 o t n s : Ite … r = 3 P S r o o l p u o ti s o e n d Solver S R o e l f + u in ti e o d n G R e e n fin er e a S te o l F u e t e io d n back
+(a) Difficulty-Aware Coarse-to-Fine Categorization (b) Targeted Multi-Agent Feedback (c) Iterative Refinement
+Granularity Resource
+Question 1 Is the majority answer of high quality? St S e c p o - r w e i s se Step 2 is making a Initial Solution Coarse Less
+calculation error,
+2 Is the RM’s answer confidence high? PRM 9*60 should be 540 Solver
+Step 1: ... Reviewer instead of 710. Targeted Feedback
+3*3=9 per week
+False Difficulty: Easy Hard (Score: 10/10) Reviewer ORM
+1 or 2 Hard Granularity: Coarse Fine S 9 t * e 6 p 0 = 2 7 : 1 0 ... R 9 e t f i i m n e e s d a s o w l e u e t k i , o n s : o xN Keep?
+True Easy Resource: Low High ( E S rr c o o r r L e o : c a 1 li / z 1 a 0 ti ) on Refiner i 9 n * 6 t 0 o = t a 5 l 4 0 h e m e r t u e n r s s Refiner Refined Solution Fine More
+Figure 1: Top: Three main issues in refinement: (1) Excessive refinement; (2) Inability to localize and address
+errors; (3) Insufficient refinement. Bottom: Our joint solution to address these issues. MAGICORE adapts resource
+allocation based on problem difficulty and refines only when encountering hard problems to avoid excessive
+refinement. For hard cases requiring refinement, we employ a multi-agent setup that iteratively reviews and refines
+the solutions based on targeted feedback generated with step-wise PRM scores.
+If the problem is hard If the problem is still considered hard
+are “overthought” and flipped to incorrect, reduc- chains, the Reviewer gAiDvDe …s targeted feedback based
+ing the overall performance (Huang et al., 2024; on step-by-step RM scores, and the Refiner im-
+Bigger/Names
+Shridhar Setrtataegly.:, 202A4gg;regSattieonchly Reetfinaeml.e,nt2024). (2) proveSswatphe solutions using this feedback. Finally,
+Inability to localize and address errors: LLMs to address the issue of insufficient refinement, we
+Coarse-grained
+struggle to identify Athggereirgaotiownn mistakHearsd (i.e., stepsIs the mitaejroraittye antshweerr oef vloiwe wqu-arlietyfi?ne process, using Te th xt e is q no u t a ne li e t d y ed
+needing refinement) aEansdy struggle Ft
+R
+ion
+e
+e
+fi
+c-
+n
+g
+e
+or
+m
+arir
+e
+ne
+n
+e
+t
+dc t them
+Is the P
+a
+R
+n
+M
+d
+’s
+t
+a
+h
+n
+e
+s
+A
+w
+e N
+e
+n
+r
+D
+c
+tr
+o
+o
+nf
+p
+id
+y
+en
+o
+c
+f
+e l
+t
+o
+h
+w
+e
+?
+answers at eHaicghhligith
+m
+et
+o
+Or
+r
+aR
+e
+tMio/PnRMa s a
+withoutHeaxrdplicit instructions. (3) Insufficient Re- stopping criterion (cf. Fig. 1(c)). While these three
+Highlight two agents
+finement: deciding how much refinement is needed issues – selective refinement, error lo(dciffaelrieznat itcioonn n,ota nd
+just color)
+is non-trivial – stoppOiunrg Unriefifiedn eSmoluetniotn:e Aadrlaypticvoe uMludlti-Agietnetr aCtoivaresere-tfio-nFeinme eRnetfin–emmeigntht seem independent, ad-
+leave errors unaddressed, i.e., hard problems might dressing them jointly is more effectRiveveie.wEerm hapsi ar igclaaslsly,
+be “underthought” by a single refinement iteration. MAGICORE consistently outperfoRremfinser hbaass ae tloionl es
+that tackle these issues in isolation, as confirmed
+To enable better test-time scaling for aggregation
+by our ablation studies in Table 3.
+and to address the three issues in refinement, we
+propose a unified solution, MAGICORE: Multi- We evaluate MAGICORE on seven reasoning
+Agent Iteration for Coarse-to-fine Refinement. As datasets (including math, commonsense and logi-
+shown in Fig. 1, our approach leverages external cal reasoning) with two LLMs: Llama-3-8B and
+global and local Reward Models (RMs) that en- GPT-3.5. Notably, MAGICORE shows consistent
+hance both aggregation and refinement processes. improvements over all aggregation and refinement
+To avoid excessive refinement, we perform selec- baselines across datasets and models. Specifically,
+tive refinement (see Fig. 1(a)): we start by generat- just one iteration of MAGICORE on Llama-3-8B
+ing multiple reasoning chains from the LLM and already outperforms Best-of-k sampling (Lightman
+scoring them with the RMs, using the entropy of et al., 2023) by 3.2% and Self-Consistency (Wang
+the final answer distribution to classify examples et al., 2022) by 3.4%, while using roughly half
+as easy or hard. Given LLMs’ general inability of the test-time compute. MAGICORE also out-
+to localize errors (Tyen et al., 2024), we leverage performs a combination of Self-Refine (Madaan
+step-by-step scores from a process reward model et al., 2023) and Self-Consistency by 4.0% and
+(PRM) to help the LLM pinpoint low-scoring steps these trends also hold true for GPT-3.5. More-
+(which are likely to be incorrect); this process is over, MAGICORE effectively decides when to use
+shown in Fig. 1(b). Moreover, to help LLMs refine refinement and when not to, leading to a 6.4% im-
+effectively once the errors have been localized, we provement over the strongest Best-of-k baseline
+propose a multi-agent system consisting of three on MATH (Hendrycks et al., 2021b), whereas uni-
+agents: the Solver, the Reviewer, and the Refiner. formly applying refinement to all samples can re-
+For each problem, the Solver generates reasoning sult in a drop of 5.2%, highlighting the key role
+
+## Page 3
+
+played by selective refinement. MAGICORE also scores, see Section C), and hence no refinement is
+scales better with more iterations of refinement, needed. Otherwise, we deem the example to be a
+scales to stronger base models and RMs, applies to possible candidate for refinement and evaluate the
+both math/reasoning and commonsense tasks, and second condition below.
+continues to improve while the baselines stagnate. b) Is Reward Models’ Answer Confidence High?
+In this condition, we check if the RMs are confi-
+2 Methodology
+dent in any single answer; if this is not the case, the
+In MAGICORE, we incorporate three types of mod- problem is a possible candidate for refinement. We
+els: (1) an LLM interchangeably performing three measure confidence via the entropy of the distribu-
+roles: the Solver, the Reviewer, and the Refiner, (2) tion over answers, obtained by weighting answer
+an Outcome Reward Model (ORM) for generating clusters by their average RM scores, in line with
+global, solution-level correctness score, and (3) a Weighted Self-Consistency (Li et al., 2023).
+Process Reward Model (PRM) for generating local
+Coarse-to-Fine Decision. If either of the condi-
+step-by-step correctness scores. Both the ORM
+tions is met (the quality of the answer is high or
+and PRM contribute to (1) assessing problem diffi-
+the RMs are confident on an answer), an instance
+culty and (2) final answer selection via Weighted
+is marked as easy and delegated to the coarse-
+Self-Consistency (Li et al., 2023) (see Section B).
+grained method: Weighted Self-Consistency (Li
+Overview. We present MAGICORE in Fig. 2. et al., 2023), using the sum of the solution-level
+The process begins with the Solver generating k scores generated by both ORM and PRM. Con-
+reasoning chains for each problem, followed by versely, if both conditions are not satisfied, the
+the ORM and PRM providing solution-level scores. instance is marked as hard and delegated to the
+Next, the input problem’s difficulty is classified fine-grained method (as described in Section 2.2),
+based on two criteria (top-right of Fig. 2): (1) the addressing Issue 1 (excessive refinement) by only
+quality of the majority answer and (2) the RMs’ refining solutions for the hard problems.
+answer confidence. Refinement is initiated only
+2.2 Fine-Grained Multi-Agent Refinement
+when the problem is deemed difficult, which oc-
+For hard instances that fail both conditions, we
+curs when the majority answer receives a low aver-
+age RM score and the answer distribution is flat – need to employ refinement to unlock improvements
+(see the bottom part of Fig. 2). Our refinement
+indicating no single answer is significantly better
+setup has three agents: (1) the Solver, which gen-
+than the others (i.e., low confidence). For these
+erates the initial solution (2) the Reviewer, which
+hard samples requiring refinement, we employ a
+takes step-wise PRM scores and a reasoning chain
+multi-agent setup with three agents: the Solver, the
+as input, and generates targeted feedback that pin-
+Reviewer, and the Refiner (bottom of Fig. 2). The
+points the errors within the chain, and (3) the Re-
+Reviewer uses the step-wise scores from the PRM
+finer, which takes the feedback generated by the
+to generate targeted feedback, and the Refiner then
+enhances the k solutions based on this feedback. Reviewer to refine the previous chain.
+The review-and-refine cycle can iterate multiple Solver generates k solutions. The Solver is re-
+times to ensure sufficient and effective refinement. sponsible for generating the initial k solutions. Re-
+call that in Section 2.1, we assess problem difficulty
+2.1 Classifying Problem Difficulty
+using k generated solutions. When a problem is
+We categorize each problem’s difficulty as easy or classified as easy, we aggregate the k solution with-
+hard using the following conditions (cf. Fig. 2). out refinement. When a problem is classified as
+a) Is the Majority Answer of High Quality? The hard, we can directly re-use the k solutions already
+Solver generates k solutions for the input question generated by the Solver.
+and we group them by their final answers. From Reviewer generates targeted feedback. To assist
+the largest cluster of solutions, we calculate the the Reviewer in generating useful feedback to local-
+average RM score and normalize it by the aver- ize errors better (“Issue 2” in Fig. 1), we supply the
+age score across all solutions, denoted as S . If Reviewer with external step-wise PRM scores for
+avg
+S ≥ 0 after normalization, this condition will each step of the solution. The goal of the Reviewer
+avg
+be true, meaning the majority answer is already is to incorporate these step-wise correctness scores
+high-quality (as measured by both ORM and PRM to generate actionable feedback. We append these
+
+## Page 4
+
+Generate k Solutions w/ RM scores Condition 1 : Is the Majority Answer of High Quality?
+≥ 0 High ORM PRM
+< 0 Low
+Question ORM PRM Majority Cluster Average Normalized Score
+Score each chain Condition 2 : Is the RM’s Answer Confidence High?
+Ans Score A
+D 0.11 B ≥ 0.5 High
+A 0.62 D < 0.5 Low 7
+B 0.55
+Solver k Solutions with score A 0.76 Answer Cluster If both conditions fail → hard
+Process Outcome
+Reward Model Reward Model
+Multi-Agent Iteration for Fine-Grained Refinement (Hard Samples Only) 2k Chains
+Refined
+Let's review the Let's review the
+k Reasoning Chains steps with lower solution and the
+scores and feedback, and then Previous
+Here’s the solution: identify the refine the current
+Step 1: (Score: 9/10) errors. solution.
+Step 2: (Score: 8/10) ... {previous_chain} Question
+Step 3: (Score: 1/10) Step 3: The low {targeted_feedback}
+Solver ... Reviewer score of 1 Refiner Global scores
+Step T: (Score: 6/10) suggests an error Refined solution: from ORM
+in this step... ... ORM
+Local scores from PRM Bidirectional k Targeted Feedback k Refined Chains
+Communication Top-k Chains
+PRM Next Iteration (check 1 and 2 again)
+Figure 2: MAGICORE classify problem difficulty based on two conditions: (1) the quality of the majority answer
+and (2) the RM’s answer confidence. A problem is considered hard when the majority answer receives a low average
+RM score and the answer distribution is flat (i.e., low confidence). For these hard problems, we employ a multi-agent
+setup – The Solver generates k reasoning chains, passing them to the PRM to pinpoint errors. The Reviewer
+turns scores into targeted feedback, and the Refiner improves the k solutions using the Reviewer’s feedback. This
+review-refine process repeats until either of the two conditions passes, or a maximum iteration is reached.
+scores to the end of each step and pass the result is met, or (b) a predefined maximum number of
+to the Reviewer. That is, it takes a chain with the iterations is reached.
+PRM scores as input, and is prompted to identify Final answer selection. The refinement process
+problematic steps that need refinement and possi- described above operates on all k chains simul-
+ble ways to fix them. taneously, producing k refined chains in each it-
+Refiner improves solutions w/ feedback. Inspired eration. At the end of each iteration, we use the
+by the finding that LLM can resolve errors when ex- ORM to assess whether the refined solution has
+plicitly pointed out (Tyen et al., 2024), the Refiner improved based on its global correctness score. In
+agent focuses exclusively on how the step should other words, by the end of each iteration, we have
+be modified so as to resolve the error based on feed- 2k reasoning chains – k initial and k refined – but
+back from the Reviewer. That is, the Refiner uses retain only the top k based on their global ORM
+the targeted feedback generated by the Reviewer scores. Here we choose to base the decision on
+to refine the reasoning chain that was generated by the ORM score because the targeted feedback is
+the Solver. The prompts for the Reviewer and the generated with PRM’s step-wise scores, so select-
+Refiner are shown in Section E. ing the solution via another scoring model avoids
+Iterating the refinement process. For some hard overfitting. Finally, the answer is selected using
+instances, one round of refinement may be insuf- Weighted Self-Consistency over these retained top
+ficient, as the Reviewer may have generated some k chains, at the end of each iteration.
+irrelevant feedback or the Refiner may not have
+3 Experimental Setup
+fixed the highlighted step adequately (“Issue 3” in
+Fig. 1). Thus, the Reviewer and the Refiner need
+Implementation Details. We develop MAGI-
+to collaborate with each other over the course of
+CORE with Llama3-8B-Instruct (AI@Meta,
+multiple refinement iterations. To prevent exces-
+2024) and GPT-3.5-Turbo (OpenAI, 2022) as the
+sive refinement, we re-evaluate the two conditions
+base LLMs. Based on their strong performance
+described in Section 2.1 in each iteration. The re-
+on standard reward modeling evaluations (Lambert
+finement continues until (a) one of the conditions
+et al., 2024), we choose InternLM-7B (Cai et al.,
+
+## Page 5
+
+2024) as the ORM, and Math-Shepherd-7B (Wang ning diverse topics and a total of 5,000 problems.
+et al., 2023) as the PRM for computing the RM Following previous works (Lightman et al., 2023;
+scores. By default, we sample k = 40 reasoning Wang et al., 2023), we evaluate MATH perfor-
+chains in each iteration for MAGICORE, and the mance on a representative subset of 500 samples.
+decoding temperature is set to 0.8. The maximum We also evaluate on math splits of general bench-
+number of iterations is set to 3, with additional marks that test language models’ world knowledge
+analysis in Fig. 3 and Table 15; we find that after 3, and problem-solving abilities over various subjects
+performance saturates, leading us to choose 3 given such as MMLU-Math (Hendrycks et al., 2021a;
+budget considerations. We compare against differ- Yue et al., 2024) and SAT (Zhong et al., 2023) with
+ent categories of strong baselines as follows, and 974 and 220 test instances respectively.
+leave more comparisons against prompting-based
+baselines to Table 9 in the Appendix. 4 Results and Analysis
+• Vanilla Prompting. The first baseline we com-
+4.1 Main Results
+pare to is zero-shot Chain-of-Thought (Wei et al.,
+2022); note that this only generates one reason- MAGICORE outperforms all baselines at the
+ing chain per question without aggregation. first iteration. We present our main results in
+Table 1. First, one iteration of MAGICORE al-
+• Iterative Prompting. We also compare MAGI-
+ready outperforms all baselines. Compared to
+CORE to an iterative prompting method, Self-
+aggregation-based methods, which generate mul-
+Refine (SR) (Madaan et al., 2023), which refines
+tiple responses for each problem without refine-
+the initial CoT answer via iteratively prompting
+ment, MAGICORE improves over Best-of-120 by
+the LLM to generate feedback and refine the pre-
+3.2% (absolute) averaged across the five datasets
+vious output accordingly.
+on Llama-3-8B, despite using 2× fewer samples.
+• Aggregation-based Methods. The third cate-
+Note that our method’s first iteration only involves
+gory generates multiple samples for each ques-
+40 samples for easy problems and 40 refined chains
+tion. Here, we sample k solutions from the same
+for the subset of hard problems, making our k = 55
+LLM and select the final answer either via k-way
+on average. When compared to 120-way SC, our
+Self-Consistency (SC) (Wang et al., 2022) or
+method shows an even greater average improve-
+according to the highest ORM score (Best-of-k)
+ment of 3.3% on Llama-3-8B and 3.2% on GPT-
+(Lightman et al., 2023; Sun et al., 2024; Wang
+3.5. Turning to refinement-based methods, we run
+et al., 2023). Note that we give these baselines
+them with up to 5 iterations and only report the best
+more samples than MAGICORE.
+in Table 1 (denoted as “Best Iter”), leaving a more
+• Iterative Baseline with Aggregation. To enable detailed comparison in Fig. 3 and Table 15. On
+a fair comparison, we also report a stronger ver- average, MAGICORE shows 17.1% and 13.5% im-
+sion of self-refine by combining Self-Refine and provements over SR for Llama-3-8B and GPT-3.5.
+Self-Consistency (SR+SC), i.e., a baseline that As SR alone is a weaker baseline without aggregat-
+is iterative, refines, and aggregates. Specifically, ing multiple samples, we also compare to SR + SC,
+this baseline applies Self-Refine for k samples and find that even with its best iteration, MAGI-
+in parallel, and the final answer is derived by CORE outperforms SR + SC by 5.4% (Llama-3-
+aggregating the k refined solutions. 8B) and 4.9% (GPT-3.5) on average. This suggests
+Datasets. We evaluate MAGICORE mainly on that adaptively addressing challenging instances
+five math reasoning datasets. Later in Section 4.2, with targeted refinement improves overall perfor-
+we further show MAGICORE’s effectiveness on mance, while reducing compute for easy problems.
+commonsense (ARC-challenge; Clark et al. (2018)) MAGICORE continues to improve with more
+and logical reasoning (Date Understanding; Srivas- iterations. While MAGICORE already beats all
+tava et al. (2022)) tasks. The first class of math baselines after the very first iteration, in Table 1, we
+datasets is math word problems: GSM8K (Cobbe also observe a clear upward trend in performance
+et al., 2021), SVAMP (Patel et al., 2021), and as the number of iterations increases. We illustrate
+MATH (Hendrycks et al., 2021b). GSM8K and this further in Fig. 3, which presents the accuracy
+SVAMP consist of grade school-level math prob- across successive iterations. Our comparison in-
+lems, with 1,312 and 1,000 test samples. MATH cludes Best-of-k and SR + SC with k = 40, with
+comprises high-school math competitions span- accuracy averaged across five datasets. We find that
+
+## Page 6
+
+MMLU MATH SVAMP GSM8K SAT Avg.
+Llama3-8B-Instruct
+Zero-shot CoT 50.4 24.2 72.4 80.1 58.2 57.1
+Self-Refine (Best Iter) 49.8 24.0 72.6 79.6 59.6 57.1
+Best-of-k (k = 120) 62.6 41.4 88.7 90.1 72.4 71.0
+k-way SC (k = 120) 63.0 40.6 89.8 90.3 70.5 70.8
+Self-Refine + k-way SC (Best Iter) 62.3 41.0 89.2 90.3 68.0 70.2
+MAGICORE (Iter=1) 67.3 46.0 91.4 91.1 75.0 74.2
+MAGICORE (Iter=2) 68.4 47.2 91.1 92.3 76.4 75.1
+MAGICORE (Iter=3) 68.9 (+5.6%) 47.8 (+5.2%) 91.3 (+1.7%) 91.6 (+1.3%) 78.2 (+5.8%) 75.6 (+4.3%)
+GPT-3.5-Turbo
+Zero-shot CoT 62.5 37.2 78.1 78.5 76.8 66.6
+Self-Refine (Best Iter) 61.1 37.4 77.9 78.4 77.1 66.4
+Best-of-k (k = 120) 70.1 50.6 87.7 90.5 87.8 77.3
+k-way SC (k = 120) 70.4 51.2 86.9 89.8 87.6 77.1
+Self-Refine + k-way SC (Best Iter) 70.1 49.4 88.1 88.1 84.5 76.0
+MAGICORE (Iter=1) 73.7 57.2 89.4 91.1 90.1 80.3
+MAGICORE (Iter=2) 73.3 57.8 90.1 91.1 90.9 80.6
+MAGICORE (Iter=3) 73.6 (+3.5%) 58.6 (+8.0%) 90.1 (+2.4%) 91.4 (+0.9%) 90.9 (+3.1%) 80.9 (+3.6%)
+Table 1: Performance comparison of methods and models. (+x%) is compared to the strongest baseline (Best-of-k)
+shown in blue. Across models and datasets, MAGICORE consistently improves. Notably, MAGICORE surpasses
+all baselines after the first iteration of refinement, even when the baselines use a larger sample size (k = 120).
+76
+74
+72
+70
+68
+0 1 2 3 4 5
+Iteration
+ycaruccA
+Ours Best-of-k SR + SC
+50.0
+47.5
+45.0
+42.5
+40.0
+37.5
+35.0
+10 20 40 100 120
+Effective Sample Size (k)
+Figure 3: Comparison with baselines across iterations
+(avg. of 5 datasets with k = 40). Full results: Table 15.
+while SR + SC fluctuates around the same range of
+70%, MAGICORE continues to improve and stabi-
+lize at the third iteration with 75.6% accuracy (with
+a noticeable 1.4% improvement compared to the
+first iteration). This highlights the importance of
+our iterative refinement and the ability to overcome
+insufficient refinement for hard instances, and in-
+dicates that the issue of over-refinement does not
+reappear in MAGICORE even after more iterations.
+MAGICORE outperforms aggregation-based
+methods despite using less computation. In
+Fig. 4, we further compare the cost and perfor-
+mance of MAGICORE with Best-of-k and SC on
+MATH and MMLU using Llama-3-8B, studying
+how performance changes as we increase the num-
+ycaruccA
+Ours Best-of-k
+Ours (k=15) k-way SC
+Figure 4: Comparison of MAGICORE, k-way SC, and
+Best-of-k with different k on MATH.
+ber of reasoning chains generated per question k.
+Note that we sample k reasoning chains per ques-
+tion for baselines, whereas, in our method, we add
+k more samples in each iteration for a subset of
+hard problems, and plot the average number of
+samples in Fig. 4. The trend in Fig. 4 shows that
+MAGICORE consistently outperforms k-way SC
+and Best-of-k at any given k. Moreover, while SC
+saturates and stops improving at around k = 40,
+MAGICORE continues to improve with increas-
+ing k. Notably, MAGICORE with k = 15 already
+performs better than Best-of-120 and 120-way SC,
+highlighting the cost-effectiveness of our method.
+We also show that MAGICORE is also more cost-
+efficient in terms of token count in Fig. 5.
+
+## Page 7
+
+Method MMLU MATH SVAMP GSM8K SAT Avg.
+Qwen2.5-Math-7B 73.9 78.8 91.8 94.9 92.3 86.3
+k-way SC (k = 40) 81.3 87.0 95.5 97.2 97.3 91.7
+k-way SC (k = 120) 82.0 86.8 95.4 97.3 97.3 91.8
+Best-of-k (k = 120) 82.6 86.0 93.4 96.9 95.2 90.8
+MAGICORE 84.6 91.4 95.8 97.3 97.3 93.3
+Table 2: MAGICORE scales with the strength of reward models while also improves stronger base model like
+Qwen2.5-Math-7B. Here we use Skywork-Reward-Llama-3.1-8B as the ORM and Qwen-Math-PRM-7B as the
+PRM. Note that all the baselines are using the same models.
+4.2 Additional Analyses one single refinement issue at a time leads to a per-
+formance drop, highlighting the need for a joint
+MAGICORE scales with stronger models. To
+solution as we proposed in MAGICORE. We find
+evaluate the scalability of MAGICORE on more
+that only addressing insufficient refinement (Issue
+recent and capable models, we experiment with
+3) causes the highest drop in performance, as it
+Qwen2.5-Math-7B (Yang et al., 2024), using
+fails to efficiently localize errors (without the help
+Skywork-Reward-Llama-3.1-8B (Liu et al., 2024a)
+of PRM) and also performs excessive refinement.
+as the ORM and Qwen-Math-PRM-7B (Yang et al.,
+2024) as the PRM. As shown in Table 2, MAGI-
+CORE achieves the largest gains compared to Self- PRM ORM Acc.
+Consistency and Best-of-k under the same model MS-7B ILM-7B 47.8
+setup. These results indicate that MAGICORE not QM-7B ILM-7B 52.6
+only benefits stronger models like Qwen2.5-Math- QM-72B ILM-7B 55.4
+7B but also generalizes well across datasets. MS-7B SRL-8B 49.4
+Table 4: Performance of MAGICORE with different
+Method MMLU MATH RMs, which can be swapped in without modification.
+Only Address Issue 1 64.7 44.0
+Only Address Issue 2 65.9 45.4 Modularity of MAGICORE. In Table 1 we re-
+Only Address Issue 3 60.3 36.4
+port performance using InternLM-7B (ILM-7B)
+MAgICoRE 68.9 47.8
+as the ORM and Math-Shepherd-7B (MS-7B) as
+Table 3: Ablation study on addressing each refinement the PRM. Here, we illustrate the modularity of
+(c.f. Fig. 1) issue one at a time. MAGICORE by incorporating different ORM and
+PRMs; note that this can be done without changes
+All three issues must be addressed jointly. To to the code. In Table 4, we report the performance
+investigate the importance of each refinement issue of MAGICORE on MATH when using different
+and component in MAGICORE, we conduct an ORMs and PRMs, holding the other fixed. We test
+ablation study to address each issue individually Qwen-Math PRM 7B and 72B (QM-7B and 72B;
+in Table 3 under the following settings: (1) Only Zhang et al., 2025) as PRMs and Skywork-Reward-
+Address Issue 1 (Excessive Refinement): Here, we Llama-3.1-8B (SRL-8B; Liu et al., 2024a) as an
+apply selective refinement only, without PRM step- alternate ORM. In all cases, we find that MAGI-
+wise scores for feedback generation and without CORE benefits from other RM selections, and that
+iterations. (2) Only Address Issue 2 (Inability to these changes can be made trivially.
+Localize and Address Errors): Here, we use PRM Selective refinement avoids over-correcting and
+scores for feedback generation and refine all in- improves overall performance. In Section 1, we
+stances uniformly (i.e. no selective refinement) for noted that excessive refinement could potentially
+one iteration. (3) Only Address Issue 3 (Insufficient hurt performance by flipping correct answers to
+Refinement): Here, we iteratively refine all samples incorrect ones. Here, we provide a quantitative
+without incorporating PRM scores (i.e. no error analysis of this claim. Recall that we have two
+localization) and without performing selective re- methods: coarse aggregation (Weighted SC) and
+finement. The results show that only addressing fine refinement (multi-agent iteration) which we
+
+## Page 8
+
+Method ARC Date
+Method MMLU MATH
+Zero-shot 66.5 52.5
+Aggregation-Only 64.7 44.0
+40-way SC 85.5 72.5
+Refinement-Only 60.9 38.8
+120-way SC 86.0 72.5
+MAGICORE 67.3 46.0
+MAgICoRE (Iter = 1) 87.5 79.5
+MAgICoRE (Iter = 2) 88.0 79.5
+Table 5: Comparison when uniformly adopting aggrega- MAgICoRE (Iter = 3) 88.5 80.5
+tion (i.e., Weighted SC) or refinement to all instances.
+Table 7: MAGICORE also generalizes to commonsense
+reasoning and logical reasoning tasks.
+apply selectively depending on predicted problem
+difficulty (c.f. Section 2.1). In Table 5, we mea-
+worse than row 4, indicating that PRM scores help
+sure the performance of each method when applied
+in localizing errors. Finally, we test whether the
+uniformly to all instances, regardless of the prob-
+global ORM score can offer a similar advantage as
+lem difficulty. We find that uniformly applying
+using the local PRM score. Result in ow 3 shows
+refinement actually degrades performance; com-
+that it performs slightly worse than using the PRM
+paring Weighted SC (the “Aggregation-Only” in
+score, suggesting that while global correctness is
+row 1) to refinement-only (row 2), we see that re-
+also a strong signal, local correctness scores help
+fining all samples leads to 3.8% and 5.2% drops
+identify and correct errors more effectively.
+on MMLU and MATH, respectively, pointing to
+MAGICORE generalizes to other domains.
+the over-correction issue. Conversely, one iteration
+Table 1 shows the benefits of MAGICORE on
+of our selective refinement (row 3) targets only the
+math reasoning; however, LLMs have been ap-
+challenging instances where the weighted majority
+plied to a wide variety of tasks beyond math. Here,
+vote is unlikely to succeed, resulting in up to 2.6%
+we explore expanding MAGICORE to other do-
+improvement compared to uniformly applying ag-
+mains, specifically to a commonsense reasoning
+gregation (row 1). This demonstrates that our selec-
+task: ARC-Challenge (Clark et al., 2018), and a
+tive refinement not only avoids over-correction but
+logical reasoning task: Date Understanding (Sri-
+also enhances overall performance by effectively
+vastava et al., 2022). We sample 200 instances
+allocating more resources to harder problems.
+from each dataset and use GPT4o-mini as a PRM
+for the experiments, as existing standalone PRMs
+Refinement Variants MMLU MATH generally only exist for math. Specifically, we
+LLM Self-Refinement 65.9 44.4 prompt GPT4o-mini to provide step-wise correct-
+Random Step Score 66.4 43.8 ness scores without any textual explanations or rea-
+ORM Score (No Step Score) 66.8 45.2
+soning, acting the same as a PRM. The prompt is
+Ours (PRM Step Score) 67.3 46.0
+provided in Section F. This approach ensures that
+Table 6: Refinement variants in MAGICORE. Using our agents do not have access to explanations from
+PRM scores for refinement performs the best. a stronger model. We conduct this experiment with
+Llama3-8B-Instruct as the base LLM. Table 7
+PRM-based feedback enables better refinement. shows that MAGICORE transfers to commonsense
+Having demonstrated that selectively applying re- and logical reasoning, outperforming 120-say SC
+finement is crucial for achieving improvements, by 2.5% and 8.0%, respectively.
+we now compare the refinement process with and
+without using a PRM. To this end, without using
+Method Accuracy
+a PRM, we ask the LLM to generate an updated
+Zero-shot 72.0
+solution based on its own previous reasoning, re-
+40-way SC 79.2
+ferring to this as LLM Self-Refinement. Compared 40-way SC + PRM 79.4
+MAgICoRE (Iter = 1) 80.2
+to MAGICORE in row 4 of Table 6, using LLM’s
+MAgICoRE (Iter = 2) 80.4
+self-refinement (row 1) results in an average drop MAgICoRE (Iter = 3) 80.4
+of 1.5%, indicating that using the LLM for refine-
+ment is less effective than using a PRM. To further Table 8: MAGICORE can also improve GPT4o-mini.
+examine how sensitive the refinement process is
+to the score quality, in row 2, we replace the ac- MAGICORE also improves stronger models like
+tual PRM scores with random scores. The result is GPT4o-mini. Table 1 shows results with GPT-
+
+## Page 9
+
+3.5-Turbo; here, we show that MAGICORE scales with additional compute, MAGICORE continues
+to its stronger variant as well. Specifically, we to improve. Nevertheless, our method increases the
+run MAGICORE using GPT4o-mini on a subset of computational cost of inference, and relies on start-
+MATH data. Due to the high cost and the fact that ing with a base number of samples to establish the
+Fig. 4 shows decreasing performance at k = 120 difficulty and quality of existing solutions. In addi-
+for MATH, we only compare to the 40-way SC tion to requiring multiple solutions, MAGICORE
+with the weighted variation that incorporates PRM uses feedback from both ORMs and PRMs to im-
+scores for vote weighting (40-way SC + PRM). prove refinement. These models must be separately
+Table 8 demonstrates that MAGICORE can also trained to provide rewards for a given domain and
+enhance stronger model’s performance, albeit with therefore do not exist for all problem types. How-
+a smaller margin of improvement compared to ever, we also note that MAGICORE is modular,
+Llama3-8B and GPT-3.5 shown in Table 1. and thus allows for newer and better ORMs and
+PRMs to be swapped in as they become available.
+5 Conclusion MAGICORE is designed to improve the reasoning
+of LLMs, and thus has no additional risks beyond
+Building on the observation that different problems
+those inherent to LLMs generally.
+require varying amounts of computation, we in-
+troduced MAGICORE, a method that adaptively Acknowledgments
+allocates more computational resources to more
+We would like to thank the anonymous review-
+challenging problems and selectively applies re-
+ers for their feedback. This work was supported
+finement where appropriate, i.e., on harder prob-
+by NSF-CAREER Award 1846185, NSF-AI En-
+lems. MAGICORE addresses three key issues in
+gage Institute DRL-2112635, DARPA MCS Grant
+refinement: excessive refinement on easy exam-
+N66001-19-2-4031, a Capital One Research Award,
+ples, the inability of LLMs to detect and correct er-
+a Cisco Research Award, and a Google PhD Fel-
+rors, and insufficient refinement on hard instances.
+lowship, and the Accelerate Foundation Models
+Our approach tackles these issues by employing
+Research program. The views contained in this ar-
+both global and local reward models to decide
+ticle are those of the authors and not of the funding
+which samples to refine. We then incorporate local
+agency.
+correctness scores to generate targeted feedback
+and an iterative multi-agent communication frame-
+work to refine solutions for hard problems. Results
+References
+across five math datasets and two models show that
+Pranjal Aggarwal, Aman Madaan, Yiming Yang, and
+our coarse-to-fine method consistently outperforms
+Mausam. 2023. Let’s sample step by step: Adaptive-
+both coarse-grained aggregation and fine-grained
+consistency for efficient reasoning and coding with
+refinement alone at any given budget, and even out- LLMs. In Proceedings of the 2023 Conference on
+performs baselines using substantially more com- Empirical Methods in Natural Language Processing,
+putation. In our ablations, we demonstrate the im- pages 12375–12396.
+portance of selective refinement, showing that per- AI@Meta. 2024. Llama 3 model card.
+formance generally drops when refining all samples
+Zheng Cai, Maosong Cao, Haojiong Chen, Kai Chen,
+uniformly. We also highlight the role of iteration
+Keyu Chen, Xin Chen, Xun Chen, Zehui Chen,
+in our framework, showing increased performance
+Zhi Chen, Pei Chu, Xiaoyi Dong, Haodong Duan,
+across iterations even as baselines stagnate. Qi Fan, Zhaoye Fei, Yang Gao, Jiaye Ge, Chenya
+Gu, Yuzhe Gu, Tao Gui, Aijia Guo, Qipeng Guo,
+Limitations Conghui He, Yingfan Hu, Ting Huang, Tao Jiang,
+Penglong Jiao, Zhenjiang Jin, Zhikai Lei, Jiaxing Li,
+Jingwen Li, Linyang Li, Shuaibin Li, Wei Li, Yin-
+Like all test-time scaling, MAGICORE improves
+ing Li, Hongwei Liu, Jiangning Liu, Jiawei Hong,
+performance by adding computation via additional
+Kaiwen Liu, Kuikun Liu, Xiaoran Liu, Chengqi Lv,
+samples, trading some efficiency for better perfor- Haijun Lv, Kai Lv, Li Ma, Runyuan Ma, Zerun Ma,
+mance. We show that MAGICORE makes better Wenchang Ning, Linke Ouyang, Jiantao Qiu, Yuan
+use of additional compute than the baselines by Qu, Fukai Shang, Yunfan Shao, Demin Song, Zi-
+fan Song, Zhihao Sui, Peng Sun, Yu Sun, Huanze
+performing targeted refinement and thus better us-
+Tang, Bin Wang, Guoteng Wang, Jiaqi Wang, Ji-
+ing inference-time compute; indeed, while base-
+ayu Wang, Rui Wang, Yudong Wang, Ziyi Wang,
+lines like Best-of-k and Self-Consistency stagnate Xingjian Wei, Qizhen Weng, Fan Wu, Yingtong
+
+## Page 10
+
+Xiong, Chao Xu, Ruiliang Xu, Hang Yan, Yirong Dan Hendrycks, Collin Burns, Steven Basart, Andy
+Yan, Xiaogui Yang, Haochen Ye, Huaiyuan Ying, Jia Zou, Mantas Mazeika, Dawn Song, and Jacob Stein-
+Yu, Jing Yu, Yuhang Zang, Chuyu Zhang, Li Zhang, hardt. 2021a. Measuring massive multitask language
+Pan Zhang, Peng Zhang, Ruijie Zhang, Shuo Zhang, understanding. Proceedings of the International Con-
+Songyang Zhang, Wenjian Zhang, Wenwei Zhang, ference on Learning Representations (ICLR).
+Xingcheng Zhang, Xinyue Zhang, Hui Zhao, Qian
+Zhao, Xiaomeng Zhao, Fengzhe Zhou, Zaida Zhou, Dan Hendrycks, Collin Burns, Saurav Kadavath, Akul
+Jingming Zhuo, Yicheng Zou, Xipeng Qiu, Yu Qiao, Arora, Steven Basart, Eric Tang, Dawn Song, and
+and Dahua Lin. 2024. Internlm2 technical report. Jacob Steinhardt. 2021b. Measuring mathematical
+Preprint, arXiv:2403.17297. problem solving with the math dataset. NeurIPS.
+Justin Chen, Swarnadeep Saha, and Mohit Bansal.
+Jie Huang, Xinyun Chen, Swaroop Mishra,
+2024a. ReConcile: Round-table conference im-
+Huaixiu Steven Zheng, Adams Wei Yu, Xiny-
+proves reasoning via consensus among diverse LLMs.
+ing Song, and Denny Zhou. 2024. Large language
+In Proceedings of the 62nd Annual Meeting of the
+models cannot self-correct reasoning yet. In The
+Association for Computational Linguistics (Volume 1:
+Twelfth International Conference on Learning
+Long Papers), pages 7066–7085, Bangkok, Thailand.
+Representations.
+Association for Computational Linguistics.
+Lingjiao Chen, Jared Quincy Davis, Boris Hanin, Peter Ryo Kamoi, Yusen Zhang, Nan Zhang, Jiawei Han,
+Bailis, Ion Stoica, Matei Zaharia, and James Zou. and Rui Zhang. 2024. When can llms actually cor-
+2024b. Are more llm calls all you need? towards rect their own mistakes? a critical survey of self-
+scaling laws of compound inference systems. arXiv correction of llms. Transactions of the Association
+preprint arXiv:2403.02419. for Computational Linguistics, 12:1417–1440.
+Peter Clark, Isaac Cowhey, Oren Etzioni, Tushar Khot,
+Muhammad Khalifa, Lajanugen Logeswaran, Moon-
+Ashish Sabharwal, Carissa Schoenick, and Oyvind
+tae Lee, Honglak Lee, and Lu Wang. 2023. Grace:
+Tafjord. 2018. Think you have solved question an-
+Discriminator-guided chain-of-thought reasoning. In
+swering? try arc, the ai2 reasoning challenge. arXiv
+ACL Findings.
+preprint arXiv:1803.05457.
+Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian, Geunwoo Kim, Pierre Baldi, and Stephen McAleer.
+Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias 2024. Language models can solve computer tasks.
+Plappert, Jerry Tworek, Jacob Hilton, Reiichiro Advances in Neural Information Processing Systems,
+Nakano, et al. 2021. Training verifiers to solve math 36.
+word problems. arXiv preprint arXiv:2110.14168.
+Nathan Lambert, Valentina Pyatkin, Jacob Morrison,
+Hamzeh Dodeen. 2015. Teaching test-taking strategies: LJ Miranda, Bill Yuchen Lin, Khyathi Chandu,
+Importance and techniques. Psychology Research, Nouha Dziri, Sachin Kumar, Tom Zick, Yejin Choi,
+5(2):108–113. et al. 2024. Rewardbench: Evaluating reward
+models for language modeling. arXiv preprint
+Yilun Du, Shuang Li, Antonio Torralba, Joshua B.
+arXiv:2403.13787.
+Tenenbaum, and Igor Mordatch. 2023. Improving
+factuality and reasoning in language models through
+Junyou Li, Qin Zhang, Yangbin Yu, Qiang Fu, and
+multiagent debate. arXiv preprint arXiv:2305.14325.
+Deheng Ye. 2024a. More agents is all you need.
+Shangbin Feng, Weijia Shi, Yike Wang, Wenxuan Ding, arXiv preprint arXiv:2402.05120.
+Vidhisha Balachandran, and Yulia Tsvetkov. 2024.
+Don’t hallucinate, abstain: Identifying LLM knowl- Yifei Li, Zeqi Lin, Shizhuo Zhang, Qiang Fu, Bei Chen,
+edge gaps via multi-LLM collaboration. In Proceed- Jian-Guang Lou, and Weizhu Chen. 2023. Making
+ings of the 62nd Annual Meeting of the Association language models better reasoners with step-aware
+for Computational Linguistics (Volume 1: Long Pa- verifier. In Proceedings of the 61st Annual Meet-
+pers), pages 14664–14690, Bangkok, Thailand. As- ing of the Association for Computational Linguistics
+sociation for Computational Linguistics. (Volume 1: Long Papers), pages 5315–5333.
+Xinyu Guan, Li Lyna Zhang, Yifei Liu, Ning Shang,
+Yiwei Li, Peiwen Yuan, Shaoxiong Feng, Boyuan Pan,
+Youran Sun, Yi Zhu, Fan Yang, and Mao Yang.
+Xinglin Wang, Bin Sun, Heda Wang, and Kan Li.
+2025. rstar-math: Small llms can master math rea-
+2024b. Escape sky-high cost: Early-stopping self-
+soning with self-evolved deep thinking. Preprint,
+consistency for multi-step reasoning. arXiv preprint
+arXiv:2501.04519.
+arXiv:2401.10480.
+Alex Havrilla, Sharath Raparthy, Christoforus Nalm-
+pantis, Jane Dwivedi-Yu, Maksym Zhuravinskyi, Tian Liang, Zhiwei He, Wenxiang Jiao, Xing Wang,
+Eric Hambro, and Roberta Railneau. 2024. Glore: Yan Wang, Rui Wang, Yujiu Yang, Zhaopeng Tu, and
+When, where, and how to improve llm reasoning Shuming Shi. 2023. Encouraging divergent thinking
+via global and local refinements. arXiv preprint in large language models through multi-agent debate.
+arXiv:2402.10963. arXiv preprint arXiv:2305.19118.
+
+## Page 11
+
+Hunter Lightman, Vineet Kosaraju, Yura Burda, Harri Aarohi Srivastava, Abhinav Rastogi, Abhishek Rao,
+Edwards, Bowen Baker, Teddy Lee, Jan Leike, Abu Awal Md Shoeb, Abubakar Abid, Adam Fisch,
+John Schulman, Ilya Sutskever, and Karl Cobbe. Adam R Brown, Adam Santoro, Aditya Gupta,
+2023. Let’s verify step by step. arXiv preprint Adrià Garriga-Alonso, et al. 2022. Beyond the
+arXiv:2305.20050. imitation game: Quantifying and extrapolating the
+capabilities of language models. arXiv preprint
+Chris Yuhao Liu, Liang Zeng, Jiacai Liu, Rui Yan, Ju- arXiv:2206.04615.
+jie He, Chaojie Wang, Shuicheng Yan, Yang Liu,
+Kaya Stechly, Matthew Marquez, and Subbarao Kamb-
+and Yahui Zhou. 2024a. Skywork-reward: Bag of
+hampati. 2023. Gpt-4 doesn’t know it’s wrong: An
+tricks for reward modeling in llms. arXiv preprint
+analysis of iterative prompting for reasoning prob-
+arXiv:2410.18451.
+lems. arXiv preprint arXiv:2310.12397.
+Dancheng Liu, Amir Nassereldine, Ziming Yang, Chen- Kaya Stechly, Karthik Valmeekam, and Subbarao Kamb-
+hui Xu, Yuting Hu, Jiajie Li, Utkarsh Kumar, Chang- hampati. 2024. On the self-verification limitations
+jae Lee, and Jinjun Xiong. 2024b. Large language of large language models on reasoning and planning
+models have intrinsic self-correction ability. arXiv tasks. arXiv preprint arXiv:2402.08115.
+preprint arXiv:2406.15673.
+Zhiqing Sun, Longhui Yu, Yikang Shen, Weiyang
+Li-Chun Lu, Shou-Jen Chen, Tsung-Min Pai, Chan- Liu, Yiming Yang, Sean Welleck, and Chuang Gan.
+Hung Yu, Hung yi Lee, and Shao-Hua Sun. 2024. 2024. Easy-to-hard generalization: Scalable align-
+LLM discussion: Enhancing the creativity of large ment beyond human supervision. arXiv preprint
+language models via discussion framework and role- arXiv:2403.09472.
+play. In First Conference on Language Modeling.
+Gladys Tyen, Hassan Mansoor, Victor Ca˘rbune, Peter
+Chen, and Tony Mak. 2024. Llms cannot find rea-
+Aman Madaan, Niket Tandon, Prakhar Gupta, Skyler
+soning errors, but can correct them given the error
+Hallinan, Luyu Gao, Sarah Wiegreffe, Uri Alon,
+location. arXiv preprint arXiv:2311.08516.
+Nouha Dziri, Shrimai Prabhumoye, Yiming Yang,
+et al. 2023. Self-refine: Iterative refinement with Manya Wadhwa, Xinyu Zhao, Junyi Jessy Li, and
+self-feedback. Advances in Neural Information Pro- Greg Durrett. 2024. Learning to refine with fine-
+cessing Systems, 36. grained natural language feedback. arXiv preprint
+arXiv:2407.02397.
+OpenAI. 2022. Chatgpt: Optimizing language models
+Peiyi Wang, Lei Li, Zhihong Shao, RX Xu, Damai
+for dialogue.
+Dai, Yifei Li, Deli Chen, Y Wu, and Zhifang Sui.
+2023. Math-shepherd: Verify and reinforce llms
+Steven C Pan and Faria Sana. 2021. Pretesting versus
+step-by-step without human annotations. CoRR,
+posttesting: Comparing the pedagogical benefits of
+abs/2312.08935.
+errorful generation and retrieval practice. Journal of
+Experimental Psychology: Applied, 27(2):237–257.
+Xuezhi Wang, Jason Wei, Dale Schuurmans, Quoc Le,
+Ed Chi, Sharan Narang, Aakanksha Chowdhery, and
+Arkil Patel, Satwik Bhattamishra, and Navin Goyal. Denny Zhou. 2022. Self-consistency improves chain
+2021. Are nlp models really able to solve simple of thought reasoning in language models. arXiv
+math word problems? In Proceedings of the 2021 preprint arXiv:2203.11171.
+Conference of the North American Chapter of the
+Association for Computational Linguistics: Human Zhenhailong Wang, Shaoguang Mao, Wenshan Wu, Tao
+Language Technologies, pages 2080–2094. Ge, Furu Wei, and Heng Ji. 2024. Unleashing the
+emergent cognitive synergy in large language mod-
+Henry L Roediger and Jeffrey D Karpicke. 2006. els: A task-solving agent through multi-persona self-
+Test-enhanced learning: Taking memory tests im- collaboration. In Proceedings of the 2024 Conference
+proves long-term retention. Psychological Science, of the North American Chapter of the Association for
+17(3):249–255. Computational Linguistics: Human Language Tech-
+nologies (Volume 1: Long Papers), pages 257–279,
+Mexico City, Mexico. Association for Computational
+Kumar Shridhar, Koustuv Sinha, Andrew Cohen, Tianlu
+Linguistics.
+Wang, Ping Yu, Ramakanth Pasunuru, Mrinmaya
+Sachan, Jason Weston, and Asli Celikyilmaz. 2024.
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten
+The art of llm refinement: Ask, refine, and trust. In
+Bosma, Fei Xia, Ed Chi, Quoc V Le, Denny Zhou,
+Proceedings of the 2024 Conference of the North
+et al. 2022. Chain-of-thought prompting elicits rea-
+American Chapter of the Association for Computa-
+soning in large language models. Advances in neural
+tional Linguistics: Human Language Technologies.
+information processing systems, 35:24824–24837.
+Lisa K Son and Janet Metcalfe. 2000. Metacognitive Ken Wojcikowski and Leslie Kirk. 2013. Immediate
+and control strategies in study-time allocation. Jour- detailed feedback to test-enhanced learning: an ef-
+nal of Experimental Psychology: Learning, Memory, fective online educational tool. Medical Teacher,
+and Cognition, 26(1):204. 35(11):915–919.
+
+## Page 12
+
+An Yang, Beichen Zhang, Binyuan Hui, Bofei Gao, is selected as the final prediction. While simple and
+Bowen Yu, Chengpeng Li, Dayiheng Liu, Jian- effective, it generates k solutions for every sample,
+hong Tu, Jingren Zhou, Junyang Lin, Keming Lu,
+as both past work and our work show that SC satu-
+Mingfeng Xue, Runji Lin, Tianyu Liu, Xingzhang
+rates when k increases (Chen et al., 2024b; Li et al.,
+Ren, and Zhenru Zhang. 2024. Qwen2.5-math tech-
+nical report: Toward mathematical expert model via 2024a). Several studies adaptively determine the
+self-improvement. number of samples (k) required for each instance to
+address this (Aggarwal et al., 2023; Li et al., 2024b).
+Zhangyue Yin, Qiushi Sun, Cheng Chang, Qipeng
+However, the performance of such approaches is
+Guo, Junqi Dai, Xuanjing Huang, and Xipeng Qiu.
+2023. Exchange-of-thought: Enhancing large lan- upper-bounded by SC – they address the cost issue
+guage model capabilities through cross-model com- but do not enhance overall performance. To sur-
+munication. In Proceedings of the 2023 Conference
+pass SC, Yin et al. (2024) propose using the LLM
+on Empirical Methods in Natural Language Process-
+to evaluate answer clusters, taking into account
+ing, pages 15135–15153, Singapore. Association for
+Computational Linguistics. both frequency and the LLM-evaluated quality of
+the answers. Instead, we propose using external
+Zhangyue Yin, Qiushi Sun, Qipeng Guo, Zhiyuan Zeng,
+RMs to decide between coarse-grained aggrega-
+Xiaonan Li, Tianxiang Sun, Cheng Chang, Qinyuan
+tion and fine-grained refinement, identify errors,
+Cheng, Ding Wang, Xiaofeng Mou, Xipeng Qiu, and
+XuanJing Huang. 2024. Aggregation of reasoning: and aid refinement; this allows us to improve over
+A hierarchical framework for enhancing answer se- aggregation or refinement alone.
+lection in large language models. arXiv preprint
+LLM-based Verification and Refinement. Past
+arXiv:2405.12939.
+work mostly uses RMs for verification purposes
+Xiang Yue, Xingwei Qu, Ge Zhang, Yao Fu, Wen- (Li et al., 2023; Khalifa et al., 2023; Cobbe et al.,
+hao Huang, Huan Sun, Yu Su, and Wenhu Chen. 2021; Lightman et al., 2023). Havrilla et al. (2024)
+2024. MAmmoTH: Building math generalist models
+considers local correctness for refinement in a non-
+through hybrid instruction tuning. In The Twelfth In-
+ternational Conference on Learning Representations. adaptive way and requires specific data curation
+with fine-tuning, while our work is adaptive and
+Di Zhang, Jiatong Li, Xiaoshui Huang, Dongzhan Zhou,
+uses off-the-shelf global and local models. Another
+Yuqiang Li, and Wanli Ouyang. 2024. Accessing gpt-
+line of work has proposed using the LLM itself
+4 level mathematical olympiad solutions via monte
+carlo tree self-refine with llama-3 8b. arXiv preprint as a verifier, in place of an RM (Liu et al., 2024b;
+arXiv:2406.07394. Zhang et al., 2024; Aggarwal et al., 2023; Madaan
+et al., 2023). However, recent work shows the
+Zhenru Zhang, Chujie Zheng, Yangzhen Wu, Beichen
+inability of LLMs to “self-verify” their own reason-
+Zhang, Runji Lin, Bowen Yu, Dayiheng Liu, Jin-
+gren Zhou, and Junyang Lin. 2025. The lessons of ing (Huang et al., 2024; Stechly et al., 2023; Kamoi
+developing process reward models in mathematical et al., 2024; Tyen et al., 2024; Kamoi et al., 2024).
+reasoning. arXiv preprint arXiv:2501.07301.
+Hence, MAGICORE uses external global and lo-
+cal reward models (Wang et al., 2023; Cai et al.,
+Wanjun Zhong, Ruixiang Cui, Yiduo Guo, Yaobo Liang,
+Shuai Lu, Yanlin Wang, Amin Saied, Weizhu Chen, 2024) for selective coarse-to-fine refinement. Shrid-
+and Nan Duan. 2023. Agieval: A human-centric har et al. (2024) trained specific models to decide
+benchmark for evaluating foundation models. arXiv
+when to refine and when to trust refined solutions.
+preprint arXiv:2304.06364.
+This contrasts with our method, where the decision
+Denny Zhou, Nathanael Schärli, Le Hou, Jason Wei, to refine is based on a coarse-to-fine resource al-
+Nathan Scales, Xuezhi Wang, Dale Schuurmans, location method that differentiates easy from hard
+Claire Cui, Olivier Bousquet, Quoc Le, et al. 2023.
+problems (for which we use global and local re-
+Least-to-most prompting enables complex reasoning
+ward models), and where refinement is done based
+in large language models. The Eleventh International
+Conference on Learning Representations. on off-the-shelf models. Past work has also used
+RMs to guide MCTS search for math problems
+Appendix
+(Guan et al., 2025). We do not compare to such
+methods, as their use of multiple rollouts makes
+A Related Work
+generation-matched comparisons like the kind we
+Improving Reasoning by Aggregation. Self- do challenging. Moreover, while MAGICORE ex-
+Consistency (SC; Wang et al., 2022) generates k plores how reward models can effectively address
+reasoning chains and marginalizes over the chains issues in refinement, MCTS-based methods primar-
+to obtain answer clusters; the most frequent answer ily investigate how reward models can guide the
+
+## Page 13
+
+search toward the final answer. These distinct goals where V(·) is a constant 1 in Self-Consistency
+make direct comparison less meaningful. and the quality measurement (e.g., RM score) in
+We also iteratively refine guided by global cor- Weighted Self-Consistency. In MAGICORE’s final
+rectness to ensure sufficient refinement, whereas answer selection, we use the sum of the solution-
+Shridhar et al. (2024) refine only once. Wadhwa level scores generated by both ORM and PRM as
+et al. (2024) propose a multi-agent detect-critique- V(·). Throughout MAGICORE, in cases where
+refine pipeline for generation tasks. MAGICORE we need solution-level PRM scores (compatible
+instead focuses on reasoning tasks and uses ex- with ORM scores), we accumulate the PRM step
+ternal RMs for selective coarse-to-fine refinement scores by taking their product (Sun et al., 2024),
+(whereas Wadhwa et al. (2024)’s detection uses the so that the aggregated PRM score corresponds to a
+same metric as their evaluation, which is infeasible solution.
+in reasoning where the metric – accuracy – requires
+C Details of the Conditions
+access to the gold answer).
+Multi-Agent Systems with LLMs. LLMs can be Condition 1: Is the Majority Answer of High
+used in multi-agent systems, where the agents in- Quality? Given a problem q, to determine the
+teract, collaborate, and compete (Wang et al., 2024; difficulty of the problem at hand, the Solver gen-
+Lu et al., 2024; Feng et al., 2024). Related to our erates k solutions R = {r , . . . , r } and final an-
+1 k
+work, one line of multi-agent research focuses on swers A = {a , . . . , a } per question and cluster
+1 k
+structured debates or discussions between LLM the solutions by their final answer. This produces a
+agents, where the interaction helps refine and im- partition A with elements A , where A = {r ∈
+i i j
+prove previously generated solutions (Du et al., R | a = a }. The majority cluster A has the
+j i g
+2023; Liang et al., 2023; Yin et al., 2023; Chen most “votes”, i.e., A = argmax |A |. We
+g i∈|A| i
+et al., 2024a). These studies show improvements evaluate the majority answer quality by both ORM
+over single-agent systems, but a major challenge in and PRM separately but with the same procedure,
+multi-agent systems is achieving a correct consen- as described below. First, we score every reason-
+sus among LLMs; external feedback can help pre- ing chain r within the majority cluster A . Both
+i g
+vent this consensus from aligning with the agents’ ORM and PRM are able to produce a solution-level
+internal and possibly erroneous outputs. Therefore, score, which we denoted as S RM. Note that we per-
+i
+MAGICORE’s multi-agent refinement incorporates form this check using ORM and PRM separately,
+external RMs for more objective scoring, enabling but for simplicity, we use the same notation for
+the generation of targeted feedback for better re- solution-level score, which either comes from the
+finement. ORM or the PRM. We calculate the average of the
+solution-level scores from the majority group:
+B Self-Consistency and Weighted
+Self-Consistency 1
+|
+(cid:88)
+Ag|
+S RM = S RM
+avg |A | i
+g
+Self-Consistency (Wang et al., 2022) is a popular i=1
+decoding method that uses majority voting to ag- This average score informs us of the majority an-
+gregate predictions from different reasoning chains, swer’s quality. To set a threshold, we normalize
+thus marginalizing over chains. It generates k so- S a R v M g by using the sample average RM scores (by
+lutions per question and selects the most frequent computing S RM for each sample and then take the
+i
+final answer from these samples. While simple average of these scores). Importantly, this process
+and effective, this method assigns uniform weight does not require any labeled data. After normaliza-
+to each reasoning chain, which fails to account tion, if the average reward of the majority group
+for the quality of each solution. To address this S a R v M g ≥ 0, indicating that the quality of the major-
+limitation, Li et al. (2023) propose Weighted Self- ity answer is high, Condition 1 will be true. Oth-
+Consistency, accounting for each solution’s qual- erwise, if S a R v M g < 0, Condition 1 will be false,
+ity. Formally, both Self-Consistency and Weighted suggesting that even the most frequent answer is
+Self-Consistency choose a final answer via: of poor quality and that the instance might benefit
+from refinement.
+k
+yˆ = arg max (cid:88) 1 V(q; r ) Condition 2: Are Reward Models’ Answer Con-
+y
+yi=y i
+fidence High? Besides the quality of the major-
+i=1
+
+## Page 14
+
+ity answer, we also consider whether the RMs are D Additional Experimental Results
+confident enough in any single answer among the
+Comparison with additional baselines. In ad-
+answer clusters. Again we evaluate both ORM and
+dition to Table 1, we also compare with the fol-
+PRM’s answer confidence separately but with the
+lowing baselines: (1) 120-way SC + PRM: The
+same procedure, as described below. First, the an-
+product of step-wise PRM scores is used as the
+swer distribution is formed by (1) the frequency of
+solution-level score. This score is then employed
+each unique answer and (2) the total RM score of
+for weighted Self-Consistency, following (Li et al.,
+each answer cluster. We estimate the RM’s confi-
+2023). (2) Self-correct + 120-way SC: We use the
+dence according to this distribution. If the distribu-
+“Self-Correct RCI” prompt from (Kim et al., 2024)
+tion is concentrated, meaning that only one answer
+to generate 120 solutions per question, which are
+cluster stands out, the RM’s answer confidence is
+subsequently aggregated using Self-Consistency.
+treated as high. Conversely, if the distribution is
+(3) Least-to-Most + 120-way SC: We use the zero-
+diffused and the clusters’ scores are more uniform,
+shot Least-to-Most prompt from (Zhou et al., 2023)
+then there is no single answer for which the RM
+to generate 120 solutions per question, followed
+has high confidence, i.e., the RM’s confidence is
+by aggregation via Self-Consistency. (4) Multi-
+low. This motivates a targeted step-wise refinement
+Agent Debate + SC: Following Du et al. (2023),
+process to select a more definite answer. Again we
+we conduct a three-agent debate over four rounds,
+use both ORM and PRM to generate the solution-
+repeating this process ten times. The final answers
+level score S RM. Given the k reasoning chains
+i from these ten debates are aggregated using Self-
+generated along with the solution-level score, we
+Consistency, yielding 120 generations per question.
+compute the RM’s answer confidence (denoted as
+We use Llama3-8B-Instruct as the base model.
+C) using the entropy of the answer cluster weighed
+Results show that a single iteration of MAGICORE
+by the RM scores, passing the result through a sig-
+already outperforms methods that rely on PRM for
+moid function to normalize it onto [0, 1]. Formally,
+aggregation (120-way SC + PRM), as well as ap-
+the calculation of the entropy can be expressed as:
+proaches like Self-Correction, advanced prompting,
+n and multi-agent debate. On average, MAGICORE
+(cid:88)
+H = − p(A ) log p(A ), outperforms 120-way SC + PRM by 2.8% despite
+i i
+i=1 using fewer samples, highlighting the limitations
+(cid:80)|Ai| S RM of using PRM solely for aggregation. Addition-
+p(A ) = i=1 i
+i (cid:80) (cid:80)|Aj| S RM ally, MAGICORE exceeds Least-to-Most by 5.3%,
+k=1 k
+Aj∈A showcasing superior adaptability to problem diffi-
+culty. Finally, MAGICORE surpasses Multi-agent
+where n is the number of unique answers among
+Debate by 3.9%, indicating that our aggregation
+the k chains, A is the i-th answer cluster (a set
+i
+and refinement mechanisms scale more effectively
+of reasoning chains leading to the same answer)
+at test time.
+and A is the set of all clusters. Each answer in a
+cluster is weighed by its unnormalized solution- Separating Reviewer and Refiner roles outper-
+level score S RM. To normalize entropy onto a forms combining these roles. In Section D, we
+i
+confidence scale, we invert it so that high entropy examine the effects of combining the roles of Re-
+corresponds to low confidence. We then apply a viewer and Refiner by merging their prompts, in-
+sigmoid function σ(.), mapping the values to the structing the model to simultaneously generate both
+range [0, 1]: C = σ(α ∗ (1 − H)). We set α to feedback and a refined solution. This method is
+2 to let the distribution stretch more evenly be- referred to as “Joint Roles”. In MAGICORE, the
+tween 0 and 1. This transformation establishes 0.5 Reviewer and Refiner have distinct, clearly defined
+as a natural threshold for differentiating low and roles, which we refer to as the “Distinct Agents”
+high confidence, thereby eliminating the need for approach. As before, the performance comparison
+any threshold tuning. That is, if an instance has is based on the first iteration, with all other vari-
+C ≥ 0.5, Condition 2 is true, meaning that the ables held constant. Our findings show that main-
+RMs are confident on a single answer cluster. Oth- taining separate roles (as in our multi-agent setup)
+erwise, if C < 0.5, Condition 2 is false, suggesting leads to better performance, with the “Joint Roles”
+that the RMs’ uncertainty among the k chains is configuration resulting in a 0.6% drop in MMLU
+high, necessitating a finer refinement. and a 1.2% decrease in MATH. The larger drop in
+
+## Page 15
+
+Method MMLU MATH SVAMP GSM8K SAT Avg.
+120-way SC 63.0 40.6 89.8 90.3 70.5 70.8
+120-way SC + PRM (Li et al., 2023) 65.4 44.6 90.8 90.7 72.5 72.8
+Self-correct + 120-way SC (Kim et al., 2024) 62.1 38.6 86.2 88.1 65.6 68.1
+Least-to-Most + 120-way SC (Zhou et al., 2023) 62.6 40.6 89.0 90.3 68.9 70.3
+Multi-Agent Debate + SC (Du et al., 2023) 64.6 41.0 89.6 90.8 72.5 71.7
+MAgICoRE (Iter=1) 67.3 46.0 91.4 91.1 75.0 74.2
+MAgICoRE (Iter=2) 68.4 47.2 91.1 92.3 76.4 75.1
+MAgICoRE (Iter=3) 68.9 47.8 91.3 91.6 78.2 75.6
+Table 9: Performance comparison with additional baselines using Llama3-8B-Instruct. Notably, MAGICORE
+with only one iteration outperforms all baselines despite using fewer samples.
+Aggregation MMLU MATH Refinement Variants Accuracy
+ORM-Only 66.9 45.4 No feedback (LLM self-refine) 48.30
+Random PRM score 49.60
+PRM-Only 66.1 45.0
+PRM predicted score 51.20
+Both 67.3 46.0
+Oracle PRM score 52.40
+Table 10: Ablation study on the final answer selection,
+Table 12: Comparison of different refinement variants
+using ORM-only, PRM-only or both.
+in MAGICORE.
+MMLU MATH
+Criterion for Refinement MMLU MATH
+Joint Roles 66.7 44.8
+Distinct Agents (Ours) 67.3 46.0 Prompt (classification) 65.2 45.0
+Prompt (confidence) 64.7 44.4
+Table 11: MAGICORE’s separation of the Reviewer Condition 1 only 66.4 43.6
+and Refiner roles is more effective than combining them Condition 2 only 66.1 44.2
+Cond. 1 & Cond. 2 67.3 46.0
+into a single role.
+Table 13: Different ways of detecting hard problems
+(i.e. criterion for refinement). Our two conditions, when
+MATH suggests that its problems are more com-
+used together, are the most effective.
+plex and often require extended reasoning, making
+the combined roles less effective, whereas main-
+taining separate roles proves to be more beneficial.
+rectness for each step. Besides the three settings
+Ablations on reward models for final answer se- we evaluated in Table 6, we also evaluate the oracle
+lection. We report MAGICORE up to three itera- PRM score, where feedback uses the gold correct-
+tions in Table 1 and only report the best-performing ness labels. Section D shows that the oracle PRM
+iteration of Self-Refine + k-way SC. Here, we pro- score performs the best, followed by the predicted
+vide extended results in table Table 15. We also PRM score, suggesting that given reliable stepwise
+conducted another ablation study to evaluate the scores, LLMs can effectively refine their solutions
+performance when using ORM, PRM, or a the sum- and improve.
+mation of both scores for final answer selection.
+As shown in Section D, utilizing ORM’s global
+P R F1
+correctness score yields better results than aggre-
+gating PRM’s local correctness score. However, Random 68.4 49.6 57.5
+Prompt-based (classification) 65.9 10.3 17.8
+the best performance is achieved when both scores
+Prompt-based (confidence) 0.0 0.0 0.0
+are combined for the final answer aggregation.
+MAGICORE 86.3 67.6 75.8
+Reliable step-wise scores enable LLM refine-
+ment. To compare with an oracle PRM, we sam- Table 14: The Precision (P), Recall (R) and F1 of the
+model predicted problem difficulty.
+ple 500 instances from the Math-Shepherd dataset
+(Wang et al., 2023), which includes gold label cor-
+
+## Page 16
+
+Effectiveness of the two conditions for classi- to generate a confidence score when answering,
+fying problem difficulty. In MAGICORE, we where a confidence score of ≥ 0.5 is classified
+use reward models to classify each instance as as “easy”. Results show that our conditions sub-
+easy or hard. Given that the RMs are also fine- stantially outperform all baselines. Interestingly,
+tuned LLMs, we investigate whether prompting the prompt-based methods perform worse than the
+the LLM to perform this classification directly random baseline, particularly the one relying on
+could replace the external RMs. We compare two confidence scores, which classifies all problems as
+settings in the first two rows, where we prompt easy; this method scores 0 for both precision and
+Llama3-8B-Instruct to evaluate the difficulty of recall since we treat “hard” as the positive label,
+an instance. In the first setting (classification), the so it has 0 true positives. This suggests that our
+LLM generates a binary label. In the second setting framework is highly effective at distinguishing true
+(confidence), it produces a confidence score rang- problem difficulty based on the conditions outlined
+ing from 0 to 1, indicating whether refinement is re- in our methodology.
+quired – that is, whether the example is easy or hard.
+Token Count Analysis. In Fig. 4, we are mainly
+Results in Table 13 show that the LLM is less ef-
+comparing the number of generations (k) per ques-
+fective at determining instance difficulty compared
+tion with the baselines. To provide a more gran-
+to a reward model, as evidenced by a performance
+ular analysis, we break down the generations at
+drop of 1.6% − 2.6%. In rows 3 and 4, we also
+the token level and compare costs in terms of to-
+examine the performance when only one of the con-
+ken counts. The results are detailed in Fig. 5. For
+ditions of MAGICORE (c.f. Section 2.1) is used to
+Self-Consistency, the input tokens are counted only
+decide difficulty. Specifically, when only condition
+once per question, as it uses the same input to gener-
+1 is applied, an instance is classified as hard if the
+ate k responses. In contrast, the input token count
+majority answer’s quality is low. Conversely, when
+for MAGICORE includes all prompts across all
+only condition 2 is applied, an instance is classified
+agents – Solver, Reviewer, and Refiner. We also
+as hard if the RM’s answer confidence is low, re-
+include the token count for the ORM and PRM
+gardless of the majority answer’s quality. Results
+in MAGICORE. Since the cost of input tokens is
+indicate that while each condition individually out-
+typically 0.25× that of output tokens2, we present
+performs LLM self-verification, combining both
+the normalized total token cost as 0.25× input +
+yields the best performance. Indeed, in Section D,
+1× output. Results in Fig. 5 show that (1) scal-
+we find that MAGICORE’s assessment of prob-
+ing Self-Consistency from k = 40 to k = 120
+lem difficulty shows the highest agreement with
+largely increases token overhead while yielding
+human-annotated labels.
+marginal improvements. (2) MAGICORE exhibits
+superior scalability, achieving substantially higher
+Model-Predicted vs. Human-Annotated Prob-
+performance gains with increased token usage. On
+lem Difficulty. We analyze the model’s predic-
+MMLU, MATH and SAT, we observe a clear up-
+tion of problem difficulty. Specifically, we uti-
+ward trend with an increased token count; MAGI-
+lize the MATH dataset, which includes human-
+CORE consistently improves with additional to-
+annotated difficulty levels ranging from 1 to 5, with
+kens (unlike SC which tends to stagnate). (3) The
+higher levels indicating increased problem com-
+first iteration of MAGICORE outperforms 120-way
+plexity. For our analysis, we split the problems as
+SC fewer tokens.
+follows: (1) Easy: Levels 1 and 2 and (2) Hard:
+Levels 4 and 5. We exclude Level 3 problems to Discussion of external reward models. External
+create a clearer distinction between easy and hard reward models play an important role MAGICORE
+categories. We compare the overlap between our and are used in the solutions to all three problems
+model’s predictions and these human-annotated lev- (excessive refinement, inability to localize and ad-
+els. We treat hard as the positive label. The results dress errors, and insufficient refinement). While
+are presented in Table 14. To provide a compar- MAGICORE does utilize external reward models,
+ative analysis, we include: (1) a random baseline our framework is modular and can readily incor-
+that assigns easy and hard labels at random, (2) porate new reward models as they emerge. As
+a prompt-based baseline that directly prompts the
+2See https://openai.com/api/pricing, https://
+LLM to classify the problem difficulty, and (3) an-
+www.anthropic.com/pricing#anthropic-api, and https:
+other prompt-based baseline that prompts the LLM //ai.google.dev/pricing#1_5pro
+
+## Page 17
+
+MMLU MATH SVAMP GSM8K SAT Avg.
+Llama3-8B-Instruct
+Zero-shot CoT 50.4 24.2 72.4 80.1 58.2 57.1
+Self-Refine (Iter=1) 49.6 24.6 72.0 79.0 57.7 56.3
+Self-Refine (Iter=2) 50.2 23.8 72.8 79.6 59.3 57.1
+Self-Refine (Iter=3) 49.8 24.0 72.6 79.6 59.6 57.1
+Best-of-k (k = 120) 62.6 41.4 88.7 90.1 72.4 71.0
+k-way SC (k = 120) 63.0 40.6 89.8 90.3 70.5 70.8
+Self-Refine + k-way SC (Iter=0) 62.1 40.4 88.6 90.1 68.2 69.9
+Self-Refine + k-way SC (Iter=1) 61.3 40.6 88.9 89.7 67.7 69.6
+Self-Refine + k-way SC (Iter=2) 62.7 40.0 88.9 90.1 68.6 70.1
+Self-Refine + k-way SC (Iter=3) 62.3 41.0 89.2 90.3 68.0 70.2
+Self-Refine + k-way SC (Iter=4) 62.1 41.4 89.2 90.1 67.7 70.1
+Self-Refine + k-way SC (Iter=5) 62.7 40.4 88.6 89.7 67.7 69.8
+MAGICORE (Iter=1) 67.3 46.0 91.4 91.1 75.0 74.2
+MAGICORE (Iter=2) 68.4 47.2 91.1 92.3 76.4 75.1
+MAGICORE (Iter=3) 68.9 47.8 91.3 91.6 78.2 75.6
+MAGICORE (Iter=4) 68.9 48.0 91.3 91.1 78.2 75.5
+MAGICORE (Iter=5) 68.4 48.0 91.1 91.6 78.2 75.5
+GPT-3.5-Turbo
+Zero-shot CoT 62.5 37.2 78.1 78.5 76.8 66.6
+Self-Refine (Iter=1) 62.4 37.4 77.7 77.4 77.3 66.4
+Self-Refine (Iter=2) 61.6 37.6 78.6 77.9 76.9 66.5
+Self-Refine (Iter=3) 61.1 37.4 77.9 78.4 77.1 66.4
+Best-of-k (k = 120) 70.1 50.6 87.7 90.5 87.8 77.3
+k-way SC (k = 120) 70.4 51.2 86.9 89.8 87.6 77.1
+Self-Refine + k-way SC (Iter=0) 69.4 49.8 86.9 88.1 85.6 76.0
+Self-Refine + k-way SC (Iter=1) 69.8 49.0 87.1 88.3 85.0 75.8
+Self-Refine + k-way SC (Iter=2) 70.1 49.4 88.1 88.1 84.5 76.0
+Self-Refine + k-way SC (Iter=3) 69.6 48.8 87.3 87.8 85.2 75.7
+Self-Refine + k-way SC (Iter=4) 69.8 48.4 87.1 87.1 85.0 75.5
+Self-Refine + k-way SC (Iter=5) 69.6 48.6 87.3 87.4 84.5 75.5
+MAGICORE (Iter=1) 73.7 57.2 89.4 91.1 90.1 80.3
+MAGICORE (Iter=2) 73.3 57.8 90.1 91.1 90.9 80.6
+MAGICORE (Iter=3) 73.6 58.6 90.1 91.4 90.9 80.9
+MAGICORE (Iter=4) 73.6 58.0 89.9 91.4 90.9 80.8
+MAGICORE (Iter=5) 73.4 57.6 89.4 91.1 90.9 80.5
+Table 15: Extended version of Table 1. Here we show all more iterations for Self-Refine + k-way SC and
+MAGICORE. While SR + SC does not show a clear improvement with more iterations, MAGICORE continues to
+improve, peaking at the third iteration.
+
+## Page 18
+
+68
+66
+64
+1 2 3
+Total Token (10k)
+)%(
+ycaruccA
+40-way SC 120-way SC MAgICoRE Iter=1 MAgICoRE Iter=2 MAgICoRE Iter=3
+MMLU MATH SVAMP GSM8K SAT
+48 91.5 78
+91.0 92.0
+46 76
+91.5
+90.5
+44 91.0 74
+90.0
+42 89.5 90.5 72
+90.0
+89.0 70
+2 4 6 0.50 0.75 1.00 1.0 1.5 1.0 1.5 2.0 2.5
+Total Token (10k) Total Token (10k) Total Token (10k) Total Token (10k)
+Figure 5: Token count comparison with Self-Consistency across different datasets. Scaling Self-Consistency from
+k = 40 to k = 120 introduces substantial token overhead while providing marginal improvements. In contrast,
+MAGICORE demonstrates superior scalability, delivering much higher performance gains with an increased token
+count. Notably, the first iteration of MAGICORE consistently outperforms 120-way SC while using fewer tokens.
+the community is actively advancing the perfor-
+mance of reward models evidenced by a bench-
+mark for reward models (Lambert et al., 2024),
+MAGICORE is thus complementary to and en-
+hanced by progress in reward modeling, rather than
+constrained by it. While it is possible to train a
+custom error-identification model, this approach is
+often data-dependent and prone to obsolescence.
+In contrast, MAGICORE’s modular design over-
+comes this limitation by enabling the integration of
+new state-of-the-art models as they become avail-
+able. Moreover, our experiments in Table 7 indicate
+that when trained reward models are unavailable,
+we can use sufficiently strong LLMs in place of
+trained RMs. For example, we use GPT4o-mini
+as a reward model for commonsense and logical
+reasoning.
+
+## Page 19
+
+E Prompt for the Reviewer and the Refiner
+Reviewer’s Prompt
+Your task is to provide step-by-step feedback to the current solution.
+You will be given a math problem and a current solution, along with the scores for each step based
+on its correctness.
+- You will find (Score: n/10) at the end of each step.
+- The maximum (best) score is 10, which means that this step is 100% correct (and 0% incorrect).
+- The minimum (worst) score is 0, which means that this step is 100% incorrect (and 0% correct).
+- Pay attention to the steps having scores lower than 6, and carefully identify the errors in those steps.
+- Provide your explanation of the error and how it can be fixed. DO NOT propose a new solution, just
+the explanation.
+Question:
+{question}
+Current Solution:
+{solution}
+Let’s review the steps with lower scores and identify the errors.
+{feedback}
+Refiner’s Prompt
+Your task is to fix the error in the given solution, based on the teacher’s feedback.
+- After reviewing the solution and feedback, provide a better solution to fix the mistakes you found.
+Question:
+{question}
+Current Solution:
+{solution}
+Teacher Feedback:
+{reviewer_feedback}
+Revised Solution:
+Let’s review the solution and the feedback, and then refine the current solution.
+After reviewing the solution and feedback, let’s solve this math problem again.
+{refined_solution}
+
+## Page 20
+
+F Prompt for GPT4o-mini as PRM
+GPT4o-mini as PRM Prompt
+You will be given a question and its corresponding step-by-step solution.
+Your task is to evaluate the correctness of each step in the solution by assigning a score between 1
+and 10.
+Your response should be formatted as follows:
+score: <comma separated scores>
+where the length of the list corresponds to the number of steps in the solution.
+Each step is clearly separated in the solution by <Step 1:>, <Step 2:> ... <Step k:>, your output score
+list should be the exact same length as k.
+Question: {question}
+Solution: {solution}
+score:
+G Dataset Statistics and Licenses
+We provide the sample sizes and licenses of the datasets used in this work in Table 16. All the datasets are
+in English and all datasets are used in a fashion consistent with their intended use.
+Sample Size License
+MMLU-Math (Hendrycks et al., 2021a) 974 MIT License
+MATH (Hendrycks et al., 2021b) 500 MIT License
+SVAMP (Patel et al., 2021) 1,000 MIT License
+GSM8K (Cobbe et al., 2021) 1,312 MIT License
+SAT (Zhong et al., 2023) 220 MIT License
+ARC-Challenge (Clark et al., 2018) 200 CC-by-SA-4.0
+Date Understanding (Srivastava et al., 2022) 200 Apache License
+Table 16: The statistics and licenses of the datasets used in this study.
+
+## Page 21
+
+H Qualitative Examples of Refinement
+QUESTION: Josh decides to try flipping a house. He buys a house for $80,000 and then puts in $50,000
+in repairs. This increased the value of the house by 150%. How much profit did he make? (Gold
+answer: 70000)
+SOLVER’S OUTPUT (BEFORE REFINEMENT):
+Step 1: Calculate the value of the house after repairs. The house is worth 80,000 after repairs. It is
+150% higher than before. So the value is (1 + 150/100) * 80,000. 80,000 * (3/2) is 120,000. So the
+house is worth 120,000 after repairs. (Score: 2/10)
+Step 2: Calculate the cost of repairs. The cost of repairs is 50,000. (Score: 2/10)
+Step 3: Calculate the profit. The profit is the difference between the value after repairs and the cost
+before repairs. 120,000 - 80,000 - 50,000 is 30,000 (incorrect).
+REVIEWER’S OUTPUT:
+Step 1: The low score of 2 suggests an error in this step. The problem states that the value of the house
+increased by 150%, not that the value is 150% higher than before.
+Step 2: The cost of repairs is indeed $50,000.
+Step 3: The low score of 3 suggests an error in this step. The profit would be: 200,000 (value after
+repairs) - 80,000 (cost before repairs) - 50,000 (cost of repairs) = 70,000
+REFINER’S OUTPUT:
+Step 1: Calculate the value of the house after repairs. The house is worth 80,000 after repairs. It is
+increased by 150%. So the value is 80,000 x (1 + 150/100) = 80,000 x 2.5 = 200,000.
+Step 2: Calculate the cost of repairs. The cost of repairs is 50,000.
+Step 3: Calculate the profit. The profit is the difference between the value after repairs and the cost
+before repairs. 200,000 - 80,000 - 50,000 is 70,000 (correct).
+Table 17: A qualitative example of our multi-agent refinement on GSM8K using Llama3-8B-Instruct . The score
+at the end of each step is provided by the PRM.
+
+## Page 22
+
+QUESTION: The Greek army contained two types of soldiers: the upper class and the lower class
+soldiers. If there were a total of 5 upper class soldiers, and 10 lower class soldiers in a certain part of
+Athens, and the battle of Thermopylae demands a force of 4 upper class soldiers and 8 lower class
+soldiers, how many different battalions can be sent? (Gold answer: 225)
+SOLVER’S OUTPUT (BEFORE REFINEMENT):
+Step 1: Find out the number of upper class soldiers left. We have 5 upper class soldiers and we need 4.
+So we have 5 - 4 = 1 upper class soldiers left. (Score: 9/10)
+Step 2: Find out the number of lower class soldiers left. We have 10 lower class soldiers and we need 8.
+So we have 10 - 8 = 2 lower class soldiers left. (Score: 9/10)
+Step 3: Find out the number of different battalions. We have 1 upper class soldier and 2 lower class
+soldiers. The number of different battalions is the number of ways we can arrange 1 upper class soldier
+and 2 lower class soldiers. This is 3. (Score: 5/10) (incorrect).
+REVIEWER’S OUTPUT:
+Step 1 and Step 2: The scores of 9/10 suggest that these steps are mostly correct. However, we should
+be careful when calculating the number of upper and lower class soldiers left.
+Step 3: The low score of 5 suggests an error in this step. The problem asks for the number of different
+battalions, not the number of ways to arrange the soldiers. The correct solution is to find the number of
+ways to choose 4 upper class soldiers from the available 5 and 8 lower class soldiers from the available
+10.
+REFINER’S OUTPUT:
+Step 1: Find out the number of upper class soldiers needed. We need 4 upper class soldiers.
+Step 2: Find out the number of lower class soldiers needed. We need 8 lower class soldiers.
+Step 3: Find out the number of different battalions. We can choose 4 upper class soldiers from the 5
+available in 5C4 = 5 ways. We can choose 8 lower class soldiers from the 10 available in 10C8 = 45
+ways. The number of different battalions is the number of ways to choose 4 upper class soldiers and 8
+lower class soldiers, which is 5 × 45 = 225. (correct).
+Table 18: A qualitative example of our multi-agent refinement on MATH using Llama3-8B-Instruct . The score
+at the end of each step is provided by the PRM.
+
+## Page 23
+
+I Qualitative Examples of Over-Correction
+QUESTION: A new program had 60 downloads in the first month. The number of downloads in the
+second month was three times as many as the downloads in the first month, but then reduced by 30%
+in the third month. How many downloads did the program have total over the three months? (Gold
+answer: 366)
+SOLVER’S OUTPUT (BEFORE REFINEMENT):
+Step 1: Determine the number of downloads for the second month. The number of downloads for the
+second month was three times as many as the first month, so it was 60 * 3 = 180. (Score: 10/10)
+Step 2: Determine the number of downloads for the third month. There was a reduction of 30%, so we
+calculate 180 * (1 - 0.30) = 180 * 0.7 = 126. (Score: 10/10)
+Step 3: Determine the total number of downloads for the three months. There were 60 downloads in
+the first month, and 180 downloads in the second month. So the total number of downloads for the
+first two months is 60 + 180 = 240. Then, there were 126 downloads in the third month. So the total
+number of downloads over the three months is 240 + 126 = 366. (Score: 6/10) (correct).
+REVIEWER’S OUTPUT:
+Step 1-2: The high scores of 10 suggest that these steps are correct.
+Step 3: The score of 6 suggests that this step is mostly correct. However, the improvement you could
+make is to explicitly state the calculation for the total number of downloads, rather than just stating the
+result.
+REFINER’S OUTPUT:
+Step 1: Determine the downloads in the second month. Three times 60 is 3 x 60 = 180. Then 30% of
+180 is 180 x 0.3 = 54. 180 - 54 is 126. So 126 downloads in the second month.
+Step 2: Determine the total downloads over the three months. 60 downloads in the first month, and 126
+downloads in the second month, and 126 - 54 = 72 downloads in the third month. 60 + 126 + 72 is 258.
+The answer is 258. (incorrect).
+Table 19: A qualitative example of over-correction on GSM8K using Llama3-8B-Instruct.
+
+## Page 24
+
+QUESTION: If f (x) = 3x−2 , what is the value of f (−2) + f (−1) + f (0)? Express your answer as a
+x−2
+common fraction. (Gold answer: 14 )
+3
+SOLVER’S OUTPUT (BEFORE REFINEMENT):
+Step 1: Determine the values of f (−2), f (−1), and f (0) by plugging the values into the expression
+for f (x).
+f (−2) = 3(−2)−2 = −6−2 = −8 = 2,
+−2−2 −4 −4
+f (−1) = 3(−1)−2 = −3−2 = −5 = 5 ,
+−1−2 −3 −3 3
+f (0) = 3(0)−2 = 0−2 = −2 = 1. (Score: 10/10)
+0−2 −2 −2
+Step 2: Add the values of f (−2), f (−1), and f (0) to obtain f (−2) + f (−1) + f (0) = 2 + 5 + 1
+3
+6 + 5 + 3 = 14 .
+3 3 3 3
+14
+Final Answer: The final answer is . I hope it is correct. (Score: 7/10) (correct).
+3
+REVIEWER’S OUTPUT:
+Step 1: The scores of 10/10 suggest that this step is correct.
+Step 2: The high score of 7 suggests that this step is mostly correct. However, it might be beneficial to
+include intermediate steps for clarity.
+REFINER’S OUTPUT:
+Step 1: We can calculate f (−2), f (−1), and f (0) using the given expression for f (x): f (−2) =
+3(−2)−2 = −4 = 1,
+−2−2 −4
+f (−1) = 3(−1)−2 = −3 = 1,
+−1−2 −3
+f (0) = 3(0)−2 = −2 = 1.
+0−2 −2
+Step 2: Now we can add these values together: f (−2) + f (−1) + f (0) = 1 + 1 + 1 = 3
+1
+3
+Final Answer: The final answer is . I hope it is correct. (incorrect).
+1
+Table 20: A qualitative example of over-correction on MATH using Llama3-8B-Instruct .

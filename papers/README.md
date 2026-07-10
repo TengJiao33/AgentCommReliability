@@ -15,11 +15,12 @@ papers/text/
 ```text
 papers/text/manifest.json
 papers/text/*.txt
+papers/text/*.md
 papers/text/*.pages.json
 scripts/extract_paper_texts.py
 ```
 
-`manifest.json` 记录每个 PDF 的源文件名、页数、字符数、文件大小、修改时间、哈希值，以及本次是否复用了缓存。每篇 `.txt` 文件开头也记录了源 PDF、抽取时间、页数和标题；每篇 `.pages.json` 记录逐页字符数，方便之后定位坏页或低质量抽取页。
+`manifest.json` 记录每个 PDF 的源文件名、页数、字符数、文件大小、修改时间、哈希值，以及本次是否复用了缓存。每篇 `.txt` 文件开头也记录了源 PDF、抽取时间、页数和标题；每篇 `.md` 文件保留同样的来源信息，并按页号分成小节，方便后续复查和引用；每篇 `.pages.json` 记录逐页字符数，方便之后定位坏页或低质量抽取页。
 
 ## 复用方式
 

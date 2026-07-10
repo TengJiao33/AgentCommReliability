@@ -1,28 +1,40 @@
-# MAD-M2 AIME 复现诊断
+# MAD-MM / MAD-M2 AIME 复现
 
-## 问题
+## 做法
 
+1. 运行读取 AIME24 train 的 30 题和 AIME25 test 的 30 题，合并成 60 题评估集。每道题带入同一模型和同一讨论设置。
 
-## 配置
+2. 每道题分别跑三种记忆遮罩条件：不遮罩、主观遮罩、客观遮罩。三种条件使用同一题面、同一模型、同一智能体数量和同一评价口径。
+
+3. 不遮罩条件保留完整讨论记忆，让第二轮智能体读取其他智能体上一轮回答和推理后生成最终答案。
+
+4. 主观遮罩条件按 MAD-MM / MAD-M2 的主观遮罩规则处理上一轮讨论记忆，再把遮罩后的记忆交给第二轮智能体。
+
+5. 客观遮罩条件按 MAD-MM / MAD-M2 的客观遮罩规则处理上一轮讨论记忆，再把遮罩后的记忆交给第二轮智能体。
+
+6. 每个条件完成后，从 3 个智能体最终答案中抽取可解析答案，做多数投票，并用同一答案归一化函数和 AIME 金标比较。
+
+7. 最终报告只汇总 60 题的正确数、准确率和完成状态，不把 AIME 与 MATH-500 的结果混在同一张表里。
+
+## 工程细节
 
 - 任务：AIME24 train + AIME25 test。
-- 对比方法：MAD-M2 `naive`、`subjective`、`objective`。
+- 样本量：60 题，其中 AIME24 30 题、AIME25 30 题。
 - 模型：Qwen2.5-7B-Instruct。
-- 样本量：共 60 题，30 + 30。
-
-## 证据来源
-
-| 来源 | 类型 | 路径/链接 |
-| --- | --- | --- |
-| Multi-Agent Debate with Memory Masking | 论文 | https://arxiv.org/abs/2603.20215 |
-| MAD-MM upstream code | 仓库 | https://github.com/HongduanTian/MAD-MM |
-| 本地来源说明 | 方法说明 | `baselines/mad-mm/source.md` |
-| 运行记录 | 实验 | `experiments/mad-mm-aime24-25-20260704-qwen25-7b-full-a8002/README.md` |
+- 对照条件：`naive`、`subjective`、`objective`。
+- 论文来源：Multi-Agent Debate with Memory Masking，https://arxiv.org/abs/2603.20215。
+- 上游仓库：https://github.com/HongduanTian/MAD-MM。
+- 本地方法说明：`baselines/mad-mm/source.md`。
+- 运行记录：`experiments/mad-mm-aime24-25-20260704-qwen25-7b-full-a8002/README.md`。
 
 ## 结果
 
-| 方法 | 模型 | 任务 | 样本数 | 正确数 | 准确率 | 状态 |
-| --- | --- | --- | ---: | ---: | ---: | --- |
-| `naive` | Qwen2.5-7B-Instruct | AIME24 train + AIME25 test | 60 | 5 | 0.0833 | 已完成 |
-| `subjective` | Qwen2.5-7B-Instruct | AIME24 train + AIME25 test | 60 | 5 | 0.0833 | 已完成 |
-| `objective` | Qwen2.5-7B-Instruct | AIME24 train + AIME25 test | 60 | 4 | 0.0667 | 已完成 |
+| 方法 | 样本数 | 正确数 | 准确率 | 状态 |
+| --- | ---: | ---: | ---: | --- |
+| 不遮罩 | 60 | 5 | 0.0833 | 已完成 |
+| 主观遮罩 | 60 | 5 | 0.0833 | 已完成 |
+| 客观遮罩 | 60 | 4 | 0.0667 | 已完成 |
+
+## 备注
+
+该记录只保存 AIME24 + AIME25 的复现读数。MATH-500 复现读数记录在 `2026-07-04-mad-mm-math500.md`。

@@ -1,0 +1,1142 @@
+# beyond-self-talk-communication-centric-survey-2502.14321
+
+- Source PDF: `beyond-self-talk-communication-centric-survey-2502.14321.pdf`
+- Extracted at UTC: `2026-07-09T05:55:47.604078+00:00`
+- Pages: 16
+- Title: Beyond Self-Talk: A Communication-Centric Survey of LLM-Based Multi-Agent Systems
+- SHA256: `cf56d3cdde0d759ef6f642393938a0cddfa182cd7166c5816ba6374965c4dfd5`
+
+## Page 1
+
+REVIEW ARTICLE
+Beyond Self-Talk: A Communication-Centric Survey of LLM-Based
+Multi-Agent Systems
+Bingyu YAN1, Zhibo ZHOU2, Litian ZHANG4, Lian ZHANG1, Ziyi ZHOU1, Dezhuang MIAO1, Zhoujun LI3, Chaozhuo LI4,
+(cid:66)
+Xiaoming ZHANG1
+1. School of Cyber Science and Technology, Beihang University, Beijing 100191, China
+2. The College of Cyber Security/College of Information Science and Technology, Jinan University, Guangzhou, China
+3. School of Computer Science and Engineering, Beihang University, Beijing 100083, China
+4. School of Cyber Science and Technology, Beijing University of Posts and Telecommunications, Beijing 100876, China
+E-mail: yolixs@buaa.edu.cn.
+Abstract
+Large language model-based multi-agent systems have recently gained significant attention due to their potential for complex, collaborative,
+and intelligent problem-solving capabilities. Existing surveys typically categorize LLM-based multi-agent systems (LLM-MAS) according to
+their application domains or architectures, overlooking the central role of communication in coordinating agent behaviors and interactions.
+To address this gap, this paper presents a comprehensive survey of LLM-MAS from a communication-centric perspective. Specifically,
+we propose a structured framework that integrates system-level communication (architecture, goals, and protocols) with system internal
+communication (strategies, paradigms, objects, and content), enabling a detailed exploration of how agents interact, negotiate, and achieve
+collective intelligence. Through an extensive analysis of recent literature, we identify key components in multiple dimensions and summarize
+their strengths and limitations. In addition, we highlight current challenges, including communication efficiency, security vulnerabilities,
+inadequate benchmarking, and scalability issues, and outline promising future research directions. This review aims to help researchers and
+practitioners gain a clear understanding of the communication mechanisms in LLM-MAS, thereby facilitating the design and deployment of
+robust, scalable, and secure multi-agent systems.
+Key words
+large language model; LLM-based multi-agent systems; communication-centric framework; agent communication protocols
+■
+1 Introduction scenarios [6–8]. However, they often provide limited coverage of the
+Large language models (LLMs) have recently demonstrated significant communication and coordination workflows among agents, which are
+potential across diverse domains. Building upon these strengths, LLMs critical for effective multi-agent collaboration. As shown in Fig. 1 (b),
+have been integrated into autonomous agents equipped with profiling, domain-specific surveys delve into particular use cases such as social
+memorization, planning, and action modules [1]. To make agents more simulation [9] or software engineering [10, 11]. While offering in-
+coordinated and scalable when handling complex or dynamic tasks [2], depth analyses of domain-specific LLM-MAS workflows, these studies
+LLM-based multi-agent systems (LLM-MAS) have been proposed, lack generalizability and fail to propose a comprehensive framework
+where multiple agents interact to achieve goals that exceed the capacity for broader applications.
+of a single agent. Recent studies underscore LLM-MAS effectiveness Inter-agent communication plays a critical role in enabling LLM-
+in contexts ranging from social simulation [3], to software engineering MAS to perform more complex tasks compared to single-agent systems
+[4], and recommendation systems [5], illustrating the growing demand by facilitating idea exchange and coordinated planning. Drawing on
+for more coordinated and intelligent multi-agent systems (MAS). insights from traditional communication theory [12,13], concepts such
+Given the broad application scope and research potential of LLM- as ”source” and ”channel” align closely with the communication pro-
+MAS, several surveys have appeared to provide researchers with a cesses present in the LLM-MAS workflow. Consequently, as shown
+systematic overview of this emerging research area. These surveys can in Fig. 1 (c), the LLM-MAS workflow can be effectively decomposed
+be broadly categorized into two types: general surveys and domain- through a communication-centric perspective. Specifically, we de-
+specific surveys. As shown in Fig. 1 (a), general surveys typically focus fine LLM-MAS as a communication protocol-constrained automated
+on system architectures, agent-level actions, and potential application system driven by communication goals within a predefined communi-
+1
+6202
+yaM
+62
+]AM.sc[
+3v12341.2052:viXra
+
+## Page 2
+
+tegration, and offer potential research directions for both academia
+(a) General LLM-MAS Surveys
+Profile Social and industry.
+Science
+Memory
+Natural
+Planning Science ■
+2 Background
+Tools Engineering
+System Architectures Agent-level Actions Application Scenarios This chapter provides the conceptual grounding for the remainder of the
+survey. We first revisit the internal structure and operating principles of
+(b) Domain-specific LLM-MAS Surveys
+Code LLM-based single agents. Then introducing the traditional multi-agent
+Physical Generation
+systems (MAS). We conclude by articulating how LLM-MAS in-
+Social Code Testing
+herit, extend, and occasionally challenge the assumptions of earlier
+Cyber Debugging
+paradigms, thereby motivating the communication-centric taxonomy
+Simulation Domain Survey Software Engineering Domain Survey developed in subsequent sections.
+(c) Communication-Centric LLM-MAS Survey
+Strategy 2.1 LLM-Based Agents
+Paradigm LLM-based agents are autonomous entities whose core reasoning com-
+Object ponent is a LLM. They represent the cornerstone of multi-agent archi-
+Task Goal Content
+tectures, as they lay the groundwork for understanding how individual
+Protocol Architecture
+System-Level Communication System-Internal Communication agents reason, plan, and act. In line with the taxonomy proposed
+★ Architecture: How agents are organized ★ Strategy: When and in what Sequence agents communicate by [14], this section outlines the composition and functionalities of
+★ Goal: Why to Communicate ★ ★ P O a b r j a e d c i t g : m D : e c H id o e w w m h e o s s o a r g w es h a a t r e a g fo e r n m t c u o la m te m d u a n n i d c a i t n e t e w rp it r h eted LLM-based agents.
+★ Protocol: How messages flow ★ Content: Decide what agents use to communicate
+An LLM-based agent typically consists of three key components:
+Fig. 1 Position of this survey within existing LLM-MAS literature. The figure contrasts
+Brain, Perception, and Action, each playing a distinct yet comple-
+prior general and domain-specific surveys with the communication-centric perspective,
+underscoring the need for a cross-cutting framework that spans tasks, architectures, work- mentary role. 1) Brain is a LLM that integrates both short-term
+flows, and interaction between agents and long-term memory modules to reduce potential hallucinations and
+enhance the agent’s reasoning and planning capabilities. Short-term
+memory caches the current conversational context while long-term
+cation architecture. Agents in this system have multiple communica-
+memory stores structured artefacts accumulated across sessions. Var-
+tion strategies and paradigms, interacting with various communication
+ious retrieval augmented generation (RAG) methods [15] and RAG
+objects to exchange diverse content for task completion.
+enhancement research [16] play an important role in enhancing mem-
+Fig. 2 summarizes the structure of this survey. To provide necessary
+ory modules. 2) Perception is a multimodal interface that converts
+context, Section 2 introduces foundational concepts and terminology
+raw sensory inputs including text, vision, audio, or environmental state
+relevant to LLM-MAS. Building upon this, we propose a two-level
+vectors into prompts consumable by the Brain. 3) Actions are not lim-
+analytical framework distinguishing between system-level communi-
+ited to generating textual responses, they also encompass integration
+cation and system-internal communication, discussed respectively in
+with external tools such as web APIs or real-world actuators [17, 18]
+Section 3 and Section 4. The system-level communication analysis
+to enhance the agent’s problem-solving capabilities.
+addresses how agents are organized, their overarching communication
+goals, and key emerging protocols. In contrast, the system-internal
+2.2 Traditional Multi-Agent Systems
+communication analysis delves deeper into the internal communica-
+Before the rise of LLMs, the MAS research had established a rich
+tion dynamics among agents, examining their strategies, paradigms,
+toolbox spanning symbolic reasoning and learning-based coordination
+communication objects, and exchanged content. Subsequently, Sec-
+[19]. Early symbolic MAS describe agents in terms of Beliefs, Desires,
+tion 5 highlights current challenges and outlines promising research
+and Intentions and prescribe communication via agent-communication
+opportunities. This structure provides a holistic understanding of the
+languages. These languages provide machine-interpretable speech
+workflow across varied tasks.
+acts such as inform, request and propose, and support standard pro-
+Our main contributions include:
+tocol templates including contract nets and auction-based negotiation,
+• Comprehensive Framework: From a communication perspec-
+thereby ensuring transparent reasoning about commitments, goals, and
+tive, we designed a comprehensive framework applicable to all
+obligations. However, their discrete vocabularies and brittle parsers
+types of LLM-MAS, analyzing the workflow at both the system
+make them ill-suited for open-domain tasks.
+level and the internal system level.
+The learning-based MAS replaces handcrafted rules with opti-
+• Deep Analysis of Communication Processes: We dissect real- misation. Centralised-training-with-decentralised-execution frame-
+world examples and prototypes to illustrate how well-orchestrated works [20] use a global critic to stabilise gradients while permit-
+communication leads to more effective multi-agent behavior. ting fully distributed policies at test time. Independent Q-learning
+• Identification of Challenges and Opportunities: We shed and policy-gradient variants alleviate non-stationarity, whereas value-
+light on open issues like scalability, security, and multimodal in- decomposition, counterfactual baselines, and influence-based credit
+2
+
+## Page 3
+
+SAM-MLLcirtneC-noitacinummoC
+Single-Agent Systems §2.1
+Background § 2 Traditional Multi-Agent Systems §2.2
+LLM-Based Multi-Agent Systems §2.3
+Flat 3.1.1, Hierarchical 3.1.2,
+Communication Architecture §3.1
+Team 3.1.3, Society 3.1.4, Hybrid 3.1.5
+System-Level
+Communication §3 Communication Goal §3.2 Cooperation 3.2.1, Competition 3.2.2, Mixed 3.2.3
+Communication Protocol §3.3 MCP 3.3.1, A2A 3.3.2, ANP 3.3.3
+Communication Strategy §4.1 One-by-One 4.1.1, Simultaneous-Talk 4.1.2,
+Simultaneous-Talk with Summarizer 4.1.3
+Communication Paradigm §4.2 Message Passing 4.2.1, Speech Act 4.2.2, Blackboard 4.2.3
+System Internal
+Communication §4 Communication Object §4.3 Self 4.3.1, Other Agents 4.3.2,
+Environment 4.3.3, Human 4.3.4
+Explicit (Natural Language, Code & Data) 4.4.1,
+Communication Content §4.4
+Implicit (Behavioral Feedback, Environment Signal) 4.4.2
+Optimizing the System Design §5.1
+Advancing Research on Agent Competition §5.2
+Unified Communication Protocol §5.3
+Challenges & Opportunities §5
+Multimodal Communication §5.4
+Communication Security §5.5
+Benchmarks & Evaluation §5.6
+Fig. 2 The structure of this paper
+■
+assignment attack the credit-assignment problem directly. Graph neu- 3 System-Level Communication
+ral agents, in turn, convey compact latent messages over dynamic com- In this section, the LLM-MAS is analyzed from the macro system-
+munication graphs and scale to hundreds of cooperative robots, traffic- level communication. We first examine the communication architec-
+signal controllers, or swarm drones. Nonetheless, most learning-based ture, highlighting how different architectures such as flat, hierarchical
+systems still adopt narrow, task-specific message formats, incur heavy or society-based organize agents. Each of these architectures offers
+sample complexity, and provide limited interpretability which moti- distinct approaches to agent interaction, with implications for scalabil-
+vated the search for language-native coordination. ity, flexibility, and efficiency in system performance. We then delve
+into the communication goals that decide why agents communicate,
+where cooperation, competition, or a mixture of both can lead to dis-
+2.3 LLM-Based Multi-Agent Systems tinct multi-agent dynamics. Through specific application examples,
+While single-agent systems exhibit strong individual reasoning, they we demonstrate the advantages, limitations, and applicable scenarios
+often struggle with tasks requiring collective intelligence or large- of these communication architectures and goals. Finally, this section
+scale coordination. MAS [21] can address these limits by orches- discusses the emerging communication protocols and introduces three
+trating multiple intelligent agents and leveraging communication as prominent protocols in detail to clarify the standardized communi-
+a key mechanism for goal alignment. Meanwhile, LLM-MAS com- cation behavior. As shown in Table 1, because the communication
+bine the linguistic flexibility of LLM agents with the coordination protocol has not been widely studied and used, we categorize current
+principles of MAS, thereby dissolving the boundary between natural- LLM-MAS studies according to the communication architectures and
+language dialogue and agent communication. Agents can cooperate, communication goals in detail.
+compete, or negotiate, depending on system objectives and architec-
+tural choices. Such flexibility in communication design sets the stage 3.1 Communication Architecture
+for LLM-MAS, where advanced language models enable more sophis- Communication architecture defines the structural organization of agents
+ticated inter-agent interactions across diverse application domains. within a LLM-based multi-agent system and governs the flow of infor-
+3
+
+## Page 4
+
+Table 1 Representative LLM-MAS studies grouped by communication architecture and communication goal
+Architecture Goal Work
+Cooperation Ulmer et al. [22]; Abdullin et al. [23]; Du et al. [24]; Group Think [25]
+Flat Competition GAMA–Bench [26]
+Mixed Chuang et al. [27]; GameChat [28]
+ChatDev [29]; AutoDefense [30]; CausalGPT [31]; SoA [32]; FINCON [33]; Wang et al. [34]; CoA [35];
+Cooperation AutoData [36]; AutoHMA-LLM [37]; G-Safeguard [38]; Li et al. [39]; Kalyuzhnaya et al. [40]; LogiAgent [41];
+Hierarchical MACM [42]; CPDESIM [43]; Shen et al. [44]; EvoMAC [45]; Wang et al. [46]
+Competition Cai et al. [3]
+Mixed Ju et al. [47]; Wu et al. [48]
+MetaGPT [4]; MAGIS [49]; AgentCoord [50]; AutoAgents [51]; Qian et al. [52]; SimClass [53]; Fan et al. [54];
+Cooperation
+Team Ma et al. [55]; FactGuard [56]; Luo et al. [57]; MDTeamGPT [58]; MedAgents [59]; Thematic-LM [60]
+Mixed POLCA [61]; ReCon [62]
+Cooperation Generative Agents [63]; GOVSIM [64]; Yue et al. [65]; Sreedhar et al. [66]
+Society
+Mixed Dai et al. [67]; EconAgent [68]; Guan et al. [69]; EcoLANG [70]
+FixAgent [71]; PeerGPT [72]; ChatSim [73]; Tulip Agent [74]; MADR [75]; AgentFM [76];
+Cooperation
+Ronanki et al. [77]; Zhang et al. [78]; Flow-of-Action [79]; Wang et al. [80]
+Hybrid
+Competition Agent4Debate [81]; Zhang et al. [82]
+Mixed Wu et al. [83]; BlockAgents [84]; Xu et al. [85]; ToM [86]; TED [87]
+mation among them [88]. It significantly influences both macro-level structure can encounter challenges in scalability, as increased agent
+system behaviors and micro-level interactions, shaping aspects like count may lead to increased communication overhead and reduced
+scalability, flexibility, and operational efficiency. The choice of ar- coordination efficiency.
+chitecture usually depends on task complexity, agent autonomy levels, 3.1.2 Hierarchical Architecture
+and desired interaction patterns. As shown in Fig. 3, we explore five In hierarchical architectures, agents are structured into layers or tiers,
+primary communication architectures: Flat, Hierarchical, Team, Soci- with higher-level agents responsible for strategic oversight and lower-
+ety, and Hybrid architectures, providing additional detailed discussions level agents performing detailed execution tasks. This configuration is
+and examples to deepen understanding. particularly effective for complex scenarios demanding clear task dele-
+gation, supervision, and integration of diverse agent competencies. For
+instance, ChatDev [29] organizes agents into specialized roles such
+as designers, coders, and testers under senior management agents,
+effectively facilitating software development through structured work-
+flows. CausalGPT [31] exemplifies hierarchical use by employing
+Flat Hierarchical Team higher-level evaluators to guide lower-level agent reasoning, thereby
+Join in
+significantly improving output consistency. However, hierarchical sys-
+Rules
+tems may encounter bottlenecks, particularly when higher-level agents
+become overloaded or communication delays between layers emerge.
+Get out
+Society Hybrid 3.1.3 Team Architecture.
+Team-based architectures segment agents into specialized groups or
+Fig. 3 Five canonical communication architectures for LLM-MAS teams, each focusing on distinct tasks or domains, thus leveraging spe-
+cific agent expertise and fostering robust intra-team collaboration. For
+3.1.1 Flat Architecture instance, MAGIS [49] demonstrates the benefits of team architecture
+Flat architecture is characterized by a decentralized network of peer- by categorizing agents into administrators, developers, and testers,
+to-peer agent interactions without hierarchical distinctions or central streamlining the collaborative resolution of software issues on plat-
+oversight. This architecture excels in environments requiring agile, forms such as GitHub. The POLCA framework [61] further illustrates
+flexible, and spontaneous interactions among agents, such as dynamic team architecture versatility by employing specialized teams to sim-
+task assignments and rapid decision-making scenarios. For example, ulate political negotiations, predicting coalition formation outcomes.
+Abdullin et al. [23] demonstrate flat architecture effectiveness in gener- While team architectures effectively leverage specialized expertise, the
+ating synthetic dialogues, where agents collaboratively and iteratively increased inter-team communication demands can introduce additional
+refine outputs. Similarly, Du et al. [24] employ a flat architecture overhead, necessitating efficient cross-team coordination mechanisms.
+for fact-checking, enabling agents to critique each other’s reasoning 3.1.4 Society Architecture
+dynamically, thereby enhancing overall accuracy and reducing hallu- Society architectures model agent interactions within broader social
+cinations. Despite its benefits in adaptability and responsiveness, a flat environments governed by shared norms or rules, reflecting emergent
+4
+
+## Page 5
+
+behaviors characteristic of human societies. These architectures sup-
+port complex, large-scale simulations involving diverse agents with
+Achievements
+varying roles, motivations, and interactions. Generative Agents [63],
+for example, create sandbox environments where agents dynamically
+form friendships, organize activities, and adapt behaviors based on Cooperation
+past experiences. EconAgent [68] integrates economic dynamics Direct Cooperation through Debate Competition Mix
+into agent behaviors, simulating realistic economic decisions like con-
+Fig. 4 Communication goals driving multi-agent interaction
+sumption, investment, and employment, thus providing insights into
+macroeconomic phenomena driven by micro-level actions. Although
+society architectures excel at simulating emergent phenomena and so- a focus on common goals. Cooperation is divided into two main types:
+cial interactions, they can become challenging to manage due to the direct cooperation and cooperation through debate.
+inherent complexity and unpredictability of agent behaviors. Direct cooperation refers to straightforward and seamless collabo-
+ration where agents openly share information and resources to jointly
+3.1.5 Hybrid Architecture
+complete tasks or solve problems. This interaction style empha-
+Not all designs fit neatly into a particular architecture, and some archi-
+sizes rapid consensus and efficient integration of expertise, critical
+tectures may contain features from several different styles. Hybrid ar-
+in time-sensitive or complex problem-solving environments. For in-
+chitectures combine multiple communication structures to create flex-
+stance, some works harness direct cooperation to enhance LLM rea-
+ible and adaptable multi-agent systems capable of addressing diverse
+soning [22, 31, 51], while others employ it in collaborative code gen-
+challenges. By integrating hierarchical oversight with decentralized
+eration [29, 32, 49, 52, 71] and scientific experimentation [73, 74]. The
+agent collaboration, hybrid architectures optimize agent interactions
+research community continues to explore advanced coordination mod-
+and resource allocation dynamically. FixAgent [71] exemplifies hy-
+els [34, 50, 64] for fine-grained task allocation, robust communication
+brid architectures by adapting hierarchical structures to debugging
+protocols, and scalability in agent collectives.
+tasks, combining strategic oversight with decentralized task execution.
+Cooperation through debate introduces a nuanced cooperative model
+ChatSim [73] integrates top-down control for scene rendering with
+where agents actively critique and refine each other’s inputs through
+peer-to-peer collaboration among agents for detailed asset integration,
+structured debates. Rather than passively accepting shared informa-
+thus overcoming limitations inherent to purely hierarchical or flat sys-
+tion, agents rigorously challenge each other’s assumptions, reasoning,
+tems. Tulip Agent [74] employs a hybrid approach enabling agents to
+and outcomes to achieve more robust and accurate conclusions. Ex-
+dynamically discover and utilize tools, showcasing enhanced flexibil-
+amples include factual reasoning [24] and fact-checking [75], where
+ity, adaptability, and scalability across multiple scenarios. However,
+rigorous back-and-forth discussions help validate information and re-
+hybrid systems require sophisticated design strategies to avoid coordi-
+duce the likelihood of mistakes. This method effectively balances
+nation overhead and ensure efficient operation.
+collaborative interaction with critical evaluation, producing more re-
+In summary, the choice of communication architecture significantly
+silient and well-rounded outcomes.
+influences the capabilities, efficiency, and scalability of LLM-based
+multi-agent systems. Researchers and practitioners must carefully 3.2.2 Competition
+evaluate their specific requirements, considering trade-offs between Competitive interactions in LLM-based multi-agent systems occur
+flexibility, control, scalability, and efficiency, to select the most suitable when agents have conflicting objectives or vie for limited resources
+architecture or combination thereof. or favorable outcomes. This adversarial context stimulates strategic
+thinking, innovation, and adaptive behaviors, as agents must continu-
+3.2 Communication Goal
+ally refine their strategies to succeed.
+Communication goals represent the intended purpose behind agent
+The game-playing ability of agents in the system has been demon-
+interactions, driving behaviors, information-sharing patterns, and co-
+strated in research GAMA–Bench [26]. In these adversarial con-
+ordination strategies within a multi-agent system. Clearly articulating
+texts, agents actively shape the interaction by generating persuasive
+these goals enhances system efficiency, coherence, and adaptability to
+or deceptive narratives. For instance, the study by Cai et al. [3] ex-
+diverse scenarios, as they encapsulate the “why” behind the commu-
+plores language evolution within adversarial simulations, providing
+nication. As shown in Fig. 4, this section elaborates on three primary
+insights into how competitive interactions drive linguistic adaptation.
+communication goals: Cooperation (including Direct Cooperation and
+Agent4Debate [81] designed a dynamic multi-agent framework for
+Cooperation through Debate), Competition, and Mixed goals.
+competitive debate with humans. One significant advantage of com-
+3.2.1 Cooperation petition in LLM-MAS is its potential to drive innovation and strategic
+Cooperation is a central feature in numerous multi-agent scenarios, sophistication. As agents continually adjust to rivals’ tactics and envi-
+which involves agents collaboratively working towards shared objec- ronmental feedback, they refine their own approaches in a never-ending
+tives, leveraging collective knowledge and skills to achieve outcomes loop of adaptation. For instance, [82] explored a poetry-generation
+superior to those achievable individually. Within cooperative settings, task where agents strove to outperform each other through creative
+interactions are often characterized by transparency, mutual trust, and linguistic outputs.
+5
+
+## Page 6
+
+However, competitive settings introduce a range of challenges, in-
+c a l d u v d e i r n s g ari p a o l te o n r t d ia e l ce in p s t t i a v b e il a i g ty en a t n b d eh s a e v c i u o r r i s ty . v T u h l e n r e e r f a o b re il , it i i t es is in im du p c e e ra d ti b v y e Use Request “ M Re C ad P s R M ys e C t q e u P m e R s fi t l e e s s p ” onse “ M Fil C esy P st e S m e P r lu v g e in r ” “ S F T e i a l o e r o c S l h y C s R t a e e l m l su ” lt Data Source
+t w o it d h es c i o g o n p m er e a c ti h v a e n r is e m gu s la th to a r t y ca c r o e n f s u t l r l a y in r t e s co to nc e i n le su c r o e m s p u e st t a it i i n v a e b i l n e c a e n n d tiv ro es - MCP Client “T M M ra C C v P P e l R R p e l e a s q n p u n o e i n n s s t g e ” “E M xte C rn P al A S P e I r P v lu e gi r n” “Goo S g e l A a e r P M c I h a C p R a s e l P l su la lt ces” APIs
+bust system performance. Model Context Protocol
+3.2.3 Mixed
+Agent Card
+While purely cooperative or purely competitive settings offer concep- name, description... Standard Consensus Personalized
+Discovery Protocol Protocol Protocol
+tual clarity, mixed communication goals blend cooperative and com- Agent Description & APP Protocol Specification
+Send Task Application Protocol Layer
+petitive elements, reflecting the complexity and fluidity of real-world Task Stateful
+{Task{Message{Part}}}
+interactions. Within these mixed regimes, agents continuously recon- N P eg ro o t t o ia c t o io l n D P e r b o u t g o g co in l g P T r e o s t t o i c n o g l
+Notifications
+stitute alliances, vie for scarce resources, and initiate strategic collab- Push Meta-Protocol Layer
+Notifications
+orations as situational contingencies and task objectives evolve. Such Process Artifacts Identity E2E
+{Artifacts{Part}} W3C DID
+flexibility enhances the system’s capacity to tackle multi-faceted prob- Response
+Identity and Encrypted Communication Layer
+lems and to maintain robust performance under dynamically changing Agent-to-Agent Protocol Agent Network Protocol
+environmental conditions.
+Fig. 5 Emerging communication protocols for LLM-MAS
+In practice, such mixed interactions are pivotal for capturing nu-
+anced, dynamic behavior in domains like social simulations [47, 67],
+executing context requests. The server directly interacts with resources
+collective problem-solving, or negotiation tasks [61, 69]. Allowing
+to execute client requests and relay context, while resources include
+agents to strike a balance between cooperative and adversarial behav-
+data, tools, or services. This layered approach reduces fragmenta-
+ior makes it possible to emerge solutions that cannot be suggested by
+tion across various agents and tool providers, significantly improving
+purely cooperative or competitive environments.
+interoperability and scalability. Additionally, MCP enhances data se-
+Despite their versatility, mixed-goal interactions introduce com-
+curity by decoupling sensitive tool invocations from LLM-generated
+plexities regarding mechanism design, protocol standardization, and
+responses, thus minimizing the risks of data exposure.
+ethical considerations. Balancing cooperation and competition dy-
+namically necessitates sophisticated coordination and monitoring mech- 3.3.2 Agent-to-Agent Protocol
+anisms to ensure system stability and ethical integrity. A2A supports inter-agent communication, emphasizing secure and
+In summary, clearly defining and structuring communication goals structured peer-to-peer interactions among LLM agents. A2A em-
+is critical to optimizing multi-agent interactions. Selecting and im- ploys capability-based ”Agent Cards” distributed via HTTP and Server-
+plementing appropriate goals depend heavily on task requirements, Sent Events, facilitating efficient task outsourcing and collaboration
+system scalability, and desired agent dynamics, ultimately influencing within enterprise-scale deployments. Agents advertise their capabili-
+overall system effectiveness. ties through Agent Cards, enabling dynamic task delegation based on
+real-time capability awareness. Communication occurs directly be-
+3.3 Communication Protocol
+tween peers without centralized intermediaries, significantly reducing
+While the communication architecture decides who can talk to whom
+latency and improving responsiveness. Additionally, asynchronous
+and the communication goal clarifies why they talk, a dedicated com-
+messaging via server-sent events enhances scalability and robust-
+munication protocol specifies how the messages actually flow between
+ness. A2A’s structured, capability-driven interactions improve task
+agents and external systems. Standardized protocols are now emerg-
+efficiency and collaboration fidelity, particularly suited for complex
+ing that make LLM-MAS deployments portable, secure, and easier to
+enterprise environments.
+audit. Communication protocols detail the actual mechanics of inter-
+action, ensuring consistent, secure, and efficient communication. As 3.3.3 Agent Network Protocol
+shown in Fig. 5. This section introduces three key emerging proto- ANP facilitates decentralized agent communication and discovery over
+cols: Model Context Protocol (MCP) [89], Agent-to-Agent Protocol open networks. Built upon decentralized identifiers (DIDs) and JSON-
+(A2A) [90], and Agent Network Protocol (ANP) [91]. LD graphs, ANP promotes secure, interoperable interactions among
+3.3.1 Model Context Protocol heterogeneous agents. Agents dynamically discover and verify peers
+MCP is a general-purpose context-oriented protocol developed to fa- using DIDs, ensuring secure identification across network bound-
+cilitate secure and structured interactions between LLM agents and aries. Communication is structured via JSON-LD graphs, enabling
+external resources such as tools, data, and services. MCP utilizes semantic clarity and context-aware interactions. ANP also incorpo-
+a JSON-RPC client-server architecture, enabling agents (hosts) to re- rates encryption and secure channels, safeguarding data integrity and
+quest and receive context from external resources through intermediate confidentiality. Its decentralized infrastructure supports robust, cross-
+components—clients and servers. In this architecture, the host initiates organizational collaboration, fostering scalable and secure multi-agent
+context requests based on user queries, and the client manages connec- ecosystems on a global scale.
+tions to both the host and server, providing resource descriptions and Table 2 adapts the comparative framework proposed by Abul et
+6
+
+## Page 7
+
+al. [92], complements it and extends it with additional dimensions
+such as security and use cases to better contextualise LLM-MAS. Summarizer
+MCP, A2A, and ANP represent significant advancements in standard-
+izing and enhancing communication within LLM-based multi-agent
+Simultaneous-Talk
+systems. Additionally, other emerging protocols such as Agent Com- One by One Simultaneous-Talk with Summarizer
+munication Protocol (ACP) [93], Agent Interaction and Task Protocol
+(AITP) [94], and Agent Content Protocol (AConP) [95] are also gain- Fig. 6 The Communication Strategies of LLM-MAS
+ing attention, highlighting the dynamic and evolving landscape of
+communication protocols. Collectively, these protocols address inter-
+4.1.1 One-by-One
+operability, security, scalability, and context management, paving the
+In the One-by-One communication strategy, agents communicate se-
+way toward more integrated and intelligent multi-agent deployments.
+quentially, each agent responding after fully processing and integrating
+all previous messages. This structured, turn-based approach maintains
+a clear context throughout interactions, significantly reducing misun-
+Table 2 Comparison of Three Emerging Agent Protocols
+derstandings and ensuring cohesive exchanges. The One-by-One strat-
+Aspect MCP A2A ANP
+Topology JSON¯/RPC over Peer-style client ↔ Decentralised P2P egy is particularly beneficial for tasks requiring methodical reasoning
+client–server channel remote agent link agent mesh and detailed integration of inputs from multiple agents.
+Discovery Static endpoint or Signed Agent Card Search-index crawling A typical example is Chain-of-Agents [35], which applies this strat-
+manual registry entry retrieval via HTTP + DID document egy to manage lengthy text-generation tasks. Each agent summarizes
+exchange
+previous contributions before providing its input, efficiently handling
+Format Typed JSON-RPC 2.0 Task & Artifact bundles JSON-LD;
+contexts beyond typical token limits.
+messages meta-protocol
+negotiation Nevertheless, the strict serial dependency inherent in One-by-One
+Security Bearer tokens; optional OAuth 2 / enterprise DID-based handshake; communication imposes two key limitations as the agent population
+DID claims; RBAC IAM; mutual TLS end-to-end encryption grows. First, latency scales linearly with the number of turns, because
+Strengths Seamless LLM tool Rich task delegation; Trustless identity; no each agent must await the full completion of all preceding exchanges
+calling; minimal vendor-backed single point of control before contributing. Second, since inaccuracies introduced by early
+bootstrap ecosystem
+agents will unfold in each subsequent step, cumulative error propaga-
+Limitations Centralised service Cross-team workflows; P2P logistics
+tion becomes more pronounced, posing a risk of semantic drift.
+dependency; safety delegated multi-step coordination;
+risks automation DAO-driven
+4.1.2 Simultaneous-Talk
+negotiation
+The Simultaneous-Talk strategy allows agents to communicate con-
+Use Cases Plugin APIs; Enterprise workflows; P2P logistics;
+currently, without waiting for turns. This strategy fosters a dynamic
+retrieval-augmented delegated multi-step DAO/DeFi negotiation
+Q&A tasks exchange environment conducive to rapid idea generation and parallel
+problem-solving. Simultaneous-Talk effectively leverages the diverse
+perspectives of multiple agents simultaneously, significantly enhancing
+■ 4 System Internal Communication brainstorming capabilities and uncovering creative solutions.
+For instance, Autoagents [51] deploys multiple agents to generate
+Having established the overall system-level perspective, we now turn to
+ideas or solution paths concurrently. This parallel interaction model
+the internal communication within the LLM-MAS. We first categorize
+quickly reveals diverse possibilities, enhancing creativity and solution
+and compare diverse communication strategies that determine when
+robustness. A similar pattern appears in EconAgent [68], where large-
+and in what sequence agents communicate. Next, we discuss the
+scale agents jointly conduct macroeconomic simulations.
+communication paradigms that frame the form and modality of these
+Despite its advantages in agility and diversity, the Simultaneous-
+exchanges, followed by an examination of communication objects and
+Talk approach introduces two key challenges. First, state staleness:
+content. These elements collectively define the richness, adaptability,
+without fine-grained synchronisation, agents may base their reason-
+and effectiveness of communication in LLM-MAS, ultimately shaping
+ing on outdated peer contributions, leading to logically inconsistent
+the system’s capacity for coordination and problem-solving.
+or redundant outputs. Second, conflict resolution: parallel proposals
+often overlap or contradict each other, necessitating an additional arbi-
+4.1 Communication Strategy
+tration layer. Therefore, under this strategy, effective timestamps and
+Communication strategies dictate how and when agents interact within
+lightweight consensus mechanisms are crucial.
+an LLM-based multi-agent system. These strategies govern the tim-
+ing, sequence, and structure of communication exchanges, significantly 4.1.3 Simultaneous-Talk-with-Summarizer
+affecting system coherence, information accuracy, and the overall ef- To address the challenges inherent in pure Simultaneous-Talk strate-
+fectiveness of agent collaboration. As shown in Fig. 6, three widely gies, the Simultaneous-Talk with Summarizer strategy integrates a
+adopted communication strategies are explored. summarizing agent responsible for consolidating concurrent commu-
+7
+
+## Page 8
+
+Table 3 Summary of current LLM-MAS studies with their Communication Strategy, Communication Paradigm, Communication Object, and Communication Content. For the
+strategy module, OO, ST, SS denote One-by-one, Simultaneous-Talk, Simultaneous-Talk-with-Summarizer; For the paradigm module, MP, SA, BB denote message passing, speech
+act, blackboard; For the object module, SE, OA, EN, HU denote self, other agents, environment, human; For the content module, EC, IC denote explicit and implicit content
+Work Strategy Paradigm Object Content Time
+Generative Agents [63] ST, SS MP OA, EN EC, IC 04/2023
+Du et al. [24] ST MP, SA OA EC, IC 05/2023
+ChatDev [29] OO MP, SA OA EC, IC 07/2023
+MetaGPT [4] SS BB OA, EN EC 08/2023
+CausalGPT [31] OO, SS MP, BB OA, EN EC 08/2023
+AutoAgents [51] ST MP OA EC 09/2023
+EconAgent [68] ST MP OA, EN EC, IC 10/2023
+Chuang et al. [27] ST MP. SA OA EC, IC 11/2023
+MedAgents [59] OO, ST MP SE, OA, HU EC, IC 11/2023
+Wu et al. [48] OO MP SE, OA, EN EC, IC 12/2023
+Qian et al. [52] OO MP, BB OA EC 12/2023
+Ulmer et al. [22] OO MP SE, OA EC 01/2024
+Abdullin et al. [23] OO MP OA EC 01/2024
+Dai et al. [67] ST MP OA EC, IC 01/2024
+Wang et al. [34] OO MP OA EC, IC 02/2024
+POLCA [61] SS MP, SA OA EC 02/2024
+ChatSim [73] SS MP, SA OA EC 02/2024
+MADR [75] SS MP OA EC 02/2024
+Wu et al. [83] OO, ST MP OA EC, IC 02/2024
+GAMA-Bench [26] ST MP OA EC 03/2024
+PeerGPT [72] OO, SS SA OA, HU EC 03/2024
+AutoDefense [30] OO, ST MP OA EC 03/2024
+AgentCoord [50] SS MP, SA SE, OA, EN, HU EC, IC 04/2024
+MACM [42] OO MP SE, OA, EN EC 04/2024
+SoA [32] OO MP OA EC 04/2024
+Xu et al. [85] ST MP OA EC 04/2024
+GOVSIM [64] SS MP OA EC 04/2024
+FixAgent [71] SS MP OA EC 04/2024
+MAGIS [49] OO MP OA, EN EC 05/2024
+Cai et al. [3] OO, SS MP, SA SE, OA, EN EC, IC 05/2024
+CoA [35] OO MP OA EC 06/2024
+FINCON [33] SS MP OA, EN EC 07/2024
+SimClass [53] SS MP OA EC 07/2024
+BlockAgents [84] SS MP, SA OA EC, IC 07/2024
+Tulip Agent [74] SS MP OA EC, IC 07/2024
+Guan et al. [69] ST MP, SA OA EC, IC 07/2024
+Ju et al. [47] OO MP OA EC, IC 07/2024
+Agent4Debate [81] SS MP OA, EN EC 08/2024
+ToM [86] ST MP OA, EN EC 08/2024
+Zhang et al. [82] ST MP OA EC 09/2024
+Li et al. [39] SS MP OA, EN EC 09/2024
+Kalyuzhnaya et al. [40] SS MP OA, EN, HU EC 10/2024
+EvoMAC [45] SS MP, SA OA, EN EC, IC 10/2024
+ReCon [62] SS MP, SA OA EC, IC 11/2024
+Fan et al. [54] ST MP, SA OA, EN EC 01/2025
+Wang et al. [80] SS MP SE, OA, HU EC 01/2025
+Luo et al. [57] SS MP SE, OA, EN EC 01/2025
+Ma et al. [55] OO MP, SA OA EC 02/2025
+Sreedhar et al. [66] OO MP OA, EN EC 02/2025
+G-Safeguard [38] SS MP OA, EN EC 02/2025
+Wang et al. [46] SS MP OA, EN EC 02/2025
+Flow-of-Action [79] SS MP, SA OA, EN EC, IC 02/2025
+Yue et al. [65] SS MP SE, OA, EN, HU EC, IC 02/2025
+CODESIM [43] OO MP SE, OA, EN EC 02/2025
+LogiAgent [41] OO MP, BB SE, OA, EN EC 03/2025
+GameChat [28] SS SA SE, OA EC 03/2025
+MDTeamGPT [58] SS MP SE, OA, EN, HU EC 03/2025
+AgentFM [76] OO, ST MP, SA OA, EN EC 04/2025
+AutoHMA-LLM [37] OO MP OA, EN EC 04/2025
+FactGuard [56] OO, ST MP OA, EN EC 04/2025
+Thematic-LM [60] OO, ST MP OA, EN EC 04/2025
+AutoData [36] OO, ST MP, SA OA, EN EC 05/2025
+EcoLang [70] ST MP, BB OA, EN EC, IC 05/2025
+Ronanki et al. [77] OO, ST MP OA, HU EC 05/2025
+Zhang et al. [78] ST MP, BB OA, EN, HU EC, IC 05/2025
+Group Think [25] OO MP SE, OA EC 05/2025
+Shen et al. [44] SS MP SE, OA, EN, HU EC, IC 05/2025
+TED [87] SS MP, BB OA, EN EC, IC 05/2025
+8
+
+## Page 9
+
+nications into coherent summaries. This summarizer periodically syn- 4.2.2 Speech Act
+thesizes inputs from multiple agents into concise, unified messages, The Speech Act paradigm stems from the notion that language serves
+ensuring that all agents remain aligned with the overall system context. not only as a medium for information exchange but also as a tool to
+The hierarchical and team-based coordination scenarios, exempli- perform actions. The Speech Act paradigm conceptualizes commu-
+fied by CausalGPT [31] and AgentCoord [50], utilize summarizers nication as performative actions where agent utterances are designed
+to aggregate communication outcomes, facilitating clear decision- to trigger specific actions or state changes within the system. Speech
+making and task delegation. acts typically include instructive, persuasive, or directive components
+Although introducing a summarizer agent effectively mitigates syn- explicitly crafted to influence recipient agent behaviors, dynamically
+chronization issues, it reintroduces some sequential dependencies. Ad- shaping system dynamics based on evolving interaction contexts.
+ditionally, summarizer agents must accurately interpret and summarize Concretely, speech acts enable agents to steer interactions in con-
+agent communications to avoid misrepresentations or hallucinations, texts that require on-the-fly adaptation, including diplomatic nego-
+which could compromise the effectiveness of the entire system. tiation [61, 69], collaborative reasoning or debate-driven optimiza-
+In summary, selecting an appropriate communication strategy de- tion [24], and large-scale software co-engineering workflows [29].
+pends on the specific context, objectives, and constraints of the multi- By embedding directive, commissive, or persuasive components into
+agent system. Whether employing structured sequential interactions, messages, agents can negotiate task allocations, align beliefs, and syn-
+parallel exchanges, or hybrid models, each strategy provides distinct chronously coordinate temporal commitments, thereby shaping macro-
+advantages and trade-offs, critically influencing the efficiency, respon- level system dynamics as the dialogue unfolds.
+siveness, and robustness of agent communications. Yet this expressive power comes at a cost. Ambiguous force-
+marking, underspecified contextual frames, or divergent belief models
+4.2 Communication Paradigm
+can cause illocutionary misfires: the recipient may infer an unin-
+Communication paradigms define how information is represented,
+tended goal or act on incomplete preconditions, leading to deadlocks
+transmitted, and interpreted among agents in LLM-based multi-agent
+or cascading errors. Mitigating such risks calls for standardized per-
+systems. By utilizing advanced natural language processing capabili-
+formative taxonomies and explicit grounding protocols—possibly aug-
+ties of LLMs, these paradigms enable agents to conduct richer, more
+mented with uncertainty-aware LLM decoding—that allow agents to
+context-sensitive interactions than traditional symbolic communica-
+confirm or renegotiate semantic commitments before executing high-
+tion methods. Drawing on the taxonomy proposed by [88], as shown
+impact actions.
+in Fig. 7, three common communication paradigms are distinguished.
+4.2.3 Blackboard
+The Blackboard paradigm employs a centralized information repos-
+itory, where agents collaboratively share, retrieve, and coordinate
+Command or request
+through published messages or updates. This shared medium acts
+Speech Act Action Message Passing Blackboard as a communal workspace, significantly enhancing coordination effec-
+tiveness and facilitating a unified understanding among agents about
+Fig. 7 The Communication Paradigms of LLM-MAS current system states, tasks, or decisions.
+This paradigm particularly suits highly coordinated systems like
+4.2.1 Message Passing collaborative decision-making or distributed problem-solving, where
+The Message Passing paradigm refers to direct point-to-point or broad- agents require a shared information pool to align strategies and actions.
+cast communication, in which agents explicitly exchange messages A typical application example is MetaGPT [4], which effectively lever-
+containing information, instructions, or requests. These messages typ- ages the blackboard paradigm by implementing a centralized commu-
+ically consist of natural language content augmented with contextual nication repository where software development agents collaboratively
+and reasoning-related information, thereby facilitating precise and ef- post status updates, code snippets, or issue resolutions. This centraliza-
+ficient information dissemination across agents. tion enables efficient information sharing, coordinated task allocation,
+A prime example is the simulation of opinion dynamics using net- and rapid consensus formation, streamlining collaborative develop-
+works of LLM-based agents by Chuang et al. [27]. In this scenario, ment efforts. Similarly, MDTeamGPT [58] demonstrates blackboard
+agents use direct messaging to continuously update each other about usage in medical consultations, where a shared information space en-
+evolving opinions, thereby maintaining accurate awareness of the col- sures medical teams consistently access relevant patient information,
+lective state and enabling rapid consensus building. Another notable diagnostic suggestions, and treatment plans.
+application is GameChat [28], where multiple LLM agents interact via While highly beneficial for enhancing information consistency and
+direct message exchanges to achieve safe and socially optimal naviga- accessibility, blackboard systems require robust mechanisms to pre-
+tion in constrained environments. vent bottlenecks, manage access permissions, and mitigate risks from
+While effective in ensuring clarity and immediacy of interactions, misinformation or malicious inputs.
+message passing requires robust message handling systems to manage In summary, selecting appropriate communication paradigms is
+potential overloads and ensure consistency. crucial for maximizing interaction effectiveness in LLM-based multi-
+9
+
+## Page 10
+
+agent systems. Each paradigm offers distinct advantages and con- Almost all LLM-MAS scenarios involve communication with other
+siderations, tailored to specific interaction scenarios and system re- agents. Effective inter-agent communication requires sophisticated
+quirements. The choice of paradigm significantly influences overall protocols and mechanisms to ensure synchronization, consistency, and
+communication coherence, system responsiveness, and the efficacy of conflict resolution, particularly in large-scale multi-agent systems.
+collaborative outcomes.
+4.3.3 Communication with Environment
+4.3 Communication Object Communication with the environment refers to an agent’s ability to
+Communication objects define the entities or targets with which agents sense external stimuli and adjust its behavior in real time. Unlike com-
+interact within an LLM-based multi-agent system. These interactions municating with agents or humans, this modality hinges on parsing raw
+significantly shape agents’ perceptions, decisions, and behaviors. Iden- sensor streams including images, audio, proprioception, or simulator
+tifying and clearly defining these communication objects enhances sys- state and converting them into actionable knowledge.
+tem clarity, enables more targeted interactions, and improves overall EmbodiedGPT [18] demonstrates environmental communication
+coordination and efficiency. As shown in Fig. 8, this section examines through multimodal perception, where agents process and respond to
+four primary communication objects. sensory inputs like visual and audio data, effectively navigating and
+interacting within dynamic environments. Similarly, ChatSim [73]
+incorporates environmental feedback into agent interactions during
+autonomous driving simulations, enabling agents to refine their behav-
+Feedback iors based on real-time environmental changes and conditions.
+and idea
+Robust environment communication thus demands accurate, low-
+With Self With Other Agent With Human With Environment
+latency sensor fusion, continual grounding of textual reasoning in
+Fig. 8 The Communication Objects of LLM-MAS non-linguistic data, and safety guards against perception errors or out-
+of-distribution inputs. Addressing these challenges is essential for
+4.3.1 Communication with Self deploying LLM-MAS in dynamic, high-stakes settings such as em-
+Communication with self refers to internal dialogues or reflective pro- bodied assistance, industrial automation, or intelligent transportation.
+cesses within agents, enabling them to deliberate, plan, and refine de-
+4.3.4 Communication with Human
+cisions independently [96]. This self-interaction is crucial for agents
+Communication with humans involves direct interactions between
+to update their internal state, manage cognitive resources, and facilitate
+agents and human users or participants. This interaction layer adds
+sophisticated reasoning processes that emulate human-like introspec-
+complexity to multi-agent systems by requiring agents to understand,
+tion and problem-solving.
+interpret, and appropriately respond to human-generated inputs, com-
+For instance, AgentCoord [50] uses self-communication to iter-
+mands, or feedback, maintaining effective and natural interactions.
+atively evaluate and refine coordination strategies among multiple
+PeerGPT [72] effectively illustrates human-agent communication
+agents. Agents internally reflect on past interactions, hypothesize
+in collaborative educational scenarios, where agents function as mod-
+outcomes of potential actions, and update their strategies accord-
+erators or participants interacting dynamically with children. Agents
+ingly. Similarly, FixAgent [71] utilizes self-reflection during debug-
+interpret children’s verbal inputs and physical actions, continuously
+ging tasks, allowing individual agents to internally assess debugging
+refining their responses to enhance learning outcomes and maintain
+strategies before implementing solutions, thereby significantly enhanc-
+engagement. Additionally, MedAgents [59] exemplifies human-agent
+ing debugging effectiveness and resource management.
+interaction in medical consultations, where agents collaboratively in-
+However, internal communication requires robust cognitive frame-
+teract with medical professionals to support diagnosis, treatment plan-
+works within agents to accurately simulate reflective processes, posing
+ning, and patient care coordination.
+challenges in accurately managing agent cognition.
+These applications highlight three challenges: robust natural-language
+4.3.2 Communication with Other Agents
+understanding across diverse user populations, integration of affective
+Communication with other agents involves direct interactions among
+and situational signals to maintain rapport, and stringent safety and
+agents, encompassing exchanges of information, coordination of tasks,
+ethical requirements concerning privacy, bias, and accountability. Ad-
+or negotiation processes, which exist in the majority of LLM-MAS. Ef-
+dressing these challenges is critical for deploying LLM-MAS that can
+fective inter-agent communication is critical for collaborative problem-
+communicate with humans in a trustworthy and effective manner.
+solving, conflict resolution, and coordinated decision-making.
+In summary, clearly defining and managing communication objects
+MAGIS [49] exemplifies robust inter-agent communication in col-
+is essential for optimizing agent interactions in LLM-MAS. Effective
+laborative software development tasks, where developers, testers, and
+management of these interactions significantly influences the system’s
+administrators frequently exchange task-specific messages to stream-
+adaptability, responsiveness, and overall operational effectiveness.
+line software issue resolution. Similarly, AgentFM [76] utilizes struc-
+tured communication among agents managing database systems, en- 4.4 Communication Content
+suring coordinated responses to failure management and improving Communication content specifies the type and nature of information
+system reliability. exchanged between agents, influencing their interactions, understand-
+10
+
+## Page 11
+
+Behavioral feedback
+Environmental signal
+ing, and subsequent actions. As shown in Fig. 9, this section cate- ing contextual cues or feedback. Implicit communication can also be
+Inplicit Content
+gorizes communication content into Explicit and Implicit forms, with divided into two forms:
+further subdivisions to enhance clarity and provide detailed insights • Behavioral Feedback.
+into their application contexts. Implicit communication through behavioral feedback involves indi-
+rect information exchanges inferred from agent actions or interactions.
+Instead of explicit verbal cues, agents communicate intentions or feed-
+My results are... ,
+Natural language The overall plan is... you need to analyze... back implicitly through observable behaviors, strategy shifts, or adap-
+Procedural and {"role":"assistant", python\n tive responses. Such signals can convey intent, commitment, or private
+structured languages "content":"…"} def fetch_data(url): …
+information while preserving strategic stealth.
+Explicit Content
+In diplomatic simulations like Richelieu [69], agent behaviors im-
+“I disagree with...” “You might try another
+Behavioral feedback
+→ Strong opposition way”→Tactful suggestion plicitly communicate negotiation positions and strategies, influenc-
+Environmental signal Code error: Warning... Monitoring indicators: ing the negotiation outcomes indirectly. Similarly, Flooding simu-
+Voting by majority agents
+Implicit Content lations [47] demonstrate implicit behavioral feedback, where agent
+strategies dynamically adjust based on the evolving behaviors of peers,
+Fig. 9 The Communication Contents of LLM-MAS effectively communicating strategic adjustments without explicit ver-
+balization. Although powerful, behavioral feedback requires accurate
+4.4.1 Explicit communication interpretation mechanisms to ensure the correct inference of implicit
+Explicit communication entails direct information exchange with clearly signals, otherwise it may cause misjudgment or over-interpretation,
+defined and easily interpretable meaning. Explicit communication can resulting in impaired system function.
+be divided into two forms: • Environmental Signal.
+• Natural Language. Environmental signals serve as another implicit communication chan-
+nel, where changes or conditions in the operational context indirectly
+Explicit communication in the form of natural language involves di-
+influence agent decisions and behaviors. Agents interpret and respond
+rect verbal exchanges articulated in human-readable text or spoken
+to these signals to dynamically adapt their actions.
+formats. This type of communication leverages the advanced natural
+For example, ChatSim [73] integrates environmental signals such as
+language processing capabilities of LLMs, allowing agents to commu-
+real-time traffic or weather conditions in autonomous driving simula-
+nicate clearly, flexibly, and contextually.
+tions, guiding agent navigation decisions implicitly. Likewise, agents
+For example, generative agents in sandbox environments [63] fre-
+in EcoLANG [70] interpret economic indicators and environmental
+quently utilize natural language communication to negotiate, plan, or
+signals to adjust consumption and investment behaviors dynamically.
+resolve conflicts, mirroring complex human interactions. Moreover,
+Effective utilization of environmental signals depends heavily on the
+agents in platforms like AgentCoord [50] employ natural language to
+agents’ sensitivity and responsiveness to subtle contextual changes.
+articulate strategic decisions clearly, ensuring smooth and effective co-
+In summary, clearly distinguishing and effectively managing ex-
+ordination among agents. The flexibility and expressiveness of natural
+plicit and implicit communication content is crucial for enhancing
+language enhance the quality of interactions but require sophisticated
+interaction accuracy, adaptability, and overall efficacy in LLM-MAS.
+parsing capabilities to avoid ambiguities or misunderstandings.
+• Code and Structured Data. ■ 5 Challenges and Opportunities
+Communication through code and structured data involves precise, un- As LLM-MAS continue to garner increasing attention in both research
+ambiguous exchanges, typically formatted in standardized data struc- and application domains, their further development faces several sig-
+tures or procedural languages. This form of explicit communication is nificant challenges and emerging opportunities. We analyze several
+essential for tasks requiring high accuracy and clarity, such as detailed key challenges and research directions based on the article’s content.
+instructions, algorithmic descriptions, or structured data exchanges.
+5.1 Optimizing the System Design
+For instance, MAGIS [49] utilizes structured code and data ex-
+The communication architecture is the foundational component of
+changes among software development agents to streamline issue track-
+LLM-MAS. As task complexity increases, traditional communication
+ing and code management processes. Similarly, AutoData [36] applies
+architectures may no longer suffice. Therefore, the design of hybrid ar-
+structured data communication for open web data collection, ensur-
+chitectures is expected to be a key focus of future research. With more
+ing efficient and accurate data aggregation and analysis. Structured
+complex structures, the number of agents increases, leading to greater
+communication effectively minimizes misinterpretations but demands
+demands on computational resources. Therefore, a major challenge
+strict adherence to predefined data standards and formats.
+lies in developing communication paradigms that are both efficient and
+4.4.2 Implicit communication. scalable. Meanwhile, how to optimize the allocation of computational
+Implicit communication occurs when agents convey information indi- resources also needs to be considered. Concurrently, the increasing
+rectly, through their actions or environmental cues, rather than through volume of internal system information poses another challenge. En-
+explicit statements. Implicit communication relies on agents interpret- suring that agents correctly interpret and understand this information,
+11
+
+## Page 12
+
+while minimizing the risk of hallucinations or misunderstandings, will 5.5 Communication Security
+be a crucial area of investigation. As LLM-MAS migrate into safety-critical domains, safeguarding the
+confidentiality, integrity, and authenticity of inter-agent messages is in-
+5.2 Advancing Research on Agent Competition dispensable. Recent studies [47, 97, 98] demonstrate that adversaries
+In a competitive environment, agents can develop more complex strate- can mount man-in-the-middle, data-tampering, and spoofing attacks,
+gies, improve decision-making, and promote innovative behaviors by resulting in damage cascading rapidly through the system. Hence,
+employing techniques such as game theory. However, a key challenge defence techniques originally designed for standalone LLMs [99,100]
+lies in balancing competition and cooperation, as excessive competi- must be embedded within the communication layer itself. Preventing
+tion may lead to inefficiency or instability. Future research can focus eavesdropping and forgery in decentralized, dynamic topologies where
+on finding the optimal balance between competition and cooperation, agents may join or leave at will requires cryptographically grounded
+developing scalable competition strategies, and exploring how to safely protocols that combine end-to-end encryption, fine-grained authentica-
+and effectively integrate competition into real-world applications. tion, adaptive key management, and provenance tracking. Developing
+such adaptive secure-communication frameworks will be pivotal for
+5.3 Unified Communication Protocol deploying LLM-MAS in high-stakes settings such as cooperative au-
+The rapid emergence and deployment of multiple new communication tonomous driving and clinical decision support, where even transient
+protocols such as MCP, A2A, ANP, ACP, AITP, and AConP in LLM- message corruption can have cascading real-world consequences.
+MAS underscore the field’s dynamism and growth. However, this
+proliferation also brings critical challenges. One significant issue is 5.6 Benchmarks and Evaluation
+functional redundancy, as different protocols often overlap in terms of The rapid diffusion of LLM-MAS across software engineering, game-
+capabilities such as secure communication, context management, and playing, and social-simulation tasks has outpaced the development of
+agent discovery. This redundancy can lead to unnecessary complexity, rigorous evaluation suites. Existing datasets such as MultiAgentBench
+resource wastage, and increased difficulty in protocol management. and RealWorldBench [101, 102] cover a handful of cooperative sce-
+Moreover, the lack of interoperability among existing protocols narios, but fall short of spanning heterogeneous domains, interaction
+poses substantial barriers. Different agent groups employing distinct paradigms, or agent-population scales.
+protocols cannot seamlessly communicate or collaborate, significantly Current leaderboards also remain agent-centric: they report per-
+hindering the scalability and integration of multi-agent systems. This agent task accuracy or reward but rarely capture system-level proper-
+situation mirrors early-stage internet communication challenges, which ties, including coordination efficiency, communication bandwidth and
+were eventually resolved through standardized protocols like HTTPS. latency, robustness to stale or deceptive messages, and group-level
+Therefore, the development and adoption of a unified, standardized fairness and safety. Without these dimensions, evaluations cannot dis-
+communication protocol for LLM-MAS is imperative. Such a protocol tinguish architectures that merely aggregate strong single agents from
+would provide foundational interoperability, enhance security, simplify those that yield genuinely emergent collaboration.
+integration, and significantly reduce the complexity inherent in man- We therefore advocate a next-generation benchmark suite that spans
+aging multiple disparate systems. By achieving a consensus-driven cooperation, competition, and mixed-motive settings and reports a
+standard akin to HTTPS, LLM-MAS can more effectively harness the multi-granular metric set from individual competence to collective
+collective intelligence and collaborative potential of agents, thereby utility to provide a holistic portrait of LLM-MAS performance.
+driving further innovation, reliability, and widespread adoption across
+■
+diverse application domains. 6 Conclusion
+In this survey, we have presented a communication-centric framework
+5.4 Multimodal Communication for understanding LLM-MAS, emphasizing how effective communi-
+With the development of large multimodal models, agents in LLM- cation shapes system performance. By distinguishing between system-
+MAS should not be limited to text-based communication. Com- level communication and system-internal communication, we system-
+munication of multimodal content (text, images, audio, and video) atically explored critical components, including architectures, commu-
+should also be considered.This expansion into multimodal content en- nication goals, protocols, strategies, paradigms, objects, and content.
+ables more natural and context-aware interactions, thereby enhancing The significant impacts of these components on the efficiency, scala-
+agents’ adaptability and decision-making capabilities. However, there bility, and adaptability of LLM-MAS are discussed in detail. We also
+are some challenges to integrating multimodal content. A major issue discuss challenges and future opportunities. Key challenges identified
+is how to effectively present and coordinate different modalities in a include interoperability, multimodal integration, and security. Future
+coherent way that is comprehensible to all agents. In addition, agents research directions should focus on addressing these issues, optimiz-
+not only have to process these different modalities, but also communi- ing system designs, developing unified protocols, and establishing
+cate them effectively to one another. Future research should focus on comprehensive benchmarks. We expect this communication-centric
+improving the fusion of multimodal data and designing stronger agents perspective to inform and inspire ongoing research, driving further
+in key components for handling multimodal content. development of LLM-MAS.
+12
+
+## Page 13
+
+■
+Acknowledgement [14] Cheng Y, Zhang C, Zhang Z, Meng X, Hong S, Li W, Wang Z,
+This research is supported by the National Natural Science Foundation Wang Z, Yin F, Zhao J, others . Exploring large language model based
+of China (No.62272025, No.U22B2021 and No.62362048) intelligent agents: Definitions, methods, and prospects. arXiv preprint
+arXiv:2401.03428, 2024
+■
+Competing Interest
+[15] Zhang Q, Chen S, Bei Y, Yuan Z, Zhou H, Hong Z, Dong J,
+The authors declare that they have no competing interests or financial
+Chen H, Chang Y, Huang X. A survey of graph retrieval-augmented
+conflicts to disclose.
+generation for customized large language models. arXiv preprint
+■ References arXiv:2501.13958, 2025
+[16] Chen S, Zhang Q, Dong J, Hua W, Li Q, Huang X. Entity
+[1] Wang L, Ma C, Feng X, Zhang Z, Yang H, Zhang J, Chen Z,
+alignment with noisy annotations from large language models. arXiv
+Tang J, Chen X, Lin Y, others . A survey on large language model
+preprint arXiv:2405.16806, 2024
+based autonomous agents. Frontiers of Computer Science, 2024, 18(6):
+[17] Qin Y, Liang S, Ye Y, Zhu K, Yan L, Lu Y, Lin Y, Cong X,
+186345
+Tang X, Qian B, others . Toolllm: Facilitating large language models
+[2] Talebirad Y, Nadiri A. Multi-agent collaboration: Harnessing
+to master 16000+ real-world apis. arXiv preprint arXiv:2307.16789,
+the power of intelligent llm agents. arXiv preprint arXiv:2306.03314,
+2023
+2023
+[18] Mu Y, Zhang Q, Hu M, Wang W, Ding M, Jin J, Wang B, Dai
+[3] Cai J, Li J, Zhang M, Li M, Wang C S, Tei K. Language
+J, Qiao Y, Luo P. Embodiedgpt: Vision-language pre-training via em-
+evolution for evading social media regulation via llm-based multi-agent
+bodied chain of thought. Advances in Neural Information Processing
+simulation. In: 2024 IEEE Congress on Evolutionary Computation
+Systems, 2023, 36: 25081–25094
+(CEC). 2024, 1–10
+[19] Wooldridge M. An introduction to multiagent systems. John
+[4] Hong S, Zheng X, Chen J, Cheng Y, Wang J, Zhang C,
+wiley & sons, 2009
+Wang Z, Yau S K S, Lin Z, Zhou L, others . Metagpt: Meta pro-
+[20] Oliehoek F A, Amato C, others . A concise introduction to
+gramming for multi-agent collaborative framework. arXiv preprint
+decentralized POMDPs. volume 1. Springer, 2016
+arXiv:2308.00352, 2023, 3(4): 6
+[21] Hu J, Bhowmick P, Jang I, Arvin F, Lanzon A. A decentral-
+[5] Nie G, Zhi R, Yan X, Du Y, Zhang X, Chen J, Zhou M, Chen
+ized cluster formation containment framework for multirobot systems.
+H, Li T, Cheng Z, others . A hybrid multi-agent conversational rec-
+IEEE Transactions on Robotics, 2021, 37(6): 1936–1955
+ommender system with llm and search engine in e-commerce. In:
+[22] Ulmer D, Mansimov E, Lin K, Sun J, Gao X, Zhang Y. Boot-
+Proceedings of the 18th ACM Conference on Recommender Systems.
+strapping llm-based task-oriented dialogue agents via self-talk. arXiv
+2024, 745–747
+preprint arXiv:2401.05033, 2024
+[6] Li X, Wang S, Zeng S, Wu Y, Yang Y. A survey on llm-
+[23] Abdullin Y, Molla-Aliod D, Ofoghi B, Yearwood J, Li Q. Syn-
+based multi-agent systems: workflow, infrastructure, and challenges.
+thetic dialogue dataset generation using llm agents. arXiv preprint
+Vicinagearth, 2024, 1(1): 9
+arXiv:2401.17461, 2024
+[7] Guo T, Chen X, Wang Y, Chang R, Pei S, Chawla N V, Wiest
+[24] Du Y, Li S, Torralba A, Tenenbaum J B, Mordatch I. Improving
+O, Zhang X. Large language model based multi-agents: A survey of
+factuality and reasoning in language models through multiagent debate.
+progress and challenges. arXiv preprint arXiv:2402.01680, 2024
+In: Forty-first International Conference on Machine Learning. 2023
+[8] Han S, Zhang Q, Yao Y, Jin W, Xu Z, He C. Llm multi-
+[25] Hsu C J, Buffelli D, McGowan J, Liao F T, Chen Y C, Vakili S,
+agent systems: Challenges and open problems. arXiv preprint
+Shiu D s. Group think: Multiple concurrent reasoning agents collab-
+arXiv:2402.03578, 2024
+orating at token level granularity. arXiv preprint arXiv:2505.11107,
+[9] Gao C, Lan X, Li N, Yuan Y, Ding J, Zhou Z, Xu F, Li Y.
+2025
+Large language models empowered agent-based modeling and simu-
+[26] Huang J t, Li E J, Lam M H, Liang T, Wang W, Yuan Y, Jiao
+lation: A survey and perspectives. Humanities and Social Sciences
+W, Wang X, Tu Z, Lyu M R. How far are we on the decision-making
+Communications, 2024, 11(1): 1–24
+of llms? evaluating llms’ gaming ability in multi-agent environments.
+[10] Jin H, Huang L, Cai H, Yan J, Li B, Chen H. From llms to llm-
+arXiv preprint arXiv:2403.11807, 2024
+based agents for software engineering: A survey of current, challenges
+[27] Chuang Y S, Goyal A, Harlalka N, Suresh S, Hawkins R, Yang
+and future. arXiv preprint arXiv:2408.02479, 2024
+S, Shah D, Hu J, Rogers T T. Simulating opinion dynamics with
+[11] Liu J, Wang K, Chen Y, Peng X, Chen Z, Zhang L, Lou Y.
+networks of llm-based agents. arXiv preprint arXiv:2311.09618, 2023
+Large language model-based agents for software engineering: A sur-
+[28] Mahadevan V, Zhang S, Chandra R. Gamechat: Multi-llm
+vey. arXiv preprint arXiv:2409.02977, 2024
+dialogue for safe, agile, and socially optimal multi-agent navigation in
+[12] Shannon C E. A mathematical theory of communication. The
+constrained environments. arXiv preprint arXiv:2503.12333, 2025
+Bell system technical journal, 1948, 27(3): 379–423
+[29] Qian C, Liu W, Liu H, Chen N, Dang Y, Li J, Yang C, Chen W,
+[13] Smith R G. The contract net protocol: High-level communica-
+Su Y, Cong X, others . Chatdev: Communicative agents for software
+tion and control in a distributed problem solver. IEEE Transactions on
+development. arXiv preprint arXiv:2307.07924, 2023
+computers, 1980, 29(12): 1104–1113
+13
+
+## Page 14
+
+[30] Zeng Y, Wu Y, Zhang X, Wang H, Wu Q. Autodefense: case study on software development. arXiv preprint arXiv:2505.16086,
+Multi-agent llm defense against jailbreak attacks. arXiv preprint 2025
+arXiv:2403.04783, 2024 [45] Hu Y, Cai Y, Du Y, Zhu X, Liu X, Yu Z, Hou Y, Tang S,
+[31] Tang Z, Wang R, Chen W, Wang K, Liu Y, Chen T, Lin L. Chen S. Self-evolving multi-agent collaboration networks for software
+Towards causalgpt: A multi-agent approach for faithful knowledge development. arXiv preprint arXiv:2410.16946, 2024
+reasoning via promoting causal consistency in llms. arXiv preprint [46] Wang Z, Moriyama S, Wang W Y, Gangopadhyay B, Takamatsu
+arXiv:2308.11914, 2023 S. Talk structurally, act hierarchically: A collaborative framework for
+[32] Ishibashi Y, Nishimura Y. Self-organized agents: A llm multi- llm multi-agent systems. arXiv preprint arXiv:2502.11098, 2025
+agent framework toward ultra large-scale code generation and opti- [47] Ju T, Wang Y, Ma X, Cheng P, Zhao H, Wang Y, Liu L, Xie J,
+mization. arXiv preprint arXiv:2404.02183, 2024 Zhang Z, Liu G. Flooding spread of manipulated knowledge in llm-
+[33] Yu Y, Yao Z, Li H, Deng Z, Jiang Y, Cao Y, Chen Z, Suchow J, based multi-agent communities. arXiv preprint arXiv:2407.07791,
+Cui Z, Liu R, others . Fincon: A synthesized llm multi-agent system 2024
+with conceptual verbal reinforcement for enhanced financial decision [48] Wu D, Shi H, Sun Z, Liu B. Deciphering digital detectives:
+making. Advances in Neural Information Processing Systems, 2024, Understanding llm behaviors and capabilities in multi-agent mystery
+37: 137010–137045 games. arXiv preprint arXiv:2312.00746, 2023
+[34] Wang S, Long Z, Fan Z, Wei Z, Huang X. Benchmark self- [49] Tao W, Zhou Y, Wang Y, Zhang W, Zhang H, Cheng Y. Magis:
+evolving: A multi-agent framework for dynamic llm evaluation. arXiv Llm-based multi-agent framework for github issue resolution. Ad-
+preprint arXiv:2402.11443, 2024 vances in Neural Information Processing Systems, 2024, 37: 51963–
+[35] Zhang Y, Sun R, Chen Y, Pfister T, Zhang R, Arik S. Chain 51993
+of agents: Large language models collaborating on long-context [50] Pan B, Lu J, Wang K, Zheng L, Wen Z, Feng Y, Zhu M, Chen
+tasks. Advances in Neural Information Processing Systems, 2024, W. Agentcoord: Visually exploring coordination strategy for llm-based
+37: 132208–132237 multi-agent collaboration. arXiv preprint arXiv:2404.11943, 2024
+[36] Ma T, Qian Y, Zhang Z, Wang Z, Qian X, Bai F, Ding Y, Luo [51] Chen G, Dong S, Shu Y, Zhang G, Sesay J, Karlsson B F, Fu J,
+X, Zhang S, Murugesan K, others . Autodata: A multi-agent system Shi Y. Autoagents: A framework for automatic agent generation. arXiv
+for open web data collection. arXiv preprint arXiv:2505.15859, 2025 preprint arXiv:2309.17288, 2023
+[37] Yang T, Feng P, Guo Q, Zhang J, Ning J, Wang X, Mao Z. [52] Qian C, Dang Y, Li J, Liu W, Xie Z, Wang Y, Chen W, Yang
+Autohma-llm: Efficient task coordination and execution in heteroge- C, Cong X, Che X, others . Experiential co-learning of software-
+neous multi-agent systems using hybrid large language models. IEEE developing agents. arXiv preprint arXiv:2312.17025, 2023
+Transactions on Cognitive Communications and Networking, 2025 [53] Zhang Z, Zhang-Li D, Yu J, Gong L, Zhou J, Hao Z, Jiang J,
+[38] Wang S, Zhang G, Yu M, Wan G, Meng F, Guo C, Wang K, Cao J, Liu H, Liu Z, others . Simulating classroom education with
+Wang Y. G-safeguard: A topology-guided security lens and treatment llm-empowered agents. arXiv preprint arXiv:2406.19226, 2024
+on llm-based multi-agent systems. arXiv preprint arXiv:2502.11127, [54] Fan Y, Xue K, Li Z, Zhang X, Ruan T. An llm-based frame-
+2025 work for biomedical terminology normalization in social media via
+[39] Li H, Xu T, Chang E, Wen Q. Knowledge tagging with large multi-agent collaboration. In: Proceedings of the 31st International
+language model based multi-agent system. In: Proceedings of the Conference on Computational Linguistics. 2025, 10712–10726
+AAAI Conference on Artificial Intelligence. 2025, 28775–28782 [55] Ma W, Zhang H, Yang I, Ji S, Chen J, Hashemi F, Mohole
+[40] Kalyuzhnaya A, Mityagin S, Lutsenko E, Getmanov A, Ak- S, Gearey E, Macy M, Hassanpour S, others . Communication makes
+senkin Y, Fatkhiev K, Fedorin K, Nikitin N O, Chichkova N, Vorona perfect: Persuasion dataset construction via multi-llm communication.
+V, others . Llm agents for smart city management: Enhancing decision In: Proceedings of the 2025 Conference of the Nations of the Americas
+support through multi-agent ai systems. Smart Cities (2624-6511), Chapter of the Association for Computational Linguistics: Human
+2025, 8(1) Language Technologies (Volume 1: Long Papers). 2025, 4017–4045
+[41] Zhang K, Zhang C, Wang C, Zhang C, Wu Y, Xing Z, Liu Y, [56] Zhang Q W, Li F, Wang J, Qiao L, Yu Y, Yin D, Sun X.
+Li Q, Peng X. Logiagent: Automated logical testing for rest systems Factguard: Leveraging multi-agent systems to generate answerable
+with llm-based multi-agents. arXiv preprint arXiv:2503.15079, 2025 and unanswerable questions for enhanced long-context llm extraction.
+[42] Lei B, Zhang Y, Zuo S, Payani A, Ding C. Macm: Utilizing arXiv preprint arXiv:2504.05607, 2025
+a multi-agent system for condition mining in solving complex mathe- [57] Luo Y, Feng Y, Xu J, Tasca P, Liu Y. Llm-powered multi-agent
+matical problems. arXiv preprint arXiv:2404.04735, 2024 system for automated crypto portfolio management. arXiv preprint
+[43] Islam M A, Ali M E, Parvez M R. Codesim: Multi-agent code arXiv:2501.00826, 2025
+generation and problem solving through simulation-driven planning [58] Chen K, Li X, Yang T, Wang H, Dong W, Gao Y. Mdteamgpt: A
+and debugging. arXiv preprint arXiv:2502.05664, 2025 self-evolving llm-based multi-agent framework for multi-disciplinary
+[44] Shen M, Shu R, Pratik A, Gung J, Ge Y, Sunkara M, Zhang team medical consultation. arXiv preprint arXiv:2503.13856, 2025
+Y. Optimizing llm-based multi-agent system with textual feedback: A [59] Tang X, Zou A, Zhang Z, Li Z, Zhao Y, Zhang X, Cohan A,
+14
+
+## Page 15
+
+Gerstein M. Medagents: Large language models as collaborators for Computer Vision and Pattern Recognition. 2024, 15077–15087
+zero-shot medical reasoning. arXiv preprint arXiv:2311.10537, 2023 [74] Ocker F, Tanneberg D, Eggert J, Gienger M. Tulip agent–
+[60] Qiao T, Walker C, Cunningham C, Koh Y S. Thematic-lm: enabling llm-based agents to solve tasks using large tool libraries.
+A llm-based multi-agent system for large-scale thematic analysis. In: arXiv preprint arXiv:2407.21778, 2024
+Proceedings of the ACM on Web Conference 2025. 2025, 649–658 [75] Kim K, Lee S, Huang K H, Chan H P, Li M, Ji H. Can
+[61] Moghimifar F, Li Y F, Thomson R, Haffari G. Modelling po- llms produce faithful explanations for fact-checking? towards faith-
+litical coalition negotiations using llm-based agents. arXiv preprint ful explainable fact-checking via multi-agent debate. arXiv preprint
+arXiv:2402.11712, 2024 arXiv:2402.07401, 2024
+[62] Wang S, Liu C, Zheng Z, Qi S, Chen S, Yang Q, Zhao A, Wang [76] Zhang L, Zhai Y, Jia T, Huang X, Duan C, Li Y. Agentfm:
+C, Song S, Huang G. Boosting llm agents with recursive contemplation Role-aware failure management for distributed databases with llm-
+for effective deception handling. In: Findings of the Association for driven multi-agents. arXiv preprint arXiv:2504.06614, 2025
+Computational Linguistics ACL 2024. 2024, 9909–9953 [77] Ronanki K. Facilitating trustworthy human-agent collaboration
+[63] Park J S, O’Brien J, Cai C J, Morris M R, Liang P, Bernstein in llm-based multi-agent system oriented software engineering. arXiv
+M S. Generative agents: Interactive simulacra of human behavior. preprint arXiv:2505.04251, 2025
+In: Proceedings of the 36th annual acm symposium on user interface [78] Zhang Y, Hao J, Wang Z, Sheng H, Zeng W. Facilitating video
+software and technology. 2023, 1–22 story interaction with multi-agent collaborative system. arXiv preprint
+[64] Piatti G, Jin Z, Kleiman-Weiner M, Scho¨lkopf B, Sachan M, arXiv:2505.03807, 2025
+Mihalcea R. Cooperate or collapse: Emergence of sustainable coop- [79] Pei C, Wang Z, Liu F, Li Z, Liu Y, He X, Kang R, Zhang T, Chen
+eration in a society of llm agents. Advances in Neural Information J, Li J, others . Flow-of-action: Sop enhanced llm-based multi-agent
+Processing Systems, 2024, 37: 111715–111759 system for root cause analysis. arXiv preprint arXiv:2502.08224, 2025
+[65] ShengbinYue S, Huang T, Jia Z, Wang S, Liu S, Song Y, Huang [80] Wang T, Zhan Y, Lian J, Hu Z, Yuan N J, Zhang Q, Xie X, Xiong
+X J, Wei Z. Multi-agent simulator drives language models for legal in- H. Llm-powered multi-agent framework for goal-oriented learning in
+tensive interaction. In: Findings of the Association for Computational intelligent tutoring system. arXiv preprint arXiv:2501.15749, 2025
+Linguistics: NAACL 2025. 2025, 6537–6570 [81] Zhang Y, Yang X, Feng S, Wang D, Zhang Y, Song K. Can
+[66] Sreedhar K, Cai A, Ma J, Nickerson J V, Chilton L B. Simulating llms beat humans in debating? a dynamic multi-agent framework for
+cooperative prosocial behavior with multi-agent llms: Evidence and competitive debate. arXiv preprint arXiv:2408.04472, 2024
+mechanisms for ai agents to inform policy decisions. In: Proceedings [82] Zhang R, Eger S. Llm-based multi-agent poetry generation
+of the 30th International Conference on Intelligent User Interfaces. in non-cooperative environments. arXiv preprint arXiv:2409.03659,
+2025, 1272–1286 2024
+[67] Dai G, Zhang W, Li J, Yang S, Rao S, Caetano A, Sra M, [83] Wu Z, Peng R, Zheng S, Liu Q, Han X, Kwon B I, Onizuka
+others . Artificial leviathan: Exploring social evolution of llm agents M, Tang S, Xiao C. Shall We Team Up: Exploring Spontaneous Co-
+through the lens of hobbesian social contract theory. arXiv preprint operation of Competing LLM Agents. Papers 2402.12327, arXiv.org,
+arXiv:2406.14373, 2024 February 2024
+[68] Li N, Gao C, Li M, Li Y, Liao Q. Econagent: large lan- [84] Chen B, Li G, Lin X, Wang Z, Li J. Blockagents: Towards
+guage model-empowered agents for simulating macroeconomic activ- byzantine-robust llm-based multi-agent coordination via blockchain.
+ities. arXiv preprint arXiv:2310.10436, 2023 In: Proceedings of the ACM Turing Award Celebration Conference-
+[69] Guan Z, Kong X, Zhong F, Wang Y. Richelieu: Self-evolving China 2024. 2024, 187–192
+llm-based agents for ai diplomacy. Advances in Neural Information [85] Xu Q, Tian Z, Wu H, Huang Z, Song Y, Liu F, Li D. Learn to
+Processing Systems, 2024, 37: 123471–123497 disguise: Avoid refusal responses in llm’s defense via a multi-agent
+[70] Mou X, Qian C, Liu W, Huang X, Wei Z. Ecolang: Efficient attacker-disguiser game. arXiv preprint arXiv:2404.02532, 2024
+and effective agent communication language induction for social sim- [86] Yim Y, Chan C, Shi T, Deng Z, Fan W, Zheng T, Song Y. Eval-
+ulation. arXiv preprint arXiv:2505.06904, 2025 uating and enhancing llms agent based on theory of mind in guandan:
+[71] Lee C, Xia C S, Yang L, Huang J t, Zhu Z, Zhang L, Lyu M R. A A multi-player cooperative game under imperfect information. arXiv
+unified debugging approach via llm-based multi-agent synergy. arXiv preprint arXiv:2408.02559, 2024
+preprint arXiv:2404.17153, 2024 [87] Liu Y, Liu Y, Zhang X, Chen X, Yan R. The truth becomes
+[72] Liu J, Yao Y, An P, Wang Q. Peergpt: Probing the roles of llm- clearer through debate! multi-agent systems with large language mod-
+based peer agents as team moderators and participants in children’s els unmask fake news. arXiv preprint arXiv:2505.08532, 2025
+collaborative learning. In: Extended Abstracts of the CHI Conference [88] Dorri A, Kanhere S S, Jurdak R. Multi-agent systems: A survey.
+on Human Factors in Computing Systems. 2024, 1–6 Ieee Access, 2018, 6: 28573–28593
+[73] Wei Y, Wang Z, Lu Y, Xu C, Liu C, Zhao H, Chen S, Wang [89] Model Context Protocol . Introduction to model context protocol
+Y. Editable scene simulation for autonomous driving via collabora- (mcp). https://modelcontextprotocol.io/introduction,
+tive llm-agents. In: Proceedings of the IEEE/CVF Conference on 2024. Accessed: May 2025
+15
+
+## Page 16
+
+[90] Google . Agent2agent (a2a) protocol. https://google.git
+hub.io/A2A/, 2024. Accessed: May 2025
+[91] Agent Network Protocol Contributors . Agent network protocol
+official website. https://agent-network-protocol.com/, 2024.
+Accessed: May 2025
+[92] Ehtesham A, Singh A, Gupta G K, Kumar S. A survey of agent
+interoperability protocols: Model context protocol (mcp), agent com-
+munication protocol (acp), agent-to-agent protocol (a2a), and agent
+network protocol (anp). arXiv preprint arXiv:2505.02279, 2025
+[93] Linux Foundation AI and LBM Data . Acp: Agent communi-
+cation protocol. https://github.com/orgs/i-am-bee/discuss
+ions/284, 2025. Accessed: May 2025
+[94] NEAR . Aitp: Agent interaction & transaction protocol. https:
+//aitp.dev/, 2025. Accessed: May 2025
+[95] Galileo Cisco and Langchain . Agent connect protocol. https:
+//spec.acp.agntcy.org/, 2025. Accessed: May 2025
+[96] Yao S, Zhao J, Yu D, Du N, Shafran I, Narasimhan K, Cao
+Y. React: Synergizing reasoning and acting in language models. In:
+International Conference on Learning Representations (ICLR). 2023
+[97] He P, Lin Y, Dong S, Xu H, Xing Y, Liu H. Red-teaming
+llm multi-agent systems via communication attacks. arXiv preprint
+arXiv:2502.14847, 2025
+[98] Zhou Z, Li Z, Zhang J, Zhang Y, Wang K, Liu Y, Guo Q. Corba:
+Contagious recursive blocking attacks on multi-agent systems based
+on large language models. arXiv preprint arXiv:2502.14529, 2025
+[99] Zou A, Phan L, Wang J, Duenas D, Lin M, Andriushchenko
+M, Kolter J Z, Fredrikson M, Hendrycks D. Improving alignment
+and robustness with circuit breakers. In: The Thirty-eighth Annual
+Conference on Neural Information Processing Systems. 2024
+[100] Jain N, Schwarzschild A, Wen Y, Somepalli G, Kirchenbauer J,
+Chiang P y, Goldblum M, Saha A, Geiping J, Goldstein T. Baseline
+defenses for adversarial attacks against aligned language models. arXiv
+preprint arXiv:2309.00614, 2023
+[101] Zhu K, Du H, Hong Z, Yang X, Guo S, Wang Z, Wang Z, Qian C,
+Tang X, Ji H, others . Multiagentbench: Evaluating the collaboration
+and competition of llm agents. arXiv preprint arXiv:2503.01935, 2025
+[102] Geng L, Chang E Y. Realm-bench: A real-world plan-
+ning benchmark for llms and multi-agent systems. arXiv preprint
+arXiv:2502.18836, 2025
+16

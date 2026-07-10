@@ -1,7 +1,8 @@
 # source_pdf: state-delta-trajectory-2506.19209.pdf
-# extracted_at_utc: 2026-07-08T03:33:54.491568+00:00
+# extracted_at_utc: 2026-07-09T04:28:51.886547+00:00
 # pages: 22
 # title: Augmenting Multi-Agent Communication with State Delta Trajectory
+# source_sha256: 3be622362fba548fd941d3acdf442bdedfe6013c711aaca4ccf41da0bcad34a3
 
 
 

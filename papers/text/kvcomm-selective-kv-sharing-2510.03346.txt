@@ -1,7 +1,8 @@
 # source_pdf: kvcomm-selective-kv-sharing-2510.03346.pdf
-# extracted_at_utc: 2026-07-08T03:33:52.509949+00:00
+# extracted_at_utc: 2026-07-09T04:28:23.787436+00:00
 # pages: 28
 # title: KVComm: Enabling Efficient LLM Communication through Selective KV Sharing
+# source_sha256: 48b9ee8f1b46e58d729140666243f24f211ea7c55aa85ad9f767cf24cd9f5e9a
 
 
 

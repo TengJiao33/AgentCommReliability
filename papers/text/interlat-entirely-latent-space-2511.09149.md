@@ -1,0 +1,1630 @@
+# interlat-entirely-latent-space-2511.09149
+
+- Source PDF: `interlat-entirely-latent-space-2511.09149.pdf`
+- Extracted at UTC: `2026-07-09T05:57:01.331398+00:00`
+- Pages: 24
+- Title: Enabling Agents to Communicate Entirely in Latent Space
+- SHA256: `54dfa838840443a1993daf6f2bdd1a3ceda6d525b0480afd5404a6eddde5cbd2`
+
+## Page 1
+
+Enabling Agents to Communicate Entirely in Latent Space
+Zhuoyun Du1,2,3†* Runze Wang2† Huiyu Bai2 Zouying Cao4
+Xiaoyong Zhu2 Yu Cheng2 Bo Zheng2 Wei Chen1 Haochao Ying5(cid:66)
+1State Key Lab of CAD&CG, Zhejiang University
+2Future Living Lab of Alibaba
+3Zhejiang Key Laboratory of Medical Imaging Artificial Intelligence
+4Shanghai Jiao Tong University 5Zhejiang University
+{duzy, haochaoying}@zju.edu.cn, yunze.wrz@alibaba-inc.com
+Abstract 1 Introduction
+Large language model (LLM)-based agentic sys-
+While natural language is the de facto com- tems have emerged as a promising paradigm for
+munication medium for LLM-based agents, it
+solving complex tasks by orchestrating multi-
+presents a fundamental constraint. The pro-
+ple agents through natural language communica-
+cess of downsampling rich, internal latent states
+tion (Wang et al., 2025, 2024; Zhang et al., 2024b;
+into discrete tokens inherently limits the depth
+Tran et al., 2025). Despite its human readability,
+and nuance of information that can be transmit-
+ted, thereby hindering collaborative problem- natural language imposes fundamental constraints
+solving. Inspired by telepathy, which bypasses on inter-agent communication. To communicate,
+symbolic language in communication, we pro- an agent must compress its rich, high-dimensional
+pose Interlat (Inter-agent Latent Space Com- internal states into a sequence of discrete tokens,
+munication), a paradigm that leverages the con-
+typically exposing only a single linear message
+tinuous last hidden states of an LLM as a rep-
+(i.e., a chain of thought (CoT) (Wei et al., 2022)
+resentation of its thought for direct commu-
+plan). This downsampling not only discards alter-
+nication (termed “latent communication”).
+An additional learned compression process fur- native reasoning paths, but also incurs substantial
+ther compresses latent communication via la- redundancy, as much of the generated text serves
+tent space reasoning. Experiments demonstrate linguistic coherence rather than task-relevant infor-
+that Interlat outperforms both fine-tuned chain- mation (Zhang et al., 2024a). As a result, language-
+of-thought (CoT) prompting and single-agent
+based communication can be ambiguous and lossy,
+baselines, even across heterogeneous models,
+which has been identified as a major source of co-
+promoting more exploratory behavior and en-
+ordination failures in multi-agent systems (Chen
+abling genuine utilization of latent information.
+et al., 2025; Cemri et al., 2025).
+Further compression not only substantially ac-
+celerates inference by up to 24× but also main- To move beyond language space, we explore the
+tains competitive performance through an effi- direct transmission of internal representations for
+cient information-preserving mechanism. We more precise and information-preserving commu-
+position this work as a feasibility study of en-
+nication. In multi-agent settings, we refer to this
+tirely latent space inter-agent communication,
+as latent communication. While direct sharing is
+and our results highlight its potential, offer-
+challenging for humans, which is often depicted
+ing valuable insights for future research. Our
+in fictions (Liu, 2008), i.e., telepathy, LLM-based
+code is available at https://github.com/XiaoDu-
+flying/Interlat. agents naturally perform most of their computa-
+tion in latent space and produce rich hidden states
+throughout generation, which can be extracted to
+“We do not have organs of
+support direct, expressive communication. Previ-
+communication. Our brains can display
+ous hidden-state-based communication methods
+our thoughts to the outside world,
+either rely on one-shot activation grafting (Ramesh
+thereby achieving communication.”
+and Li, 2025) or remain coupled to language tra-
+— Cixin Liu, The Dark Forest.
+jectories (Tang et al., 2025), and typically require
+ad-hoc layer selection, adding tuning overhead.
+†Equal Contribution.
+In this work, we propose Interlat, a novel
+∗Work done during an internship at Alibaba Group.
+(cid:66)Corresponding Authors. framework that realizes this vision by enabling
+6202
+rpA
+61
+]GL.sc[
+4v94190.1152:viXra
+
+## Page 2
+
+inter-agent communication entirely in latent space. et al., 2025; Cheng and Van Durme, 2024) enables
+Rather than transmitting discrete tokens decoded multi-path parallel reasoning by feeding the last
+by the language head, Interlat directly transmits the hidden state back as the next input embedding.
+temporally aligned last-layer hidden states corre- Modular frameworks (Bae et al., 2024; Gao et al.,
+sponding to an agent’s generated message, treating 2024; Geiping et al., 2025) decouple encoding, la-
+them as a representation of its thoughts. Under tent reasoning, and decoding. Building upon these
+this formulation, we design a supervised objective insights, we shift focus from single-model latent
+that explicitly encourages the interpretation and reasoning to inter-agent communication entirely in
+utilization of task-relevant latent information, with latent space.
+a simple but effective stochastic token–latent mix-
+Multi-agent Communication. LLM-based
+ing curriculum to stabilize training. To overcome
+agent systems typically orchestrate in natural
+the rigidity of full-trajectory message communi-
+language (Zhu et al., 2025a; Wang et al., 2024),
+cation while preserving information integrity, we
+which can introduce ambiguity and computa-
+further train a separate reasoning process that au-
+tional overhead (Zhang et al., 2024a; Yu et al.,
+toregressively generates compact latent messages
+2024; Cemri et al., 2025; Chen et al., 2025).
+with a controllable number of generation steps di-
+Emergent communication studies (Lazaridou
+rectly in latent space, without decoding to language
+et al., 2016, 2018; Tucker et al., 2021, 2022)
+space tokens. This allows Interlat to compress long
+show that non-linguistic protocols can emerge,
+reasoning trajectories into concise latent prefixes,
+yet depend on channels learned from scratch
+substantially improving efficiency while retaining
+and disconnected from internal reasoning. Re-
+task-critical information for downstream execution.
+cent work explores richer forms: (Pham et al.,
+Experimentally, we focus on a two-agent sender-
+2023) transmits probability-weighted tokenizer
+receiver scenario, which is the building block of
+embeddings; (Ramesh and Li, 2025) blends
+various multi-agent systems. To reduce confound-
+hidden activations between agents; and (Tang
+ing factors, we intentionally exclude components
+et al., 2025) communicates per-token latent deltas
+such as tool use, retrieval, or multi-round debate.
+tied to language trajectories.(Zheng et al., 2025)
+Analysis reveals that agents utilizing latent commu-
+infers latent “thoughts” from hidden states via
+nication exhibit more exploratory behavior patterns
+an autoencoder and injects them as prefixes
+that lead to higher success rates by leveraging task-
+using recovered dependencies. Unlike these
+relevant latent information rather than superficial
+works, our method directly transmits temporally
+pattern matching. Moreover, we demonstrate that
+aligned sequences of last hidden states and further
+latent messages can be compressed to as few as 8
+compresses them to enable efficient, language-free
+tokens while maintaining competitive performance,
+communication. Interlat preserves agent autonomy
+achieving up to a 24× reduction in communication
+by requiring no parameter sharing (Christianos
+latency. Further analysis of the output probability
+et al., 2021), memory coupling (Salemi et al.,
+distribution after compression reveals how task-
+2025), or cache synchronization (Fu et al., 2025;
+critical information is effectively preserved.
+Zou et al., 2025), while expanding the effective
+communication bandwidth.
+2 Related Work
+3 Interlat
+Latent Reasoning in LLMs. Recent research
+has begun shifting reasoning processes from the dis-
+In this section, we formalize how to extract an
+crete language space to continuous latent represen-
+agent’s states as the representation of its “thought”
+tations, bypassing the bandwidth and efficiency lim-
+for inter-agent latent space communication. Let
+its of text (≈ 15 bits/token vs. ≈ 40k bits/hidden-
+x = (x , . . . , x ) denote a sequence consisting
+1 T
+state) (Zhu et al., 2025b). To expand computation
+of a prompt x and a completion sequence y =
+1:m
+during inference, (Goyal et al., 2023) introduces
+(y , . . . , y ) such that y = x and L = T − m.
+1 L ℓ m+ℓ
+pause tokens, while (Pfau et al., 2024) employs
+For each decoding step ℓ = 1, . . . , L, define:
+filler tokens to scaffold intermediate reasoning. Be-
+yond token scheduling, (Liu et al., 2024) proposes
+h = Transformer(x ) ,
+a latent coprocessor that modifies the transformer ℓ ≤m+ℓ−1 m+ℓ−1
+H = [ h , h , . . . , h ],
+KV cache. Other work (Hao et al., 2024; Shen 1 2 L
+
+## Page 3
+
+𝑥𝑖 𝑥𝑖+1 𝑥𝑖+2 𝑥𝑖+𝑗 Language Space Communication
+[Prompt] D
+→
+i s
+C
+c
+o
+re
+n
+t
+s
+e
+t r
+t
+a
+o
+in
+ke
+e
+n
+d
+s
+e
+(
+x
+≈
+p
+1
+r
+5
+e s
+b
+s
+i
+i
+t
+v
+s
+e
+/ t
+r
+o
+a
+k
+n
+e
+g
+n
+e
+)
+encode
+𝑥𝑖 𝑥𝑖+1 𝑥𝑖+2 𝑥𝑖+𝑗 𝑥𝑖+𝑗+1
+Reasoning Model 𝑥𝑖 𝑥𝑖+1 𝑥𝑖+2 𝑥𝑖+𝑗 𝑥𝑖+𝑗+1
+Raw Actor Model
+𝑥𝑖 𝑥𝑖+1 𝑥𝑖+2 𝑥𝑖+𝑗 𝑥𝑖+𝑗+1 First, identify the key entity … then …
+[Output]: Answer or Action to solve the task.
+input token [Prompt]
+𝑥𝑖 𝑥𝑖+1 𝑥𝑖+2 𝑥𝑖+𝑗
+Hidden states (≈40k bits/state)
+Latent Space Communication
+input embeddings → Information rich C us o e ll d e c a t s e d in p la u s t t e h m id b d e e d n d s i t n a g te s s are
+P
+M or
+Reasoning Model H ej <bop> <eop>
+A ot c
+last hidden state ℎ1,1 ⋯ ℎ1,𝑑 r Latent Space Actor Model
+sampling 𝐻 = ⋮ ⋱ ⋮ ℎℓ ∈ ℝ𝑑
+output token 𝑥𝑖 𝑥𝑖+1 𝑥𝑖+2 𝑥𝑖+𝑗 𝑥𝑖+𝑗+1 ℎ𝐿,1 ⋯ ℎ𝐿,𝑑 ℎℓ = ℎℓ,1,…,ℎℓ,𝑑 [Output]: Answer or Action to solve the task.
+Figure 1: A comparison of Interlat with language-space communication. In language space, an agent transmits a
+discrete token sequence [x , x , . . . , x ] (e.g., a CoT plan) to another. In Interlat, the model leverages its last
+i i+1 i+j+1
+hidden states as a representation of its internal “thought”, processed by a communication adapter, and then transmits
+them directly to the other agent, enabling communication entirely in latent space with higher expressive capacity.
+where h ∈ Rd is the last-layer hidden state im- two-agent setting can serve as a fundamental build-
+ℓ
+mediately before predicting y (i.e., at position ing block for more complex multi-agent systems.
+ℓ
+m + ℓ − 1 in the full sequence). H ∈ RL×d collects Let Y denote the next token at supervised po-
+t
+these last hidden states for the completion region. sition t ∈ S, where S indexes the actor’s output
+tokens corresponding to the ground-truth response,
+3.1 Latent Communication
+and C the decoder prefix up to position t. We
+t
+Interlat removes natural language constraints by encourage the actor to utilize H by maximizing
+letting agents transmit their thoughts by directly a supervised fine-tuning objective regularized by
+passing the collected last hidden states, which we conditional distributional separation:
+termed latent communication. As shown in Fig-
+ure 1, this transmission occurs at the end of an L = L + λ L + λ L ,
+total task S sep A align
+agent’s message generation process. Special to-
+kens, x i = <bop> and x j = <eop>, are added to where λ S , λ A > 0, and L task is the standard cross-
+mark the beginning and the end of the latent com- entropy loss that ensures the model produces accu-
+munications. Consider an agent M solving a task rate and coherent responses for the given task.
+i
+T = {x , . . . , x }. Upon receiving a latent com-
+1 m
+Conditional thought separation. We compare
+munication H = {h , h , . . . , h } from another
+1 2 L
+the conditional output distributions p induced by
+agent, it forms its input embedding as: θ
+matched latent communications H and mismatched
+E = [ e(x ), . . . , e(x ), h , h , . . . , h , e(x ) ], latents H˜ (i.e., latent communications sampled
+1 i 1 2 L j
+from a different task). Specifically, we minimize a
+where e(·) is the token embedding. This infer-
+weighted Jensen–Shannon divergence (Lin, 2002):
+ence process is analogous to language space multi-
+agent systems, except that it directly feeds hid- L = − 1 (cid:88) JS (cid:0) p (· | C , H), p (· | C , H˜ ) (cid:1) .
+den states between agents. The latent communi- sep |S| θ t θ t
+cations are processed by a trainable light-weight t∈S
+self-attention and a projection layer as a communi-
+This objective separates matched from mismatched
+cation adapter for rescaling and interpretation. For
+conditional distributions, providing a robust train-
+brevity, we may refer to latent communication as
+ing signal that encourages the actor to attend to and
+latents where unambiguous.
+leverage task-relevant latent information.
+3.2 Training Procedure
+Plan-aligned regulation. While maximizing sep-
+In this work, we consider two agents: a reasoning aration encourages sensitivity to H, it also intro-
+agent as a sender that produces a task-specific plan duces a failure mode where the model may exploit
+together with its last-layer hidden states, and an the objective by shifting probability mass toward
+actor agent as a receiver that consumes this com- idiosyncratic tokens that increase divergence while
+munication to generate actions to solve tasks. This harming task utility. To mitigate this, we regularize
+
+## Page 4
+
+[Prompt]
++1   +2   + 
+Reasoning Model
++1   +2   +    +  +1
+Large Language Model
+<eop>
+to hundreds of steps) introduces substantial com-
+[Prompt]
+munication latency. Unlike natural-language to-
+kens, whose semantics are discrete and inherently
+Reasoning Model sequential, latent states are continuous and over-
+parameterized relative to task requirements, sug-
+gesting that much of the temporal structure is redun-
+Full length latents Compressed latents dant. Our goal is therefore to learn an information-
+K preserving bottleneck that compresses latents while
+retaining their utility for downstream agents.
+MHA & Projector
+Compression via Latent-Space Reasoning. To
+<bop> Parallel inputs for loss computation <eop>
+this end, we train a separate reasoning model M
+ϕ
+Actor Model to generate compact latent messages H ∈ RK×d
+K
+with K ≪ L, while keeping the actor model and its
+You are in the middle of a room... Your task is to
+communication adapter frozen. Rather than truncat-
+put two watch in dresser.
+ing or subsampling H , M performs autoregres-
+L ϕ
+Figure 2: Training the reasoning model with frozen- sive reasoning entirely in latent space by feeding its
+actor supervision. last hidden state back as the next input embedding
+[Prompt]
+through a lightweight projection:
+predictions conditioned on H using those condi-
+tioned on the corresponding language-space plan ⟨M (E ) → h , E = E ⊕ Proj(h )⟩.
+Reasoning Model ϕ i i i+1 i i
+P , generated by the same instruction-tuned model
+during the autoregressive generation of H. Let This design enables an end-to-end differentiable
+p (· | C , P ) denote the distribution when only latent generation loop without decoding to tokens,
+plan t
+Full length hidden state Generated hidden state
+the plan is provided. For brevity, we omit explicit and isolates compression from changes in the ac-
+conditioning on C in the following. tor’s behavior. During training, only the parameters
+t
+MHA & Projector of M are updated, ensuring that compression is
+β (cid:88) (cid:0) (cid:1) ϕ
+L = KL p (· | H) ∥ p (· | P ) learned purely by adapting the latent message itself.
+alig<nbop>
+|S|
+θ p<laenop>
+t∈S
+α (cid:88) (cid:0) Act(cid:0)or Model (cid:1)(cid:1) Training Objective. We train the compression
++ 1 − cos z (H), z (P ) ,
+θ plan model using a composite objective:
+|S|
+t∈S
+L = λ L + λ L + λ L ,
+where z and z denote the corresponding nor- compress task task pref pref geom geom
+θ plan
+malized logit. All divergences and cosine similar-
+which jointly addresses the main failure modes of
+ities are computed at supervised positions, with
+aggressive compression. The task loss L is a
+task
+probabilities obtained from the softmax of logits.
+cross-entropy on the frozen actor’s predictions con-
+Curriculum Learning. Learning to interpret la- ditioned on H , ensuring downstream task utility.
+K
+tents from scratch is unstable. We thus adopt a Motivated by the non-uniform information den-
+token-to-latent curriculum that stochastically re- sity of token-level language communication (Shan-
+places early communication positions with their non, 1951; Zhang et al., 2024a), we introduce
+corresponding plan token embeddings. Concretely, an uncertainty-weighted agreement loss that se-
+we sample a replacement rate r ∈ {0, 0.1, . . . , 1.0} lectively aligns the actor’s behavior under com-
+and form a mixed communication pressed and full-length communications. Let p (A) ,
+t
+(D) (B)
+p , and p denote the actor’s output distri-
+H(r) = e , . . . , e ⊕ h , . . . , h . t t
+1 ⌊r·L⌋ ⌊r·L⌋+1 L
+butions at position t when conditioned on H ,
+(cid:124) (cid:123)(cid:122) (cid:125) (cid:124) (cid:123)(cid:122) (cid:125) K
+token embeddings latent states H , and no latents, respectively. We define per-
+L
+(cid:0) (B) (D) (cid:1)
+This method enhances training efficiency while token weights w t ∝ max H(p t ) − H(p t ), 0 .
+achieving strong model performance. where H(·) denotes entropy, and compute L pref =
+(cid:16) (cid:17)
+(cid:80) (D) (A)
+w KL p ∥ p . This objective em-
+4 Information Compression t∈S t t t
+phasizes positions where latents meaningfully re-
+While full-length latents H ∈ RL×d are highly duces predictive uncertainty, while avoiding over-
+L
+expressive, their temporal length (often dozens regularization where latents are uninformative.
+
+## Page 5
+
+Qwen2.5-7B-Base Qwen2.5-0.5B-Base LLaMA3.1-8B
+Method
+Seen Steps Unseen Steps Seen Steps Unseen Steps Seen Steps Unseen Steps
+Interlat
+Ours 70.48 9.41/12.54 65.42 9.86/13.37 61.19 10.55/14.22 57.46 9.38/13.90 70.71 8.02/12.58 70.90 8.21/12.96
+Text 64.29 8.76/12.77 62.44 9.79/13.63 54.52 9.50/14.28 47.26 9.70/15.13 62.86 7.91/12.94 60.82 8.14/13.21
+No-Comm 62.14 10.19/13.90 62.19 10.23/13.92 50.48 8.23/14.06 44.03 9.10/15.20 63.57 8.35/12.59 58.40 9.47/13.85
+Baselines
+CoT (full) 67.14 8.15/12.04 64.93 9.02/12.87 57.86 8.30/13.23 50.75 8.94/14.39 69.35 7.62/12.32 70.82 7.88/12.47
+No-CoT 65.71 8.23/12.27 62.69 9.15/13.20 57.14 8.96/13.69 50.25 9.80/14.87 67.18 7.85/12.61 70.34 8.02/12.88
+Variants
+CrossTask 61.43 8.42/12.89 61.94 9.51/13.50 53.57 9.40/14.32 47.01 10.06/15.33 65.00 8.05/12.24 63.43 9.86/13.57
+Noised
+CovNoise-0.5× 64.29 8.54/12.63 60.95 8.71/13.12 53.33 8.80/14.03 46.77 9.64/15.16 64.29 8.10/12.50 65.68 9.47/12.77
+CovNoise-1.0× 63.81 8.66/12.76 63.68 8.72/12.82 53.10 8.96/14.14 44.53 9.68/15.40 58.57 7.80/12.80 64.93 9.66/13.28
+WhiteNoise 61.90 8.65/12.97 61.19 9.32/13.46 57.38 8.00/13.11 57.21 9.18/13.81 61.43 8.01/12.64 64.93 9.52/13.19
+CovGauss-0µ 60.00 8.79/13.27 61.94 9.59/13.55 13.81 11.25/18.79 13.18 12.93/19.07 57.86 8.04/13.08 66.42 9.51/13.03
+CovGauss-µ 65.71 8.58/12.50 64.93 8.63/12.62 44.52 9.21/15.20 34.33 10.19/16.63 60.71 7.69/12.53 64.93 8.85/12.76
+RandomRot 57.86 8.43/13.31 63.68 9.37/13.23 59.05 8.24/13.06 51.99 9.12/14.34 57.86 7.67/12.86 63.44 9.04/13.25
+Cross family
+Qwen2LLaMA 70.95 8.47/12.01 71.39 9.21/13.05 – – – – – – – –
+Table 1: Performance of different methods and variants on seen and unseen tasks of Alfworld under three model
+backbones. Higher success rates indicate stronger inter-agent collaboration and task-solving ability. “Steps” reports
+average steps on successful tasks and average steps over all tasks. Best in bold, second-best underlined.
+Method Overall Level-3 Level-4 Level-5 from instruction-tuning priors. CoT plans and
+Ours 36.88 40.08 27.45 15.80 compression-free latents are generated by their
+Text 34.35 37.60 26.30 14.20
+instruction-tuned counterparts. We use base models
+No-Comm 33.27 36.40 26.20 13.10
+as reasoning models in the information compres-
+CoT (full) 38.35 45.65 31.19 15.05
+No-CoT 36.25 40.10 26.80 14.80 sion experiments. Alfworld episodes are capped
+at 20 steps; unfinished episodes are failures. All
+Table 2: Accuracy (%) on the MATH benchmark. While models are trained using bfloat16, FlashAttention-
+CoT benefits from linguistic constraints on simpler
+2 (Dao, 2023), and DeepSpeed (Rajbhandari et al.,
+tasks, Interlat outperforms the strong CoT baseline on
+2020). For the actor model, we optimize using
+the most challenging Level-5 tasks.
+AdamW (Loshchilov and Hutter, 2017) with a
+Finally, to prevent representational drift under learning rate of 1 × 10−5, a global batch size of 16,
+strong compression, we apply a latent geometry and a 3% linear warmup. We fix λ = 1 and dy-
+task
+(A) (D)
+alignment loss. Let Z and Z denote the actor- namically anneal the regularization coefficients dur-
+k k
+side latent features induced by H and H after ing training (λ ∈ [0.1, 1.0], λ ∈ [0.1, 0.2]).
+K L sep align
+adapter processing and length alignment, and de- Negative samples for L are constructed using
+sep
+fine their step-averaged directions z¯(A) and z¯(D). latents from different tasks within the same batch.
+We enforce L = 1 − cos (cid:0) z¯(A), z¯(D)(cid:1) , which For information compression, we train the reason-
+geom
+preserves the global semantic orientation of the ing agent with a frozen actor, utilizing a learning
+original communication in the compressed latent rate of 5 × 10−5 and unit weights for all three
+space. Together, these objectives encourage M to compression objectives. We select the best models
+ϕ
+learn an information-preserving bottleneck that dis- based on a 5% validation split. All reported results
+cards redundant temporal structure while retaining are averaged over three independent runs.
+task-critical functional and geometric properties.
+Baselines and variants in Interlat. We study
+Full derivations are provided in Appendix B.
+the feasibility of Interlat and compare against two
+and trajectory data from (Song et al., 2024)
+baselines: CoT (full) uses complete CoT plans
+from instruction-tuned models for full-parameter
+5 Experiments
+supervised fine-tuning; No-CoT directly predicts
+Implementation Details. We evaluate our ap- final answers without any plan.
+proach on Alfworld (Shridhar et al., 2020), and We further evaluate variants of our method: Text
+MATH (Hendrycks et al., 2021). For Alfworld, replaces latent messages with the corresponding
+training is conducted using data from (Song et al., CoT plan; No-Comm removes communication en-
+2024). Qwen2.5-7B/0.5B-Base (Yang et al., 2024) tirely; CrossTask replaces the current task’s latents
+and LLaMA3.1-8B-Base (Dubey et al., 2024) with one sampled from a different task. Noised
+are employed as actor agents to isolate benefits adds structured or unstructured perturbations to
+
+## Page 6
+
+Figure 3: Training dynamics of the separation loss: an
+initial plateau near 0.69 indicates no separation between
+matched/mismatched latents, followed by a sharp drop
+after ∼ 2.2k steps, marking the model’s “aha” moment Figure 4: PCA visualization of latent communications,
+in exploiting task-relevant latent information. showing distinguishable task-specific structure in latent
+space both before and after the communication adapter.
+H; CovGauss and RandomRot preserve mean
+or covariance statistics while destroying higher-
+a substantial performance drop, indicating that the
+order structure. Qwen2LLaMA uses latents from
+actor relies on task-specific reasoning content en-
+Qwen2.5-7B to train LLaMA3.1-8B model. See
+coded in the latents. Performance degrades further
+Appendix B.1 for detailed implementation setups.
+under covariance-matched Gaussian surrogates or
+random orthogonal rotations, which preserve first-
+5.1 Main Results
+and second-order statistics while destroying higher-
+Table 1 presents a comprehensive comparison of order structure, supporting the interpretation that
+the Interlat framework against baselines. Latent the actor is sensitive to meaningful latent geom-
+communication improves agents’ task-solving per- etry rather than low-order moments alone. Addi-
+formance, as evidenced by gains over both fine- tive and white noise perturbations similarly impair
+tuned single-agent baselines and agents trained to performance, further indicating reliance on struc-
+communicate in natural language. We highlight tured internal information instead of noise-robust
+several key observations below. heuristics. Experiments involving cross-family la-
+tent inputs: feeding Qwen-derived latents to train
+Latent Communication Prompts Exploration.
+an LLaMA actor, yield even stronger performance
+Beyond improvements in success rates, latent com-
+gains. Since these model families exhibit distinct
+munication enables agents to execute longer yet
+latent manifolds, the improvement cannot be at-
+more successful trajectories. By leveraging mul-
+tributed to superficial architectural compatibility.
+tiple plausible reasoning paths encoded in latents
+Instead, it suggests latent-level inter-agent under-
+from other agents, the actor naturally exhibits more
+standing that transfers across heterogeneous repre-
+thorough exploratory behavior, even without ex-
+sentations. This observation aligns with findings in
+plicit exploration training. Importantly, this in-
+language-space agentic systems, where heteroge-
+creased trajectory length correlates with higher suc-
+neous LLM agents often outperform homogeneous
+cess rates rather than degraded efficiency, indicat-
+ensembles due to complementary inductive biases
+ing informed exploration instead of random wan-
+and reduced error correlations (Shinn et al., 2023;
+dering. This behavior suggests a stronger environ-
+Wu et al., 2024).To corroborate these findings qual-
+mental understanding enabled by latent communi-
+itatively, Figure 4 and Appendix G visualize clear
+cation, where parallel hypotheses are preserved and
+semantic clustering before and after processing by
+gradually resolved during action execution. This
+the communication adapter, confirming effective
+pattern is analyzed in detail in Appendix D.
+semantic alignment for downstream use.
+Semantics and Learning Dynamics. To assess Training dynamics further reveal how the actor
+whether the actor genuinely exploits latent informa- learns to interpret latent communication. As shown
+tion rather than superficial patterns, we conduct in Figure 3, the separation loss remains near ln 2 for
+structured perturbation experiments. Replacing approximately the first 2k steps, indicating no effec-
+task-matched latents with cross-task latents leads to tive distinction between matched and mismatched
+
+## Page 7
+
+Ratio Seen Unseen Time Ratio Seen Unseen Time
+Untrained (An instruction-tuned Model) Untrained (An instruction-tuned Model)
+Full 70.48 ±1.01 65.42 ±0.87 9.19s 128L 64.55 ±2.26 60.25 ±2.06 3.55s
+90% 68.57 ±1.63 67.16 ±1.97 - 64L 66.23 ±1.95 61.53 ±4.32 1.83s
+80% 68.10 ±1.83 61.69 ±1.43 - 32L 63.57 ±2.01 60.18 ±3.58 1.03s
+70% 67.14 ±1.82 63.43 ±2.24 - 16L 64.29 ±1.34 60.00 ±3.01 0.62s
+60% 66.43 ±1.63 59.20 ±3.69 - 8L 64.00 ±2.18 57.46 ±2.69 0.39s
+50% 72.14 61.19 -
+±1.48 ±2.84 Trained
+40% 66.90 59.95 -
+±2.31 ±2.64
+30% 65.95 ±2.12 62.19 ±1.58 - 128L 68.10 ±1.93 62.94 ±2.03 2.25s
+20% 67.86 ±3.23 61.44 ±1.58 - 64L 67.14 ±1.56 61.94 ±2.13 1.16s
+10% 67.86 ±2.12 62.44 ±2.64 - 32L 66.90 ±1.46 61.94 ±2.56 0.60s
+5% 64.29 ±1.12 60.95 ±1.35 - 16L 66.43 ±2.05 61.69 ±2.56 0.33s
+0% 62.14 ±2.01 62.14 ±2.32 - 8L 66.43 ±1.22 60.45 ±2.23 0.20s
+Table 3: Compression results on Alfworld. Left: training-free sweep over retained ratio R. Right: varying latent
+length with untrained and trained models. Time denotes end-to-end latency (s) of the message generation process.
+Best results are bold, second-best are underlined. See Appendix E for results on LLaMA model.
+messages. It then drops sharply, marking an “aha” the empirical compressibility of raw latents. ii)
+moment in which the actor begins to exploit and Trained: We use a compression-trained Qwen2.5-
+leverage task-relevant latents, consistent with the 7B-Base reasoning model. Results on the LLaMA
+intended effect of the separation objective. model are provided in Appendix E.
+As shown in Table 3, naive truncation performs
+Generalization to Symbolic Reasoning. To as-
+best at moderate compression (50%) but degrades
+sess generalization beyond interactive settings, we
+under more aggressive shortening, revealing the
+evaluate Interlat on the MATH benchmark. While
+limits of untrained compression. In contrast, com-
+prior work on latent-space reasoning (Hao et al.,
+pression training enables consistently higher and
+2024; Shen et al., 2025; Ramesh and Li, 2025) of-
+more stable success rates across compressed latent
+ten reports degraded performance relative to CoT
+ranging from 8 to 128 steps (around 1.8% to 28.8%
+supervision, Table 2 reveals an intriguing inversion:
+of the full sequence), indicating that the reason-
+although Interlat slightly underperforms on sim-
+ing model learns an information-preserving pattern
+pler problems, it surpasses the CoT baseline on
+that discards temporal redundancy while retaining
+the most challenging Level 5 tasks. We attribute
+task-relevant semantics. Furthermore, compression
+this to the duality of linguistic constraints. For
+substantially improves efficiency, reducing end-to-
+lower-complexity problems, the strict linearization
+end latency from 9.19 s to 0.39 s with 8-step latents
+of natural language acts as a beneficial regularizer,
+(nearly 24× speed-up), and further to 0.20 s with a
+efficiently pruning the search space. However, for
+lightweight bridge module by largely eliminating
+high-complexity tasks, this forced discretization
+decode–re-encode overhead.
+causes a “premature collapse” of the reasoning dis-
+tribution. In contrast, Interlat maintains a super-
+Why compression is effective. To understand
+position of parallel hypotheses in its continuous
+why compression preserves performance, we ana-
+representations. This capability allows the model
+lyze its effect on the actor’s predictive uncertainty.
+to effectively conduct a broader search in latent
+We sweep the communication rate R ∈ [0, 1]
+space that is inaccessible to linear text decoding.
+and measure the task-averaged relative change
+5.2 Compression Analysis in cross-entropy (CE), ∆CE%(R) = 100 ×
+Compression Performance. Theoretically, due
+CEcomp(R)−CE
+full . As shown in Figure 6, ∆CE%
+CE
+full
+to their substantially higher expressive capacity, la- decreases monotonically with increasing R and
+tent communications can encode rich information plateaus between roughly 30% and 75%, aligning
+in far fewer positions. To quantify this compression with the range of strongest empirical performance.
+capacity, we consider two settings. i) Untrained: Across all rates, learned compression consistently
+We directly use Qwen2.5-7B-Instruct to generate yields lower CE than training-free truncation, with
+full-length latents for actor training, and then trun- a maximum gap of approximately 11 percentage
+cate them to shorter lengths. This setting evaluates points, indicating better preservation of predictive
+
+## Page 8
+
+Figure 5: Parallelism analysis of latent communication over the first three steps. Trained latents (red) maintain stable
+Top-k gaps and lower P (S ), indicating stronger parallelism, while untrained latents (gray) collapse toward
+50 10
+Top-1. See Appendix F for extended results.
+5.3 Ablation Studies
+Table 4 presents a systematic ablation of the train-
+ing components. For the actor model, removing
+curriculum learning forces the model to interpret
+latents from scratch, leading to extremely unstable
+training dynamics and severely degraded compre-
+hension (Appendix, Figure 7). Removing the sep-
+aration loss induces shortcut behavior; the model
+learns to ignore the latent communication and rely
+only on the textual task prompt, causing perfor-
+mance to regress toward the single agent baseline.
+Removing the communication adapter causes the
+Figure 6: Task-averaged relative change ∆CE and rela-
+largest drop; despite generating fluent and coherent
+tive savings before and after compression training.
+responses, the model fails to complete tasks, un-
+derscoring the adapter’s role in bridging the agents’
+confidence under reduced communication. latent spaces and enabling interpretation of latents.
+We further examine how information is pre- For the reasoning model, which is trained to
+served under compression via the actor’s output generate compressed latents, we ablated its three
+distributions. Following (Hao et al., 2024), broader core loss functions with compressed target length
+probability mass is interpreted as indicating that K = 128. The most critical component is the di-
+the model maintains more plausible alternatives. rection alignment loss (L ). This highlights the
+geom
+Figure 5 analyzes the latent steps of the reason- importance of maintaining geometric consistency
+ing agent by plotting the cumulative probabil- between the compressed latents and the uncom-
+ity mass of the top-6 tokens across communica- pressed ones. The agreement loss (L ) is also vi-
+pref
+tion percentiles, with probabilities normalized over tal, as removing it significantly impairs the model’s
+the top-10 tokens for comparability. Latents pro- ability to produce latents that elicit the correct be-
+duced by the trained reasoning agent exhibit sta- havior from the actor. Removing the cross-entropy
+ble gaps between successive top-6 curves across loss (L ) degrades performance on seen tasks
+task
+steps, whereas untrained compression shows rapid but slightly improves unseen performance, suggest-
+concentration toward top-ranked tokens. We quan- ing a minor trade-off between in-distribution op-
+tify this behavior using a head-coverage statistic, timization and generalization. We leave a deeper
+P50(S ), defined as the median cumulative prob- investigation into this trade-off to future work.
+10
+ability mass of the top-10 tokens, which is consis-
+5.4 Generalization to Complex Topologies.
+tently lower for the trained model and indicates
+broader support over plausible alternatives. To directly verify that Interlat scales beyond simple
+Together, these observations suggest that learned pairwise communication, we evaluate it on 3-agent
+compression preserves diverse hypotheses across topologies using the Qwen2.5-0.5B-Base model on
+multiple reasoning steps, avoiding collapse into a the ALFWorld benchmark. We ensure the entire
+single trajectory and thereby retaining richer infor- multi-agent system can be jointly trained end-to-
+mation for downstream decision making. end by having all non-output sender agents gen-
+
+## Page 9
+
+Actor Seen Unseen
+Reasoning Seen Unseen
+Ours Full 70.48 65.42
+±1.01 ±0.87
+Ours Full 68.10 62.94
+±1.93 ±2.03
+w/o curri 33.10 20.65
+±2.97 ±2.15
+w/o L 65.71 63.18
+w/o L 58.81 60.70 task ±1.43 ±3.47
+sep ±1.41 ±5.50 w/o L 64.76 60.20
+w/o L 56.90 53.98 pref ±2.97 ±3.13
+align ±1.41 ±3.35 w/o L 64.05 59.45
+geom ±3.55 ±3.01
+w/o adapter 4.05 4.48
+±1.70 ±1.31
+Table 4: Ablation of training components. Left: For the actor, the communication adapter and curriculum learning
+are foundational; removing the adapter leads to near-zero success rates. Right: For the reasoning model, the
+geometry alignment loss (L ) proves to be the most critical objective for maintaining performance under
+geom
+compression. See Appendix D for full results and analysis.
+Communication Topology (N ) Seen (%) Unseen (%) Structural Description
+text-chain-2 57.86 50.75 Sequential: 1 Sender → 1 Actor
+Text (CoT) text-chain-3 58.34 51.89 Sequential: Sender → Sender → Actor
+text-tree-3 61.19 56.75 Parallel: 2 Senders → Actor (Merged by agent)
+chain-2 (Base) 61.19 57.46 Sequential: 1 Sender → 1 Actor
+Latent (Ours) chain-3 62.14 59.44 Sequential: Sender → Sender → Actor
+tree-3 62.85 60.77 Parallel: 2 Senders → Actor (Adapter merged)
+Table 5: Performance of complex agent topologies on ALFWorld using Qwen2.5-0.5B-Base. We compare natural
+language CoT communication (“text-”) with Interlat (“chain-” and “tree-”) across varying agent counts (N ). Latent
+communication consistently yields higher success rates, with the parallel tree topology performing the best.
+erate fixed-length (N = 32) messages entirely in preservation of the latent space, rather than a mere
+latent space. Specifically, we investigate two dis- increase in the number of agents. Notably, the
+tinct configurations: superior performance of the tree-3 configuration
+Sequential Chain Topology. In this sequential confirms that Interlat effectively supports parallel
+structure (Agent 1 → Agent 2 → Actor), a Strate- multi-agent reasoning, allowing downstream ac-
+gist agent first generates a high-level latent plan tors to synthesize heterogeneous latent perspectives
+capturing the task goals. A Compiler agent then without requiring pair-specific training.
+refines this received plan into a more actionable
+6 Conclusion
+representation before passing it to the final Actor.
+Parallel Tree Topology. This parallel structure In this work, we introduced Interlat, a paradigm
+([Agent 1 + Agent 2] → Actor) utilizes an Ex- that enables inter-agent communication entirely in
+plorer agent to generate diverse candidate reason- latent space. Across experiments, our results show
+ing paths and a Critic agent to produce verification that directly transmitting and reasoning over latent
+constraints simultaneously. To dynamically fuse states improves task performance and achieves sub-
+these parallel messages, we extend the communi- stantially higher communication efficiency, even
+cation adapter with an additional learned projec- demonstrating compatibility across heterogeneous
+tor that maps the aggregated latents from multiple models. Beyond full-length latent exchange, we
+senders into a unified representation for the Actor. show that latent communication can be aggres-
+As shown in Table 5, both 3-agent latent con- sively compressed through latent-space reasoning,
+figurations consistently outperform their natural forming a compact, task-preserving representation
+language CoT counterparts with identical agent that retains parallel hypotheses while discarding
+structures (e.g., 62.85% vs. 61.19% on seen tasks redundant structure. Together, these findings sug-
+for the parallel tree). Moreover, both configurations gest that communication need not be bound to
+yield solid improvements over the original 2-agent language tokens, highlighting latent states as a vi-
+Interlat baseline (61.19%). These results demon- able, efficient, and generalizable medium for next-
+strate that the performance gains stem intrinsically generation multi-agent systems.
+from the rich expressive capacity and information
+
+## Page 10
+
+7 Limitations language-based interaction in LLM-powered agent
+systems.
+Our study has explored how inter-agent commu-
+nication can be realized entirely in latent space 8 Ethical Considerations
+and demonstrated its potential benefits in terms
+No human participants, crowdsourcing, or person-
+of performance and efficiency. However, several
+ally identifiable information (PII) were involved
+important limitations should be considered when
+in this research. All experiments were conducted
+interpreting our results and applying this paradigm
+within a simulated environment using standard
+more broadly.
+dataset splits.
+First, our experiments mainly focus on a con-
+Our study focuses on inter-agent communication
+trolled two-agent setting, evaluated on one em-
+in latent space, utilizing the last hidden states and
+bodied interactive benchmark (ALFWorld) and
+their compressed variants. A potential theoretical
+one non-interactive symbolic reasoning benchmark
+risk is that such latent communication could be ex-
+(MATH). While these benchmarks jointly cover
+ploited to circumvent language-based safety mech-
+both interactive planning and single-turn reasoning
+anisms. To mitigate this concern to the greatest
+scenarios, they do not yet fully capture the diver-
+extent possible, we neither trained on nor evaluated
+sity of real-world multi-agent systems, such as set-
+any harmful instructions, and no harmful actions
+tings with larger teams, dynamic role assignments,
+occurred during our experiments. Furthermore, to
+long-horizon collaboration, or richer environments
+promote transparency, we provide PCA-based vi-
+involving tool use and external memory. Extend-
+sualizations of latent communication in Figure 4
+ing latent communication to larger-scale and more
+the analyze internal probability distribution of com-
+heterogeneous agent ecosystems is a natural and
+pressed latent communications in Figure 5, offering
+important direction for future work.
+a clearer understanding of the information being
+Second, our approach assumes access to internal
+transmitted.
+model representations, specifically last-layer hid-
+den states, in order to enable latent communication. 9 Acknowledgments
+This assumption may not hold for closed-source or
+This research was partially supported by National
+API-only models, where hidden states are inacces-
+Key R&D Program of China under Grant No.
+sible. As a result, the current formulation of Inter-
+2024YFF0907802, Zhejiang Provincial Natural
+lat is primarily applicable to open or inspectable
+Science Foundation of China under Grant No.
+models, and extending latent communication to
+LD24F020011, and Alibaba Group through Al-
+restricted-access settings is an open challenge.
+ibaba Research Intern Program.
+Finally, latent communication trades human in-
+terpretability for efficiency and expressive capacity.
+Unlike language-based communication, latent mes- References
+sages are not directly human-readable, which com-
+Sangmin Bae, Adam Fisch, Hrayr Harutyunyan, Zi-
+plicates debugging, monitoring, and failure analy-
+wei Ji, Seungyeon Kim, and Tal Schuster. 2024.
+sis in complex systems. While this work primarily Relaxed recursive transformers: Effective param-
+focuses on task performance and efficiency and pro- eter sharing with layer-wise lora. arXiv preprint
+vides preliminary interpretability analysis via PCA
+arXiv:2410.20672.
+(Figure 4), developing principled tools to improve Mert Cemri, Melissa Z Pan, Shuyi Yang, Lakshya A
+both the interpretability and controllability of latent Agrawal, Bhavya Chopra, Rishabh Tiwari, Kurt
+communication remains an important direction for Keutzer, Aditya Parameswaran, Dan Klein, Kannan
+Ramchandran, et al. 2025. Why do multi-agent llm
+broader deployment.
+systems fail? arXiv preprint arXiv:2503.13657.
+Despite these limitations, we view this work
+as an initial yet concrete step toward understand- Yanda Chen, Joe Benton, Ansh Radhakrishnan,
+Jonathan Uesato, Carson Denison, John Schul-
+ing and enabling inter-agent communication be-
+man, Arushi Somani, Peter Hase, Misha Wagner,
+yond language. Our results provide empirical ev- Fabien Roger, et al. 2025. Reasoning models
+idence that latent space communication can sup- don’t always say what they think. arXiv preprint
+port effective coordination and can be aggressively arXiv:2505.05410.
+compressed while preserving task utility, highlight-
+Jeffrey Cheng and Benjamin Van Durme. 2024. Com-
+ing its potential as a complementary paradigm to pressed chain of thought: Efficient reasoning
+
+## Page 11
+
+through dense representations. arXiv preprint Jianhua Lin. 2002. Divergence measures based on the
+arXiv:2412.13171. shannon entropy. IEEE Transactions on Information
+theory, 37(1):145–151.
+Filippos Christianos, Georgios Papoudakis, Muham-
+mad A Rahman, and Stefano V Albrecht. 2021. Scal- Cixin Liu. 2008. The Dark Forest. Chongqing Publish-
+ing multi-agent reinforcement learning with selective ing House, Chongqing, China. English translation
+parameter sharing. In International Conference on published by Tor Books, 2015.
+Machine Learning, pages 1989–1998. PMLR.
+Luyang Liu, Jonas Pfeiffer, Jiaxing Wu, Jun Xie, and
+Tri Dao. 2023. Flashattention-2: Faster attention with
+Arthur Szlam. 2024. Deliberation in latent space via
+better parallelism and work partitioning. arXiv
+differentiable cache augmentation. arXiv preprint
+preprint arXiv:2307.08691.
+arXiv:2412.17747.
+Abhimanyu Dubey, Abhinav Jauhri, Abhinav Pandey,
+Ilya Loshchilov and Frank Hutter. 2017. Decou-
+Abhishek Kadian, Ahmad Al-Dahle, Aiesha Letman,
+pled weight decay regularization. arXiv preprint
+Akhil Mathur, Alan Schelten, Amy Yang, Angela
+arXiv:1711.05101.
+Fan, et al. 2024. The llama 3 herd of models. arXiv
+e-prints, pages arXiv–2407.
+Francesco Mezzadri. 2006. How to generate random
+matrices from the classical compact groups. arXiv
+Tianyu Fu, Zihan Min, Hanling Zhang, Jichao Yan,
+preprint math-ph/0609050.
+Guohao Dai, Wanli Ouyang, and Yu Wang. 2025.
+Cache-to-cache: Direct semantic communication
+between large language models. arXiv preprint Jacob Pfau, William Merrill, and Samuel R Bowman.
+arXiv:2510.03215. 2024. Let’s think dot by dot: Hidden computa-
+tion in transformer language models. arXiv preprint
+Yihang Gao, Chuanyang Zheng, Enze Xie, Han Shi, arXiv:2404.15758.
+Tianyang Hu, Yu Li, Michael K Ng, Zhenguo Li,
+and Zhaoqiang Liu. 2024. Algoformer: An efficient Chau Pham, Boyi Liu, Yingxiang Yang, Zhengyu Chen,
+transformer framework with algorithmic structures. Tianyi Liu, Jianbo Yuan, Bryan A Plummer, Zhaoran
+arXiv preprint arXiv:2402.13572. Wang, and Hongxia Yang. 2023. Let models speak ci-
+phers: Multiagent debate through embeddings. arXiv
+Jonas Geiping, Sean McLeish, Neel Jain, John Kirchen- preprint arXiv:2310.06272.
+bauer, Siddharth Singh, Brian R Bartoldson, Bhavya
+Kailkhura, Abhinav Bhatele, and Tom Goldstein. Samyam Rajbhandari, Jeff Rasley, Olatunji Ruwase,
+2025. Scaling up test-time compute with latent rea- and Yuxiong He. 2020. Zero: Memory optimizations
+soning: A recurrent depth approach. arXiv preprint toward training trillion parameter models. In SC20:
+arXiv:2502.05171. International Conference for High Performance Com-
+puting, Networking, Storage and Analysis, pages 1–
+Sachin Goyal, Ziwei Ji, Ankit Singh Rawat, Aditya Kr- 16. IEEE.
+ishna Menon, Sanjiv Kumar, and Vaishnavh Nagara-
+jan. 2023. Think before you speak: Training lan-
+Vignav Ramesh and Kenneth Li. 2025. Communicating
+guage models with pause tokens. arXiv preprint
+activations between language model agents. arXiv
+arXiv:2310.02226.
+preprint arXiv:2501.14082.
+Shibo Hao, Sainbayar Sukhbaatar, DiJia Su, Xian Li,
+Alireza Salemi, Mihir Parmar, Palash Goyal, Yiwen
+Zhiting Hu, Jason Weston, and Yuandong Tian. 2024.
+Song, Jinsung Yoon, Hamed Zamani, Hamid Palangi,
+Training large language models to reason in a contin-
+and Tomas Pfister. 2025. Llm-based multi-agent
+uous latent space. arXiv preprint arXiv:2412.06769.
+blackboard system for information discovery in data
+science. arXiv preprint arXiv:2510.01285.
+Dan Hendrycks, Collin Burns, Saurav Kadavath, Akul
+Arora, Steven Basart, Eric Tang, Dawn Song, and Ja-
+Claude E Shannon. 1951. Prediction and entropy
+cob Steinhardt. 2021. Measuring mathematical prob-
+of printed english. Bell system technical journal,
+lem solving with the math dataset. arXiv preprint
+30(1):50–64.
+arXiv:2103.03874.
+Angeliki Lazaridou, Karl Moritz Hermann, Karl Zhenyi Shen, Hanqi Yan, Linhai Zhang, Zhanghao Hu,
+Tuyls, and Stephen Clark. 2018. Emergence of Yali Du, and Yulan He. 2025. Codi: Compress-
+linguistic communication from referential games ing chain-of-thought into continuous space via self-
+with symbolic and pixel input. arXiv preprint distillation. arXiv preprint arXiv:2502.21074.
+arXiv:1804.03984.
+Noah Shinn, Federico Cassano, Ashwin Gopinath,
+Angeliki Lazaridou, Alexander Peysakhovich, and Karthik Narasimhan, and Shunyu Yao. 2023. Re-
+Marco Baroni. 2016. Multi-agent cooperation and flexion: Language agents with verbal reinforcement
+the emergence of (natural) language. arXiv preprint learning. Advances in Neural Information Process-
+arXiv:1612.07182. ing Systems, 36:8634–8652.
+
+## Page 12
+
+Mohit Shridhar, Xingdi Yuan, Marc-Alexandre Côté, Ren, Yang Fan, Yang Su, Yichang Zhang, Yu Wan,
+Yonatan Bisk, Adam Trischler, and Matthew Yuqiong Liu, Zeyu Cui, Zhenru Zhang, and Zihan
+Hausknecht. 2020. Alfworld: Aligning text and em- Qiu. 2024. Qwen2.5 technical report. arXiv preprint
+bodied environments for interactive learning. arXiv arXiv:2412.15115.
+preprint arXiv:2010.03768.
+Fei Yu, Hongbo Zhang, Prayag Tiwari, and Benyou
+Yifan Song, Da Yin, Xiang Yue, Jie Huang, Sujian Wang. 2024. Natural language reasoning, a survey.
+Li, and Bill Yuchen Lin. 2024. Trial and error: ACM Computing Surveys, 56(12):1–39.
+Exploration-based trajectory optimization for llm
+agents. arXiv preprint arXiv:2403.02502. Guibin Zhang, Yanwei Yue, Zhixun Li, Sukwon Yun,
+Guancheng Wan, Kun Wang, Dawei Cheng, Jef-
+Yichen Tang, Weihang Su, Yujia Zhou, Yiqun Liu, Min frey Xu Yu, and Tianlong Chen. 2024a. Cut the
+Zhang, Shaoping Ma, and Qingyao Ai. 2025. Aug- crap: An economical communication pipeline for
+menting multi-agent communication with state delta llm-based multi-agent systems. arXiv preprint
+trajectory. arXiv preprint arXiv:2506.19209. arXiv:2410.02506.
+Khanh-Tung Tran, Dung Dao, Minh-Duong Nguyen, Jiayi Zhang, Jinyu Xiang, Zhaoyang Yu, Fengwei Teng,
+Quoc-Viet Pham, Barry O’Sullivan, and Hoang D Xionghui Chen, Jiaqi Chen, Mingchen Zhuge, Xin
+Nguyen. 2025. Multi-agent collaboration mech- Cheng, Sirui Hong, Jinlin Wang, et al. 2024b. Aflow:
+anisms: A survey of llms. arXiv preprint Automating agentic workflow generation. arXiv
+arXiv:2501.06322. preprint arXiv:2410.10762.
+Mycal Tucker, Roger Levy, Julie A Shah, and Noga Yujia Zheng, Zhuokai Zhao, Zijian Li, Yaqi Xie, Mingze
+Zaslavsky. 2022. Trading off utility, informative- Gao, Lizhu Zhang, and Kun Zhang. 2025. Thought
+ness, and complexity in emergent communication. communication in multiagent collaboration. arXiv
+Advances in neural information processing systems, preprint arXiv:2510.20733.
+35:22214–22228.
+Kunlun Zhu, Hongyi Du, Zhaochen Hong, Xiaocheng
+Mycal Tucker, Huao Li, Siddharth Agrawal, Dana Yang, Shuyi Guo, Zhe Wang, Zhenhailong Wang,
+Hughes, Katia Sycara, Michael Lewis, and Julie A Cheng Qian, Xiangru Tang, Heng Ji, et al. 2025a.
+Shah. 2021. Emergent discrete communication in Multiagentbench: Evaluating the collaboration
+semantic spaces. Advances in neural information and competition of llm agents. arXiv preprint
+processing systems, 34:10574–10586. arXiv:2503.01935.
+Lei Wang, Chen Ma, Xueyang Feng, Zeyu Zhang, Hao Rui-Jie Zhu, Tianhao Peng, Tianhao Cheng, Xing-
+Yang, Jingsen Zhang, Zhiyuan Chen, Jiakai Tang, wei Qu, Jinfa Huang, Dawei Zhu, Hao Wang, Kai-
+Xu Chen, Yankai Lin, et al. 2024. A survey on large wen Xue, Xuanliang Zhang, Yong Shan, et al.
+language model based autonomous agents. Frontiers 2025b. A survey on latent reasoning. arXiv preprint
+of Computer Science, 18(6):186345. arXiv:2507.06203.
+Yingxu Wang, Siwei Liu, Jinyuan Fang, and Zaiqiao Jiaru Zou, Xiyuan Yang, Ruizhong Qiu, Gaotang Li,
+Meng. 2025. Evoagentx: An automated frame- Katherine Tieu, Pan Lu, Ke Shen, Hanghang Tong,
+work for evolving agentic workflows. arXiv preprint Yejin Choi, Jingrui He, et al. 2025. Latent col-
+arXiv:2507.03616. laboration in multi-agent systems. arXiv preprint
+arXiv:2511.20639.
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten
+Bosma, Fei Xia, Ed Chi, Quoc V Le, Denny Zhou,
+et al. 2022. Chain-of-thought prompting elicits rea-
+soning in large language models. Advances in neural
+information processing systems, 35:24824–24837.
+Qingyun Wu, Gagan Bansal, Jieyu Zhang, Yiran Wu,
+Beibin Li, Erkang Zhu, Li Jiang, Xiaoyun Zhang,
+Shaokun Zhang, Jiale Liu, et al. 2024. Autogen: En-
+abling next-gen llm applications via multi-agent con-
+versations. In First Conference on Language Model-
+ing.
+An Yang, Baosong Yang, Beichen Zhang, Binyuan Hui,
+Bo Zheng, Bowen Yu, Chengyuan Li, Dayiheng Liu,
+Fei Huang, Haoran Wei, Huan Lin, Jian Yang, Jian-
+hong Tu, Jianwei Zhang, Jianxin Yang, Jiaxi Yang,
+Jingren Zhou, Junyang Lin, Kai Dang, Keming Lu,
+Keqin Bao, Kexin Yang, Le Yu, Mei Li, Mingfeng
+Xue, Pei Zhang, Qin Zhu, Rui Men, Runji Lin, Tian-
+hao Li, Tingyu Xia, Xingzhang Ren, Xuancheng
+
+## Page 13
+
+Appendix (1) Actor cross-entropy utility. We require the
+The supplementary information accompanying the generated message to be useful for the frozen actor:
+main paper provides additional data, explanations,
+1 (cid:88) (cid:0) (cid:1)
+and details. L = − log p (y | C , H ) (3)
+task θ t t K
+|S|
+t∈S
+A LLM usage (cid:124) (cid:123)(cid:122) (cid:125)
+(computed under Path A).
+ChatGPT1 was used purely with the language of the This term enforces that the compressed latents
+paper during the writing process, including spell- H still drive correct next-token predictions, di-
+K
+checking and paraphrasing the authors’ original rectly penalizing information loss due to short-
+content, without suggesting new content. Any con- ening (K ≪ L). It prevents degenerate “over-
+tent generated with the assistant underwent meticu- compression” that would be efficient but useless
+lous manual review and subsequently received final to the actor. Practically, it anchors training on
+approval from the authors. task utility, encouraging compression gain does
+not come at the cost of downstream performance.
+B Compression Loss
+(2) Uncertainty-weighted agreement. We fur-
+Setup. After training an actor M to consume la- ther encourage behavioral agreement between us-
+θ
+tent communications, we freeze M and train a rea- ing full-length latent communication (Path D) and
+θ
+soning model M to produce compact, information- generated compressed latent communication (Path
+ϕ
+dense latent communications of length K that the A), with per-token weights that reflect how much
+frozen actor can still exploit. For an input instance any latent reduces uncertainty relative to the no-
+with supervised token indices S (the teacher-forced latent baseline (Path B). Let the entropies be
+window after the first user turn), let
+H(q)(t) = − (cid:88) p (q) (v) log p (q) (v), . (4)
+t t
+Hgen = M (x) and Hfull = M (x), (1) v
+1:K ϕ 1:L ins (cid:124) (cid:123)(cid:122) (cid:125)
+q∈{A,D,B}
+denote respectively the generated latent communi-
+Define raw weights w⋆ = max (cid:0) H(B)(t) −
+cation from the trainable reasoning model and the t
+full-length latent communication extracted from a H(D)(t), 0 (cid:1) and optionally clip w t ⋆ to [0, τ ] to sup-
+fixed instruction-tuned model M . A lightweight press outliers. Normalize to unit mean:
+ins
+communication adapter g(·) (kept frozen) prepro-
+w⋆
+cesses the latent communication before concate- w = t . (5)
+t 1 (cid:80) w⋆ + ε
+nation with boundary tokens <bop>/<eop>. For |S| u∈S u
+brevity, we use H ≡ Hgen and H ≡ Hfull.
+K 1:K L 1:L The agreement term is a temperature-scaled KL:
+We define three actor-scored forward
+p p a ro th m s pt th x ro : ugh (i) th P e at f h roz A en (g a e c n to e r ra M ted θ l g a iv te e n n ts) a : L pref = (cid:80) 1 w (cid:88) w t T 2 KL (cid:16) p ( t D) (cid:13) (cid:13) p ( t A) (cid:17)
+E(A) = [ e(x), e(<bop>), g(H ), e(<eop>) ]; t∈S t t∈S
+K
+(ii) Path D (full-length latents): E(D) = = T 2 (cid:88) w (cid:88) p (D) (v) log p ( t D) (v) .
+[ e(x), e(<bop>), g(H L ), e(<eop>) ]; (iii) Path (cid:80) t∈S w t t∈S t v t p ( t A) (v)
+B (no latents): E(B) = [ e(x) ]. Let z (q) be the (6)
+t
+frozen-actor logits at position t ∈ S under path
+q ∈ {A, D, B}, and By matching p(A) to p(D) where full latents ac-
+tually reduce uncertainty (weights w ), this term
+t
+p (q) = softmax (cid:0) z (q) /T (cid:1) (2) teaches H K to reproduce the informative behav-
+t t
+ioral effects of H while ignoring positions where
+L
+latents are unhelpful. Unlike reconstruction-based
+be the corresponding token distributions with tem-
+perature T ≥ 1 used for distillation. Unless stated or contrastive objectives, this formulation aligns
+otherwise, gradients do not flow into M or g(·). compressed latents directly through the actor’s in-
+θ
+duced behavior, avoiding assumptions about la-
+1https://chat.openai.com/ tent invertibility or instance-level correspondence.
+
+## Page 14
+
+This allows compressed communication to focus on 1. CoT (full). We use complete Chain-
+functional equivalence rather than representational of-Thought (CoT) traces produced by a
+similarity. This is particularly important for reason- related instruction-tuned model (Qwen2.5-
+ing latents, which are over-parameterized, tempo- 7B-Instruct, Qwen2.5-0.5B-Instruct, and
+rally misaligned under compression, and lack a nat- LLaMA3.1-8B-Instruct) to perform full-
+ural one-to-one mapping across steps. By aligning parameter supervised fine-tuning. In infer-
+compressed and full communications through in- ence, the model receives a complete CoT plan
+duced behavior, our formulation supports variable- before generating answers.
+length latent messages, enables abstraction across
+Rationale. This baseline serves as a strong up-
+multiple reasoning steps, and yields more stable
+per bound for language-based communication:
+and transferable training signals.
+it evaluates whether latent communication can
+surpass explicit human-readable planning, and
+(3) Latent direction alignment. To stabilize
+controls for the supervision quality provided
+compression, we align the global direction of actor-
+by an instruction-tuned teacher.
+side latent features induced by generated vs. data
+latents. Let Z (q) ∈ Rdz be the actor-side features 2. No-CoT. The language model is trained to
+k
+(after g(·) and the actor’s input stack) at latent produce the final answer directly, without re-
+step k under path q ∈ {A, D}. When H L has ceiving any plan from other agents.
+length L ̸= K, apply a fixed resampling operator
+Rationale. This baseline isolates the contri-
+ρ (e.g., uniform down/up-sampling) and write
+K bution of any communication signal. It tests
+(D) (cid:0) (D)(cid:1)
+Z = ρ Z . Define step-averaged direc-
+1:K K 1:L whether inter-agent exchange, latent or lin-
+tions z¯(q) = 1 (cid:80)K Z (q) and the cosine penalty guistic, is necessary for solving multi-step
+K k=1 k
+tasks.
+L = 1 − cos (cid:0) z¯(A), z¯(D)(cid:1)
+geom
+In addition, we evaluate controlled variants of
+⟨z¯(A), z¯(D)⟩ (7)
+Interlat to diagnose what information is encoded in
+= 1 − .
+∥z¯(A)∥ 2 ∥z¯(D)∥ 2 the latents.
+This term preserves the geometry of the actor-side 1. Text. Instead of latent communication, we
+representations, preventing the compressed latents feed the corresponding CoT plan (in language
+from drifting to directions that the actor interprets space) to the actor.
+differently. Empirically, it improves stability and
+Rationale. This variant keeps the interac-
+mitigates mode collapse when K is small by retain-
+tion protocol unchanged while varying only
+ing the global semantic orientation of H .
+L the communication channel. It enables a di-
+rect comparison between language-space and
+Overall objective. The compression objective
+latent-space communication under matched
+for M (with M frozen) is
+ϕ θ
+training conditions, disentangling architec-
+tural factors from representational ones.
+L = λ L
+compress task task 2. No-Comm. We remove any communication
++ λ L (8)
+pref pref from the actor’s input. This variant quanti-
++ λ L . fies the intrinsic benefit of communication in
+geom geom
+our framework and verifies that performance
+In practice, all terms are computed over t ∈ S with improvements do not arise solely from modi-
+teacher forcing; gradients propagate only to ϕ. fications to the underlying model parameters.
+B.1 Baselines and settings in Interlat. 3. CrossTask. We replace the current task’s la-
+tent communication with one sampled from a
+We consider two external baselines, which do not
+different task.
+rely on latent communication at all. All baselines
+are trained using the same base models (Qwen2.5- Rationale. This variant examines whether the
+7B/0.5B-Base, LLaMA3.1-8B-Base) as Interlat, actor is genuinely interpreting task-specific
+differing only in whether and how inter-agent com- latent content. A substantial degradation in-
+munication is provided. dicates reliance on meaningful information
+
+## Page 15
+
+encoded in the latents, rather than superficial
+distributional shortcuts.
+4. Noised. We add perturbations to the latent
+communication H: (a) CovNoise-0.5×/1.0×:
+covariance-shaped noise ε ∼ N (0, Σˆ ) with
+t
+optional strength λ ∈ {0.5, 1.0}, where Σˆ is
+the sample covariance of the original H; (b)
+WhiteNoise: a control drawn from N (0, I)
+with the same length.
+Rationale. Noise-based perturbations interro-
+gate the robustness and locality of latent-space
+semantics. Covariance-shaped noise preserves
+global second-order structure, whereas white
+Figure 7: Training dynamics of the cross-entropy loss
+noise does not, allowing us to assess whether
+when curriculum learning is removed, illustrating highly
+the actor relies on fine-grained geometric rela- unstable optimization behavior.
+tions within true latent trajectories.
+5. CovGauss. We replace the entire H with i.i.d. families. Specifically, latent communications
+samples H ∼ N (0, Σˆ ) (0µ) and report a are generated by a sender model from one
+t
+robustness check with N (µˆ, Σˆ ) (µ). These family (In this work, we use Qwen2.5-7B-
+preserve first-second order moments while re- Instruct) and consumed by an actor model
+moving higher-order structure and temporal from another family (LLaMA3.1-8B-Base),
+alignment. without sharing parameters or tokenizer vo-
+cabularies.
+Rationale. This variant preserves the mean
+and covariance of the original latent distribu- Rationale. This setting tests whether latent
+tion while discarding all higher-order statis- communication encodes task-relevant infor-
+tics and temporal correlations. It tests whether mation in a model-agnostic manner, rather
+latent communication conveys information be- than exploiting family-specific activation con-
+yond global moments (first-order and second- ventions or implicit alignment.
+order moments), e.g., structured reasoning
+C Benchmark
+paths or non-Gaussian manifold geometry.
+C.1 Alfworld
+6. RandomRot. We apply a structure-
+preserving but information-scrambling trans- Alfworld (Shridhar et al., 2020) is a text-only
+form H′ = µˆ +(H −µˆ) Σˆ −1/2 Q Σˆ 1/2, where benchmark that simulates embodied household
+Q is a Haar-random orthogonal matrix (Mez- tasks while keeping interaction purely in natural
+zadri, 2006). language. Agents observe textual descriptions of
+the scene and issue high-level commands from a
+Rationale. This preserves the mean/covari-
+constrained action set (e.g., go to, open, close, take,
+ance exactly while disrupting higher-order
+put, toggle on/off, heat, cool, examine). Tasks are
+structure. Random rotation strictly preserves
+long-horizon and compositional, requiring percep-
+the first two moments of the latent distribu-
+tion, planning, and execution over multiple steps
+tion while scrambling its geometric orienta-
+under partial observability. The benchmark pro-
+tion and higher-order structure. This consti-
+vides official train/seen/unseen splits and a standard
+tutes a strong diagnostic of whether the actor
+success metric under a fixed step budget (e.g., 20
+depends on directional semantics or sequen-
+steps in our setup), enabling systematic and repro-
+tial organization within the latent manifold,
+ducible evaluation of sequential decision-making.
+rather than mere distributional similarity.
+D Ablations and Step Analysis
+7. Cross-Family. We evaluate Interlat under a
+cross-model-family setting, where the sender We present ablation studies for both the actor and
+and actor belong to different pretrained model reasoning models, reporting the average number
+
+## Page 16
+
+of steps for successful trials versus all trials (suc-
+cess/all).
+Effect of curriculum learning. For the actor
+model, removing curriculum learning forces the
+agent to interpret latent communications from
+scratch. As shown in Figure 7, this leads to highly
+unstable training dynamics and substantially de-
+(a) Training-free sweep over retained ra-
+graded latent comprehension, preventing the model tio R
+from consistently leveraging the communicated in-
+formation.
+Step count versus performance. Table 6 reveals
+a nuanced but systematic relationship between step
+count and task performance. On seen tasks, ab-
+lating key components results in a lower overall
+success rate. Although these ablated models often
+take fewer steps on the trials they complete, their (b) Latent length L vs. performance (un-
+trained & trained)
+high failure rate indicates an inability to reliably
+interpret latent communication and solve tasks. In
+Figure 8: Result of compression on seen and unseen
+contrast, the full model achieves both higher suc- tasks. Left: Success rate under training-free compres-
+cess rates and longer trajectories, suggesting that sion with different retained ratios R. Right: Perfor-
+additional steps correspond to productive explo- mance of untrained and trained models across latent
+ration rather than inefficiency. lengths L
+On unseen tasks, several ablations (e.g., remov-
+ing curriculum learning or the communication
+F Latent Parallelism Analysis
+adapter) exhibit the opposite pattern: the agent
+takes more steps while achieving a lower success
+We first compared the latent communications pro-
+rate. This demonstrates that longer trajectories
+duced by our trained reasoning model with those
+alone do not imply effective exploration. With-
+from an off-the-shelf Qwen2.5-7B-Instruct model
+out these critical components, the policy exhibits
+in the compression-effectiveness analysis (see the
+unstructured search behavior that fails to form co-
+Experiments section). Because our reasoning
+herent task-solving strategies. Together, these ob-
+model is initialized from Qwen2.5-7B-Base, we ad-
+servations underscore the importance of evaluating
+ditionally compare it with this base model, which
+step count jointly with success rate, and support our
+has not been trained for generating compressed la-
+central claim that information-rich latent communi-
+tent communication, in Figure 9. The findings
+cation enables structured and effective exploration
+are consistent with the earlier comparison: the
+rather than random wandering.
+trained model maintains stable vertical gaps be-
+tween successive Top-k curves across steps and
+E Compression Result exhibits a substantially lower P (S ), whereas
+50 10
+the base model shows a clear convergence toward
+In this section, we provide more detailed results Top-1.
+on compression with average steps as success/all
+We further extend the parallelism analysis to
+across tasks in Table 7 (LLaMA3.1-8B-Base) and
+a deeper horizon of 32 steps. As shown in Fig-
+Table 8 (Qwen2.5-7B-Base) and corresponding per-
+ure 10, the trained model exhibits stable vertical
+formance trend in Figure 8. Latency is measured on
+gaps between successive Top-k curves throughout
+the same machine and decoding policy (if needed)
+these steps. This extended analysis further verifies
+across rows 2.
+that the trained latent representations preserve a
+broader set of plausible reasoning paths by sustain-
+2For the untrained reasoning model, we use the stan-
+ing a more balanced probability distribution rather
+dard generate API from Hugging Face transformers; see
+https://github.com/huggingface/transformers. than prematurely collapsing to a Top-1 hypothesis.
+
+## Page 17
+
+Method Seen Steps Unseen Steps
+Actor model
+Ours Full 70.48 9.41/12.54 65.42 9.86/13.37
+±1.01 ±0.87
+w/o curri 33.10 9.07/16.38 20.65 10.47/18.03
+±2.97 ±2.15
+w/o L 58.81 8.07/12.98 60.70 9.64/13.71
+sep ±1.41 ±5.50
+w/o L 56.90 8.16/13.26 53.98 9.56/14.36
+align ±1.41 ±3.35
+w/o adapter 4.05 9.32/19.57 4.48 10.53/19.58
+±1.70 ±1.31
+Reasoning model
+Ours Full 68.10 9.21/12.65 62.94 9.88/13.63
+±1.93 ±2.03
+w/o L 65.71 8.86/12.68 63.18 9.68/13.48
+task ±1.43 ±3.47
+w/o L 64.76 8.92/12.82 60.20 9.68/13.79
+pref ±2.97 ±3.13
+w/o L 64.05 8.71/12.77 59.45 9.88/13.98
+geom ±3.55 ±3.01
+Table 6: Ablation of training components. “Ours Full” uses all components.
+Figure 9: Parallelism in latent communication over the first six steps. Red indicates latents from the trained model,
+and blue indicates latents from the untrained base model. The trained latents preserve stable vertical gaps between
+successive Top-k bands and achieve a markedly lower P (S ), evidencing persistent parallelism, whereas the
+50 10
+untrained base model’s latents progressively collapse toward Top-1.
+
+## Page 18
+
+Figure 10: Extended analysis (32 steps). Same construction as Fig. 5, now for steps 1–32. Persistent separation
+among successive Top-k bands and consistently lower P50(S ) values indicate that the trained latents maintain
+10
+broad, plausible reasoning branches across the entire sequence, despite compression.
+
+## Page 19
+
+LLaMA3.1-8B
+Ratio Seen Steps Unseen Steps Time
+Untrained
+Full 70.71 8.02/12.58 70.90 8.21/12.96 10.20s
+±1.04 ±1.21
+90% 60.09 8.12/12.86 60.45 9.51/13.66 -
+±2.94 ±1.58
+80% 65.27 8.23/12.32 63.43 9.05/13.06 -
+±1.66 ±4.84
+70% 60.62 8.14/12.81 61.79 10.13/13.90 -
+±2.43 ±2.81
+60% 59.82 7.90/12.76 63.44 9.39/13.27 -
+±2.55 ±2.79
+50% 63.12 8.02/12.44 60.07 9.85/13.90 -
+±3.58 ±1.43
+40% 65.27 8.06/12.21 59.70 9.67/13.83 -
+±1.08 ±1.83
+30% 61.25 8.20/12.77 59.51 10.13/14.13 -
+±2.61 ±2.39
+20% 61.79 8.41/12.84 57.84 9.48/13.92 -
+±3.10 ±1.58
+10% 64.91 8.60/12.60 60.45 9.48/13.64 -
+±1.23 ±4.22
+5% 63.68 8.42/12.62 60.95 9.90/13.84 -
+±2.57 ±1.35
+0% 63.57 8.35/12.59 58.40 9.47/13.85 -
+±2.44 ±2.76
+128L 61.59 8.24/12.75 62.39 10.01/13.77 4.00s
+±2.34 ±2.82
+64L 62.54 8.38/12.73 60.52 9.86/13.86 2.10s
+±2.90 ±3.08
+32L 62.30 8.33/12.73 57.46 9.98/14.24 1.20s
+±2.08 ±2.28
+16L 63.89 8.53/12.67 59.61 9.50/13.74 0.70s
+±2.70 ±3.53
+8L 61.79 8.09/12.64 58.77 9.99/14.12 0.45s
+±2.44 ±2.76
+Trained
+128L 66.46 8.18/12.54 66.35 8.96/13.12 2.80s
+±1.98 ±1.86
+64L 66.21 8.12/12.58 65.42 9.02/13.20 1.40s
+±1.72 ±1.94
+32L 65.45 8.08/12.60 65.01 9.08/13.28 0.72s
+±1.63 ±1.88
+16L 64.41 8.10/12.64 65.20 9.12/13.34 0.39s
+±1.95 ±1.76
+8L 64.32 8.14/12.66 64.89 9.18/13.40 0.24s
+±1.84 ±1.69
+Table 7: Complete compression results with seen/unseen accuracy, steps, and latency across tasks on LLaMA
+models.
+G Qualitative Analysis of Latent task-dependent organization in the latent space.
+Communication via PCA Action-centric templates such as pick_and_place
+form a dense central cluster, while templates in-
+To qualitatively examine the semantic structure volving additional procedural constraints—such as
+encoded in latent communications, we perform thermal manipulation in pick_heat_then_place
+Principal Component Analysis (PCA) on 3,119 and pick_cool_then_place—occupy adjacent
+samples from the ALFWorld training set. Each yet separable regions. Perception-oriented tasks
+sample corresponds to the mean-pooled last-layer (look_in_recep and look_at_obj), although less
+hidden state generated by the reasoning agent frequent, also exhibit localized concentrations dis-
+for a specific task instance. Tasks are grouped tinct from execution-heavy templates. As PCA
+according to the official ALFWorld task tem- preserves global variance structure rather than em-
+plates, which define six core reasoning patterns: phasizing local neighborhoods, this separation in-
+pick_and_place, pick_clean_then_place,
+dicates that task-specific semantics are encoded in
+pick_heat_then_place,
+the dominant latent dimensions, rather than arising
+pick_cool_then_place, look_in_recep,
+from projection artifacts. Moreover, intra-cluster
+and look_at_obj. Figure 11 visualizes the dispersion (e.g., within pick_and_place) suggests
+projection of latent communications onto the first that latent representations retain fine-grained varia-
+two principal components, which capture the tions across task instances, rather than collapsing
+dominant axes of variance across task instances. to a single prototype per template.
+The resulting PCA visualization reveals clear
+
+## Page 20
+
+Qwen2.5-7B
+Ratio Seen Steps Unseen Steps Time
+Untrained
+Full 70.48 9.41/12.54 65.42 9.86/13.37 9.19s
+±1.01 ±0.87
+90% 68.57 8.77/12.30 67.16 9.27/12.79 -
+±1.63 ±1.97
+80% 68.10 8.56/12.21 61.69 9.10/13.28 -
+±1.83 ±1.43
+70% 67.14 8.68/12.40 63.43 9.42/13.29 -
+±1.82 ±2.24
+60% 66.43 8.52/12.37 59.20 9.90/14.02 -
+±1.63 ±3.69
+50% 72.14 9.03/12.09 61.19 9.37/13.50 -
+±1.48 ±2.84
+40% 66.90 8.88/12.56 59.95 9.52/13.72 -
+±2.31 ±2.64
+30% 65.95 8.80/12.61 62.19 10.11/13.85 -
+±2.12 ±1.58
+20% 67.86 8.97/12.52 61.44 9.98/13.84 -
+±3.23 ±1.58
+10% 67.86 8.76/12.37 62.44 9.72/13.58 -
+±2.12 ±2.64
+5% 64.52 9.19/13.02 60.95 9.90/13.84 -
+±1.12 ±1.35
+0% 62.14 10.19/13.90 62.19 10.23/13.92 -
+±2.01 ±2.32
+128L 64.52 8.68/12.70 60.20 9.69/13.79 3.55s
+±2.26 ±2.06
+64L 66.19 8.76/12.56 61.44 9.85/13.76 1.83s
+±1.95 ±4.32
+32L 63.57 8.66/12.79 60.20 9.87/13.90 1.03s
+±2.01 ±3.58
+16L 64.29 8.64/12.70 59.95 10.07/14.05 0.62s
+±1.34 ±3.01
+8L 64.05 8.80/12.83 57.46 10.29/14.42 0.39s
+±2.18 ±2.69
+Trained
+128L 68.10 9.21/12.65 62.94 9.88/13.63 2.25s
+±1.93 ±2.03
+64L 67.14 9.15/12.72 61.94 9.92/13.76 1.16s
+±1.56 ±2.13
+32L 66.90 9.02/12.65 61.94 9.96/13.78 0.60s
+±1.46 ±2.56
+16L 66.43 9.08/12.75 61.69 9.98/13.82 0.33s
+±2.05 ±2.56
+8L 66.43 9.11/12.77 60.45 9.90/13.89 0.20s
+±1.22 ±2.23
+Table 8: Complete compression results with seen/unseen accuracy, steps, and latency across tasks on Qwen models.
+Beyond static clustering, we further analyze how H Training Template
+these task-level structures are affected by the latent
+communication adapter. As shown in Figure 12
+and quantified in Table 9, different task templates
+exhibit consistent but template-dependent centroid
+shifts before and after transformation. While the
+absolute magnitudes of these shifts are moder- We present an example in Figure H to illustrate how
+ate relative to within-template dispersion, their agents explore and solve tasks in Alfworld. After
+directions are highly structured, indicating selec- perceiving the environment, the agent executes an
+tive reorganization rather than global rescaling of action, receives feedback from the environment,
+the latent space. Execution-heavy templates such and then proceeds to the next step until the goal
+as pick_and_place and pick_heat_then_place is accomplished. Figure H shows an example of
+undergo larger relative shifts, whereas observation- how training data is structured for the actor agent.
+oriented templates remain more stable. Together, We append either the latent communication or the
+these results suggest that Interlat preserves the over- natural-language plan after the instruction to facili-
+all geometry of latent communications while in- tate inter-agent communication.
+ducing task-aware semantic alignment, enabling
+the actor agent to differentiate diverse reasoning
+paradigms without relying on explicit natural lan-
+guage communication.
+
+## Page 21
+
+Task template #Samples L R (median) ρ = L/R
+pick_and_place 848 1.742 8.347 0.209
+heat_then_place 578 2.403 11.506 0.209
+cool_then_place 429 1.329 13.111 0.101
+look_at_obj 187 0.794 8.498 0.093
+clean_then_place 632 0.989 17.839 0.055
+look_in_recep 431 0.250 23.393 0.011
+other 14 0.581 32.346 0.018
+Table 9: Quantitative centroid shift analysis for each task template.
+Figure 11: PCA visualization of latent communications
+Figure 12: Joint PCA visualization of latent communica-
+grouped by ALFWorld task templates (N = 3,119).
+tions grouped by ALFWorld task templates. Each point
+Each point corresponds to the mean-pooled last-layer
+represents the mean-pooled last-layer hidden state of the
+hidden state of the reasoning agent’s plan for a specific
+reasoning agent for a single task instance (N = 3,119).
+task instance. Colors indicate six core task tem-
+Colors indicate different task templates. Solid points
+plates: pick_and_place, pick_clean_then_place,
+correspond to latent representations after applying the
+pick_heat_then_place, pick_cool_then_place,
+communication adapter, while hollow points denote the
+look_in_recep, and look_at_obj. The emergence
+original latents before transformation. Arrows depict
+of distinct clusters suggests that Interlat’s latent
+the centroid shift for each template from before to after.
+communication captures task-specific semantic
+Although the centroid shifts are moderate in magnitude,
+structure, enabling the actor agent to differentiate
+their directions are consistently template-dependent, in-
+diverse reasoning paradigms without relying on natural
+dicating structured semantic reorganization rather than
+language.
+global rescaling of the latent space.
+
+## Page 22
+
+Conversations
+Env Agent
+You are in the middle of Thought: I’ve found a toi-
+a room. Looking quickly let paper roll on the toilet.
+around you, you see a I should pick it up so I can
+bathtubbasin 1, a cabinet place it on the hanger.
+2, a cabinet 1, a countertop Action: take toiletpaper 1
+1, a garbagecan 1, a hand- from toilet 1
+towelholder 1, a sinkbasin
+1, a toilet 1, a toiletpa-
+Env
+perhanger 1, and a towel-
+Observation: You pick up
+holder 1.
+the toiletpaper 1 from the
+Task: put a toiletpaper in
+toilet 1.
+toiletpaperhanger.
+Agent
+Agent Thought: Now that I have
+Thought: I need to place the toilet paper roll, I need
+a toilet paper roll on the to return to the toilet paper
+toilet paper hanger. First, hanger to install it.
+I should check if there’s al- Action: go to toiletpaper-
+ready a roll on the hanger hanger 1
+or if it’s empty.
+Action: go to toiletpaper-
+Env
+hanger 1
+Observation: On the toi-
+letpaperhanger 1, you see
+Env nothing.
+Observation: On the toi-
+letpaperhanger 1, you see
+Agent
+nothing.
+Thought: I’m back at the
+toilet paper hanger with
+Agent the roll in hand. It’s time
+Thought: The toilet paper to put the toilet paper on
+hanger is empty, so I need the hanger.
+to find a new roll of toilet Action: put toiletpaper 1
+paper to put on it. in/on toiletpaperhanger 1
+Action: go to toilet 1
+Training Template for Actor Agent
+Env
+Observation: On the toi- <im_start>system
+let 1, you see a soapbottle You are a helpful assistant. <im_end>
+1, and a toiletpaper 1. <im_start>user
+Interact with a household to solve a task.
+Imagine you are an intelligent agent in a
+household environment and your target is to
+perform actions to complete the task goal.
+At the beginning of your interactions, you
+will be given a detailed description of the
+current environment and your goal to ac-
+complish.
+
+## Page 23
+
+For each of your turns, you will be given the Observation: On the sofa 1, you see a box
+observation of the last turn. You should first 3, a box 2, a newspaper 2, and a pillow 1.
+think about the current condition and plan <im_end>
+for your future actions, and then output your <im_start>assistant
+action in this turn. Your output must strictly Thought: I’ve found one newspaper on sofa
+follow this format:"Thought: your thoughts. 1. I should pick it up to place it in the arm-
+Action: your next action". chair later.
+The available actions are: Action: take newspaper 2 from sofa 1
+1. go to recep <im_end>
+2. task obj from recep <im_start>user
+3. put obj in/on recep Observation: You pick up the newspaper 2
+4. open recep from the sofa 1. <im_end>
+5. close recep <im_start>assistant
+6. toggle obj recep Thought: With newspaper 2 in hand, I need
+7. clean obj with recep to find the second newspaper. The dining
+8. heat obj with recep table is another common place where news-
+9. cool obj with recep papers might be found.
+where obj and recep correspond to objects Action: go to dining table 1 <im_end>
+and receptacles. <im_start>user
+After your each turn, the environment will Observation: On the dining table 1, you see
+give you immediate feedback based on a box 1, a credit card 2, a credit card 1, a
+which you plan your next few steps. if the en- laptop 1, a newspaper 1, a plate 3, a plate 1,
+vrionment output "Nothing happened", that a remote control 1, a statue 3, a statue 1, a
+means the previous action is invalid and you tissue box 3, and a tissue box 1. <im_end>
+should try more options. <im_start>assistant
+Your response should use the following for- There’s the second newspaper on the dining
+mat: table. I should take it so I can place both
+Thought: <your thoughts> newspapers in the armchair as instructed.
+Action: <your next action> Action: take newspaper 1 from dining table
+You are in the middle of a room. Looking 1 <im_end>
+quickly around you, you see a armchair 2, a <im_start>user
+armchair 1, a coffeetable 2, a coffeetable 1, Observation: You pick up the newspaper 1
+a diningtable 1, a garbagecan 1, a sidetable from the dining table 1. <im_end>
+2, a sidetable 1, and a sofa 1. <im_start>assistant
+Your task is to: find two newspaper and put Thought: With both newspapers now in my
+them in armchair. possession, I need to find an armchair to
+Now, you are given a step-by-step plan to place them in.
+complete this task as follow: Action: go to armchair 1 <im_end>
+<bop> <im_start>user
+Insert a latent communication or textual Observation: On the armchair 1, you see a
+plan for inter-agent communication. keychain 1. <im_end>
+<eop> <im_start>assistant
+<im_end> Thought: The armchair has a keychain on it,
+<im_start>assistant but there’s enough space for the newspapers.
+Thought: To complete the task, I need to I’ll place the first newspaper here.
+locate two newspapers and place them in Action: put newspaper 2 in/on armchair 1
+an armchair. I should start by searching the <im_end>
+nearby furniture for any newspapers. <im_start>user
+Action: go to sofa 1 <im_end> Observation: You put the newspaper 2 in/on
+<im_start>user the armchair 1. <im_end>
+
+## Page 24
+
+<im_start>assistant
+Thought: With the first newspaper placed,
+I need to put the second newspaper in the
+armchair to complete the task.
+Action: put newspaper 1 in/on armchair 1
+<im_end>

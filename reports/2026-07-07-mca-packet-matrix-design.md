@@ -1,138 +1,66 @@
-# MCA Packet Matrix 设计
+# MCA Packet Matrix 构建记录
 
 日期：2026-07-07
 
-## 目的
+## 做法
 
-本记录定义下一轮 MCA/Pre-KV + MAD 诊断实验的 packet 口径。
+1. Packet Matrix 先从 Standard MAD 第一轮记录中构建诊断子集，而不是直接在完整 MATH-500 上筛结果。
 
-旧 `MCA-Pre-KV question_only` 完整 run 的结果为 baseline 341/500，Pre-KV final 362/500，净增 +21。
+2. `mca_disagreement_v1` 只使用 Standard MAD 第一轮答案分歧。脚本读取每题 3 个智能体的规范化答案，保留非空唯一答案数大于等于 2 的题，不读取金标，也不读取任何 MCA 输出。
 
-旧 run 的 baseline 和 receiver 生成参数不同：
+3. `mca_disagreement_v1` 给保留题标注分层字段。若出现 2:1 结构，记为 `minority_bearing`；若三个非空答案互不相同，记为 `no_majority_conflict`；若存在解析失败且还有可解析答案，记为 `parse_gap`。
 
-- baseline：`temperature=1.0`，`max_tokens=4096`；
-- Pre-KV receiver：`resolve_temperature=0.2`，`resolve_max_tokens=1536`。
+4. `mca_gold_contrast_v1` 使用 Standard MAD 第一轮答案与金标关系筛选。脚本丢弃 3 个智能体全对或全错的题，保留正误混合样本。
 
-最新 `Pre-KV + MAD` bridge run 的第一轮是同口径比较：
+5. `mca_gold_contrast_v1` 对保留题标注 `majority_wrong_minority_correct`、`majority_correct_minority_wrong`、`no_majority_mixed` 和 `mixed_other`。
 
-- no-channel first：`temperature=0.2`，`first_round_max_tokens=1536`；
-- Pre-KV first：`temperature=0.2`，`first_round_max_tokens=1536`。
+6. 两个 packet 写出 `canonical.jsonl`、`manifest.json` 和 README，使矩阵 run 直接读取固定子集。
 
-该 run 的第一轮结果为 no-channel 347/500，Pre-KV 349/500，净增 +2。逐题统计显示 Pre-KV 改变了 138 题，其中 `BaW_to_C=36`，`BaC_to_W=34`。
+7. 矩阵固定模型、题目、第一轮温度、第一轮输出预算、top-p、agent 数、reviewer 数、prompt family、evaluator 和 gold source。
 
-## Packet 类型
+8. A 条件生成低温无通道第一轮。接收方从自己的题目提示词开始生成，不接收 Pre-KV。
 
-### Label-free disagreement packet
+9. B 条件生成低温 Pre-KV 第一轮。发送方先产生 question-only KV，接收方接入该 KV 后生成第一轮答案。
 
-该 packet 只使用 Standard MAD 第一轮的可见答案分歧来筛选，不使用 gold，也不使用任何 MCA 输出。
+10. C 条件把 A 的第一轮文本输出交给 MAD 第二阶段，生成无通道第一轮后的 final。
 
-保留条件：
+11. D 条件把 B 的第一轮文本输出交给 MAD 第二阶段，生成 Pre-KV 第一轮后的 final。
 
-- Standard MAD 第一轮 3 个 agent 的规范化答案中，非空唯一答案数大于等于 2。
+12. A/B 比较 Pre-KV 是否改变第一轮，D/C 比较 Pre-KV 第一轮输出进入文本 MAD 后是否改变最终多数答案。
 
-分层字段：
+## 工程细节
 
-- `minority_bearing`：出现 2:1 结构；
-- `no_majority_conflict`：三个非空答案互不相同；
-- `parse_gap`：存在无法解析答案，同时还有至少一个可解析答案。
+- 旧 `MCA-Pre-KV question_only` 完整 run 的读数为 baseline `341/500`，Pre-KV final `362/500`，净增 `+21`。
+- 旧 run 的 baseline 使用 `temperature=1.0` 和 `max_tokens=4096`；Pre-KV receiver 使用 `resolve_temperature=0.2` 和 `resolve_max_tokens=1536`。这使旧 `+21` 同时包含参数差异和通道差异。
+- 同口径 bridge run 固定第一轮参数为 `temperature=0.2`、`first_round_max_tokens=1536`，第一轮结果为 no-channel `347/500`，Pre-KV `349/500`。
+- 同口径 bridge run 中，Pre-KV 改变了 138 题第一轮答案，其中 `BaW_to_C=36`，`BaC_to_W=34`。
+- `mca_disagreement_v1` 只使用 Standard MAD 第一轮 3 个智能体的规范化答案。保留条件是非空唯一答案数大于等于 2。
+- `mca_disagreement_v1` 的分层字段包括 `minority_bearing`、`no_majority_conflict` 和 `parse_gap`。
+- `mca_gold_contrast_v1` 使用 Standard MAD 第一轮答案与金标的关系筛选，丢弃 3 个智能体全对或全错的题。
+- `mca_gold_contrast_v1` 的分层字段包括 `majority_wrong_minority_correct`、`majority_correct_minority_wrong`、`no_majority_mixed` 和 `mixed_other`。
+- 矩阵条件 A/B/C/D 固定模型、题目、第一轮温度、第一轮输出预算、top-p、agent 数、reviewer 数、prompt family、evaluator 和 gold source。
+- A/B 比较 Pre-KV 是否改变第一轮；D/C 比较 Pre-KV 第一轮输出进入文本 MAD 后是否改变最终多数答案；C/A 和 D/B 记录文本讨论对两个第一轮条件的第二阶段影响。
 
-```text
-在 Standard MAD 第一轮已经存在分歧的题上，Pre-KV 是否改变第一轮和 final。
-```
+## 结果
 
-### Gold-stratified diagnostic packet
-
-该 packet 使用 Standard MAD 第一轮 agent 答案与 gold 的关系来筛选。
-
-丢弃：
-
-- 3 个 agent 全对；
-- 3 个 agent 全错。
-
-保留：
-
-- `majority_wrong_minority_correct`：majority 错，存在正确 minority；
-- `majority_correct_minority_wrong`：majority 对，存在错误 minority；
-- `no_majority_mixed`：无多数且正误混合；
-- `mixed_other`：其他正误混合。
-
-## 最小矩阵
-
-第一轮先固定低温短输出，构造四个条件：
-
-| 条件 | 第一轮参数 | Pre-KV | MAD 文本讨论 | 读数 |
+| 条件 | 第一轮参数 | Pre-KV | MAD 文本讨论 | 读数含义 |
 | --- | --- | --- | --- | --- |
-| A | `0.2 / 1536` | 否 | 否 | 低温 no-channel 第一轮 |
+| A | `0.2 / 1536` | 否 | 否 | 低温无通道第一轮 |
 | B | `0.2 / 1536` | 是 | 否 | 低温 Pre-KV 第一轮 |
-| C | `0.2 / 1536` | 否 | 是 | 低温 no-channel + MAD |
-| D | `0.2 / 1536` | 是 | 是 | Pre-KV + MAD |
+| C | `0.2 / 1536` | 否 | 是 | 低温无通道第一轮后接 MAD |
+| D | `0.2 / 1536` | 是 | 是 | Pre-KV 第一轮后接 MAD |
 
-主比较：
+| 产物 | 路径 |
+| --- | --- |
+| 分歧包数据 | `data/benchmarks/math500/mca_disagreement_v1/canonical.jsonl` |
+| 分歧包 manifest | `data/benchmarks/math500/mca_disagreement_v1/manifest.json` |
+| 分歧包说明 | `data/benchmarks/math500/mca_disagreement_v1/README.md` |
+| 金标对照包数据 | `data/benchmarks/math500/mca_gold_contrast_v1/canonical.jsonl` |
+| 金标对照包 manifest | `data/benchmarks/math500/mca_gold_contrast_v1/manifest.json` |
+| 金标对照包说明 | `data/benchmarks/math500/mca_gold_contrast_v1/README.md` |
+| 构建审计 manifest | `experiments/20260707-mca-packet-matrix-prep/manifest.json` |
+| 构建审计摘要 | `experiments/20260707-mca-packet-matrix-prep/summary.md` |
 
-```text
-B - A：Pre-KV first 减 no-channel first。
-D - C：Pre-KV + MAD 减 no-channel + MAD。
-```
+## 备注
 
-次要比较：
-
-```text
-C - A：低温第一轮经过文本讨论后的变化。
-D - B：Pre-KV 第一轮经过文本讨论后的变化。
-```
-
-## 参数约束
-
-同一矩阵内必须固定：
-
-- 模型路径；
-- benchmark row；
-- first-round temperature；
-- first-round max tokens；
-- top-p；
-- agents/reviewers；
-- prompt family；
-- evaluator；
-- gold source。
-
-不同条件之间不能让 baseline 和 Pre-KV 使用不同温度或不同输出预算。
-
-## 随机性约束
-
-当前 runner 只在 run 开头设置全局 seed。由于手写 receiver 采样使用 `torch.multinomial`，前面阶段消耗的随机数会影响后续 receiver 采样。
-
-下一轮矩阵若要比较不同条件，应记录并尽量使用局部 seed：
-
-```text
-seed = hash(base_seed, row_id, condition, stage, agent_id)
-```
-
-在局部 seed 改造完成前，packet 结果只能作为诊断，不应解释为严格同随机轨迹对照。
-
-## 无效条件
-
-以下情况会使结果不能支持机制判断：
-
-- packet 选择使用了 MCA 输出，但结果被解释为泛化效果；
-- label-free packet 与 gold-stratified packet 混在一起报告；
-- no-channel 与 Pre-KV 的第一轮温度或输出预算不同；
-- runner 未记录每题每条件的 seed 或生成顺序；
-- packet row 与 Standard MAD 记录无法按 `id` 和 `index` 对齐；
-- final 比较缺少同参数 no-channel + MAD 对照。
-
-## 预期产物
-
-Packet 构建产物：
-
-- `data/benchmarks/math500/mca_disagreement_v1/canonical.jsonl`
-- `data/benchmarks/math500/mca_disagreement_v1/manifest.json`
-- `data/benchmarks/math500/mca_disagreement_v1/README.md`
-- `data/benchmarks/math500/mca_gold_contrast_v1/canonical.jsonl`
-- `data/benchmarks/math500/mca_gold_contrast_v1/manifest.json`
-- `data/benchmarks/math500/mca_gold_contrast_v1/README.md`
-
-审计记录：
-
-- `experiments/20260707-mca-packet-matrix-prep/manifest.json`
-- `experiments/20260707-mca-packet-matrix-prep/summary.md`
-
+Packet 结果只用于诊断样本结构和通道影响，不代表完整 MATH500 accuracy。label-free packet 与 gold-stratified packet 的筛选依据不同，报告时需要分开呈现。

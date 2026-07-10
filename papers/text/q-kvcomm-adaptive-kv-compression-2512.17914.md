@@ -1,0 +1,502 @@
+# q-kvcomm-adaptive-kv-compression-2512.17914
+
+- Source PDF: `q-kvcomm-adaptive-kv-compression-2512.17914.pdf`
+- Extracted at UTC: `2026-07-09T05:57:33.639578+00:00`
+- Pages: 7
+- Title: Q-KVComm: Efficient Multi-Agent Communication Via Adaptive KV Cache Compression
+- SHA256: `94abf147de25f9fbd1b52a58ff0d1bb6bb0bcd4d7e82d2698563ecb3a3d6e949`
+
+## Page 1
+
+Q-KVComm: Efficient Multi-Agent Communication
+Via Adaptive KV Cache Compression
+Boris Kriuk Logic Ng
+Department of Computer Science & Engineering Department of Physics
+Hong Kong University of Science and Technology Hong Kong University of Science and Technology
+Clear Water Bay, Hong Kong Clear Water Bay, Hong Kong
+bkriuk@connect.ust.hk lcngab@connect.ust.hk
+Abstract—Multi-agent Large Language Model (LLM) systems agents compress and transmit their internal KV cache rep-
+face a critical bottleneck: redundant transmission of contextual resentations, allowing receiving agents to directly leverage
+information between agents consumes excessive bandwidth and
+the semantic understanding already computed by the sender.
+computational resources. Traditional approaches discard internal
+This approach transforms inter-agent communication from
+semantic representations and transmit raw text, forcing receiv-
+ing agents to recompute similar representations from scratch. a text-based paradigm to a representation-based paradigm,
+We introduce Q-KVComm, a new protocol that enables direct dramatically reducing both bandwidth requirements and com-
+transmission of compressed key-value (KV) cache representa- putational redundancy.
+tions between LLM agents. Q-KVComm combines three key
+Q-KVComm introduces three key technical innovations.
+innovations: (1) adaptive layer-wise quantization that allocates
+First, an adaptive layer-wise quantization mechanism uses
+variable bit-widths based on sensitivity profiling, (2) hybrid
+information extraction that preserves critical facts across content sensitivity profiling to automatically allocate variable bit-
+domains, and (3) heterogeneous model calibration establishing widths across transformer layers, achieving optimal com-
+cross-architecture communication. Extensive experiments across pression without manual tuning. Unlike uniform quantization
+three diverse question-answering datasets demonstrate that Q-
+approaches, our method accounts for varying layer importance
+KVComm achieves 5-6x compression ratios while maintaining
+by assigning 4-8 bits based on measured reconstruction er-
+semantic fidelity, with coherence quality scores above 0.77 across
+all scenarios. The protocol exhibits robust performance across ror [4], [5]. Second, a hybrid information extraction pipeline
+model sizes (1.1B-1.5B parameters) and adapts to real-world combines multiple strategies—from keyword extraction [6] to
+applications including conversational QA and multi-hop rea- named entity recognition—with automatic content-type detec-
+soning. Our work establishes a new paradigm for LLM agent
+tion. The pipeline ensures critical information is preserved
+communication, shifting from text-based to representation-based
+across diverse domains, from API documentation to narrative
+information exchange.
+text. Third, a heterogeneous model calibration system enables
+Index Terms—multi-agent systems, large language models, KV
+cache compression, adaptive quantization, information extrac- KV cache translation between architectures with different
+tion, bandwidth optimization, semantic preservation, heteroge- dimensions through learned statistical mappings, removing the
+neous models requirement for identical sender-receiver models [7].
+Our experimental evaluation demonstrates that Q-KVComm
+I. INTRODUCTION
+achieves 5-6x compression ratios while maintaining semantic
+The rapid advancement of Large Language Models has fidelity across diverse question-answering tasks. The protocol
+enabled increasingly complex multi-agent systems for collab- exhibits robust performance across model sizes (1.1B-1.5B
+orative problem-solving [1]. However, a critical bottleneck has parameters) and adapts automatically to heterogeneous deploy-
+emerged: traditional approaches rely on exchanging complete ments with less than 5% quality degradation. Production-ready
+textual representations between agents, resulting in substantial features including memory management, LRU caching, and
+bandwidth consumption and computational overhead. When adaptive compression make the system suitable for real-world
+an agent processes a document or conversation history, it deployments in bandwidth-constrained environments such as
+builds rich internal representations in the form of key-value edge computing and mobile applications [2], [8].
+(KV) caches that capture semantic understanding. Current
+II. RELATED WORKS
+methods discard these structured representations and transmit
+A. Multi-Agent LLM Systems
+raw text instead, forcing receiving agents to recompute similar
+representations from scratch—a wasteful approach that intro- The deployment of multi-agent LLM systems has gained
+duces significant latency and makes distributed LLM systems significant traction for solving complex tasks requiring col-
+impractical for bandwidth-constrained deployments [2], [3]. laboration, specialization, and iterative refinement [1]. Tradi-
+Q-KVComm addresses this fundamental inefficiency by tional architectures rely on full-text communication between
+introducing a novel protocol for direct KV cache transmis- agents, where each agent generates complete textual responses
+sion between LLM agents. Rather than sending raw text, that are parsed and processed by downstream agents. While
+5202
+voN
+72
+]LC.sc[
+1v41971.2152:viXra
+
+## Page 2
+
+Fig. 1. Overview of Q-KVComm Architecture.
+conceptually simple, this approach suffers from redundant C. Neural Network Quantization
+computation as each agent must independently reconstruct
+Quantization techniques reduce neural network precision
+semantic representations from raw text.
+while maintaining model performance [4], [17]. Mixed-
+precision quantization allocates different bit-widths to different
+layers or parameters based on sensitivity analysis [5]. Our
+B. KV Cache Management work extends these concepts to KV cache compression, intro-
+ducing layer-wise adaptive quantization specifically designed
+Key-value caches in transformer models [9] store attention for preserving semantic information during transmission.
+keys and values from previous tokens, enabling efficient
+D. Information Extraction
+autoregressive generation by avoiding recomputation. Recent
+work has explored KV cache compression techniques includ- Automatic information extraction from unstructured text en-
+ing quantization [10], eviction policies [11], [12], and sparse compasses techniques from keyword extraction (YAKE [6]) to
+attention patterns [13]. CacheGen [14] and StreamKV [15] named entity recognition (SpaCy). Domain-specific extraction
+address streaming scenarios, while LightCache [16] explores patterns have shown effectiveness in technical documentation
+feature dimension compression. However, these methods pri- and structured content. Q-KVComm leverages hybrid extrac-
+marily focus on single-model inference optimization rather tion strategies to ensure critical information preservation under
+than inter-agent communication. aggressive compression.
+
+## Page 3
+
+E. Cross-Model Representation Transfer layer, we compute attention importance by averaging attention
+weights across all heads and sequence positions. The idea
+Transferring representations between heterogeneous neural
+allows to capture how much each layer actively attends to
+networks remains challenging due to architectural differences
+different parts of the input. However, attention patterns alone
+in hidden dimensions, attention heads, and layer configura-
+may be insufficient, as middle layers in transformers typically
+tions. Zero-shot adaptation through statistical calibration [7]
+encode richer semantic representations than shallow or deep
+offers a lightweight alternative to expensive fine-tuning [18],
+layers [19]. We therefore introduce a Gaussian prior centered
+enabling Q-KVComm to support diverse multi-agent deploy-
+on middle layers. The attention importance for layer l is
+ments.
+computed as:
+III. METHODOLOGY
+H T
+1 (cid:88) (cid:88)
+A. System Architecture and Layer Selection S l a = HT A l,h,t (1)
+Q-KVComm (Fig. 1) operates through a four-stage pipeline h=1 t=1
+(Fig 2.) that standardizes efficient communication between where H denotes the number of attention heads, T represents
+heterogeneous language model agents. The system begins with sequence length, and A captures attention weights at layer
+l,h,t
+the sender agent processing input context through transformer l, head h, and position t. The Gaussian prior is defined as:
+layers to generate key-value caches. The caches encode se-
+(cid:18) (l − µ)2 (cid:19)
+mantic understanding of the context but require substantial
+P = exp − (2)
+bandwidth for transmission. To address such challenge, we de- l 2σ2
+fine an intelligent layer selection strategy that identifies which
+with mean µ = γ L and standard deviation σ = γ L, where L
+µ σ
+layers contribute most significantly to semantic preservation.
+is the total number of layers and γ , γ are configurable ratios.
+µ σ
+These two components are combined through a weighted sum:
+Sender
+Agent S l = αS l a + (1 − α)P l (3)
+where hyperparameter α balances attention-driven selection
+against positional bias. Layers are then ranked by their com-
+bined scores, and the top proportion is selected for trans-
+mission. This hybrid approach consistently outperforms pure
+Layer Selection Info Extraction
+attention-based or position-based selection by leveraging both
+S l = αS l a + (1 − α)P l YAKE + NER signal sources.
+Following layer selection, we apply adaptive information
+extraction to identify and compress salient facts from the
+context. This extraction operates in parallel with KV cache
+processing and provides complementary semantic information.
+For general text, we use YAKE keyword extraction [6], which
+Quantization Calibration
+identifies important phrases without requiring pre-training.
+T q = round( T s + z) KV σ s s −µs · σ r + µ r The YAKE score for word w is computed as S (w) =
+Y AKE
+T F (w)×T S(w) , incorporating term frequency, spread across
+T L(w)×T P (w)
+sentences, lexical length, and positional information. For
+structured content such as API documentation or technical
+specifications, we apply domain-specific pattern matching to
+Transmission
+extract endpoints, rate limits, version numbers, and numeric
+Bit-Packed Payload
+parameters. When entities dominate the context, we leverage
+SpaCy named entity recognition to identify organizations,
+products, locations, and other named entities, while noun
+chunk extraction captures multi-word technical concepts. Each
+extracted fact is represented as a tuple containing its type, con-
+Receiver
+Agent tent, confidence score, and metadata, allowing for intelligent
+filtering and ranking during transmission.
+Fig. 2. Q-KVComm pipeline architecture with four main stages: layer
+B. Quantization and Calibration
+selection using hybrid attention-Gaussian scoring, information extraction via
+YAKE and NER, adaptive quantization, and cross-model calibration before
+The quantization module performs layer-wise adaptive com-
+transmission.
+pression of selected KV caches. Rather than applying uniform
+Our layer selection mechanism combines attention-based quantization across all layers, we first profile each layer’s
+importance scoring with a Gaussian positional prior. For each sensitivity to quantization-induced error. During calibration,
+
+## Page 4
+
+we quantize each layer using the minimum bit-width and mea- standardizes sender representations and rescales them to match
+sure reconstruction error on representative data. The sensitivity receiver distributions via:
+metric for layer l is computed as: KV − µ
+KV = s s × σ + µ (11)
+(cid:104) (cid:105) calibrated σ r r
+E = E ∥K − Kˆ ∥2 + ∥V − Vˆ ∥2 (4) s
+l C∼D l l l l
+Such linear transformation preserves relative relationships
+where K l and V l are the original key and value tensors, within the feature space while aligning global statistics. For
+while Kˆ l and Vˆ l denote their quantized-then-dequantized models with different hidden dimensions where per-dimension
+counterparts. Layers are ranked by sensitivity (Fig. 3), and statistics are incompatible, we compute scalar statistics by
+bit-widths are allocated accordingly. The top thirty percent averaging across all dimensions, yielding dimension-agnostic
+most sensitive layers receive maximum bits (typically 8-bit), calibration that works across arbitrary architectures. The cali-
+the middle forty percent receive target bits (typically 6-bit), bration is performed once during system initialization and then
+and the bottom thirty percent least sensitive layers receive applied efficiently to all subsequent transfers.
+minimum bits (typically 4-bit). Such adaptive allocation main-
+tains overall quality while achieving higher compression than Layer Sensitivity Bits
+uniform quantization.
+L0 8-bit
+For asymmetric per-tensor quantization, we compute the
+L1 8-bit
+scale factor as:
+L2 8-bit
+max(T) − min(T)
+scale = (5)
+2b − 1 L3 8-bit
+and zero point as: L4 6-bit
+min(T) L5 6-bit
+zero point = − (6)
+scale L6 6-bit
+where b denotes the bit-width. Quantization then maps L7 6-bit
+floating-point values to integers via:
+L8 6-bit
+(cid:18) (cid:18) (cid:19) (cid:19)
+T L9 4-bit
+T = clip round + zero point , 0, 2b − 1 (7)
+q scale
+L10 4-bit
+The formulation ensures that minimum and maximum values L11 4-bit
+map exactly to the quantization range endpoints, minimiz-
+ing clipping error. Dequantization recovers the approximation 8-bit (Top 30%)
+through:
+6-bit (Mid 40%)
+Tˆ = (T − zero point) × scale (8)
+q 4-bit (Low 30%)
+To minimize transmission overhead, quantized values are bit-
+packed rather than stored as full integers. For 4-bit quanti-
+Fig. 3. Adaptive layer-wise quantization based on sensitivity E l. Highly
+sensitive layers receive 8 bits, moderately sensitive layers receive 6 bits, and
+zation, two values occupy a single byte; for 6-bit quantiza- low sensitivity layers receive 4 bits, achieving an average 6-bit compression.
+tion, four values occupy three bytes. The bit-packing reduces
+memory footprint and transmission bandwidth substantially
+C. Memory Management and Transmission
+compared to naive serialization [20].
+Q-KVComm implements production-grade memory man-
+When sender and receiver models have different archi-
+agement to handle large-scale deployments where caching ex-
+tectures, their hidden representations may occupy different
+tracted facts and calibration statistics is essential for efficiency.
+subspaces of the feature space. Direct transfer of KV caches
+The memory manager maintains an in-memory least-recently-
+would therefore result in semantic misalignment. We address
+used cache with configurable size limits. When memory usage
+this issue through zero-shot calibration using distributional
+exceeds eighty percent of the allocated budget, the system
+alignment. On calibration data, we compute first and second-
+automatically evicts the least recently accessed entries, option-
+order statistics for both models. For the sender model at layer
+ally persisting them to disk for later retrieval. Cache lookups
+l, we compute mean:
+use content-based hashing, assisting with rapid retrieval of
+µ(l) = E [KV(l)] (9) previously extracted facts or processed KV caches without
+s C∼D s
+recomputation. The adaptive compression manager monitors
+and standard deviation:
+memory pressure and dynamically adjusts quantization aggres-
+(cid:113)
+σ(l) = E[KV(l)2] − (µ(l))2 (10) siveness. Under low memory pressure, the system uses con-
+s s s
+servative compression to maximize quality. As memory usage
+averaging over calibration contexts. Similarly, we compute increases, compression becomes more aggressive, gracefully
+receiver statistics µ(l) and σ(l). The calibration transform then degrading quality to maintain system stability. This adaptive
+r r
+
+## Page 5
+
+behavior ensures robust operation across varying workloads B. Results
+and resource constraints.
+We vary target quantization bits across 4, 6, and 8 to analyze
+The complete transmission pipeline proceeds as follows. the compression-quality frontier across three datasets: SQuAD
+First, the sender extracts KV caches for the input context for extractive QA, HotpotQA for multi-hop reasoning, and
+and selects important layers using the attention-Gaussian NarrativeQA for long-form understanding. Each configuration
+hybrid strategy. Simultaneously, the information extraction evaluates samples with layer selection ratio of 0.7. Table I
+module identifies salient facts from the context. Selected presents the results across compression levels and datasets.
+KV caches undergo layer-wise quantization according to the Table I demonstrates strong quality metrics across all quan-
+pre-computed bit allocation, and quantized values are bit- tization levels. Contextual relevance ranges from 0.352 to
+packed into a compact binary representation. A header con- 0.743, with SQuAD achieving highest scores and showing im-
+taining quantization parameters, tensor shapes, and metadata provement from 0.707 at 4-bit to 0.743 at 8-bit. NarrativeQA
+is prepended to the packed data. The serialized payload, exhibits consistent relevance around 0.656 to 0.699 across all
+along with extracted facts, is transmitted to the receiver. bit-widths. Coherence scores remain robust, with NarrativeQA
+Upon reception, the receiver deserializes the payload, unpacks demonstrating exceptional coherence from 0.937 to 0.957,
+quantized values, and dequantizes them using the transmitted while SQuAD maintains 0.925 to 0.943. HotpotQA shows
+scale and zero-point parameters. If cross-model calibration is lower coherence at 0.777 to 0.797, reflecting the complexity
+enabled, the dequantized KV caches are transformed using of multi-hop reasoning tasks.
+the pre-computed calibration statistics. Finally, the receiver Figure 4 illustrates the compression-speed trade-off across
+integrates the calibrated sender KV caches into its own pro- quantization configurations. The left panel shows compression
+cessing by concatenating them with receiver-generated caches ratios decreasing uniformly from 6.93× at 4-bit to 5.06×
+along the sequence dimension during attention computation. at 8-bit across all datasets, demonstrating that our adaptive
+Such integration provides the receiver with rich contextual bit allocation maintains consistent compression regardless of
+understanding from the sender without requiring full context task complexity. The right panel reveals distinct inference
+retransmission [21]. The extracted facts are formatted into time patterns for each dataset with color-coded trajectories.
+a compact text summary and prepended to the receiver’s SQuAD (blue) maintains fastest processing across all bit-
+input prompt, providing complementary explicit knowledge widths, achieving 7.47s at 8-bit. HotpotQA (red) exhibits
+alongside implicit KV cache information [22]. Together, these significantly higher latency, peaking at 22.13s for 6-bit due
+mechanisms establish efficient, high-fidelity knowledge trans- to multi-document reasoning overhead. NarrativeQA (green)
+fer between heterogeneous language model agents while min- falls between these extremes with moderate processing times.
+imizing bandwidth and computational overhead. Notably, 6-bit quantization shows higher latency than 4-bit
+across all datasets, suggesting that the intermediate bit-width
+IV. EXPERIMENTS incurs additional computational overhead in the quantiza-
+tion/dequantization pipeline without proportional compression
+A. Experimental Setup benefits.
+Bandwidth savings scale proportionally with dataset com-
+We evaluate Q-KVComm using TinyLlama-1.1B-Chat-v1.0
+plexity. HotpotQA achieves maximum savings from 4.87 to
+and Qwen2.5-1.5B-Instruct models, representing compact yet
+5.23 GB due to multiple document contexts required for
+capable LLMs suitable for multi-agent deployments. Three
+multi-hop reasoning. NarrativeQA saves 2.44 to 2.62 GB
+diverse question-answering datasets test different aspects:
+from long-form narratives, while SQuAD demonstrates 1.86
+SQuAD [23] for extractive QA from Wikipedia paragraphs,
+to 2.00 GB savings from shorter Wikipedia contexts. The 4-bit
+HotpotQA [24] for multi-hop reasoning over multiple docu-
+configuration provides maximum bandwidth reduction (6.93×)
+ments, NarrativeQA [25] for long-form narrative understand-
+with acceptable latency of 13.91s average, making it ideal for
+ing.
+bandwidth-constrained environments. The 8-bit configuration
+We measure contextual relevance as the semantic similarity prioritizes throughput, achieving 37% faster inference than 6-
+between prediction and question, answer completeness as to- bit while maintaining over 5× compression. For production
+ken overlap with ground truth, semantic fidelity as preservation deployment, we recommend 8-bit quantization for latency-
+of meaning under compression, response coherence based sensitive applications and 4-bit for bandwidth-limited scenar-
+on length and structure, compression ratio as original KV ios, avoiding 6-bit which demonstrates neither compression
+cache size divided by compressed size, bandwidth saved in nor speed advantages.
+megabits compared to uncompressed transmission, communi-
+C. Analysis
+cation efficiency as answer quality per bit transmitted, and
+information throughput as correct information per second. We The sensitivity-based adaptive bit allocation successfully
+compare against three baselines: full text for traditional text- maintains quality across compression levels. The contex-
+based transmission, uncompressed KV for direct KV cache tual relevance improvements from 4-bit to 8-bit (SQuAD:
+without quantization, and uniform quantization with fixed bit- 0.707→0.743, HotpotQA: 0.352→0.402) indicate that in-
+width across all layers. creased precision benefits question-answer semantic align-
+
+## Page 6
+
+TABLE I
+COMPRESSION QUALITY TRADE-OFF: QUALITY METRICS AND COMPRESSION PERFORMANCE ACROSS DIFFERENT QUANTIZATION BIT-WIDTHS. HIGHER
+IS BETTER FOR ALL METRICS.
+Bits Dataset Context Coherence Comp. Saved
+Relevance Ratio (MB)
+SQuAD 0.707 0.925 6.93× 1997.2
+4-bit HotpotQA 0.352 0.777 6.93× 5233.4
+NarrativeQA 0.656 0.937 6.93× 2624.6
+SQuAD 0.727 0.935 5.68× 1928.0
+6-bit HotpotQA 0.392 0.782 5.69× 5052.0
+NarrativeQA 0.696 0.943 5.69× 2533.6
+SQuAD 0.743 0.943 5.06× 1858.8
+8-bit HotpotQA 0.402 0.797 5.07× 4870.6
+NarrativeQA 0.699 0.957 5.06× 2442.7
+7.0
+6.5
+6.0
+5.5
+5.0
+4.5
+4-bit 6-bit 8-bit
+oitaR
+noisserpmoC
+Compression Ratio vs Bit-width
+(cid:115) All Datasets (uniform)
+(cid:117) 6.93×
+(cid:117) 5.68× 25
+20
+(cid:117) 5.06× 15
+10
+5
+0
+4-bit 6-bit 8-bit
+)sdnoces(
+emiT
+ecnerefnI
+Inference Time vs Bit-width
+SQuAD
+(cid:115) HotpotQA
+NarrativeQA
+(cid:117) 22.13s
+(cid:117) 20.36s
+13.18s (cid:117) 13.02s 11.71s
+9.65s 9.84s 7.91s
+7.47s
+Fig. 4. Performance trade-offs across quantization bit-widths. Left: Compression ratios showing consistent behavior across all datasets: 6.93× at 4-bit
+(maximum compression), 5.68× at 6-bit (balanced), and 5.06× at 8-bit (speed-optimized). The uniform compression across datasets validates our adaptive
+layer selection strategy. Right: Inference time comparison revealing the computational cost of aggressive quantization. HotpotQA (red circles) requires longest
+processing due to multi-hop reasoning (20.36s, 22.13s, 13.02s), NarrativeQA (green triangles) shows moderate times for narrative understanding (11.71s,
+13.18s, 7.91s), while SQuAD (blue squares) achieves fastest inference for extractive QA (9.65s, 9.84s, 7.47s). Note the counter-intuitive pattern where 6-bit
+is slower than 4-bit, reflecting quantization algorithm overhead, while 8-bit achieves optimal throughput.
+ment. Coherence scores improve similarly (NarrativeQA: additional precision while still achieving over 5× compression.
+0.937→0.957), showing that narrative structure preservation
+benefits from reduced quantization noise. V. CONCLUSION
+The uniform compression ratios across datasets despite Multi-agent LLM systems have traditionally relied on in-
+their differing characteristics validates our hybrid attention- efficient text-based communication, forcing receiving agents
+Gaussian layer selection with ratio 0.7. This mechanism ef- to recompute semantic representations already available to
+fectively identifies critical intermediate layers for extractive senders. Q-KVComm addresses this fundamental inefficiency
+QA, multi-hop reasoning, and narrative understanding alike. by enabling direct transmission of compressed KV cache rep-
+Performance variations reveal task-specific challenges: Narra- resentations between agents, transforming inter-agent commu-
+tiveQA achieves highest coherence scores, SQuAD demon- nication from a text-based to a representation-based paradigm.
+strates strongest contextual relevance, while HotpotQA shows Our protocol combines three complementary mechanisms
+lower absolute metrics reflecting the inherent difficulty of to achieve efficient, high-fidelity knowledge transfer. Adaptive
+maintaining multi-hop reasoning chains through compression. layer-wise quantization allocates variable bit-widths (4-8 bits)
+The consistent quality improvements from 4-bit to 8-bit sug- based on empirically measured layer sensitivity, achieving
+gest that applications requiring higher fidelity can leverage compression ratios of 5-6× while preserving semantic infor-
+
+## Page 7
+
+mation. Hybrid information extraction ensures critical facts [4] S. Khoram and J. Li, “Adaptive quantization of neural networks,” in
+survive aggressive compression through combined keyword International Conference on Learning Representations, 2018.
+[5] Z. Chen, B. Xie, J. Li, and C. Shen, “Channel-wise mixed-
+extraction, named entity recognition, and domain-specific pat-
+precision quantization for large language models,” arXiv preprint
+tern matching. Heterogeneous model calibration enables cross- arXiv:2410.13056, 2024.
+architecture communication through distributional alignment, [6] R. Campos, V. Mangaravite, A. Pasquali, A. Jorge, C. Nunes, and
+A. Jatowt, “Yake! keyword extraction from single documents using
+removing the requirement for identical sender-receiver models.
+multiple local features,” Information Sciences, vol. 509, pp. 257–289,
+Experimental evaluation across three diverse question- 2020.
+answering datasets demonstrates Q-KVComm’s practical vi- [7] A. Kumagai and T. Iwata, “Zero-shot domain adaptation without domain
+semantic descriptors,” arXiv preprint arXiv:1807.02927, 2018.
+ability. The protocol maintains contextual relevance scores
+[8] M. Chen, N. Shlezinger, H. V. Poor, Y. C. Eldar, and S. Cui,
+above 0.70 for extractive QA and coherence scores exceed- “Communication-efficient federated learning,” Proceedings of the Na-
+ing 0.92 for narrative understanding, even under maximum tional Academy of Sciences, vol. 118, no. 17, p. e2024789118, 2021.
+[9] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez,
+compression. Bandwidth savings range from 1.86 GB for
+Ł. Kaiser, and I. Polosukhin, “Attention is all you need,” Advances in
+short contexts to 5.23 GB for multi-document reasoning tasks. neural information processing systems, vol. 30, 2017.
+Performance remains robust across model sizes (1.1B-1.5B [10] J. Zhang, D. Zhu, Y. Song, W. Wu, C. Kuang, X. Li, L. Shang,
+Q. Liu, and S. Li, “More tokens, lower precision: Towards the optimal
+parameters) and adapts automatically to heterogeneous deploy-
+token-precision trade-off in kv cache compression,” arXiv preprint
+ments with less than 5% quality degradation. arXiv:2412.12706, 2024.
+Q-KVComm’s production-ready implementa- [11] R. Kong, Y. Li, L. Kong, Y. Liu et al., “Preserving large activations:
+The key to kv cache pruning.”
+tion—including LRU caching, adaptive memory management,
+[12] Z. Guo, H. Kamigaito, and T. Watanabe, “Attention score is not all you
+and bit-packed serialization—makes it immediately deployable need for token importance indicator in kv cache reduction: Value also
+in edge computing and mobile multi-agent systems. The matters,” arXiv preprint arXiv:2406.12335, 2024.
+[13] H. You, Y. Fu, Z. Wang, A. Yazdanbakhsh, and Y. C. Lin, “When
+protocol’s ability to reduce bandwidth consumption by 5-6×
+linear attention meets autoregressive decoding: Towards more effec-
+while maintaining semantic fidelity addresses a critical tive and efficient linearized large language models,” arXiv preprint
+bottleneck in distributed LLM deployments. arXiv:2406.07368, 2024.
+[14] Y. Liu, H. Li, Y. Cheng, S. Ray, Y. Huang, Q. Zhang, K. Du, J. Yao,
+Several promising directions emerge for future work. First,
+S. Lu, G. Ananthanarayanan et al., “Cachegen: Kv cache compression
+extending Q-KVComm to larger language models (7B+ pa- and streaming for fast large language model serving,” in Proceedings of
+rameters) could reveal whether compression ratios scale fa- the ACM SIGCOMM 2024 Conference, 2024, pp. 38–56.
+[15] Y. Chen, X. Bai, Z. Wang, C. Bai, Y. Dai, M. Lu, and S. Zhang,
+vorably or encounter fundamental limits. Second, learned
+“Streamkv: Streaming video question-answering with segment-based
+compression techniques such as variational autoencoders may kv cache retrieval and compression,” arXiv preprint arXiv:2511.07278,
+outperform quantization-based approaches by exploiting statis- 2025.
+[16] Anonymous, “Lightcache: Efficient inference for transformers via
+tical structure in KV cache representations. Third, streaming
+KV cache compression in feature dimension,” in Submitted to ACL
+protocols for incremental KV cache updates would enable Rolling Review - June 2024, 2024, under review. [Online]. Available:
+continuous communication in long-running multi-agent dia- https://openreview.net/forum?id=O65aiPtB1t
+[17] K. Yashunin, I. Plokhikh, I. Ivanchenko, N. A. Radeev, T. Prasolov,
+logues without retransmitting entire contexts. Fourth, the se-
+A. Tarasenko, I. Bondarenko, and R. Mullyadzhanov, “Neural network
+curity implications of sharing internal representations deserve adaptive quantization based on bayesian deep learning.”
+investigation, as KV caches may leak information about model [18] A. M. Mansourian, R. Ahmadi, M. Ghafouri, A. M. Babaei, E. B.
+Golezani, Z. Y. Ghamchi, V. Ramezanian, A. Taherian, K. Dinashi,
+internals or training data. Finally, Q-KVComm’s bandwidth ef-
+A. Miri et al., “A comprehensive survey on knowledge distillation,”
+ficiency makes it particularly promising for federated learning arXiv preprint arXiv:2503.12067, 2025.
+scenarios where communication costs dominate training time. [19] A. M. Saxe, Y. Bansal, J. Dapello, M. Advani, A. Kolchinsky, B. D.
+Tracey, and D. D. Cox, “On the information bottleneck theory of deep
+By establishing representation-based communication as a learning,” Journal of Statistical Mechanics: Theory and Experiment, vol.
+viable alternative to text-based approaches, Q-KVComm opens 2019, no. 12, p. 124020, 2019.
+[20] R. Saha, V. Srivastava, and M. Pilanci, “Matrix compression via ran-
+new architectural possibilities for multi-agent LLM systems.
+domized low rank and low precision factorization,” Advances in Neural
+Specialized agents can now efficiently share semantic un- Information Processing Systems, vol. 36, pp. 18 828–18 872, 2023.
+derstanding at scale, enabling collaborative intelligence in [21] B. Peng, J. Quesnelle, H. Fan, and E. Shippole, “Yarn: Efficient
+context window extension of large language models,” arXiv preprint
+bandwidth-constrained environments previously unsuitable for
+arXiv:2309.00071, 2023.
+multi-agent deployment. [22] Y. Gao, Y. Xiong, X. Gao, K. Jia, J. Pan, Y. Bi, Y. Dai, J. Sun,
+H. Wang, and H. Wang, “Retrieval-augmented generation for large
+REFERENCES language models: A survey,” arXiv preprint arXiv:2312.10997, vol. 2,
+no. 1, 2023.
+[1] K.-T. Tran, D. Dao, M.-D. Nguyen, Q.-V. Pham, B. O’Sullivan, and [23] P. Rajpurkar, J. Zhang, K. Lopyrev, and P. Liang, “Squad: 100,000+
+H. D. Nguyen, “Multi-agent collaboration mechanisms: A survey of questions for machine comprehension of text,” arXiv preprint
+llms,” arXiv preprint arXiv:2501.06322, 2025. arXiv:1606.05250, 2016.
+[2] R. Morabito, M. Tatipamula, S. Tarkoma, and M. Chiang, “Edge [24] Z. Yang, P. Qi, S. Zhang, Y. Bengio, W. Cohen, R. Salakhutdinov, and
+ai inference in heterogeneous constrained computing: Feasibility and C. D. Manning, “Hotpotqa: A dataset for diverse, explainable multi-hop
+opportunities,” in 2023 IEEE 28th International Workshop on Computer question answering,” in Proceedings of the 2018 conference on empirical
+Aided Modeling and Design of Communication Links and Networks methods in natural language processing, 2018, pp. 2369–2380.
+(CAMAD). IEEE, 2023, pp. 225–232. [25] T. Kocˇisky`, J. Schwarz, P. Blunsom, C. Dyer, K. M. Hermann, G. Melis,
+[3] T. Theocharides, M. Verhelst, V. J. Reddy, and E. Gousev, and E. Grefenstette, “The narrativeqa reading comprehension challenge,”
+“Tinyml—from efficient edge inference to on-device intelligence,” IEEE Transactions of the Association for Computational Linguistics, vol. 6,
+Design & Test, vol. 42, no. 5, pp. 5–7, 2025. pp. 317–328, 2018.

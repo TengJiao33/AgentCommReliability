@@ -58,8 +58,9 @@ def _extract_pages(path: Path) -> list[str]:
 
 def _cached_record(path: Path) -> dict[str, object] | None:
     out_path = TEXT_DIR / f"{path.stem}.txt"
+    md_path = TEXT_DIR / f"{path.stem}.md"
     page_index_path = TEXT_DIR / f"{path.stem}.pages.json"
-    if not out_path.exists() or not page_index_path.exists():
+    if not out_path.exists() or not md_path.exists() or not page_index_path.exists():
         return None
 
     meta = _metadata(path)
@@ -67,6 +68,7 @@ def _cached_record(path: Path) -> dict[str, object] | None:
     return {
         "pdf": path.name,
         "text": out_path.name,
+        "markdown": md_path.name,
         "pages_json": page_index_path.name,
         **_source_record(path),
         **meta,
@@ -84,22 +86,40 @@ def extract_one(path: Path, *, force: bool = False) -> dict[str, object]:
     meta = _metadata(path)
     pages = _extract_pages(path)
     out_path = TEXT_DIR / f"{path.stem}.txt"
+    md_path = TEXT_DIR / f"{path.stem}.md"
     page_index_path = TEXT_DIR / f"{path.stem}.pages.json"
+    source = _source_record(path)
 
     blocks = [
         f"# source_pdf: {path.name}",
         f"# extracted_at_utc: {_utc_now()}",
         f"# pages: {meta['pages']}",
         f"# title: {meta['title']}",
+        f"# source_sha256: {source['source_sha256']}",
+        "",
+    ]
+    md_blocks = [
+        f"# {path.stem}",
+        "",
+        f"- Source PDF: `{path.name}`",
+        f"- Extracted at UTC: `{_utc_now()}`",
+        f"- Pages: {meta['pages']}",
+        f"- Title: {meta['title']}",
+        f"- SHA256: `{source['source_sha256']}`",
         "",
     ]
     page_rows = []
     for idx, text in enumerate(pages, start=1):
         blocks.append(f"\n\n===== PAGE {idx} =====\n")
         blocks.append(text)
+        md_blocks.append(f"## Page {idx}")
+        md_blocks.append("")
+        md_blocks.append(text)
+        md_blocks.append("")
         page_rows.append({"page": idx, "chars": len(text)})
 
     out_path.write_text("\n".join(blocks), encoding="utf-8")
+    md_path.write_text("\n".join(md_blocks), encoding="utf-8")
     page_index_path.write_text(
         json.dumps(page_rows, ensure_ascii=False, indent=2),
         encoding="utf-8",
@@ -108,8 +128,9 @@ def extract_one(path: Path, *, force: bool = False) -> dict[str, object]:
     return {
         "pdf": path.name,
         "text": out_path.name,
+        "markdown": md_path.name,
         "pages_json": page_index_path.name,
-        **_source_record(path),
+        **source,
         **meta,
         "extracted_chars": sum(len(page) for page in pages),
         "cached": False,

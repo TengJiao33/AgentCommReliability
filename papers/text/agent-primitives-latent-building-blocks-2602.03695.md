@@ -1,0 +1,1354 @@
+# agent-primitives-latent-building-blocks-2602.03695
+
+- Source PDF: `agent-primitives-latent-building-blocks-2602.03695.pdf`
+- Extracted at UTC: `2026-07-09T05:55:38.900208+00:00`
+- Pages: 19
+- Title: Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+- SHA256: `8566b153a3a8bef67ac5e15a84dfa0a2b3123897c5ca3edfeb829b99b9a47937`
+
+## Page 1
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+Haibo Jin 1 Peng Kuang 1 Ye Yu 2 Xiaopeng Yuan 1 Haohan Wang 1
+Abstract 1. Introduction
+While existing multi-agent systems (MAS) can LLM-based multi-agent systems (MAS) have recently
+handle complex problems by enabling collabora- emerged as a promising approach for tackling complex real-
+tion among multiple agents, they are often highly world problems (Chen et al., 2025; Liu et al., 2025). In these
+task-specific, relying on manually crafted agent systems, multiple LLM agents collaborate to decompose
+roles and interaction prompts, which leads to tasks, exchange information, and jointly produce solutions.
+increased architectural complexity and limited
+Existing MAS typically organize collaboration through ex-
+reusability across tasks. Moreover, most MAS
+plicit role assignment and natural-language interaction pro-
+communicate primarily through natural language,
+tocols. Early representative systems rely on manually de-
+making them vulnerable to error accumulation
+signed agent teams with predefined roles to coordinate com-
+and instability in long-context, multi-stage inter-
+plex tasks, particularly in software engineering and planning
+actions within internal agent histories. In this
+scenarios (Hong et al., 2023; Qian et al., 2024). Subse-
+work, we propose Agent Primitives, a set of
+quent frameworks extend this paradigm by introducing iter-
+reusable latent building blocks for LLM-based
+ative collaboration, discussion, and evaluation mechanisms
+MAS. Inspired by neural network design, where
+among agents (Chen et al., 2023), as well as debate-based
+complex models are built from reusable compo-
+interaction schemes to refine reasoning and reach consen-
+nents, we observe that many existing MAS archi-
+sus (Du et al., 2023; Liang et al., 2024).
+tectures can be decomposed into a small number
+of recurring internal computation patterns. Based However, recent work on MAS increasingly emphasizes
+on this observation, we instantiate three primi- task-specific architectures (Zhang et al., 2024a), often in-
+tives (Review, Voting and Selection, and Planning troducing more complex agent structures and specialized
+and Execution), all communicating via key–value roles to accommodate diverse task requirements (Yang et al.,
+(KV) cache to mitigate information degradation 2025b; Ye et al., 2025). While effective for their intended
+across multi-stage interactions. To enable auto- tasks, such designs tend to increase architectural complex-
+matic system construction, an Organizer agent ity and design overhead, and the resulting systems are of-
+automatically selects and composes primitives ten tightly coupled to specific tasks and interaction pat-
+for each query, guided by a lightweight knowl- terns (Wang et al., 2025), which can limit their adaptability
+edge pool of previously successful configurations. across different problem settings. As a result, existing
+Experiments show that primitives-based MAS MAS lack a reusable and task-agnostic internal abstrac-
+improve average accuracy by 12.0–16.5% over tion for organizing multi-agent computation, causing
+single-agent baselines, reduce token usage and system complexity to scale with task complexity rather
+inference latency by approximately 3×–4× com- than being amortized through modular reuse.
+pared to text-based MAS, while incurring only
+To address this challenge, we draw inspiration from neu-
+1.3×–1.6× overhead relative to single-agent in-
+ral network design, where complex models are constructed
+ference and providing more stable performance
+from reusable building blocks such as residual blocks (He
+across model backbones.
+et al., 2016) and attention heads (Vaswani et al., 2017). Anal-
+ogously, we propose Agent Primitives, a set of reusable
+1School of Information Sciences, University of Illinois
+latent building blocks for constructing LLM-based multi-
+at Urbana-Champaign, IL, USA 2Siebel School of Com-
+agent systems. Based on empirical observations of existing
+puting and Data Science, University of Illinois at Urbana-
+Champaign, IL, USA. Correspondence to: Haohan Wang <hao- MAS designs, we find that their architectures can be de-
+hanw@illinois.edu>. composed into a small number of recurring and minimal
+structural units. Accordingly, we instantiate three represen-
+Proceedings of the 43 rd International Conference on Machine
+tative agent primitives: the Review Primitive, the Voting
+Learning, Seoul, South Korea. PMLR 306, 2026. Copyright 2026
+and Selection Primitive, and the Planning and Execu-
+by the author(s).
+1
+6202
+yaM
+42
+]AM.sc[
+2v59630.2062:viXra
+
+## Page 2
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+tion Primitive. These primitives serve as reusable building framework in which agents are dynamically recruited to
+blocks for MAS, encapsulating recurring internal computa- discuss, execute, and evaluate task outcomes. Debate-based
+tion patterns while exposing the same external interface as methods (Du et al., 2023; Liang et al., 2024) further intro-
+a standard LLM agent, which enables plug-and-play com- duce multi-round interactions among expert agents to refine
+position of diverse multi-agent systems. reasoning and reach consensus.
+When such primitives are repeatedly composed and reused More recent work seeks to reduce manual design by en-
+within a system, the resulting interaction histories can grow abling dynamic construction or adaptation of multi-agent
+substantially. Traditionally, natural language has served as systems. DyLAN (Liu et al., 2024) selects agents based
+the primary medium for inter-agent communication, as it on value estimation, while GPTSwarm (Zhuge et al., 2024)
+facilitates human interpretability and manual verification of initializes agent teams and iteratively refines their collabo-
+information exchange. However, as the conversation history ration structures and prompts using LLM feedback. Mac-
+grows, such communication becomes less stable. In partic- Net (Qian et al.) introduces optimizable interaction graphs
+ular, we observe that natural language communication that facilitate prompt refinement and more effective agent
+accuracy degrades in long-context settings and is highly cooperation. Other approaches, such as ADAS (Hu et al.,
+sensitive to accumulated communication noise, creating 2024) and AFlow (Zhang et al., 2024a), leverage LLMs
+a fundamental communication bottleneck for MAS. to automatically generate task-specific multi-agent systems
+through iterative optimization. MAS-GPT (Ye et al., 2025)
+To avoid introducing additional communication burden and
+further formulates multi-agent system synthesis as a gen-
+to maintain coherence within primitives, Agent Primitives
+erative language task, mapping a user query directly to a
+rely on latent communication via the key–value (KV) cache
+corresponding agent configuration.
+for information exchange between internal agents. Our
+experiments show that KV-cache-based communication re- Latent Communication in MAS. While most MAS rely
+duces information degradation across multi-stage interac- on natural language for inter-agent communication, recent
+tions, enabling more robust and efficient information trans- work has explored latent communication mechanisms that
+fer by avoiding repeated text decoding. Finally, to enable operate directly on internal model representations (Yan
+practical deployment, we introduce an LLM-based Orga- et al., 2025; Yu et al., 2026). ThoughtComm (Zheng et al.,
+nizer that selects and composes primitives according to the 2025) learns a shared latent space using a trainable en-
+input query, forming a primitive-based MAS without re- coder–decoder and prefix modules on top of frozen LLMs,
+quiring manual system design. A lightweight Knowledge enabling agents to exchange information without explicit
+Pool stores previously seen queries and their corresponding text. Cache-to-Cache (Fu et al., 2025) enables cross-model
+MAS configurations to guide the Organizer in this process, semantic transfer by projecting the key–value representa-
+supporting scalable and task-adaptive MAS construction. tions of one model’s prompt into another model. Latent-
+MAS (Zou et al., 2025) propagates key–value cache-based
+Extensive experiments on eight benchmarks spanning math-
+latent reasoning sequentially across agents to support multi-
+ematical reasoning, code generation, and question answer-
+stage collaboration. In contrast, Mixture of Thoughts (Fein-
+ing, using five open-source LLM backbones, demonstrate
+Ashley et al., 2025) employs a centralized aggregation strat-
+that Primitives-based MAS consistently improve average
+egy, where a primary expert model fuses cross-attention
+accuracy by 12.0–16.5% over single-agent baselines, re-
+information from multiple experts in a single pass.
+duce token usage and inference latency by approximately
+3×–4× compared to text-based MAS, while incurring only Key Differences. Unlike prior LLM-based MAS that fo-
+1.3×–1.6× overhead relative to single-agent inference, and cus on task-specific agent roles, prompting strategies, or
+exhibit more stable performance across different model automatically generated configurations, our approach ab-
+backbones than baseline methods. stracts multi-agent computation into reusable Agent Primi-
+tives. By exposing recurring internal computation patterns
+rather than treating agents as the atomic design unit, this
+2. Related Work
+abstraction enables modular reuse and the construction of
+LLM-based Multi-Agent Systems. LLM-based agent re- primitive-based MAS without task-specific architectural
+search has evolved from single-agent to coordinated multi- redesign. In addition, while existing latent communication
+agent systems (Zhao et al., 2025; Tao et al., 2024). Early methods primarily aim to improve information transmission
+representative works, such as MetaGPT (Hong et al., 2023) between agents, we use latent KV cache communication
+and ChatDev (Qian et al., 2024), rely on manually designed to directly implement the computation structure of agent
+agent teams with predefined roles to address software en- primitives. This design supports structured, multi-stage in-
+gineering tasks. AgentVerse (Chen et al., 2023) general- teraction patterns while remaining compatible with standard
+izes this paradigm by introducing an iterative collaboration LLM agent interfaces.
+2
+
+## Page 3
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+3. Preliminary: Overcoming Communication the original KV cache of agent B before it begins generat-
+Bottlenecks with KV Cache ing task-specific outputs. Agent B then performs standard
+auto-regressive decoding conditioned on Z˜ , producing sub-
+B
+3.1. Background sequent tokens without requiring explicit natural language
+communication from agent A.
+Key-Value Cache in Transformers. We consider an auto-
+regressive LLM that predicts the next token in a sequence Input-Output Alignment Assumption. The key assump-
+as p(x n+1 | x 1:n ), where the input sequence is denoted tion underlying communication via KV cache is that the
+as x 1:n . Such models are typically implemented as Trans- Transformer decoder conditions future token generation ex-
+former decoders composed of L stacked self-attention lay- clusively on its accumulated key-value states, rather than
+ers. At each layer ℓ ∈ {1, . . . , L}, the hidden representa- on the discrete token sequence itself. Formally, let ZA de-
+tion of each token is projected into query, key, and value note the KV cache produced by agent A after processing
+vectors (Vaswani et al., 2017). Given the query matrix sequence sA. We assume that conditioning on ZA is distri-
+Qℓ ∈ Rn×d, key matrix Kℓ ∈ Rn×d, and value matrix butionally equivalent to conditioning on the corresponding
+V ℓ ∈ Rn×d, the self-attention operation is defined as: token sequence, i.e.,
+Attn(Qℓ, Kℓ, V ℓ) = softmax (cid:16) Qℓ √ K d ℓ⊤ (cid:17) V ℓ. p(y | ZA, xB ) ≈ p(y | sA, xB ) (2)
+1:nB 1:nB
+During auto-regressive decoding, to avoid redundant compu-
+where the approximation holds when both agents share the
+tations of the hidden states for x when predicting x ,
+1:n n+1 same model parameters and positional encoding scheme.
+the key and value tensors from previous time steps are
+Accordingly, we restrict our experiments to LLM agents
+cached. We denote this Key-Value (KV) cache at step n
+using the same LLM to ensure valid input-output alignment.
+for all layers as: Z = {(Kℓ , V ℓ)}L . At a subsequent
+n n n ℓ=1
+decoding step t > n, only the query vector qℓ for the cur- KV Cache Positional Re-encoding. Equation 1 specifies
+t
+rent token is computed. The attention output is obtained by how KV caches from different agents are concatenated
+attending qℓ to the concatenation of the cached keys and the for latent communication. However, modern LLMs typ-
+t
+newly generated key kℓ, yielding Kℓ = [Kℓ ; kℓ] with an ically employ Rotary Positional Encoding (RoPE) (Su et al.,
+t t t−1 t
+analogous update for the value cache V ℓ = [V ℓ ; vℓ]. 2024), in which positional information is encoded through
+t t−1 t
+position-dependent rotations applied to query and key vec-
+Latent Communication via KV Cache. We describe how
+tors. For a token at position t, RoPE rotates the key vec-
+latent communication between LLM agents can be imple- tor as RoPE(Kℓ) = R(t)Kℓ, where R(t) is a determin-
+t t
+mented through KV caches. For simplicity, we illustrate it
+istic block-diagonal rotation operator whose 2D rotation
+using two LLM agents, denoted as agent A and agent B.
+angles are linear in t. When KV caches from different
+For agent A, let the input prompt be xA , which in- agents are concatenated, we treat the combined cache as
+cludes both the system prompt and the use 1 r :n q A uery. Under a single continuous sequence: the system prompt of agent
+auto-regressive decoding, agent A generates an output se- B occupies positions 1 to n B , while the KV cache from
+quence yA . The probability of generating the agent A occupies positions 1 to T A . To preserve RoPE
+output se n q A u + en 1: c n e A i + s m g A iven by p (cid:0) yA | xA (cid:1) = semantics, we re-index agent A KV states by an offset
+(cid:81)mA p (cid:0) yA | xA , yA
+nA+1
+(cid:1)
+:n
+.
+A+mA 1:nA
+n B , i.e., for each layer ℓ and t ∈ {1, . . . , T A } we apply
+i=1 nA+i 1:nA nA+1:nA+i−1 RoPE(KA,ℓ) → R(t + n )KA,ℓ. This allows the concate-
+t B t
+We denote the full sequence processed by agent A as sA = nated KV cache to be used directly in standard decoding.
+[xA ; yA ], whose total length is T = n +
+1:nA nA+1:nA+mA A A
+m . After agent A finishes processing sA, it yields a final
+A 3.2. Communication Bottleneck via Natural Language
+KV cache ZA = {(KA,ℓ, V A,ℓ)}L , which serves as a
+TA TA TA ℓ=1
+latent representation of the complete sequence sA. Let As discussed in the introduction, natural language communi-
+xB denote the system prompt of agent B. Processing cation in MAS degrades rapidly in long-context settings as
+th 1 i : s n s B ystem prompt alone produces a system-level KV cache interaction histories grow through multi-stage transfers, and
+ZB = {(KB,ℓ, V B,ℓ)}L . This system prompt is fixed is highly sensitive to accumulated communication noise. To
+an n d B doesn’t d n e B pend nB on th ℓ e = o 1 utput of agent A. study these failure modes, we design two stress-test settings
+that reflect common challenges in real-world multi-agent
+Instead of relying solely on text-based prompts, we construct
+collaboration, where agents must operate over long inter-
+a combined KV cache by concatenating the latent states of
+action histories containing auxiliary or noisy information,
+agent A and the system prompt of agent B at each layer:
+while preserving task-relevant objectives across stages.
+K˜ B,ℓ = [K n B B ,ℓ; K T A A ,ℓ], V˜ B,ℓ = [V n B B ,ℓ; V T A A ,ℓ] (1) Specifically, we consider (1) long-context task injection,
+which analyzes scenarios in which auxiliary tasks are in-
+The resulting KV cache Z˜ = {(K˜ B,ℓ, V˜ B,ℓ)}L replaces crementally appended to the interaction history, causing
+B ℓ=1
+3
+
+## Page 4
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+Table 1. Accuracy and injection compliance under long-context Table 2. Accuracy under communication noise condition.
+task injection at different insertion positions.
+Method 0 1 3 10 25
+Acc. Acc. (With Injection) Injection Compliance
+Method Natural Language 100% 91% 73% 47% 40%
+(No Inj.) Begin Mid End Begin Mid End
+KV Cache 100% 100% 100% 93% 77%
+Natural Language 51.6% 51.3% 51.0% 50.4% 82.9% 15.6% 100.0%
+KV Cache 61.3% 61.0% 60.4% 61.3% 88.9% 73.3% 100.0%
+munication and KV-cache-based communication.
+earlier objectives to be diluted or forgotten in extended con-
+As shown in Table 2, natural-language communication is
+texts. Agents are therefore required to track and complete
+highly sensitive to noise. Even a small amount of injected
+all tasks introduced throughout the conversation, including
+noise leads to a rapid degradation in accuracy, which be-
+those appearing early. In addition, to model errors arising
+comes severe as noise accumulates. In contrast, KV cache
+during inter-agent communication, we design (2) commu-
+communication remains robust under moderate noise levels
+nication noise, which introduces irrelevant or corrupted
+and only degrades under extreme contamination.
+messages during multi-stage collaboration, leading to the
+accumulation of communication errors over time. These insights motivate our design choice of using KV cache
+as the latent communication for MAS to improve reliability
+Long-context Task Injection. We use 351 examples from
+and robustness under long-context and noisy conditions.
+the En.QA split of InfiniteBench (Zhang et al., 2024b).
+For each example, we inject an auxiliary instruction at
+4. Agent Primitives
+the beginning, midpoint, or end of the long context,
+delimited by special marker tokens: “<p> Please
+4.1. Overview
+answer the question in Chinese, start
+with the Chinese version...</p>”. The To address the lack of reusable, task-agnostic abstractions
+model is required to continue solving the given QA task. in existing MAS, as well as the communication bottlenecks
+We use Qwen3-8B (Yang et al., 2025a) as the evaluated via natural language, we propose Agent Primitives, a set
+model and report two metrics: Accuracy, measuring of reusable latent building blocks for LLM-based MAS. An
+whether the original question is answered correctly under overview of Agent Primitives is shown in Fig. 1.
+different injection positions, and Injection Compliance,
+Agent Primitives capture recurring multi-agent computation
+measuring whether the injected instruction is followed.
+patterns that are widely used in prior MAS, such as iterative
+As shown in Table 1, KV cache communication consistently review, multi-agent consensus, and plan–execute decom-
+achieves higher accuracy than natural-language communica- position. As illustrated in Fig. 1(a), rather than manually
+tion. When the auxiliary task is injected at the beginning or designing task-specific multi-agent architectures with hand-
+end of the context, both methods exhibit high injection com- crafted roles and prompt templates for each LLM agent (as
+pliance. However, injecting the instruction at the midpoint shown in the middle), equivalent system-level functional-
+of long contexts leads to a severe drop in compliance for ity can be achieved by composing a small set of reusable
+natural-language communication (15.6%), while KV cache primitives, which we refer to as primitives-based MAS.
+communication remains substantially more robust (73.3%).
+Concretely, we instantiate three representative primitives:
+The accuracy remains relatively stable across injection posi-
+Review, Voting and Selection, and Planning and Execu-
+tions, indicating that the observed degradation stems from
+tion. Each primitive communicates via KV cache (Fig. 1(f))
+communication failure rather than increased task difficulty.
+and finally encapsulates a specific internal computation
+Communication Noise. We also verified that natural lan- structure while exposing the same external interface as a
+guage communication is highly sensitive to communica- standard LLM agent, allowing primitives to be composed,
+tion noise using mathematical reasoning tasks. Specifi- reused, and plug-and-play across different tasks.
+cally, we first use Qwen3-8B (Yang et al., 2025a) to solve
+To enable practical deployment, we introduce an LLM as
+GSM8K (Cobbe et al., 2021) problems and collect 100
+Organizer that selects and composes primitives based on
+instances that are solved correctly, along with their full rea-
+the input query, forming a primitive-based MAS without
+soning traces. For each instance, we truncate the reasoning
+manual system design. A lightweight Knowledge Pool
+trace to 6,000 tokens and provide it as context to another
+(Fig. 1(e)) stores existing queries and their effective MAS to
+Qwen3-8B (Yang et al., 2025a) model, which is tasked with
+guide this process. System prompts for each agent primitive
+continuing the solution. We inject sentence-level reasoning
+are in Appendix A.
+traces from unrelated GSM8K (Cobbe et al., 2021) problems
+as communication noise, varying the noise level by inserting
+4.2. Primitive Design
+0, 1, 3, 5, 10, or 25 sentences. We then evaluate whether the
+model can still solve the original problem within a 5,000- All primitives adhere to a common design principle: internal
+token generation budget, comparing natural-language com- coordination is realized exclusively through latent KV cache
+4
+
+## Page 5
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+Knowledge (a) Primitive-based Multi-Agent System
+Pool …
+Access Query Query Query
+Centralized Distributed Hierarchical
+Equiv.
+(e) Knowledge Pool
+User Query Organizer MAS Output Key Cache
+Value Cache
+Sy
+x
+s
+1
+tem +
+x 2
+Us…er Q
+x
+u
+n
+ery
+y1
+Age
+y
+n
+2
+t …A
+ym
+A
+Ke
+g
+y
+e n
+C
+t
+a
+A
+che
+MAS Structure Primitive-based MAS Input Embedding Output Embedding Value Cache
+Primitives Primitives Primitives e1 e2 … en en+1 en+2 … en+m System Agent B
+Compute K, Q, V
+x1 x2 … xn
+Latent Reasoning Trace Input Embedding
+Solver 1 Executor 1 … …
+Aggregation Agent A Key-Value Cache xN e1 e2 … en
+Solver Critic So…lver 2 Selector Planner Exec … utor 2 … Directly Use … Compute K, … Q, V
+Refined Latent Feedback Concatenation
+Agent A Key-Value Cache Agent B Key-Value Cache
+Solver N Executor N Key-Value Cache Communication Agent B
+(b) Review (c) Voting and Selection (d) Planning and Execution (f) Agent-Agent Communication via Key-Value Cache
+Figure 1. Overview of Agent Primitives. (a) Agent Primitives enable system-level functionality to be constructed by composing reusable
+latent operators rather than manually designed agent roles and natural-language interaction protocols. (b)-(d) Three representative
+primitives: Review, Voting and Selection, and Planning and Execution, each encapsulating a recurring multi-agent computation pattern as
+a reusable latent operator. (e) A Knowledge Pool stores previously observed queries and effective system structures, providing structural
+guidance for system construction. (f) Internal coordination within and across primitives is carried out via latent KV cache communication.
+exchange among internal agents. This constraint ensures an aggregated latent state. The resulting aggregated latent
+that primitive behavior is independent of text-level message representation is then produce the final output.
+passing, enabling consistent multi-stage computation while
+Planning and Execution Primitive realizes a latent decom-
+preserving compatibility with standard LLM agent inter-
+position operator that separates high-level planning from
+faces. As a result, each primitive can be used as a drop-in
+low-level execution. It is instantiated with a Planner agent
+replacement for a single agent in multi-agent frameworks.
+P and an Executor agent E, which interact through a shared
+Review Primitive realizes an iterative self-critique operator latent plan representation.
+in latent space, instantiated with two agents: a Solver A and
+As shown in Fig. 1(d), given an input prompt, the Planner
+a Critic B, connected through a latent feedback channel.
+agent P first produces a latent plan that encodes a struc-
+As shown in Fig. 1(b), given an input prompt, agent A pro- tured decomposition of the task into intermediate steps or
+duces an initial latent representation in the form of a KV subgoals. This latent plan serves as an explicit internal rep-
+cache, which exposes its intermediate reasoning state. This resentation that conditions subsequent computation. The Ex-
+latent representation is directly consumed by agent B to ecutor agent E then consumes the latent plan and performs
+generate corrective feedback. The resulting modified latent task-specific reasoning conditioned on this representation,
+representation is then fed back to agent A, enabling sub- generating the final output.
+sequent refinement of the internal computation. Together,
+these interactions define a latent feedback loop that can be 4.3. Primitive-based Multi-Agent System
+executed for multiple iterations. The iteration process is gov-
+Building on the proposed Agent Primitives, we construct
+erned by a stopping condition derived from the intermediate
+a primitive-based multi-agent system in which system-
+latent states, enabling adaptive depth of refinement.
+level behavior is realized by composing a small number
+Voting and Selection Primitive realizes a consensus opera- of reusable primitives rather than manually specifying agent
+tor over multiple latent candidates. It is instantiated with a roles and interaction protocols. In this setting, a multi-agent
+set of parallel Solver agents and a Selector module, which system is represented as a composition graph of primitives,
+aggregates their latent representations into a single output. where each primitive functions as an internal computation
+operator with a standard LLM-compatible interface.
+As shown in Fig. 1(c), given an input prompt, each agent
+A i independently produces a latent representation in the Organizer. To automate the construction of primitive-based
+form of a KV cache. These latent candidates expose diverse MAS, we introduce an LLM as the Organizer. Given an
+intermediate reasoning states for the same task. Rather than input query, the Organizer is responsible for selecting appro-
+performing majority voting at the text level, the Selector priate primitives, determining their composition order, and
+operates directly in latent space, performing voting and instantiating a computation structure that fulfills the task
+selection over the set of latent representations to compute objective. Unlike conventional MAS frameworks that ex-
+5
+
+## Page 6
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+plicitly define agent roles and communication patterns, the uations are conducted within the same model architecture;
+Organizer reasons directly over primitive-level abstractions, cross-model configurations are not considered.
+treating each primitive as a reusable building block.
+Baselines. We compare Agent Primitives against several
+Concretely, the Organizer maps an input query to a primitive representative baselines. These include single LLM agents
+composition plan, which specifies (i) the types of primitives and multi-agent systems with natural-language-based com-
+to instantiate, and (ii) their execution structure. The result- munication (TextMAS). We also evaluate LatentMAS (Zou
+ing plan is then executed by invoking the corresponding et al., 2025) under a sequential configuration. We also
+primitives, yielding a complete MAS configuration. evaluate the performance of a single primitive, denoted as
+“Review”, “Voting” and “Planning”.
+Knowledge Pool. To support reliable and consistent sys-
+tem construction, the Organizer is assisted by a lightweight Implementation Details. For LatentMAS, we follow their
+Knowledge Pool. The Knowledge Pool stores previously ob- setting and set m = 40, which yields the best performance.
+served queries paired with effective MAS structures drawn Since the sequential configuration uses four LLM agents,
+from existing MAS frameworks, including Multi-Agent we adopt the same number of agents for fair comparison in
+Debate (Du et al., 2023), DyLAN (Liu et al., 2024), Self- single-primitive baselines, as well as TextMAS. Specifically,
+Refine (Madaan et al., 2023), AFlow (Zhang et al., 2024a), we use two rounds for the Review primitive; three solvers
+and MAS-GPT (Ye et al., 2025). We collected a total of 45 and one selector for the Voting and Selection primitive; and
+MAS structures. Each entry associates a query pattern with one planner with three executors for the Planning and Exe-
+a corresponding system-level reasoning strategy. cution primitive. For Primitives-based MAS, the number of
+agents is not fixed; instead, it is determined by the Organizer
+During system construction, the Organizer retrieves rele-
+based on the input query that achieves the best performance.
+vant entries from the Knowledge Pool based on the input
+We use GPT-5.2 (Singh et al., 2025) as the default model
+query and uses them as structural guidance. Rather than
+for the Organizer. We evaluate the performance of Agent
+directly reusing full agent-level designs, the Organizer ab-
+Primitives using three metrics: accuracy (%), token usage,
+stracts these retrieved systems into primitive compositions,
+and average inference time per query (seconds).
+replacing task-specific agents with corresponding Agent
+Primitives. This process enables the Organizer to leverage
+5.2. Performance of Agent Primitives Across Tasks
+prior multi-agent design knowledge while constructing sys-
+tems that are fully expressed in terms of reusable primitives. Table 3 and Table 8 (Appendix C) compare Agent Primitives
+with baseline methods across math problem solving, code
+Execution. Once a primitive composition is determined,
+generation, and Q&A tasks on five models.
+the system executes the selected primitives according to the
+inferred structure. From the perspective of the external inter- Compared to TextMAS, primitives-based MAS achieve
+face, the resulting primitive-based MAS behaves identically larger and more stable improvements. TextMAS yields
+to a standard multi-agent system, while internally realizing limited average gains of 2.4%-7.3% and exhibits high vari-
+a modular and reusable computation structure. ance across tasks and models due to its reliance on natural-
+language communication. LatentMAS performs competi-
+5. Experiments tively on several Qwen-based models, especially on math
+benchmarks, but degrades significantly on LLaMA-based
+5.1. Experimental Setup backbones. For instance, on DeepSeek-R1-Distill-Llama-
+70B, LatentMAS reduces average accuracy by 10.1% rela-
+Datasets. We evaluate Agent Primitives on eight public
+tive to single-agent inference. In contrast, primitives-based
+benchmarks spanning three task categories: Math problem
+MAS consistently outperform single-agent baselines across
+solving, Code generation, and Q&A. The Math benchmarks
+all model families. The performance gains of primitives-
+include AIME24 (Maxwell-Jia, 2024), AIME25 (math-ai,
+based MAS are consistent across task categories. On math
+2025), MATH (Hendrycks et al., 2021), and GSM8K (Cobbe
+benchmarks, improvements reach up to 26.7% on smaller
+et al., 2021). The Code generation benchmarks include
+models and remain 6.7%-14.4% on larger backbones. Com-
+MBPP-Plus (Liu et al., 2023) and HumanEval-Plus (Liu
+parable gains are observed for code generation and question
+et al., 2023). The Q&A benchmarks include MedQA (Jin
+answering, indicating strong cross-task transferability.
+et al., 2021) and GPQA-Diamond (Rein et al., 2024).
+Single primitives already improve over single-agent, but
+Models. We evaluate Agent Primitives using three models
+no one dominates across tasks. By composing multiple
+from the Qwen3 family (Yang et al., 2025a): Qwen3-4B,
+primitives, primitives-based MAS achieve an additional 3.5-
+Qwen3-8B, and Qwen3-14B, as well as two DeepSeek distil-
+7.0% improvement over the strongest individual primitive,
+lation models (DeepSeek-AI, 2025): DeepSeek-R1-Distill-
+showing their composition enables more effective MAS.
+Qwen-32B and DeepSeek-R1-Distill-Llama-70B. All eval-
+6
+
+## Page 7
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+Table 3. Accuracy (%) comparison between baselines and Agent Primitives on math problem solving (AIME25, AIME24, MATH,
+GSM8K), code generation (HumanEval+, MBPP+), and Q&A (MedQA, GPQA-Diamond) across three models. We report absolute
+accuracy and average (Avg.) accuracy, along with the improvement over the single-agent baseline (pp, ↑). Best results are in bold.
+Models Methods Math Problem Solving Code Generation Q&A Avg.
+AIME25 AIME24 MATH GSM8K HumanEval+ MBPP+ MedQA GPQA-Diamond
+Single 46.7% 50.0% 60.8% 81.1% 74.4% 64.8% 53.0% 39.9% 58.8%
+53.3% 53.3% 61.4% 92.3% 80.5% 69.5% 75.0% 43.4% 66.1%
+TextMAS
+(+6.6%↑) (+3.3%↑) (+0.6%↑) (+11.2%↑) (+6.1%↑) (+4.7%↑) (+22.0%↑) (+3.5%↑) (+7.3%↑)
+53.3% 56.7% 62.6% 93.8% 80.5% 74.6% 75.3% 45.5% 67.8%
+LatentMAS
+(+6.6%↑) (+6.7%↑) (+1.8%↑) (+12.7%↑) (+6.1%↑) (+9.8%↑) (+22.3%↑) (+5.6%↑) (+8.9%↑)
+60.0% 63.3% 61.0% 93.2% 78.6% 70.6% 64.2% 48.9% 67.5%
+Review
+Qwen3-8B (+13.3%↑) (+13.3%↑) (+0.2%↑) (+12.1%↑) (+4.2%↑) (+5.8%↑) (+11.2%↑) (+9.0%↑) (+8.6%↑)
+66.7% 70.0% 61.4% 91.8% 81.0% 74.3% 70.3% 55.0% 71.3%
+Voting
+(+20.0%↑) (+20.0%↑) (+0.6%↑) (+10.7%↑) (+6.6%↑) (+9.5%↑) (+17.3%↑) (+15.1%↑) (+12.5%↑)
+66.7% 63.3% 60.8% 93.2% 78.6% 75.9% 67.0% 51.0% 69.6%
+Planning
+(+20.0%↑) (+13.3%↑) (+0.0%↑) (+12.1%↑) (+4.2%↑) (+11.1%↑) (+14.0%↑) (+11.1%↑) (+10.7%↑)
+Primitives-based 73.3% 76.7% 63.7% 94.2% 82.3% 75.9% 76.7% 59.6% 75.3%
+MAS (+26.6%↑) (+26.7%↑) (+2.9%↑) (+13.1%↑) (+7.9%↑) (+11.1%↑) (+23.7%↑) (+19.7%↑) (+16.5%↑)
+Single 53.3% 73.3% 63.4% 93.8% 80.5% 73.8% 68.0% 62.1% 71.0%
+53.3% 73.3% 68.0% 93.8% 82.3% 74.6% 79.6% 62.6% 73.4%
+TextMAS
+(+0.0%↑) (+0.0%↑) (+4.6%↑) (+0.0%↑) (+1.8%↑) (+0.8%↑) (+11.6%↑) (+0.5%↑) (+2.4%↑)
+56.7% 73.3% 78.2% 95.2% 83.5% 75.7% 81.2% 63.6% 75.9%
+LatentMAS
+(+3.4%↑) (+0.0%↑) (+14.8%↑) (+1.4%↑) (+3.0%↑) (+1.9%↑) (+13.2%↑) (+1.5%↑) (+4.9%↑)
+53.3% 70.0% 71.3% 94.6% 81.1% 73.8% 73.0% 62.1% 72.4%
+DeepSeek-R1-Distill Review
+(+0.0%↑) (-3.3%↓) (+7.9%↑) (+0.8%↑) (+0.6%↑) (+0.0%↑) (+5.0%↑) (+0.0%↑) (+1.4%↑)
+Qwen-32B
+56.7% 70.0% 74.7% 95.0% 86.6% 74.6% 79.3% 63.1% 75.0%
+Voting
+(+3.4%↑) (-3.3%↓) (+11.3%↑) (+1.2%↑) (+6.1%↑) (+0.8%↑) (+11.3%↑) (+1.0%↑) (+4.0%↑)
+53.3% 66.7% 74.6% 93.8% 85.3% 74.3% 75.0% 62.6% 73.2%
+Planning
+(+0.0%↑) (-6.6%↓) (+11.2%↑) (+0.0%↑) (+4.8%↑) (+0.5%↑) (+7.0%↑) (+0.5%↑) (+2.2%↑)
+Primitives-based 63.3% 73.3% 79.8% 95.0% 86.6% 75.7% 82.7% 64.6% 77.6%
+MAS (+10.0%↑) (+0.0%↑) (+16.4%↑) (+1.2%↑) (+6.1%↑) (+1.9%↑) (+14.7%↑) (+2.5%↑) (+6.6%↑)
+Single 50.0% 70.0% 69.6% 92.4% 82.3% 66.4% 64.5% 65.2% 70.1%
+53.3% 70.0% 72.8% 93.2% 82.3% 68.8% 77.8% 65.7% 73.0%
+TextMAS
+(+3.3%↑) (+0.0%↑) (+3.2%↑) (+0.8%↑) (+0.0%↑) (+2.4%↑) (+13.3%↑) (+0.5%↑) (+2.9%↑)
+40.0% 43.3% 78.6% 78.6% 73.2% 55.6% 68.6% 41.9% 60.0%
+LatentMAS
+(-10.0%↓) (-26.7%↓) (+9.0%↑) (-13.8%↓) (-9.1%↓) (-10.8%↓) (+4.1%↑) (-23.3%↓) (-10.1%↓)
+50.0% 70.0% 75.9% 91.8% 82.3% 67.2% 72.9% 65.2% 71.9%
+DeepSeek-R1-Distill Review
+(+0.0%↑) (+0.0%↑) (+6.3%↑) (-0.6%↓) (+0.0%↑) (+0.8%↑) (+8.4%↑) (+0.0%↑) (+1.9%↑)
+Llama-70B
+56.7% 73.3% 77.2% 93.8% 82.9% 68.8% 77.8% 65.7% 74.5%
+Voting
+(+6.7%↑) (+3.3%↑) (+7.6%↑) (+1.4%↑) (+0.6%↑) (+2.4%↑) (+13.3%↑) (+0.5%↑) (+4.5%↑)
+50.0% 63.3% 75.6% 92.4% 82.3% 66.7% 74.0% 65.2% 71.2%
+Planning
+(+0.0%↑) (-6.7%↓) (+6.0%↑) (+0.0%↑) (+0.0%↑) (+0.3%↑) (+9.5%↑) (+0.0%↑) (+1.1%↑)
+Primitives-based 56.7% 76.7% 79.3% 93.8% 85.3% 70.6% 81.9% 66.7% 76.4%
+MAS (+6.7%↑) (+6.7%↑) (+9.7%↑) (+1.4%↑) (+3.0%↑) (+4.2%↑) (+17.4%↑) (+1.5%↑) (+6.3%↑)
+5.3. Comparison with Existing MAS Methods prior methods (33.6-40.2%) by a large margin. Overall,
+these results indicate that agent primitives generalize well
+We further compare primitives-based MAS with 8 existing
+without task-specific system redesign.
+representative MAS methods, including LLM-Debate (Du
+et al., 2023), Self-Refine (Madaan et al., 2023), Quality-
+5.4. Efficiency Analysis
+Diversity (Lu et al., 2024), SPP (Wang et al., 2024),
+AgentVerse (Chen et al., 2023), GPTSwarm (Zhuge et al., We report detailed token usage and inference latency com-
+2024), DyLAN (Liu et al., 2024), and MAS-GPT (Ye parisons across tasks and model backbones in Appendix E.
+et al., 2025), under a unified setting using Llama-3-70B- Overall, Agent Primitives significantly improve the effi-
+Instruct (Grattafiori et al., 2024). We also include Chain- ciency–accuracy trade-off MAS. Compared to TextMAS,
+of-Thought (Wei et al., 2022) and Self-Consistency (Wang our method avoids excessive natural-language interaction,
+et al., 2022) as single-model prompting baselines. resulting in substantially lower token consumption and infer-
+ence latency while consistently achieving higher accuracy.
+As shown in Table 4, primitives-based MAS outperforms
+Although LatentMAS is often more efficient in terms of
+existing MAS methods across all benchmarks. In particular,
+tokens and speed due to aggressively chunking latent rea-
+it achieves the highest accuracy on MATH and HumanEval+,
+soning steps, this aggressive latent compression leads to
+improving over MAS-GPT by 3.7% and 3.4%, respectively.
+unstable and backbone-dependent performance. In contrast,
+The advantage of primitives-based MAS is most pronounced
+Agent Primitives adopt a conservative latent communication
+on GPQA, where it achieves 53.2% accuracy, surpassing
+strategy that yields stronger robustness and more consistent
+7
+
+## Page 8
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+Table 4. Performance comparison across MAS methods. Improve- very similar results (within about 0-2%), indicating that the
+ments are reported relative to the single-agent baseline.
+main benefit comes from problem-aware structure selection
+Methods MATH GSM8K HumanEval+ GPQA rather than a specific Organizer model.
+Single 50.6% 92.4% 75.8% 36.7%
+53.2% 92.8% 77.0% 35.3% On knowledge pool. We study the impact of the knowledge
+Chain-of-Thought
+(+2.6↑) (+0.4↑) (+1.2↑) (-1.4↓) pool by removing it and forcing the Organizer to construct
+Self-Consistency 61.6% 95.0% 75.8% 37.2% MAS structures without access to prior knowledge.
+(+11.0↑) (+2.6↑) (+0.0) (+0.5↑)
+61.4% 91.6% 74.5% 34.4% Table 6. Ablation study on the knowledge pool.
+LLM-Debate
+(+10.8↑) (-0.8↓) (-1.3↓) (-2.3↓)
+Models Knowledge Pool AIME25 HumanEval+ MedQA
+58.5% 90.8% 62.7% 38.3%
+Self-Refine (+7.9↑) (-1.6↓) (-13.1↓) (+1.6↑) Qwen3-8B w w / / o 63.3% 73 (- .3 1 % 0.0% ↓) 77.4% 82 ( . - 3 4 % .9% ↓) 71.6% 76 ( . - 7 5 % .1% ↓)
+60.5% 93.0% 70.2% 33.6% DeepSeek-R1-Distill w/ 56.7% 85.3% 81.9%
+Quality-Diversity (+9.9↑) (+0.6↑) (-5.6↓) (-3.1↓) LLaMA-70B w/o 50.0% (-6.7% ↓) 73.4% (-11.9% ↓) 75.9% (-6.0% ↓)
+51.7% 92.8% 73.3% 35.1%
+SPP
+(+1.1↑) (+0.4↑) (-2.5↓) (-1.6↓) As shown in Table 6, removing the knowledge pool consis-
+55.6% 93.4% 73.9% 40.2% tently degrades performance across tasks and both models.
+AgentVerse
+(+5.0↑) (+1.0↑) (-1.9↓) (+3.5↑)
+On Qwen3-8B, accuracy drops by about 10% on AIME25
+55.4% 93.2% 73.9% 36.5%
+GPTSwarm and 5-6% on HumanEval+ and MedQA, while the LLaMA-
+(+4.8↑) (+0.8↑) (-1.9↓) (-0.2↓)
+59.6% 91.2% 75.8% 36.0% based model shows declines of roughly 6-12 % depending
+DyLAN
+(+9.0↑) (-1.2↓) (+0.0) (-0.7↓) on the task. This indicates that the knowledge pool helps
+68.7% 93.4% 78.9% 37.6%
+MAS-GPT the Organizer select more effective primitive compositions.
+(+18.1↑) (+1.0↑) (+3.1↑) (+0.9↑)
+Primitives-based 72.4% 93.8% 82.3% 53.2% Moreover, we provide a generalization experiment on out-
+MAS (+21.8↑) (+1.4↑) (+6.5↑) (+16.5↑) of-pool tasks is provided in Appendix D.1.
+accuracy. Across models and tasks, Agent Primitives intro- On KV PoPE. We study the effect of RoPE in KV cache
+duce only a moderate overhead of about 1.3×-1.6× com- communication by comparing the default configuration with
+pared to single-agent inference, while remaining far more a variant that disables RoPE.
+efficient than text-based MAS. This balance makes Agent
+Table 7. Ablation study on KV cache RoPE.
+Primitives practical for deployment, offering stable perfor-
+Models RoPE Methods AIME25 HumanEval+ MedQA
+mance gains at acceptable computational cost. We also Review 60.0% 78.6% 64.2%
+Voting 66.7% 81.0% 70.3%
+provide token usage and cost-normalized efficiency compar- w/
+Planning 66.7% 78.6% 67.0%
+isons against all existing MAS methods in Appendix F. Qwen3-8B Primitives-based MAS 73.3% 82.3% 76.7%
+Review 56.7% (-3.3%↓) 73.8% (-4.8%↓) 61.5% (-2.7%↓)
+Voting 60.0% (-6.7%↓) 79.9% (-1.1%↓) 66.8% (-3.5%↓)
+w/o
+Planning 56.7% (-10.0%↓) 78.0% (-0.6%↓) 65.2% (-1.8%↓)
+5.5. Ablation Study Primitives-based MAS 60.0% (-13.3%↓) 81.1% (-1.2%↓) 74.0% (-2.7%↓)
+Review 50.0% 82.3% 72.9%
+Voting 56.7% 82.9% 77.8%
+To better understand the contribution of individual design w/ Planning 50.0% 82.3% 74.0%
+choices in Agent Primitives, we conduct a series of ablation DeepSeek-R1-Distill Primitives-based MAS 56.7% 85.3% 81.9%
+LLaMA-70B Review 16.7% (-33.3%↓) 22.6% (-59.7%↓) 31.4% (-41.5%↓)
+studies that isolate key components of the system. Voting 26.7% (-30.0%↓) 29.9% (-53.0%↓) 34.7% (-43.1%↓)
+w/o
+Planning 23.3% (-26.7%↓) 24.4% (-57.9%↓) 30.5% (-43.5%↓)
+Primitives-based MAS 26.7% (-30.0%↓) 31.1% (-54.2%↓) 36.6% (-45.3%↓)
+LLM as Organizer. We evaluate the effect of using an LLM
+as Organizer by replacing the default Organizer with (i) an-
+As shown in Table 7, removing RoPE degrades performance
+other LLM (Claude-4 (Anthropic, 2025)) and (ii) randomly
+on both models, with a much larger impact on DeepSeek-R1-
+selecting MAS structures from the knowledge pool.
+Distill-Llama-70B. On Qwen3-8B, primitives-based MAS
+Table 5. Ablation study on using an LLM as the Organizer. drops from 73.3% to 60.0% on AIME25 and from 76.7%
+to 74.0% on MedQA. On the LLaMA-based model, the
+Models Organizer AIME25 HumanEval+ MedQA
+degradation is severe, with drops from 56.7% to 26.7%
+GPT-5.2 73.3% 82.3% 76.7%
+Qwen3-8B Claude-4 73.3% (+0.0) 81.1% (-1.2%↓) 76.2% (-0.5%↓) (AIME25), 85.3% to 31.1% (HumanEval+), and 81.9% to
+Random 66.7% (-6.6%↓) 77.4% (-4.9%↓) 70.6% (-6.1%↓) 36.6% (MedQA). This shows that positional re-encoding is
+GPT-5.2 56.7% 85.3% 81.9%
+DeepSeek-R1-Distill critical for stable KV-cache communication, especially for
+Claude-4 56.7% (+0.0%) 83.5% (-1.8%↓) 81.9% (+0.0%)
+LLaMA-70B
+Random 50.0% (-6.7%↓) 78.6% (-6.7%↓) 69.5% (-12.4%↓) LLaMA-based backbones.
+As shown in Table 5, using an LLM as the Organizer con- More ablation studies, including a disentanglement analysis
+sistently outperforms random structure selection across of KV-cache communication versus primitive abstraction
+all tasks and both backbones. Random selection causes (Appendix D.2), an extended Organizer model ablation with
+clear performance drops, with decreases of about 5-7% open-source and iso-model settings (Appendix D.3), and
+on Qwen3-8B and up to 12.4% on DeepSeek-R1-Distill- a statistical analysis of primitive compositions across task
+LLaMA-70B. In contrast, different LLM Organizers yield types (Appendix D.4), are provided in the appendix.
+8
+
+## Page 9
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+6. Conclusion question answering? try arc, the ai2 reasoning challenge.
+arXiv preprint arXiv:1803.05457, 2018.
+We introduces Agent Primitives, a set of reusable latent
+building blocks for constructing MAS. By decomposing Cobbe, K., Kosaraju, V., Bavarian, M., Chen, M., Jun, H.,
+existing MAS designs into a small set of recurring compu- Kaiser, L., Plappert, M., Tworek, J., Hilton, J., Nakano,
+tation patterns and enabling KV cache communication, our R., et al. Training verifiers to solve math word problems.
+approach reduces architectural complexity and alleviates arXiv preprint arXiv:2110.14168, 2021.
+communication degradation in long-context settings. Exper-
+DeepSeek-AI. Deepseek-r1: Incentivizing reasoning ca-
+iments across eight benchmarks and five open-source LLMs
+pability in llms via reinforcement learning, 2025. URL
+show that Primitives-based MAS achieve consistent accu-
+https://arxiv.org/abs/2501.12948.
+racy improvements while significantly reducing tokens and
+inference latency compared to text-based MAS, providing a Du, Y., Li, S., Torralba, A., Tenenbaum, J. B., and Mordatch,
+scalable and task-agnostic foundation for building MAS. I. Improving factuality and reasoning in language models
+through multiagent debate. In Forty-first International
+Impact Statements Conference on Machine Learning, 2023.
+Multi-agent systems have demonstrated strong capabilities Fein-Ashley, J., Parikh, D., Kannan, R., and Prasanna, V.
+in solving complex real-world problems; however, their ar- Mixture of thoughts: Learning to aggregate what experts
+chitectural and design complexity often grows rapidly with think, not just what they say, 2025. URL https://
+task complexity, relying on handcrafted roles and interac- arxiv.org/abs/2509.21164.
+tion protocols. Our work introduces Agent Primitives, a
+Fu, T., Min, Z., Zhang, H., Yan, J., Dai, G., Ouyang, W.,
+set of reusable and task-agnostic latent building blocks for
+and Wang, Y. Cache-to-cache: Direct semantic commu-
+constructing multi-agent systems in a modular manner. By
+nication between large language models. arXiv preprint
+abstracting recurring multi-agent patterns into composable
+arXiv:2510.03215, 2025.
+primitives, analogous to residual blocks or attention heads
+in neural networks, our approach enables scalable and sys- Grattafiori, A., Dubey, A., Jauhri, A., Pandey, A., Kadian,
+tematic MAS design. We hope our Agent Primitives can A., Al-Dahle, A., Letman, A., Mathur, A., Schelten, A.,
+reduce engineering overhead, improve robustness across Vaughan, A., et al. The llama 3 herd of models. arXiv
+tasks and model backbones, and facilitate more principled preprint arXiv:2407.21783, 2024.
+development of multi-agent systems.
+He, K., Zhang, X., Ren, S., and Sun, J. Deep residual learn-
+ing for image recognition. In Proceedings of the IEEE
+Acknowledgment
+conference on computer vision and pattern recognition,
+pp. 770–778, 2016.
+This work was partially supported by the National Artifi-
+cial Intelligence Research Resource (NAIRR) Pilot under
+Hendrycks, D., Burns, C., Kadavath, S., Arora, A., Basart,
+awards NAIRR250400 and NAIRR240283, and Standing
+S., Tang, E., Song, D., and Steinhardt, J. Measuring math-
+Up to POTS, and also the gift from AICE.
+ematical problem solving with the math dataset. arXiv
+preprint arXiv:2103.03874, 2021.
+References
+Hong, S., Zhuge, M., Chen, J., Zheng, X., Cheng, Y., Wang,
+Anthropic. Introducing claude 4. https://www. J., Zhang, C., Wang, Z., Yau, S. K. S., Lin, Z., et al.
+anthropic.com/news/claude-4, 2025. Metagpt: Meta programming for a multi-agent collabora-
+tive framework. In The Twelfth International Conference
+Chen, K., Wang, P., Yu, Y., Zhan, X., and Wang, H. Large on Learning Representations, 2023.
+language model-based data science agent: A survey.
+Hu, S., Lu, C., and Clune, J. Automated design of agentic
+arXiv preprint arXiv:2508.02744, 2025.
+systems. arXiv preprint arXiv:2408.08435, 2024.
+Chen, W., Su, Y., Zuo, J., Yang, C., Yuan, C., Chan, C.-M.,
+Jin, D., Pan, E., Oufattole, N., Weng, W.-H., Fang, H., and
+Yu, H., Lu, Y., Hung, Y.-H., Qian, C., et al. Agentverse:
+Szolovits, P. What disease does this patient have? a
+Facilitating multi-agent collaboration and exploring emer-
+large-scale open domain question answering dataset from
+gent behaviors. In The Twelfth International Conference
+medical exams. Applied Sciences, 11(14):6421, 2021.
+on Learning Representations, 2023.
+Liang, T., He, Z., Jiao, W., Wang, X., Wang, Y., Wang, R.,
+Clark, P., Cowhey, I., Etzioni, O., Khot, T., Sabharwal, A., Yang, Y., Shi, S., and Tu, Z. Encouraging divergent think-
+Schoenick, C., and Tafjord, O. Think you have solved ing in large language models through multi-agent debate.
+9
+
+## Page 10
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+In Proceedings of the 2024 conference on empirical meth- Singh, A., Fry, A., Perelman, A., Tart, A., Ganesh, A.,
+ods in natural language processing, pp. 17889–17904, El-Kishky, A., McLaughlin, A., Low, A., Ostrow, A.,
+2024. Ananthram, A., et al. Openai gpt-5 system card. arXiv
+preprint arXiv:2601.03267, 2025.
+Liu, B., Li, X., Zhang, J., Wang, J., He, T., Hong, S., Liu,
+H., Zhang, S., Song, K., Zhu, K., et al. Advances and Su, J., Ahmed, M., Lu, Y., Pan, S., Bo, W., and Liu, Y.
+challenges in foundation agents: From brain-inspired in- Roformer: Enhanced transformer with rotary position
+telligence to evolutionary, collaborative, and safe systems. embedding. Neurocomputing, 568:127063, 2024.
+arXiv preprint arXiv:2504.01990, 2025.
+Tao, W., Zhou, Y., Wang, Y., Zhang, W., Zhang, H., and
+Liu, J., Xia, C. S., Wang, Y., and Zhang, L. Is your code Cheng, Y. Magis: Llm-based multi-agent framework for
+generated by chatgpt really correct? rigorous evaluation github issue resolution. Advances in Neural Information
+of large language models for code generation. Advances Processing Systems, 37:51963–51993, 2024.
+in Neural Information Processing Systems, 36:21558–
+21572, 2023. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones,
+L., Gomez, A. N., Kaiser, Ł., and Polosukhin, I. At-
+Liu, Z., Zhang, Y., Li, P., Liu, Y., and Yang, D. A dynamic tention is all you need. Advances in neural information
+llm-powered agent network for task-oriented agent col- processing systems, 30, 2017.
+laboration. In First Conference on Language Modeling,
+2024. Wang, K., Zhang, G., Ye, M., Deng, X., Wang, D., Hu, X.,
+Guo, J., Liu, Y., and Guo, Y. Mas 2: Self-generative, self-
+Lu, C., Hu, S., and Clune, J. Intelligent go-explore: Stand- configuring, self-rectifying multi-agent systems. arXiv
+ing on the shoulders of giant foundation models. arXiv preprint arXiv:2509.24323, 2025.
+preprint arXiv:2405.15143, 2024.
+Wang, X., Wei, J., Schuurmans, D., Le, Q., Chi, E., Narang,
+Madaan, A., Tandon, N., Gupta, P., Hallinan, S., Gao, S., Chowdhery, A., and Zhou, D. Self-consistency im-
+L., Wiegreffe, S., Alon, U., Dziri, N., Prabhumoye, S., proves chain of thought reasoning in language models.
+Yang, Y., et al. Self-refine: Iterative refinement with self- arXiv preprint arXiv:2203.11171, 2022.
+feedback. Advances in Neural Information Processing
+Systems, 36:46534–46594, 2023. Wang, Z., Mao, S., Wu, W., Ge, T., Wei, F., and Ji, H. Un-
+leashing the emergent cognitive synergy in large language
+math-ai. Aime 2025 dataset. 2025. URL models: A task-solving agent through multi-persona self-
+https://huggingface.co/datasets/ collaboration. In Proceedings of the 2024 Conference of
+math-ai/aime25. the North American Chapter of the Association for Com-
+putational Linguistics: Human Language Technologies
+Maxwell-Jia. Aime 2024 dataset. 2024. URL (Volume 1: Long Papers), pp. 257–279, 2024.
+https://huggingface.co/datasets/
+Maxwell-Jia/AIME_2024. Wei, J., Wang, X., Schuurmans, D., Bosma, M., Xia, F., Chi,
+E., Le, Q. V., Zhou, D., et al. Chain-of-thought prompting
+Qian, C., Xie, Z., Wang, Y., Liu, W., Zhu, K., Xia, H., elicits reasoning in large language models. Advances in
+Dang, Y., Du, Z., Chen, W., Yang, C., et al. Scaling neural information processing systems, 35:24824–24837,
+large language model-based multi-agent collaboration. 2022.
+In The Thirteenth International Conference on Learning
+Representations. Yan, B., Zhou, Z., Zhang, L., Zhang, L., Zhou, Z., Miao,
+D., Li, Z., Li, C., and Zhang, X. Beyond self-talk: A
+Qian, C., Liu, W., Liu, H., Chen, N., Dang, Y., Li, J., Yang, communication-centric survey of llm-based multi-agent
+C., Chen, W., Su, Y., Cong, X., et al. Chatdev: Commu- systems. arXiv preprint arXiv:2502.14321, 2025.
+nicative agents for software development. In Proceed-
+ings of the 62nd Annual Meeting of the Association for Yang, A., Li, A., Yang, B., Zhang, B., Hui, B., Zheng, B.,
+Computational Linguistics (Volume 1: Long Papers), pp. Yu, B., Gao, C., Huang, C., Lv, C., et al. Qwen3 technical
+15174–15186, 2024. report. arXiv preprint arXiv:2505.09388, 2025a.
+Rein, D., Hou, B. L., Stickland, A. C., Petty, J., Pang, R. Y., Yang, Y., Chai, H., Shao, S., Song, Y., Qi, S., Rui, R.,
+Dirani, J., Michael, J., and Bowman, S. R. Gpqa: A and Zhang, W. Agentnet: Decentralized evolutionary
+graduate-level google-proof q&a benchmark. In First coordination for llm-based multi-agent systems. arXiv
+Conference on Language Modeling, 2024. preprint arXiv:2504.00587, 2025b.
+10
+
+## Page 11
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+Ye, R., Tang, S., Ge, R., Du, Y., Yin, Z., Chen, S., and Shao,
+J. Mas-gpt: Training llms to build llm-based multi-agent
+systems. arXiv preprint arXiv:2503.03686, 2025.
+Yu, Y., Liu, H., Jin, H., Yuan, X., Kuang, P., and Wang,
+H. Learning to communicate: Toward end-to-end opti-
+mization of multi-agent language systems. arXiv preprint
+arXiv:2604.21794, 2026.
+Zhang, J., Xiang, J., Yu, Z., Teng, F., Chen, X., Chen, J.,
+Zhuge, M., Cheng, X., Hong, S., Wang, J., et al. Aflow:
+Automating agentic workflow generation. arXiv preprint
+arXiv:2410.10762, 2024a.
+Zhang, X., Chen, Y., Hu, S., Xu, Z., Chen, J., Hao, M. K.,
+Han, X., Thai, Z. L., Wang, S., Liu, Z., et al. ınftybench:
+Extending long context evaluation beyond 100k tokens.
+In ACL (1), 2024b.
+Zhao, W., Yuksekgonul, M., Wu, S., and Zou, J. Sirius:
+Self-improving multi-agent systems via bootstrapped rea-
+soning. arXiv preprint arXiv:2502.04780, 2025.
+Zheng, Y., Zhao, Z., Li, Z., Xie, Y., Gao, M., Zhang, L.,
+and Zhang, K. Thought communication in multiagent
+collaboration. arXiv preprint arXiv:2510.20733, 2025.
+Zhuge, M., Wang, W., Kirsch, L., Faccio, F., Khizbullin, D.,
+and Schmidhuber, J. Gptswarm: Language agents as op-
+timizable graphs. In Forty-first International Conference
+on Machine Learning, 2024.
+Zou, J., Yang, X., Qiu, R., Li, G., Tieu, K., Lu, P., Shen, K.,
+Tong, H., Choi, Y., He, J., et al. Latent collaboration in
+multi-agent systems. arXiv preprint arXiv:2511.20639,
+2025.
+11
+
+## Page 12
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+A. System Prompt for Each Agent Primitive
+In this section, we provide the system prompts used to instantiate each Agent Primitive. These prompts specify the functional
+roles and behavioral constraints of internal agents, while remaining independent of task-specific content and implementation
+details. Importantly, the system prompts do not encode explicit problem-solving strategies. Instead, they define clear role
+boundaries and interaction assumptions, ensuring that each primitive exhibits consistent and reusable behavior across tasks.
+All primitives expose the same external interface as a standard LLM agent, allowing them to be composed and substituted in
+a plug-and-play manner.
+A.1. Review Primitive
+Solver
+You are a helpful assistant acting as a Solver within a Review Primitive. Your role is to participate in iterative
+refinement of a solution. You may generate, evaluate, or revise intermediate internal reasoning states.
+You should focus on identifying errors, inconsistencies, or missing reasoning, and incorporate feedback from other
+internal agents to improve the solution.
+Do not assume access to complete or finalized outputs from other agents. Only the final refined result should be
+exposed as the external output.
+Critic
+You are a helpful assistant acting as a Critic within a Review Primitive.
+Your role is to evaluate intermediate solution states and identify potential issues, including errors, inconsistencies, or
+missing reasoning steps.
+You should provide targeted feedback that helps guide further improvement, but you must not revise, rewrite, or
+complete the solution yourself.
+Do not produce a final answer. Only provide evaluative signals to support refinement by other internal agents.
+A.2. Voting and Selection Primitive
+Solver
+You are a helpful assistant acting as a Solver within a Voting and Selection Primitive.
+Your role is to independently generate a candidate solution to the given task. You should rely only on the input query
+and your own reasoning process.
+Do not assume access to solutions produced by other agents. Do not attempt to coordinate or align with other
+Solvers.
+Only your candidate solution will be used for subsequent comparison or selection.
+Selector
+You are a helpful assistant acting as a Selector within a Voting and Selection Primitive.
+Your role is to evaluate multiple candidate solutions produced by different agents and select or aggregate them into a
+single final result.
+You should base your decision on correctness, consistency, and overall solution quality. Do not introduce new
+reasoning that is not grounded in the provided candidates.
+Only the selected or aggregated result should be exposed as the external output.
+12
+
+## Page 13
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+A.3. Planning and Execution Primitive
+Planner
+You are a helpful assistant acting as a Planner within a Planning and Execution Primitive.
+Your role is to analyze the input task and construct a structured plan that decomposes the task into intermediate steps
+or subgoals.
+Focus on outlining what needs to be done rather than performing the task itself. Do not produce the final solution.
+The generated plan will be used to guide subsequent task execution.
+Executor
+You are a helpful assistant acting as an Executor within a Planning and Execution Primitive.
+Your role is to perform task-specific reasoning and execution based on a plan produced by another internal agent.
+You should follow the given plan and focus on completing the required steps. Do not modify or redesign the plan.
+Only the final execution result should be exposed as the external output.
+B. Prompt for Organizer
+The Organizer is responsible for constructing a primitive-based multi-agent system given an input query. Unlike conventional
+multi-agent frameworks that explicitly specify agent roles and interaction protocols, the Organizer operates at the level of
+Agent Primitives, selecting and composing reusable primitives to form a system-level computation structure.
+The Organizer does not solve the task itself. Instead, it determines which primitives to instantiate and how they should be
+composed, optionally leveraging prior system designs stored in the Knowledge Pool as structural guidance. The resulting
+system is fully expressed in terms of Agent Primitives and can be executed without manual system design.
+Organizer Prompt
+You are a helpful assistant acting as the Organizer. Your role is to construct a primitive-based multi-agent system
+for a given input query. You are responsible for selecting appropriate Agent Primitives and determining how they
+should be composed to fulfill the task.
+You must reason at the level of primitives, not individual agent behaviors. Do not design task-specific agent roles or
+natural-language interaction protocols.
+You must not solve the task or generate the final answer. Your output should describe system structure only.
+Input
+You are given:
+• A user query specifying the task.
+• A set of available Agent Primitives, including Review, Voting and Selection, and Planning and Execution.
+• A Knowledge Pool containing previously observed queries paired with effective multi-agent system structures.
+Instruction
+Given the input query:
+1. Analyze the task requirements and complexity.
+2. Select appropriate Agent Primitives from the available set.
+3. Determine the execution order and composition structure of the selected primitives.
+When consulting the Knowledge Pool, use retrieved examples only as structural guidance. Abstract retrieved systems
+into compositions of Agent Primitives, and replace task-specific agents with corresponding primitives.
+13
+
+## Page 14
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+Output
+Produce a primitive composition plan that specifies:
+• Which Agent Primitives are instantiated.
+• How the primitives are composed in code.
+Do not include task solutions, intermediate reasoning, or final answers.
+C. Addition Experiments of Agent Primitives Across Tasks
+Table 8 reports additional results on smaller and medium-scale backbones (Qwen3-4B and Qwen3-14B) across math problem
+solving, code generation, and Q&A benchmarks.
+The results show trends consistent with those observed on larger models. Primitives-based MAS consistently outperform
+single-agent baselines and existing MAS methods across most tasks and benchmarks. Performance gains remain stable
+across task categories, indicating that the effectiveness of Agent Primitives is not limited to large backbones.
+Individual primitives already provide measurable improvements over single-agent inference, but no single primitive
+dominates across all tasks. Composing multiple primitives into a unified primitives-based MAS further yields additional
+gains over the strongest individual primitive, demonstrating the benefit of primitive composition across model scales.
+Table 8. Accuracy (%) comparison between baselines and Agent Primitives on math problem solving (AIME25, AIME24, MATH,
+GSM8K), code generation (HumanEval+, MBPP+), and Q&A (MedQA, GPQA-Diamond) across Qwen3-4B and 8B. We report absolute
+accuracy and average (Avg.) accuracy, along with the improvement over the single-agent baseline (pp, ↑). Best results are in bold.
+Models Methods Math Problem Solving Code Generation Q&A Avg.
+AIME25 AIME24 MATH GSM8K HumanEval+ MBPP+ MedQA GPQA-Diamond
+Single 43.3% 43.3% 54.1% 82.4% 75.0% 63.5% 47.7% 36.3% 55.7%
+43.3% 46.7% 55.4% 89.8% 79.7% 69.8% 65.3% 40.4% 61.3%
+TextMAS
+(+0.0%↑) (+3.4%↑) (+1.3%↑) (+7.4%↑) (+4.7%↑) (+6.3%↑) (+17.6%↑) (+4.1%↑) (+5.6%↑)
+50.0% 56.7% 59.6% 88.2% 79.9% 73.5% 66.3% 41.9% 64.5%
+LatentMAS
+(+6.7%↑) (+13.4%↑) (+5.5%↑) (+5.8%↑) (+4.9%↑) (+10.0%↑) (+18.6%↑) (+5.6%↑) (+8.8%↑)
+46.7% 56.7% 54.9% 88.6% 77.4% 72.2% 54.6% 45.5% 62.1%
+Review
+Qwen3-4B (+3.4%↑) (+13.4%↑) (+0.8%↑) (+6.2%↑) (+2.4%↑) (+8.7%↑) (+6.9%↑) (+9.2%↑) (+6.4%↑)
+53.3% 63.3% 56.6% 90.4% 79.2% 73.8% 63.8% 47.7% 66.0%
+Voting
+(+10.0%↑) (+20.0%↑) (+2.5%↑) (+8.0%↑) (+4.2%↑) (+10.3%↑) (+16.1%↑) (+11.4%↑) (+10.3%↑)
+50.0% 56.7% 55.6% 90.0% 77.4% 72.2% 60.7% 42.4% 63.1%
+Planning
+(+6.7%↑) (+13.4%↑) (+1.5%↑) (+7.6%↑) (+2.4%↑) (+8.7%↑) (+13.0%↑) (+6.1%↑) (+7.4%↑)
+Primitives-based 63.3% 66.7% 60.5% 91.6% 79.9% 76.4% 67.7% 50.5% 69.6%
+MAS (+20.0%↑) (+23.4%↑) (+6.4%↑) (+9.2%↑) (+4.9%↑) (+12.9%↑) (+20.0%↑) (+14.2%↑) (+13.9%↑)
+Single 56.7% 63.3% 62.0% 83.8% 76.8% 68.5% 64.7% 48.5% 65.5%
+60.0% 63.3% 68.6% 93.8% 81.1% 72.8% 80.3% 51.5% 71.4%
+TextMAS
+(+3.3%↑) (+0.0%↑) (+6.6%↑) (+10.0%↑) (+4.3%↑) (+4.3%↑) (+15.6%↑) (+3.0%↑) (+5.9%↑)
+63.3% 66.7% 72.2% 95.2% 83.5% 75.7% 80.7% 52.0% 73.7%
+LatentMAS
+(+6.6%↑) (+3.4%↑) (+10.2%↑) (+11.4%↑) (+6.7%↑) (+7.2%↑) (+16.0%↑) (+3.5%↑) (+8.1%↑)
+63.3% 66.7% 68.5% 94.4% 82.3% 73.8% 74.6% 52.0% 73.0%
+Review
+Qwen3-14B (+6.6%↑) (+3.4%↑) (+6.5%↑) (+10.6%↑) (+5.5%↑) (+5.3%↑) (+9.9%↑) (+3.5%↑) (+7.4%↑)
+66.7% 70.0% 72.0% 95.2% 85.3% 75.7% 77.7% 52.0% 74.3%
+Voting
+(+10.0%↑) (+6.7%↑) (+10.0%↑) (+11.4%↑) (+8.5%↑) (+7.2%↑) (+13.0%↑) (+3.5%↑) (+8.8%↑)
+66.7% 63.3% 69.7% 94.6% 83.5% 74.6% 75.2% 51.5% 72.6%
+Planning
+(+10.0%↑) (+0.0%↑) (+7.7%↑) (+10.8%↑) (+6.7%↑) (+6.1%↑) (+10.5%↑) (+3.0%↑) (+7.1%↑)
+Primitives-based 73.3% 76.7% 76.4% 95.6% 86.6% 76.9% 81.5% 53.5% 77.6%
+MAS (+16.6%↑) (+13.4%↑) (+14.4%↑) (+11.8%↑) (+9.8%↑) (+8.4%↑) (+16.8%↑) (+5.0%↑) (+12.0%↑)
+D. Addition Ablations
+D.1. Generalization to Out-of-Pool Tasks
+To evaluate whether the framework generalizes to tasks absent from the Knowledge Pool, we conduct experiments on
+ARC-Challenge (Clark et al., 2018), a commonsense reasoning benchmark with no entries in our 45-entry Knowledge Pool.
+14
+
+## Page 15
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+Table 9. Accuracy on ARC-Challenge (no pool entries). “Organizer w/o Pool” uses zero-shot primitive composition.
+Model Single LatentMAS Random Organizer w/o Pool Organizer w/ Pool
+Qwen3-4B 89.2% 91.7% 89.8% 91.7% 92.9%
+Qwen3-8B 91.0% 93.9% 92.2% 93.3% 94.5%
+Even without the Knowledge Pool, the Organizer outperforms the single-agent baseline by +2.5% and +2.3% on Qwen3-4B
+and Qwen3-8B, respectively, and outperforms random structure selection by +1.9% and +1.1%. The Knowledge Pool
+provides a further +1.2% gain on average despite no ARC-specific entries, suggesting that retrieved structural patterns from
+related tasks transfer effectively to novel task types.
+D.2. Disentangling KV-Cache from Primitive Abstraction
+To disentangle the contribution of KV-cache communication from the primitive abstraction itself, we compare text-based
+and KV-cache-based communication for each individual primitive on AIME25 using Qwen3-8B.
+Table 10. Accuracy of each primitive under text-based vs. KV-cache-based on AIME25 (Qwen3-8B).
+Method Review Voting Planning
+Text 50.0% 56.7% 53.3%
+KV Cache 60.0% 66.7% 66.7%
+KV-cache communication consistently improves accuracy across all three primitives (+10.0%, +10.0%, +13.4%, respec-
+tively). Combined with the single-primitive results in Table 3, where each primitive already outperforms the single-agent
+baseline without the Organizer or Knowledge Pool, this confirms that both the primitive abstraction and the KV-cache
+communication independently contribute to performance gains.
+D.3. Organizer Model Sensitivity
+In the main experiments, we use GPT-5.2 as the default Organizer to select and compose agent primitives for each input
+query. To evaluate whether the performance gains of primitive-based MAS depend strongly on the choice of Organizer, we
+conduct an additional ablation using multiple Organizer models, including both closed-source and open-source models. The
+worker model and evaluation setting are kept unchanged.
+Table 11. Organizer model sensitivity analysis.
+Organizer MATH GSM8K HumanEval+ GPQA
+GPT-5.2 72.4% 93.8% 82.3% 53.2%
+Claude-4 72.8% 93.2% 81.1% 53.6%
+Qwen3-32B 71.3% 89.8% 78.6% 49.1%
+Llama-3-70B-Instruct 72.0% 91.8% 81.0% 52.2%
+As shown in Table 11, closed-source Organizers achieve comparable performance, while the open-source Qwen3-32B
+Organizer shows a moderate performance drop. We attribute this to the Organizer’s ability to understand task requirements
+and select appropriate primitive compositions. Importantly, even under the iso-model setting where Llama-3-70B-Instruct is
+used as the Organizer, primitive-based MAS remains competitive, with only a modest drop compared to GPT-5.2. This
+suggests that although Organizer capability affects composition quality, the effectiveness of the framework does not solely
+rely on a proprietary Organizer.
+D.4. Primitive Composition Statistics
+To better understand how the Organizer uses different primitives across task types, we analyze primitive compositions
+selected on 100 examples from each task category. Table 12 reports the percentage of selected primitives for MATH,
+HumanEval, and MedQA.
+The selected compositions vary substantially across task types. Math tasks favor Voting and Planning primitives, reflecting
+the benefit of diverse candidate reasoning and structured decomposition. Code generation tasks more frequently invoke
+Planning, which is consistent with the need to decompose programming problems into implementation steps. QA tasks
+rely more heavily on Review, suggesting that iterative self-correction is particularly useful when factual or domain-specific
+reasoning is required. These results show that the Organizer does not apply a fixed architecture, but instead adapts primitive
+15
+
+## Page 16
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+Table 12. Primitive composition statistics across task types. We report the percentage of each primitive selected by the Organizer and the
+average number of primitives used per query.
+Primitive MATH HumanEval MedQA
+Review 15% 22% 48%
+Voting 52% 18% 35%
+Planning 33% 60% 17%
+Avg. # Primitives 3.4 2.8 2.5
+composition to the task structure.
+E. Efficiency Analysis Across Model Backbones
+Tables 13 and 14 report the token usage and inference latency of different methods across tasks and model backbones.
+Overall, Agent Primitives achieve a favorable balance between performance gains and computational cost, significantly
+reducing the inefficiency of text-based MAS while remaining within an acceptable overhead compared to single-agent
+inference.
+Token Efficiency. Compared to TextMAS, Agent Primitives consistently reduce token usage by a large margin across all
+models and tasks. TextMAS incurs substantial token overhead due to explicit natural-language interaction, often increasing
+token consumption by more than 2×–4× relative to the single-agent baseline. In contrast, primitives-based MAS typically
+reduces token usage by 30%–40% on smaller and medium-sized models, and avoids the extreme token explosion observed
+in text-based MAS.
+LatentMAS generally achieves the lowest token usage, benefiting from aggressive chunking of latent reasoning steps.
+However, this reduction in token consumption comes at the cost of reduced robustness and model-dependent behavior,
+as shown by its unstable performance across different backbones. Agent Primitives adopt a more conservative latent
+communication strategy, trading a modest increase in tokens for significantly improved stability and accuracy.
+Inference Speed. A similar trend is observed in inference latency. TextMAS dramatically increases inference time, often by
+4×–6×, due to long textual exchanges and multi-round prompting. LatentMAS is typically faster than other MAS variants,
+as chunked latent reasoning reduces the number of decoding steps.
+Primitives-based MAS introduces moderate latency overhead compared to single-agent inference, but remains substantially
+faster than TextMAS across all settings. In practice, the latency of Agent Primitives is generally within 1.3×–1.6× of
+single-agent inference, which we find to be a reasonable trade-off given the consistent and significant accuracy improvements
+reported in Table 3.
+Accuracy–Efficiency Trade-off. Taken together, these results highlight a clear trade-off among MAS designs. TextMAS
+suffers from prohibitive token and latency overhead, while LatentMAS prioritizes efficiency through aggressive compression
+but exhibits unstable performance across models. Agent Primitives occupy a middle ground, achieving strong and consistent
+accuracy gains with moderate and predictable computational cost.
+F. Efficiency Analysis Against Existing MAS Methods
+While Appendix E reports token usage and inference latency across five model backbones compared to single-agent
+and latent MAS baselines, this section extends the efficiency analysis to all existing MAS methods from Table 4 using
+Llama-3-70B-Instruct, and provides a cost-normalized comparison.
+F.1. Token Usage Comparison
+Table 15 extends the token usage comparison to all baseline MAS methods using Llama-3-70B-Instruct. Token counts cover
+the entire pipeline including Organizer inference.
+Primitives-based MAS uses fewer tokens than all MAS baselines across all benchmarks, typically 2–6× fewer than most
+methods. Importantly, the Organizer contributes only 200–400 output tokens per query (functioning as a MAS builder rather
+than a task solver), confirming that the token reduction is not an artifact of excluding Organizer costs.
+16
+
+## Page 17
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+Table 13. Token usage comparison between baselines and Agent Primitives on math problem solving (AIME25, AIME24, MATH,
+GSM8K), code generation (HumanEval+, MBPP+), and Q&A (MedQA, GPQA-Diamond) across five models. We report the absolute
+number of tokens, the relative change compared to the single-agent baseline, and the average (Avg.). Best results are highlighted in bold.
+Models Methods Math Problem Solving Code Generation Q&A Avg.
+AIME25 AIME24 MATH GSM8K HumanEval+ MBPP+ MedQA GPQA-Diamond
+Single 12,786 11,734 1,414 1,136 2,380 1,634 2,134 6,692 5,238
+43,762 36,219 2,915 3,172 5,987 4,420 3,962 18,308 14,343
+TextMAS
+(+242.3%) (+208.7%) (+106.2%) (+179.3%) (+151.6%) (+170.6%) (+85.6%) (+173.6%) (+174.0%)
+8,929 8,637 974 607 1,775 1,339 1,685 4,293 3,280
+LatentMAS
+(-30.2%) (-26.4%) (-31.1%) (-46.6%) (-25.4%) (-18.1%) (-21.0%) (-35.9%) (-37.4%)
+8,793 8,221 1,024 629 1,851 1,510 1,625 4,125 3,222
+Review
+Qwen3-4B (-31.2%) (-29.9%) (-27.6%) (-44.6%) (-22.2%) (-7.6%) (-23.8%) (-38.3%) (-38.5%)
+9,067 8,493 912 519 1,823 1,421 1,664 4,039 3,242
+Voting
+(-29.1%) (-27.6%) (-35.5%) (-54.3%) (-23.4%) (-13.0%) (-22.0%) (-39.7%) (-38.1%)
+8,921 8,375 1,124 685 1,886 1,476 1,703 4,255 3,303
+Planning
+(-30.2%) (-28.6%) (-20.5%) (-39.7%) (-20.8%) (-9.7%) (-20.2%) (-36.4%) (-36.9%)
+Primitives-based 8,336 8,821 1,066 663 1,961 1,527 1,731 4,699 3,350
+MAS (-34.8%) (-24.8%) (-24.6%) (-41.6%) (-17.6%) (-6.5%) (-18.9%) (-29.8%) (-36.0%)
+Single 14,692 12,891 1,337 1,280 2,507 2,053 2,098 6,435 5,411
+45,088 38,596 2,842 2,324 4,593 3,695 4,260 17,986 14,923
+TextMAS
+(+206.8%) (+199.4%) (+112.6%) (+81.6%) (+83.2%) (+80.0%) (+103.0%) (+179.5%) (+175.8%)
+8,699 8,953 985 860 1,866 1,164 1,555 4,571 3,457
+LatentMAS
+(-40.8%) (-30.6%) (-26.3%) (-32.8%) (-25.6%) (-43.3%) (-25.9%) (-29.0%) (-36.1%)
+8,921 9,562 930 874 1,893 1,434 1,603 4,906 3,515
+Review
+Qwen3-8B (-39.3%) (-25.8%) (-30.5%) (-31.7%) (-24.5%) (-30.2%) (-23.6%) (-23.7%) (-35.0%)
+8,256 8,742 867 853 1,716 1,388 1,412 4,726 3,371
+Voting
+(-43.8%) (-32.2%) (-35.1%) (-33.4%) (-31.5%) (-32.4%) (-32.7%) (-26.5%) (-37.7%)
+8,627 9,172 956 974 1,824 1,419 1,524 4,697 3,524
+Planning
+(-41.3%) (-28.9%) (-28.5%) (-23.9%) (-27.2%) (-30.9%) (-27.4%) (-27.0%) (-34.9%)
+Primitives-based 8,519 8,933 1,092 938 1,935 1,536 1,498 5,016 3,558
+MAS (-42.0%) (-30.7%) (-18.3%) (-26.7%) (-22.8%) (-25.1%) (-28.6%) (-22.0%) (-34.3%)
+Single 11,298 11,263 1,380 1,118 2,366 1,858 1,746 5,547 4,572
+44,618 32,092 2,956 3,324 5,934 4,971 3,444 12,676 13,752
+TextMAS
+(+294.9%) (+184.9%) (+114.2%) (+197.3%) (+150.8%) (+167.6%) (+97.3%) (+128.5%) (+200.8%)
+11,402 10,593 1,045 644 2,042 1,621 1,841 5,454 4,330
+LatentMAS
+(+0.9%) (-6.0%) (-24.3%) (-42.4%) (-13.7%) (-12.8%) (+5.4%) (-1.7%) (-5.3%)
+12,142 10,243 1,098 642 2,122 1,777 1,826 5,693 4,443
+Review
+Qwen3-14B (+7.5%) (-9.0%) (-20.4%) (-42.6%) (-10.3%) (-4.4%) (+4.6%) (+2.6%) (-2.8%)
+12,095 9,984 1,025 603 1,935 1,628 1,725 5,471 4,308
+Voting
+(+7.1%) (-11.4%) (-25.7%) (-46.1%) (-18.2%) (-12.4%) (-1.2%) (-1.4%) (-5.8%)
+12,189 11,031 1,137 694 2,308 1,637 1,842 5,589 4,553
+Planning
+(+7.9%) (-2.1%) (-17.6%) (-37.9%) (-2.4%) (-11.9%) (+5.5%) (+0.8%) (-0.4%)
+Primitives-based 12,033 9,627 1,150 597 2,397 1,858 1,894 5,209 4,221
+MAS (+6.5%) (-14.5%) (-16.7%) (-46.6%) (+1.3%) (0.0%) (+8.5%) (-6.1%) (-7.7%)
+Single 13,629 8,746 1,425 870 4,832 1,248 2,104 5,981 4,854
+42,198 3,455 3,107 3,419 12,487 4,089 4,725 17,688 11,396
+TextMAS
+(+209.7%) (-60.5%) (+118.0%) (+293.0%) (+158.5%) (+227.6%) (+124.6%) (+195.7%) (+134.8%)
+14,271 10,297 1,126 563 4,156 1,121 1,843 4,842 4,028
+LatentMAS
+(+4.7%) (+17.7%) (-21.0%) (-35.3%) (-14.0%) (-10.2%) (-12.4%) (-19.0%) (-17.0%)
+14,912 10,553 1,068 652 4,312 1,187 1,916 4,916 4,189
+DeepSeek-R1-Distill Review
+(+9.4%) (+20.6%) (-25.1%) (-25.1%) (-10.8%) (-4.9%) (-8.9%) (-17.8%) (-13.7%)
+Qwen-32B
+14,339 9,767 1,091 566 4,088 1,094 1,821 4,763 3,941
+Voting
+(+5.2%) (+11.7%) (-23.4%) (-34.9%) (-15.4%) (-12.3%) (-13.4%) (-20.4%) (-18.8%)
+14,566 10,634 1,174 591 4,563 1,235 2,033 4,885 4,335
+Planning
+(+6.9%) (+21.6%) (-17.6%) (-32.1%) (-5.6%) (-1.0%) (-3.4%) (-18.3%) (-10.7%)
+Primitives-based 14,475 9,758 1,219 616 4,426 1,079 1,971 5,016 4,195
+MAS (+6.2%) (+11.6%) (-14.5%) (-29.2%) (-8.4%) (-13.6%) (-6.3%) (-16.1%) (-13.6%)
+Single 14,823 9,431 1,550 912 5,631 1,534 2,042 6,217 5,268
+45,219 36,821 3,413 3,654 14,829 5,176 4,093 18,942 16,268
+TextMAS
+(+205.1%) (+290.5%) (+120.2%) (+300.4%) (+163.5%) (+237.5%) (+100.5%) (+204.6%) (+208.7%)
+14,394 11,028 1,251 589 4,788 1,342 1,742 5,133 4,533
+LatentMAS
+(-2.9%) (+16.9%) (-19.3%) (-35.4%) (-15.0%) (-12.5%) (-14.7%) (-17.4%) (-14.0%)
+16,208 11,487 1,389 683 4,719 1,468 1,893 5,219 4,883
+DeepSeek-R1-Distill Review
+(+9.3%) (+21.8%) (-10.4%) (-25.1%) (-16.2%) (-4.3%) (-7.3%) (-16.0%) (-7.3%)
+LLaMA-70B
+15,642 10,523 1,322 594 4,516 1,381 1,765 5,021 4,471
+Voting
+(+5.5%) (+11.6%) (-14.7%) (-34.9%) (-19.8%) (-10.0%) (-13.6%) (-19.3%) (-15.2%)
+15,871 11,322 1,458 623 4,687 1,392 1,822 5,104 4,910
+Planning
+(+7.0%) (+20.0%) (-6.0%) (-31.7%) (-16.8%) (-9.3%) (-10.8%) (-17.9%) (-6.8%)
+Primitives-based 15,723 10,641 1,328 645 4,589 1,309 1,816 5,328 4,922
+MAS (+6.1%) (+12.8%) (-14.3%) (-29.3%) (-18.5%) (-14.7%) (-11.1%) (-14.3%) (-6.6%)
+17
+
+## Page 18
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+Table 14. Speed (s) comparison between baselines and Agent Primitives on math problem solving (AIME25, AIME24, MATH, GSM8K),
+code generation (HumanEval+, MBPP+), and Q&A (MedQA, GPQA-Diamond) across five models. We report the absolute number of
+speed, the relative change compared to the single-agent baseline, and the average (Avg.). Best results are highlighted in bold.
+Models Methods Math Problem Solving Code Generation Q&A Avg.
+AIME25 AIME24 MATH GSM8K HumanEval+ MBPP+ MedQA GPQA-Diamond
+Single 437 407 435 469 274 523 236 803 448
+2914 2684 1627 1970 1044 2148 1267 5269 2365
+TextMAS
+(+566.6%) (+559.5%) (+274.0%) (+320.0%) (+281.0%) (+310.7%) (+436.9%) (+556.1%) (+428.1%)
+748 702 362 375 350 577 438 784 542
+LatentMAS
+(+71.2%) (+72.5%) (-16.8%) (-20.0%) (+27.7%) (+10.3%) (+85.6%) (-2.4%) (+21.0%)
+866 781 427 368 401 559 411 896 589
+Review
+Qwen3-4B (+98.2%) (+91.9%) (-1.8%) (-21.5%) (+46.4%) (+6.9%) (+74.2%) (+11.6%) (+31.4%)
+915 749 409 319 376 526 457 781 567
+Voting
+(+109.4%) (+84.0%) (-6.0%) (-32.0%) (+37.2%) (+0.6%) (+93.6%) (-2.7%) (+26.6%)
+899 833 495 411 413 617 454 902 628
+Planning
+(+105.7%) (+104.7%) (+13.8%) (-12.4%) (+50.7%) (+18.0%) (+92.4%) (+12.3%) (+40.2%)
+Primitives-based 1027 827 511 453 506 649 563 997 692
+MAS (+135.0%) (+103.2%) (+17.5%) (-3.4%) (+84.7%) (+24.1%) (+138.6%) (+24.1%) (+54.5%)
+Single 450 421 397 449 502 1064 476 813 571
+3150 2808 1680 1739 1619 3628 1923 5771 2915
+TextMAS
+(+600.0%) (+566.7%) (+323.2%) (+287.3%) (+222.5%) (+240.9%) (+304.0%) (+610.1%) (+410.7%)
+820 688 385 543 497 1275 928 854 749
+LatentMAS
+(+82.2%) (+63.4%) (-3.0%) (+21.0%) (-1.0%) (+19.8%) (+94.9%) (+5.0%) (+31.2%)
+867 707 393 635 487 1128 961 812 749
+Review
+Qwen3-8B (+92.7%) (+67.9%) (-1.0%) (+41.4%) (-3.0%) (+6.0%) (+101.9%) (-0.1%) (+31.2%)
+905 643 381 596 415 1306 866 749 608
+Voting
+(+101.1%) (+52.7%) (-4.0%) (+32.7%) (-17.3%) (+22.7%) (+81.9%) (-7.9%) (+6.5%)
+974 696 468 667 452 1377 937 907 810
+Planning
+(+116.4%) (+65.3%) (+17.9%) (+48.6%) (-10.0%) (+29.4%) (+96.8%) (+11.6%) (+41.9%)
+Primitives-based 1102 754 525 734 526 1412 905 1012 871
+MAS (+144.9%) (+79.1%) (+32.2%) (+63.5%) (+4.8%) (+32.7%) (+90.1%) (+24.5%) (+52.5%)
+Single 1040 1018 516 536 1084 2410 1360 1043 1138
+5184 4554 1159 3729 4062 8728 4142 9714 5134
+TextMAS
+(+398.5%) (+347.4%) (+124.6%) (+595.7%) (+274.7%) (+262.2%) (+204.6%) (+831.1%) (+351.0%)
+1473 1149 587 1952 1285 2400 1420 1475 1468
+LatentMAS
+(+41.6%) (+12.9%) (+13.8%) (+264.2%) (+18.6%) (-0.4%) (+4.4%) (+41.4%) (+29.0%)
+1495 1204 612 2099 1243 2501 1431 1507 1511
+Review
+Qwen3-14B (+43.8%) (+18.3%) (+18.6%) (+291.6%) (+14.7%) (+3.8%) (+5.2%) (+44.5%) (+32.8%)
+1426 1077 593 2038 1198 2438 1387 1463 1453
+Voting
+(+37.1%) (+5.8%) (+14.9%) (+280.2%) (+10.5%) (+1.2%) (+2.0%) (+40.3%) (+27.7%)
+1571 1251 684 2125 1355 2513 1488 1528 1564
+Planning
+(+51.1%) (+22.9%) (+32.6%) (+296.5%) (+25.0%) (+4.3%) (+9.4%) (+46.6%) (+37.5%)
+Primitives-based 1603 1316 720 2167 1437 2769 1430 1631 1634
+MAS (+54.1%) (+29.3%) (+39.5%) (+304.3%) (+32.6%) (+14.9%) (+5.1%) (+56.4%) (+43.6%)
+Single 926 749 626 583 3124 2847 804 993 1456
+4628 3981 1815 3552 9432 9124 2231 6897 4570
+TextMAS
+(+399.8%) (+431.5%) (+190.0%) (+509.4%) (+201.8%) (+220.5%) (+177.4%) (+594.4%) (+214.0%)
+1409 1196 691 652 2483 2634 982 1129 1397
+LatentMAS
+(+52.2%) (+59.5%) (+10.4%) (+11.8%) (-20.5%) (-7.5%) (+22.1%) (+13.7%) (-4.1%)
+1473 1257 712 749 2619 2751 1017 1123 1463
+DeepSeek-R1-Distill Review
+(+59.1%) (+67.9%) (+13.7%) (+28.5%) (-16.2%) (-3.4%) (+26.5%) (+13.1%) (+0.5%)
+Qwen-32B
+1377 1126 680 690 2376 2618 995 1089 1369
+Voting
+(+48.7%) (+50.3%) (+8.6%) (+18.4%) (-23.9%) (-8.0%) (+23.8%) (+9.7%) (-6.0%)
+1464 1220 755 773 2841 2712 1090 1290 1518
+Planning
+(+58.1%) (+62.9%) (+20.6%) (+32.6%) (-9.1%) (-4.7%) (+35.6%) (+29.9%) (+4.3%)
+Primitives-based 1529 1374 843 801 2681 2542 1074 1247 1511
+MAS (+65.1%) (+83.4%) (+34.7%) (+37.4%) (-14.2%) (-10.7%) (+33.6%) (+25.6%) (+3.8%)
+Single 926 749 626 583 3124 2847 804 993 1456
+4628 3981 1815 3552 9432 9124 2231 6897 4570
+TextMAS
+(+399.8%) (+431.5%) (+190.0%) (+509.4%) (+201.8%) (+220.5%) (+177.4%) (+594.4%) (+214.0%)
+1409 1196 691 652 2483 2634 982 1129 1397
+LatentMAS
+(+52.2%) (+59.5%) (+10.4%) (+11.8%) (-20.5%) (-7.5%) (+22.1%) (+13.7%) (-4.1%)
+1473 1257 712 749 2619 2751 1017 1123 1463
+DeepSeek-R1-Distill Review
+(+59.1%) (+67.9%) (+13.7%) (+28.5%) (-16.2%) (-3.4%) (+26.5%) (+13.1%) (+0.5%)
+Qwen-32B
+1377 1126 680 690 2376 2618 995 1089 1369
+Voting
+(+48.7%) (+50.3%) (+8.6%) (+18.4%) (-23.9%) (-8.0%) (+23.8%) (+9.7%) (-6.0%)
+1464 1220 755 773 2841 2712 1090 1290 1518
+Planning
+(+58.1%) (+62.9%) (+20.6%) (+32.6%) (-9.1%) (-4.7%) (+35.6%) (+29.9%) (+4.3%)
+Primitives-based 1529 1374 843 801 2681 2542 1074 1247 1511
+MAS (+65.1%) (+83.4%) (+34.7%) (+37.4%) (-14.2%) (-10.7%) (+33.6%) (+25.6%) (+3.8%)
+18
+
+## Page 19
+
+Agent Primitives: Reusable Latent Building Blocks for Multi-Agent Systems
+Table 15. Output token usage comparison across all MAS methods (Llama-3-70B-Instruct backbone).
+Method MATH GSM8K HumanEval+ GPQA
+Single 1,375 934 2,129 6,674
+Chain-of-Thought 1,874 1,447 2,371 7,408
+Self-Consistency 11,673 8,742 20,114 41,675
+LLM-Debate 4,612 5,747 8,635 14,278
+Self-Refine 3,162 2,149 4,891 15,350
+Quality-Diversity 7,526 5,137 11,710 20,127
+SPP 2,957 1,934 3,832 11,345
+AgentVerse 4,572 3,504 9,216 14,165
+GPTSwarm 4,216 3,473 8,698 13,267
+DyLAN 4,873 3,541 9,427 16,188
+MAS-GPT 4,714 3,706 9,916 14,672
+Ours (GPT-5.2) 1,524 1,017 3,779 6,882
+Ours (Llama-3-70B) 1,609 1,134 3,618 6,974
+F.2. Cost-Normalized Efficiency
+Table 16 reports the estimated dollar cost per query and cost-normalized accuracy (accuracy % per $0.01 spent) for each
+method. Costs are computed using market output token prices: $1.75/1M tokens for Llama-3-70B-Instruct and $14/1M
+tokens for GPT-5.2 (source: https://artificialanalysis.ai).
+Table 16. Cost-normalized efficiency comparison. “Cost” is estimated dollar cost per query; “Eff.” is accuracy per $0.01 spent.
+MATH GSM8K HumanEval+ GPQA
+Method Cost Acc. Eff. Cost Acc. Eff. Cost Acc. Eff. Cost Acc. Eff.
+Single .0024 50.6% 210.8 .0016 92.4% 573.9 .0037 75.8% 204.9 .0117 36.7% 31.4
+CoT .0033 53.2% 161.2 .0025 92.8% 369.4 .0041 77.0% 186.6 .0130 35.3% 27.2
+Self-Consistency .0204 61.6% 30.2 .0153 95.0% 62.1 .0352 75.8% 21.5 .0729 37.2% 5.1
+LLM-Debate .0081 61.4% 75.8 .0101 91.6% 90.9 .0151 74.5% 49.3 .0250 34.4% 13.8
+Self-Refine .0055 58.5% 106.1 .0038 90.8% 240.5 .0086 62.7% 73.1 .0268 38.3% 14.3
+Quality-Diversity .0132 60.5% 45.9 .0090 93.0% 103.5 .0205 70.2% 34.2 .0352 33.6% 9.5
+SPP .0052 51.7% 99.8 .0034 92.8% 273.7 .0067 73.3% 109.3 .0198 35.1% 17.7
+AgentVerse .0080 55.6% 69.6 .0061 93.4% 152.3 .0161 73.9% 45.9 .0248 40.2% 16.2
+GPTSwarm .0074 55.4% 74.9 .0061 93.2% 153.6 .0152 73.9% 48.6 .0232 36.5% 15.7
+DyLAN .0085 59.6% 70.1 .0062 91.2% 147.1 .0165 75.8% 45.9 .0283 36.0% 12.7
+MAS-GPT .0082 68.7% 83.5 .0065 93.4% 143.7 .0174 78.9% 45.4 .0257 37.6% 14.6
+Ours (GPT-5.2) .0056 72.4% 129.3 .0048 93.8% 195.4 .0118 82.3% 69.7 .0171 53.2% 31.1
+Ours (Llama-3-70B) .0028 72.4% 258.6 .0020 93.8% 469.0 .0063 82.3% 130.6 .0122 53.2% 43.6
+The Llama-3-70B Organizer setting achieves the highest cost-normalized accuracy across all benchmarks, as it avoids the
+premium cost of GPT-5.2 while maintaining strong performance. Even with the GPT-5.2 Organizer, our method remains
+more cost-efficient than all MAS baselines.
+19

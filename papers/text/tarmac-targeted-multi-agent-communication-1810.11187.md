@@ -1,0 +1,602 @@
+# tarmac-targeted-multi-agent-communication-1810.11187
+
+- Source PDF: `tarmac-targeted-multi-agent-communication-1810.11187.pdf`
+- Extracted at UTC: `2026-07-09T05:57:42.877256+00:00`
+- Pages: 9
+- Title: TarMAC: Targeted Multi-Agent Communication
+- SHA256: `7818a0d02e517a0ba4a45e4aedfa8a6743ef0a41803cbcdada73284a0aee129e`
+
+## Page 1
+
+TarMAC: Targeted Multi-Agent Communication
+Abhishek Das 1 ‹ Théophile Gervet 2 Joshua Romoff 2 3
+Dhruv Batra 1 3 Devi Parikh 1 3 Michael Rabbat 2 3 Joelle Pineau 2 3
+Abstract and swift transport, to teams of robots on search-and-rescue
+missions deployed in hostile, fast-evolving environments.
+We propose a targeted communication archi-
+tecture for multi-agent reinforcement learning, A salient property of human communication is the ability
+where agents learn both what messages to send to hold targeted interactions. Rather than the ‘one-size-
+and whom to address them to while performing fits-all’ approach of broadcasting messages to all partici-
+cooperative tasks in partially-observable environ- pating agents, as has been previously explored (Sukhbaatar
+ments. This targeting behavior is learnt solely et al., 2016; Foerster et al., 2016; Singh et al., 2019), it can
+from downstream task-specific reward without be useful to direct certain messages to specific recipients.
+any communication supervision. We additionally This enables a more flexible collaboration strategy in com-
+augment this with a multi-round communication plex environments. For example, within a team of search-
+approach where agents coordinate via multiple and-rescue robots with a diverse set of roles and goals, a
+rounds of communication before taking actions message for a fire-fighter (e.g. “smoke is coming from the
+in the environment. We evaluate our approach kitchen”) is largely meaningless for a bomb-defuser.
+on a diverse set of cooperative multi-agent tasks,
+We develop TarMAC, a Targeted Multi-Agent Communi-
+of varying difficulties, with varying number of
+cation architecture for collaborative multi-agent deep rein-
+agents, in a variety of environments ranging from
+2D grid layouts of shapes and simulated traf- forcement learning. Our key insight in TarMAC is to allow
+fic junctions to 3D indoor environments, and each individual agent to actively select which other agents
+to address messages to. This targeted communication be-
+demonstrate the benefits of targeted and multi-
+havior is operationalized via a simple signature-based soft
+round communication. Moreover, we show that
+attention mechanism: along with the message, the sender
+the targeted communication strategies learned by
+broadcasts a key which encodes properties of agents the
+agents are interpretable and intuitive. Finally, we
+message is intended for, and is used by receivers to gauge
+show that our architecture can be easily extended
+the relevance of the message. This communication mech-
+to mixed and competitive environments, leading
+anism is learned implicitly, without any attention supervi-
+to improved performance and sample complexity
+sion, as a result of end-to-end training using task reward.
+over recent state-of-the-art approaches.
+The inductive bias provided by soft attention in the com-
+1. Introduction
+munication architecture is sufficient to enable agents to 1)
+communicate agent-goal-specific messages (e.g. guide fire-
+Effective communication is a key ability for collaboration.
+fighter towards fire, bomb-defuser towards bomb, etc.), 2)
+Indeed, intelligent agents (humans or artificial) in real-
+be adaptive to variable team sizes (e.g. the size of the lo-
+world scenarios can significantly benefit from exchang-
+cal neighborhood a self-driving car can communicate with
+ing information that enables them to coordinate, strate-
+changes as it moves), and 3) be interpretable through pre-
+gize, and utilize their combined sensory experiences to
+dicted attention probabilities that allow for inspection of
+act in the physical world. The ability to communicate
+which agent is communicating what message and to whom.
+has wide-ranging applications for artificial agents – from
+multi-player gameplay in simulated (e.g. DoTA, StarCraft) Our results however show that just using targeted commu-
+or physical worlds (e.g. robot soccer), to self-driving car nication is not enough. Complex real-world tasks might
+networks communicating with each other to achieve safe require large populations of agents to go through multi-
+ple rounds of collaborative communication and reason-
+1Georgia Tech 2McGill University 3Facebook AI Research.
+‹Work done during an internship at Facebook AI Research. ing, involving large amounts of information to be persis-
+Correspondence to: Abhishek Das <abhshkdz@gatech.edu>. tent in memory and exchanged via high-bandwidth com-
+Proceedings of the 36 th International Conference on Machine munication channels. To this end, our actor-critic frame-
+Learning, Long Beach, California, PMLR 97, 2019. Copyright work combines centralized training with decentralized ex-
+2019 by the author(s).
+0202
+beF
+22
+]GL.sc[
+2v78111.0181:viXra
+
+## Page 2
+
+TarMAC: Targeted Multi-Agent Communication
+Decentralized Targeted Multi-Round Reinforcement
+Execution Communication Decisions Learning
+DIAL (Foerster et al., 2016) Yes No No Yes (Q-Learning)
+CommNet (Sukhbaatar et al., 2016) Yes No Yes Yes (REINFORCE)
+VAIN (Hoshen, 2017) No Yes Yes No (Supervised)
+ATOC (Jiang & Lu, 2018) Yes No No Yes (Actor-Critic)
+IC3Net (Singh et al., 2019) Yes No Yes Yes (REINFORCE)
+TarMAC (this paper) Yes Yes Yes Yes (Actor-Critic)
+Table 1: Comparison with previous work on collaborative multi-agent communication with continuous vectors.
+ecution (Lowe et al., 2017), thus enabling scaling to large and diverse literature. Our work builds on and is related to
+team sizes. In this context, our inter-agent communication prior work in deep multi-agent reinforcement learning, the
+architecture also supports multiple rounds of targeted in- centralized training and decentralized execution paradigm,
+teractions at every time-step, wherein the agents’ recurrent and emergent communication protocols.
+policies persist relevant information in internal states.
+Multi-Agent Reinforcement Learning (MARL). Within
+While natural language, i.e. a finite set of discrete tokens MARL (see Busoniu et al. (2008) for a survey), our work
+with pre-specified human-conventionalized meanings, may is related to efforts on using recurrent neural networks to
+seem like an intuitive protocol for inter-agent communi- approximate agent policies (Hausknecht & Stone, 2015),
+cation – one that enables human-interpretability of inter- stabilizing algorithms for multi-agent training (Lowe et al.,
+actions – forcing machines to communicate among them- 2017; Foerster et al., 2018), and tasks in novel domains
+selves in discrete tokens presents additional training chal- e.g. coordination and navigation in 3D environments (Peng
+lenges. Since our work focuses on machine-only multi- et al., 2017; OpenAI, 2018; Jaderberg et al., 2018).
+agent teams, we allow agents to communicate via continu-
+Centralized Training & Decentralized Execution.
+ous vectors (rather than discrete symbols), as has been ex-
+Both Sukhbaatar et al. (2016) and Hoshen (2017) adopt
+plored in (Sukhbaatar et al., 2016; Singh et al., 2019), and
+a centralized framework at both training and test time –
+agents have the flexibility to discover and optimize their
+a central controller processes local observations from all
+communication protocol as per task requirements.
+agents and outputs a probability distribution over joint ac-
+We provide extensive empirical evaluation of our approach tions. In this setting, the controller (e.g. a fully-connected
+across a range of tasks, environments, and team sizes. network) can be viewed as implicitly encoding communi-
+cation. Sukhbaatar et al. (2016) propose an efficient con-
+• We begin by benchmarking TarMAC and its ablation
+troller architecture that is invariant to agent permutations
+without attention on a cooperative navigation task de-
+by virtue of weight-sharing and averaging (as in Zaheer
+rived from the SHAPES environment (Andreas et al.,
+et al. (2017)), and can, in principle, also be used in a de-
+2016) in Section 5.1. We show that agents learn intu-
+centralized manner at test time since each agent just needs
+itive attention behavior across task difficulties.
+its local state vector and the average of incoming messages
+• Next, we evaluate TarMAC on the traffic junction en-
+to take an action. Meanwhile, Hoshen (2017) proposes to
+vironment (Sukhbaatar et al., 2016) in Section 5.2, and
+replace averaging by an attentional mechanism to allow tar-
+show that agents are able to adaptively focus on ‘ac-
+geted interactions between agents. While closely related to
+tive’ agents in the case of varying team sizes.
+our communication architecture, this work only considers
+• We then demonstrate its efficacy in 3D environments
+fully-supervised one-next-step prediction tasks, while we
+with a cooperative first-person point-goal navigation
+study the full reinforcement learning problem with tasks
+task in House3D (Wu et al., 2018) (Section 5.3).
+requiring planning over long time horizons.
+• Finally, in Section 5.4, we show that TarMAC can
+be easily combined with IC3Net (Singh et al., 2019), Moreover, a centralized controller quickly becomes in-
+thus extending its applicability to mixed and competi- tractable in real-world tasks with many agents and
+tive environments, and leading to significant improve- high-dimensional observation spaces e.g. navigation in
+ments in performance and sample complexity. House3D (Wu et al., 2018). To address these weaknesses,
+we adopt the framework of centralized learning but decen-
+tralized execution (following Foerster et al. (2016); Lowe
+2. Related Work
+et al. (2017)) and further relax it by allowing agents to com-
+Multi-agent systems fall at the intersection of game the- municate. While agents can use extra information during
+ory, distributed systems, and Artificial Intelligence in gen- training, at test time, they pick actions solely based on lo-
+eral (Shoham & Leyton-Brown, 2008), and thus have a rich cal observations and communication messages.
+
+## Page 3
+
+TarMAC: Targeted Multi-Agent Communication
+Emergent Communication Protocols. Our work is also Multi-Agent Actor-Critic. Lowe et al. (2017) propose a
+related to recent work on learning communication proto- multi-agent Actor-Critic algorithm adapted to centralized
+cols in a completely end-to-end manner with reinforcement learning and decentralized execution wherein each agent
+learning – from perceptual input (e.g. pixels) to commu- learns its own policy π pa |ω q conditioned on local ob-
+θi i i
+nication symbols (discrete or continuous) to actions (e.g. servation ω using a central Critic that estimates the joint
+i
+navigating in an environment). While (Foerster et al., action-value Qˆ ps, a , ..., a q conditioned on all actions.
+1 N
+2016; Jorge et al., 2016; Das et al., 2017; Kottur et al.,
+2017; Mordatch & Abbeel, 2017; Lazaridou et al., 2017)
+4. TarMAC: Targeted Multi-Agent
+constrain agents to communicate with discrete symbols
+Communication
+with the explicit goal to study emergence of language, our
+work operates in the paradigm of learning a continuous We now describe our multi-agent communication architec-
+communication protocol in order to solve a downstream ture in detail. Recall that we have N agents with policies
+task (Sukhbaatar et al., 2016; Hoshen, 2017; Jiang & Lu, tπ , ..., π u, respectively parameterized by tθ , ..., θ u,
+1 N 1 N
+2018; Singh et al., 2019). Jiang & Lu (2018); Singh et al. jointly performing a cooperative task. At every timestep
+(2019) also operate in a decentralized execution setting and t, the ith agent for all i P t1, ..., N u sees a local obser-
+use an attentional communication mechanism, but in con- vation ωt, and must select a discrete environment action
+i
+trast to our work, they use attention to decide when to com- at „ π and send a continuous communication message
+i θi
+municate, not who to communicate with. In Section 5.4, mt, received by other agents at the next timestep, in order
+i
+we discuss how to potentially combine the two approaches. to maximize global reward r „ R. Since no agent has
+t
+access to the underlying complete state of the environment
+Table 1 summarizes the main axes of comparison between
+s , there is incentive in communicating with each other and
+our work and previous efforts in this exciting space. t
+being mutually helpful to do better as a team.
+3. Technical Background
+Policies and Decentralized Execution. Each agent is es-
+Decentralized Partially Observable Markov Decision sentially modeled as a Dec-POMDP augmented with com-
+Processes (Dec-POMDPs). A Dec-POMDP is a multi- munication. Each agent’s policy π is implemented as a
+θi
+agent extension of a partially observable Markov decision 1-layer Gated Recurrent Unit (Cho et al., 2014). At every
+process (Oliehoek, 2012). For N agents, it is defined by timestep, the local observation ωt and a vector ct aggre-
+i i
+a set of states S describing possible configurations of all gating messages sent by all agents at the previous timestep
+agents, a global reward function R, a transition probability (described in more detail below) are used to update the hid-
+function T , and for each agent i P 1, ..., N a set of allowed den state ht of the GRU, which encodes the entire message-
+i
+actions A , a set of possible observations Ω and an obser- action-observation history up to time t. From this internal
+i i
+vation function O . At each time step every agent picks an state representation, the agent’s policy π pat | htq predicts
+i θi i i
+action a based on its local observation ω following its own a categorical distribution over the space of actions, and
+i i
+stochastic policy π pa |ω q. The system randomly transi- another output head produces an outgoing message vec-
+θi i i
+tions to the next state s1 given the current state and joint ac- tor mt. Note that for our experiments, agents are sym-
+i
+tion T ps1|s, a , ..., a q. The agent team receives a global metric and policy parameters are shared across agents, i.e.
+1 N
+reward r “ Rps, a , ..., a q while each agent receives a θ “ ... “ θ . This considerably speeds up learning.
+1 N 1 N
+local observation of the new state O pω |s1q. Agents aim to
+i i ř Centralized Critic. Following prior work (Lowe et al.,
+maximize the total expected return J “ T γtr where
+t“0 t 2017; Foerster et al., 2018), we operate under the cen-
+γ is a discount factor and T is the episode time horizon.
+tralized learning and decentralized execution paradigm
+Actor-Critic Algorithms. Policy gradient methods di- wherein during training, a centralized Critic guides the op-
+rectly adjust the parameters θ of the policy in order to max- timization of individual agent policies. The Critic takes as
+imize the objective Jpθq “ E rRps, aqs by tak- input predicted actions tat , ..., at u and internal state rep-
+ing steps in the direction of ∇ s J „ p p θ π q , . a„ W π e θp c s a q n write the gradi- resentations tht , ..., ht u 1 from a N ll agents to estimate the
+1 N
+ent with respect to the policy parameters as the following: joint action-value Qˆ at every timestep. The centralized
+t
+Critic is learned by temporal difference (Sutton & Barto,
+∇ θ Jpθq “ E s„pπ,a„πθpsq r∇ θ log π θ pa|sqQ π ps, aqs , 1998) and the gradient of the expected return Jpθ
+i
+q “ ErRs
+where Q ps, aq is the action-value. It is the expected re- with respect to policy parameters is approximated by:
+π
+” ı
+maining discounted reward if we take action a in state s and
+∇ Jpθ q “ E ∇ log π pat|htq Qˆ pht , ..., ht , a1, ..., aN q .
+follow policy π thereafter. Actor-Critic algorithms learn an θi i θi θi i i t 1 N t t
+approximation Qˆ ps, aq of the unknown true action-value Note that compared to an individual Critic Qˆ pht, atq per
+function by e.g. temporal-difference learning (Sutton & i i i
+agent, having a centralized Critic leads to considerably
+Barto, 1998). This Qˆ ps, aq is the Critic and π is the Actor.
+θ
+
+## Page 4
+
+TarMAC: Targeted Multi-Agent Communication
+Figure 1: Overview of our multi-agent architecture with targeted communication. Left: At every timestep, each agent policy gets a local
+observation ωt and aggregated message ct as input, and predicts an environment action at and a targeted communication message mt.
+i i i i
+Right: Targeted communication between agents is implemented as a signature-based soft attention mechanism. Each agent broadcasts
+a message mt consisting of a signature kt, which can be used to encode agent-specific information and a value vt, which contains the
+i i i
+actual message. At the next timestep, each receiving agent gets as input a convex combination of message values, where the attention
+weights are obtained by a dot product between sender’s signature kt and a query vector qt`1 predicted from the receiver’s hidden state.
+i j
+lower variance in policy gradient estimates since it takes used to compute ct`1, the input message for agent j at t`1:
+j
+into account actions from all agents. At test time, the Critic
+is not needed and policy execution is fully decentralized.
+ÿN
+ct`1 “ α vt. (3)
+j ji i
+Targeted, Multi-Round Communication. Establishing
+i“1
+complex collaboration strategies requires targeted com-
+Intuitively, attention weights are high when both sender and
+munication i.e. the ability to address specific messages
+receiver predict similar signature and query vectors respec-
+to specific agents, as well as multi-round communication
+tively. Note that Equation 2 also includes α correspond-
+i.e. multiple rounds of back-and-forth interactions between ii
+ing to the ability to self-attend (Vaswani et al., 2017), which
+agents. We use a signature-based soft-attention mechanism
+we empirically found to improve performance, especially
+in our communication structure to enable targeting. Each
+message mt consists of 2 parts: a signature kt P Rdk to en- in situations when an agent has found the goal in a coor-
+code proper i ties of intended recipients and a va i lue vt P Rdv : dinated navigation task and all it is required to do is stay
+i at the goal, so others benefit from attending to this agent’s
+message but return communication is not necessary. Note
+signature
+that the targeting mechanism in our formulation is implicit
+mt “ r kt vt s . (1)
+i i i i.e. agents implicitly encode properties without addressing
+value specific recipients. For example, in a self-driving car net-
+work, a particular message may be for “cars travelling on
+At the receiving end, each agent (indexed by j) predicts a
+the west to east road" (implicitly encoding properties) as
+query vector qt`1 P Rdk from its hidden state ht`1, which
+j j opposed to specifically for “car 2” (explicit addressing).
+is used to compute a dot product with signatures of all N
+?
+messages. This is scaled by 1{ d followed by a softmax For multi-round communication, aggregated message vec-
+k
+to obtain attention weights α for each incoming message: tor ct`1 and internal state ht are first used to predict the
+ji j j
+» fi next internal state h1t taking into account the first round:
+j
+` ˘
+α j “ softmax — — – q j t` ? 1T k 1 t ... q j t ? `1T k i t ... q j t` ? 1T k N t ffi ffi fl h1t j “ tanh W hÑh1 r c j t`1 } ht j s . (4)
+d d d
+k k k
+Next, the updated hidden state h1t is used to predict sig-
+αji j
+(2) nature, query, value followed by repeating Equations 1-4
+
+## Page 5
+
+TarMAC: Targeted Multi-Agent Communication
+Figure 2: Visualizations of learned targeted communication in SHAPES. Figure best viewed in color. 4 agents have to find rred, red,
+green, blues respectively. t “ 1: inital spawn locations; t “ 2: 4 was on red at t “ 1 so 1 and 2 attend to messages from 4 since they
+have to find red. 3 has found its goal (green) and is self-attending; t “ 6: 4 attends to messages from 2 as 2 is on 4’s target – blue;
+t “ 8: 1 finds red, so 1 and 2 shift attention to 1; t “ 21: all agents are at their respective goal locations and primarily self-attending.
+for multiple rounds until we get a final aggregated message We convert each image from SHAPES into an active envi-
+vector ct`1 to be used as input at the next timestep. Number ronment where agents can now be spawned at different re-
+j
+of rounds of communication is treated as a hyperparameter. gions of the image, observe a 5ˆ5 local patch around them
+and their coordinates, and take actions to move around
+Our entire communication architecture is differentiable,
+– tup, down, left, right, stayu. Each agent is tasked
+and message vectors are learnt through backpropagation.
+with navigating to a specified goal state in the environ-
+ment within a max no. of steps – t‘red’, ‘blue square’,
+5. Experiments ‘small green circle’, etc. u – and the reward for each agent
+at every timestep is based on team performance i.e. r “
+We evaluate TarMAC on a variety of tasks and environ- t
+# agents on goal . Having a symmetric, team-based reward in-
+ments. All our models were trained with a batched syn- # agents
+centivizes agents to cooperate in finding each agent’s goal.
+chronous version of the multi-agent Actor-Critic described
+above, using RMSProp with a learning rate of 7 ˆ 10´4 How does targeting work? Recall that each agent pre-
+and α “ 0.99, batch size 16, discount factor γ “ 0.99 and dicts a signature and value vector as part of the message it
+entropy regularization coefficient 0.01 for agent policies. sends, and a query vector to attend to incoming messages.
+All our agent policies are instantiated from the same set of The communication is targeted because the attention prob-
+shared parameters; i.e. θ “ ... “ θ . Each agent’s GRU abilities are a function of both the sender’s signature and
+1 N
+hidden state is 128-d, message signature/query is 16-d, and receiver’s query vectors. So it is not just the receiver decid-
+message value is 32-d (unless specified otherwise). All re- ing how much of each message to listen to. The sender also
+sults are averaged over 5 independent seeds (unless noted sends out signatures that affects how much of each message
+otherwise), and error bars show standard error of means. is sent to each receiver. The sender’s signature could en-
+code parts of its observation most relevant to other agents’
+5.1. SHAPES
+goals (e.g. it would be futile to convey coordinates in the
+signature), and the message value could contain the agent’s
+The SHAPES dataset was introduced by Andreas et al.
+(2016)1, and originally created for testing compositional own location. For example, in Figure 2, at t “ 6, we see
+that when agent 2 passes by blue, agent 4 starts attending to
+visual reasoning for the task of visual question answer-
+ing. It consists of synthetic images of 2D colored shapes agent 2. Here, agent 2’s signature likely encodes the color
+arranged in a grid (3 ˆ 3 cells in the original dataset) along it observes (which is blue), and agent 4’s query encodes its
+with corresponding question-answer pairs. There are 3 goal (which is also blue) leading to high attention probabil-
+shapes (circle, square, triangle), 3 colors (red, green, blue), ity. Agent 2’s message value encodes coordinates agent 4
+and 2 sizes (small, big) in total (see Figure 2). has to navigate to, which it ends up reaching by t “ 21.
+SHAPES serves as a flexible testbed for carefully control-
+1github.com/jacobandreas/nmn2/tree/shapes
+ling and analyzing the effect of changing the size of the en-
+
+## Page 6
+
+TarMAC: Targeted Multi-Agent Communication
+30 ˆ 30, 4 agents, findrreds 50 ˆ 50, 4 agents, findrreds 50 ˆ 50, 4 agents, findrred,red,green,blues
+No communication 95.3˘2.8% 83.6˘3.3% 69.1˘4.6%
+No attention 99.7˘0.8% 89.5˘1.4% 82.4˘2.1%
+TarMAC 99.8˘0.9% 89.5˘1.7% 85.8˘2.5%
+Table 2: Success rates on 3 different settings of cooperative navigation in the SHAPES environment.
+vironment, no. of agents, goal configurations, etc. Figure 2 example of the four two-way junctions in the hard task. As
+visualizes learned protocols, and Table 2 reports quanti- shown in Table 3, a no communication baseline has success
+tative evaluation for three different configurations – 1) 4 rates of 84.9˘4.3% and 74.1˘3.9% on easy and hard respec-
+agents, all tasked with finding red in 30 ˆ 30 images, 2) tively. On easy, both CommNet and TarMAC get close to
+4 agents, all tasked with finding red in 50 ˆ 50 images, 3) 100%. On hard, TarMAC with 1-round significantly out-
+4 agents, tasked with finding rred,red,green,blues respec- performs CommNet with a success rate of 84.6˘3.2%, while
+tively in 50ˆ50 images. We compare TarMAC against two 2-round further improves on this at 97.1˘1.6%, which is an
+baselines – 1) without communication, and 2) with commu- „18% absolute improvement over CommNet. We did not
+nication but where broadcasted messages are averaged in- see gains going beyond 2 rounds in this environment.
+stead of attention-weighted, so all agents receive the same
+Message size vs. multi-round communication. We study
+message vector, similar to Sukhbaatar et al. (2016). Bene-
+performance of TarMAC with varying message value size
+fits of communication and attention increase with task com-
+and number of rounds of communication on the hard vari-
+plexity (30 ˆ 30 Ñ 50 ˆ 50 & findrreds Ñ findrred,red,green,blues).
+ant of the traffic junction task. As can be seen in Fig-
+5.2. Traffic Junction ure 3, multiple rounds of communication leads to signifi-
+cantly higher performance than simply increasing message
+Environment and Task. The simulated traffic junction en-
+size, demonstrating the advantage of multi-round commu-
+vironments from (Sukhbaatar et al., 2016) consist of cars
+nication. In fact, decreasing message size to a single scalar
+moving along pre-assigned, potentially intersecting routes performs almost as well as 64-d, perhaps because even a
+on one or more road junctions. The total number of cars is
+single real number can be sufficiently partitioned to cover
+fixed at N , and at every timestep new cars get added to
+max the space of meanings/messages that need to be conveyed.
+the environment with probability p . Once a car com-
+arrive
+pletes its route, it becomes available to be sampled and
+added back to the environment with a different route as-
+signment. Each car has a limited visibility of a 3 ˆ 3 re-
+gion around it, but is free to communicate with all other
+cars. The action space for each car at every timestep is gas
+and brake, and the reward consists of a linear time penalty
+´0.01τ , where τ is the number of timesteps since car has
+been active, and a collision penalty r “ ´10.
+collision
+Easy Hard
+No communication 84.9˘4.3% 74.1˘3.9%
+CommNet (Sukhbaatar et al., 2016) 99.7˘0.1% 78.9˘3.4%
+TarMAC 1-round 99.9˘0.1% 84.6˘3.2%
+Figure 3: Success rates for 1 vs. 2-round vs. message size on hard.
+TarMAC 2-round 99.9˘0.1% 97.1˘1.6% Performance does not decrease significantly even when the mes-
+sage vector is a single scalar, and 2-round communication before
+Table 3: Success rates on traffic junction. Our targeted 2-round
+taking an action leads to significant improvements over 1-round.
+communication architecture gets a success rate of 97.1˘1.6% on
+the ‘hard’ variant, significantly outperforming Sukhbaatar et al.
+(2016). Note that 1- and 2-round refer to the number of rounds of Model Interpretation. Interpreting the learned policies of
+communication between actions (Equation 4). TarMAC, Figure 4a shows braking probabilities at different
+Quantitative Results. We compare our approach with locations – cars tend to brake close to or right before en-
+CommNet (Sukhbaatar et al., 2016) on the easy and hard tering traffic junctions, which is reasonable since junctions
+difficulties of the traffic junction environment. The easy have the highest chances for collisions. Turning our atten-
+task has one junction of two one-way roads on a 7 ˆ 7 grid tion to attention probabilities (Figure 4b), we can see that
+with N “ 5 and p “ 0.30, while the hard task has cars are most-attended to when in the ‘internal grid’ – right
+max arrive
+four connected junctions of two-way roads on a 18ˆ18 grid after crossing the 1st junction and before hitting the 2nd
+with N “ 20 and p “ 0.05. See Figure 4a, 4b for an junction. These attention probabilities are intuitive – cars
+max arrive
+
+## Page 7
+
+TarMAC: Targeted Multi-Agent Communication
+(a) Brake probabilities at different lo- (b) Attention probabilities at differ- (c) No. of cars being attended to 1) is positively corre-
+cations on the hard traffic junction en- ent locations. Cars are most attended lated with total cars, indicating that TarMAC is adaptive
+vironment. Cars tend to brake close to to in the ‘internal grid’ – right after to dynamic team sizes, and 2) is slightly right-shifted,
+or right before entering junctions. the 1st junction and before the 2nd. since it takes few steps of communication to adapt.
+Figure 4: Interpretation of model predictions from TarMAC in the traffic junction environment.
+Figure 5: Agents navigating to the fireplace in House3D (marked in yellow). Note in particular that agent 4 is spawned facing away
+from it. It communicates with others, turns to face the fireplace, and moves towards it.
+learn to attend to specific sensitive locations with the most Table 4 shows success rates on a find[fireplace] task in
+relevant local observations to avoid collisions. Finally, Fig- House3D. A no-communication navigation policy trained
+ure 4c compares total number of cars in the environment vs. with the same reward structure gets a success rate of
+number of cars being attended to with probability ą 0.1 at 62.1˘5.3%. Mean-pooled communication (no attention)
+any time. Interestingly, these are (loosely) positively cor- performs slightly better with a success rate of 64.3˘2.3%,
+related, with Spearman’s σ “ 0.49, which shows that Tar- and TarMAC achieves the best success rate at 68.9˘1.1%.
+MAC is able to adapt to variable number of agents. Cru- TarMAC agents take 82.5 steps to reach the target on aver-
+cially, agents learn this dynamic targeting behavior purely age vs. 101.3 for no attention vs. 186.5 for no communica-
+from task rewards with no hand-coding! Note that the right tion. Figure 5 visualizes a predicted navigation trajectory
+shift between the two curves is expected, as it takes a few of 4 agents. Note that the communication vectors are sig-
+timesteps of communication for team size changes to prop- nificantly more compact (32-d) than the high-dimensional
+agate. At a relative time shift of 3, the Spearman’s rank observation space (224ˆ224 image), making our approach
+correlation between the two curves goes up to 0.53. particularly attractive for scaling to large agent teams.
+5.3. House3D
+Success rate Avg. # steps
+Next, we benchmark TarMAC on a cooperative point-goal
+navigation task in House3D (Wu et al., 2018). House3D No communication 62.1˘5.3% 186.5
+provides a rich and diverse set of publicly-available2 3D No attention 64.3˘2.3% 101.3
+indoor environments, wherein agents do not have access
+TarMAC 68.9˘1.1% 82.5
+to the top-down map and must navigate purely from first-
+person vision. Similar to SHAPES, the agents are tasked Table 4: 4-agent find[fireplace] navigation task in House3D.
+with finding a specified goal (such as ‘fireplace’) within a
+Note that House3D is a challenging testbed for multi-agent
+max no. of steps, spawned at random locations in the en-
+reinforcement learning. To get to „100% accuracy, agents
+vironment and allowed to communicate and move around.
+have to deal with high-dimensional visual observations, be
+Each agent gets a shaped reward based on progress towards
+able to navigate long action sequences (up to „500 steps),
+the specified target. An episode is successful if all agents
+and avoid getting stuck against objects, doors, and walls.
+end within 0.5m of the target object in 500 navigation steps.
+2github.com/facebookresearch/house3d
+
+## Page 8
+
+TarMAC: Targeted Multi-Agent Communication
+(a) 3 agents, 5 ˆ 5 grid, vision=0, max steps=20 (b) 10 agents, 20 ˆ 20 grid, vision=1, max steps=80
+Figure 6: Average no. of steps to complete an episode (lower is better) during training in the Predator-Prey mixed environment. IC3Net
++ TarMAC converges much faster than IC3Net, demonstrating that attentional communication helps. Shaded region shows 95% CI.
+3 agents, 5 ˆ 5, 5 agents, 10 ˆ 10, 10 agents, 20 ˆ 20,
+vision=0, max steps=20 vision=1, max steps=40 vision=1, max steps=80
+CommNet (Sukhbaatar et al., 2016) 9.1˘0.1 13.1˘0.01 76.5˘1.3
+IC3Net (Singh et al., 2019) 8.9˘0.02 13.0˘0.02 52.4˘3.4
+IC3Net ` TarMAC 8.31˘0.06 12.74˘0.08 41.67˘5.82
+IC3Net ` TarMAC (2-round) 7.24˘0.08 – 35.57˘3.96
+Table 5: Average number of steps taken to complete an episode (lower is better) at convergence in the Predator-Prey mixed environment.
+5.4. Mixed and Competitive Environments 0.05 per timestep only till the first predator reaches it, so
+it has incentive to not communicate its location. We com-
+Finally, we look at how to extend TarMAC to mixed and
+pare average no. of steps for agents to reach the prey dur-
+competitive scenarios. Communication via sender-receiver
+ing training (Figure 6) and at convergence (Table 5). Fig-
+soft attention in TarMAC is poorly suited for competitive
+ure 6 shows that using TarMAC with IC3Net leads to sig-
+scenarios, since there is always “leakage” of the agent’s
+nificantly faster convergence than IC3Net alone, and Table
+state as a message to other agents via a low but non-zero
+5 shows that TarMAC agents reach the prey faster. Results
+attention probability, thus compromising its strategy and
+are averaged over 3 independent runs with different seeds.
+chances of success. Instead, an agent should first be able to
+independently decide if it wants to communicate at all, and
+6. Conclusions and Future Work
+then direct its message to specific recipients if it does.
+The recently proposed IC3Net architecture by Singh et al. We introduced TarMAC, an architecture for multi-agent re-
+(2019) addresses the former – learning when to commu- inforcement learning that allows targeted continuous com-
+nicate. At every timestep, each agent in IC3Net predicts munication between agents via a sender-receiver soft atten-
+a hard gating action to decide if it wants to communicate. tion mechanism and multiple rounds of collaborative rea-
+At the receiving end, messages from agents who decide to soning. Evaluation on four diverse environments shows
+communicate are averaged to be the next input message. that our model is able to learn intuitive communication at-
+Replacing this message averaging with our sender-receiver tention behavior and improves performance, even in non-
+soft attention, while keeping the rest of the architecture cooperative settings, with task reward as sole supervision.
+and training details the same as IC3Net, should provide an While TarMAC uses continuous vectors as messages, it is
+inductive bias for more flexible communication strategies, possible to force these to be discrete, either during training
+since this model (IC3Net + TarMAC) can learn both when itself (as in Foerster et al. (2016)) or by adding a decoder
+to communicate and whom to address messages to. after learning to ground these messages into symbols.
+We evaluate IC3Net + TarMAC on the Predator-Prey en- In future, we aim to exhaustively benchmark TarMAC on
+vironment from Singh et al. (2019), consisting of n preda- more challenging 3D navigation tasks because we believe
+tors, with limited vision, moving around (with a penalty this is where decentralized targeted communication is most
+of r “ ´0.05 per timestep) in search of a stationary crucial, as it allows scaling to a large number of agents with
+explore
+prey. Once a predator reaches a prey, it keeps getting pos- high-dimensional observation spaces. In particular, we are
+itive reward r “ 0.05 till end of episode i.e. till other interested in investigating combinations of TarMAC with
+prey
+agents reach prey or maximum no. of steps. The prey gets recent advances in spatial memory, planning networks, etc.
+
+## Page 9
+
+TarMAC: Targeted Multi-Agent Communication
+References Mordatch, I. and Abbeel, P. Emergence of grounded com-
+positional language in multi-agent populations. arXiv
+Andreas, J., Rohrbach, M., Darrell, T., and Klein, D. Neu-
+preprint arXiv:1703.04908, 2017. 3
+ral Module Networks. In CVPR, 2016. 2, 5
+Oliehoek, F. A. Decentralized POMDPs. In Reinforcement
+Busoniu, L., Babuska, R., and De Schutter, B. A Compre-
+Learning: State of the Art. Springer Berlin Heidelberg,
+hensive Survey of Multiagent Reinforcement Learning.
+2012. 3
+Trans. Sys. Man Cyber Part C, 2008. 2
+OpenAI. OpenAI Five. https://blog.openai.com/
+Cho, K., Van Merriënboer, B., Gulcehre, C., Bahdanau,
+openai-five/, 2018. 2
+D., Bougares, F., Schwenk, H., and Bengio, Y. Learn-
+ing phrase representations using rnn encoder-decoder for
+Peng, P., Yuan, Q., Wen, Y., Yang, Y., Tang, Z., Long,
+statistical machine translation. In EMNLP, 2014. 3
+H., and Wang, J. Multiagent bidirectionally-coordinated
+nets for learning to play starcraft combat games. arXiv
+Das, A., Kottur, S., Moura, J. M., Lee, S., and Batra, D.
+preprint arXiv:1703.10069, 2017. 2
+Learning Cooperative Visual Dialog Agents with Deep
+Reinforcement Learning. In ICCV, 2017. 3
+Shoham, Y. and Leyton-Brown, K. Multiagent Systems:
+Algorithmic, Game-Theoretic, and Logical Foundations.
+Foerster, J., Assael, Y. M., de Freitas, N., and Whiteson,
+Cambridge University Press, 2008. 2
+S. Learning to communicate with deep multi-agent rein-
+forcement learning. In NIPS, 2016. 1, 2, 3, 8
+Singh, A., Jain, T., and Sukhbaatar, S. Learning when
+Foerster, J., Farquhar, G., Afouras, T., Nardelli, N., and to communicate at scale in multiagent cooperative and
+Whiteson, S. Counterfactual multi-agent policy gradi- competitive tasks. In ICLR, 2019. 1, 2, 3, 8
+ents. In AAAI, 2018. 2, 3
+Sukhbaatar, S., Szlam, A., and Fergus, R. Learning mul-
+Hausknecht, M. and Stone, P. Deep Recurrent Q-Learning tiagent communication with backpropagation. In NIPS,
+for Partially Observable MDPs. In AAAI, 2015. 2 2016. 1, 2, 3, 6, 8
+Hoshen, Y. VAIN: Attentional multi-agent predictive mod- Sutton, R. S. and Barto, A. G. Introduction to Reinforce-
+eling. In NIPS, 2017. 2, 3 ment Learning. MIT Press, 1998. 3
+Jaderberg, M., Czarnecki, W. M., Dunning, I., Marris, L., Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones,
+Lever, G., Castaneda, A. G., Beattie, C., Rabinowitz, L., Gomez, A. N., Kaiser, Ł., and Polosukhin, I. Atten-
+N. C., Morcos, A. S., Ruderman, A., Sonnerat, N., tion is all you need. In NIPS, 2017. 4
+Green, T., Deason, L., Leibo, J. Z., Silver, D., Hass-
+Wu, Y., Wu, Y., Gkioxari, G., and Tian, Y. Building Gener-
+abis, D., Kavukcuoglu, K., and Graepel, T. Human-
+alizable Agents With a Realistic And Rich 3D Environ-
+level performance in first-person multiplayer games with
+ment. arXiv preprint arXiv:1801.02209, 2018. 2, 7
+population-based deep reinforcement learning. arXiv
+preprint arXiv:1807.01281, 2018. 2
+Zaheer, M., Kottur, S., Ravanbakhsh, S., Poczos, B.,
+Salakhutdinov, R. R., and Smola, A. J. Deep sets. In
+Jiang, J. and Lu, Z. Learning attentional communication
+NIPS, 2017. 2
+for multi-agent cooperation. NIPS, 2018. 2, 3
+Jorge, E., Kågebäck, M., and Gustavsson, E. Learning to
+play guess who? and inventing a grounded language as a
+consequence. In NIPS workshop on Deep Reinforcement
+Learning, 2016. 3
+Kottur, S., Moura, J. M., Lee, S., and Batra, D. Natural lan-
+guage does not emerge ‘naturally’ in multi-agent dialog.
+In EMNLP, 2017. 3
+Lazaridou, A., Peysakhovich, A., and Baroni, M. Multi-
+agent cooperation and the emergence of (natural) lan-
+guage. In ICLR, 2017. 3
+Lowe, R., Wu, Y., Tamar, A., Harb, J., Abbeel, P., and Mor-
+datch, I. Multi-agent actor-critic for mixed cooperative-
+competitive environments. In NIPS, 2017. 2, 3

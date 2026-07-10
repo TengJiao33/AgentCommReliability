@@ -1,0 +1,1651 @@
+# source_pdf: droidspeak-kv-cache-sharing-2411.02820.pdf
+# extracted_at_utc: 2026-07-09T05:56:49.165905+00:00
+# pages: 18
+# title: DroidSpeak: KV Cache Sharing for Cross-LLM Communication and Multi-LLM Serving
+# source_sha256: 483670c3756e062605f27ab4ff2bb084938d86da5308e0e48f425a47542f0c77
+
+
+
+===== PAGE 1 =====
+
+DroidSpeak: KV Cache Sharing for Cross-LLM Communication
+and Multi-LLM Serving
+Yuhan Liu1 Yuyang Huang1 Jiayi Yao1 Shaoting Feng1 Zhuohan Gu1 Kuntai Du1 Hanchen Li1 Yihua Cheng1
+Junchen Jiang1 Shan Lu2 Madan Musuvathi2 Esha Choukse2
+1University of Chicago 2Microsoft
+E Cache transfer
+Abstract
+Debugging
+User User
+Compound AI systems, such as agentic systems, are an emerg- agent
+Q
+ing trend in large-scale enterprise settings, with multiple
+Baseline Q+A Expert Coding Validation
+LLMs specialized for different users, tasks, and/or roles work-
+agent agent agent agent
+ing together. In these scenarios, different models often process
+A) Workflows with multiple LLM
+inputs that share the same context prefix. Although much work agents
+was done in the past to enable the reuse of prefix KV caches
+across inputs for a single model, how to enable one model to
+reuse the prefix KV caches of a different model remains an Model A Model B
+open question.
+We introduce DroidSpeak, the first distributed LLM infer-
+KV cache KV cache
+ence system that enables KV cache reuse across distributed
+nodes running inference of different LLMs, so long as the B) Multiple models working on C) Personalized agents accessing
+LLMs have the same architecture. We present the first study same content, storing their own the same content
+KV cache
+that aims at understanding the impact of sharing KV caches
+Figure 1: Various scenarios in which same context is shared
+across different LLMs, and if/when such sharing affects qual-
+by multiple LLMs. DroidSpeak brings down the computation
+ity. Inspired by the findings, we present DroidSpeak, which
+latency by up to 3.1×, increases throughput by 4×.
+selectively recomputes a few layers of the KV cache produced
+by another LLM and reuses the remaining layers, with neg-
+ligible quality loss. Moreover, carefully pipelining the layer- the same LLM, the use of multiple LLMs poses a direct chal-
+wise re-computation and the loading of reused KV cache lenge — how to reuse KV cache efficiently across different
+further improves the inference performance. Experiments on LLMs in distributed settings.
+diverse datasets and model pairs demonstrate that DroidSpeak To motivate this challenge, we highlight three common use
+achieves up to 4× throughput improvement and about 3.1× cases of multiple fine-tuned models working together in a sys-
+faster prefill (time to first token), with negligible loss of qual- tem. The first one is multi-agent systems, which use different
+ity in F1 scores, Rouge-L or code similarity score, compared fine-tuned models to serve as the agents and to accomplish
+to the baseline which does not allow any sharing across mod- collaborative tasks [14, 40]. The second use case is serving
+els. multi-LoRA or multiple fine-tuned models, such as models
+that are continuously updated over time with newer data [46],
+1 Introduction or concurrently serving LoRA adapters [18, 79, 92]. The third
+use case is personalized assistant systems, where a model
+Nowadays, LLM inference has become one of the most is fine-tuned for each user (or user type) according to their
+resource-consuming workloads in industry, demanding ever personal preferences in coding or writing.
+larger clusters of GPU machines [4, 72, 85–87, 106]. To re- In all of these scenarios, prefix sharing is common. For ex-
+duce the computation demand, a common optimization is for ample, in multi-agent systems (Figure 1A), when the coding
+GPU machines that run the same LLM to share KV caches of agent talks to the validation agent, the conversation history of
+reused input prefixes over the network [20, 42, 53, 61]. How- the coding agent will be prepended to the input of the valida-
+ever, how to make that optimization work across different tion agent, to ensure the coherence of the conversation. In a
+LLMs is yet to be studied. multi-LLM or multi-LoRA inference system (Figure 1B), an
+Indeed, an emerging trend is hosting multiple different updated model in a chatbot application could refer to the same
+LLMs in one GPU cluster. The reason is that with LLMs used piece of conversation history produced by an older version
+in more complex or personalized tasks, multiple LLMs, of- of the model. In a personalized assistant system (Figure 1C),
+ten fine-tuned from the same foundational model, are needed where each assistant is fine-tuned for a different user’s pref-
+to serve different users, tasks, or roles. These LLMs work erence, the same news (i.e., the query prefix) can be used to
+together to perform one complex task or to offer different answer different users’ queries.
+customized services [9, 12, 29, 65, 95]. Since standard prefix- Based on the observations above, we pose the question: can
+caching techniques work only when the KV cache is reused by we share the intermediate states (i.e., KV cache) produced
+1
+5202
+luJ
+41
+]AM.sc[
+4v02820.1142:viXra
+
+
+===== PAGE 2 =====
+
+by one LLM on a given context to accelerate the prefill for
+E
+another LLM? In this paper, we seek to answer this ques-
+E
+tion under the assumption that the two LLMs have different W q Q
+weights but the same architecture. Transformer
+W K
+Intuitively, the potential performance benefit of such in- Layer 1 k
+termediate state sharing is huge — previous work on single- Transformer W v V
+LLM KV cache sharing has shown up to 8× latency and Layer 2
+throughput improvement by speeding up the expensive pre- ((Q x K)/√d) x V
+...
+fill phase of LLM inference, particularly for long context
+Figure 2: Illustration of the use of embedding (E), query (Q),
+workloads [31, 32, 49, 61]. However, just like a video decoder
+key (K), and value (V) tensors in self-attention in transformer-
+could not decode a video encoded with another codec, naively
+based LLMs.
+sharing the KV cache across different LLMs would cause
+generation quality to drop greatly.
+tion, and coding, across eight different model pairs. We com-
+Our hypothesis is that there should be a way to re-compute
+pare DroidSpeak with various baselines, including direct KV
+a small portion and reuse a large portion, although not all, of
+reuse [31], CacheBlend [97], and smaller models. Across
+the KV cache between two models that are fine-tuned from the
+these setups, we can reduce the latency by up to 3.1×, im-
+same base model — since the models are only fine-tuned, they
+prove throughput by up to 4× with negligible drop in quality
+should share similar understanding of the same input context
+(measured in F1 score, Rouge-L, or code similarity score).
+and hence help accelerate each other’s inference. Of course,
+While the concept of “translating” KV caches between
+the challenge is to validate this hypothesis, and to figure out
+models involves a machine-learning challenge, our primary
+which part to re-compute or re-use without incurring much
+contribution lies in making it practical in a distributed system
+delay overhead or degradation of quality.
+setting, which requires the transfer and computation of such
+Through a thorough empirical study (§3.2), we measured
+KV-cache translation to be done efficiently.
+eight representative model pairs and found that only a small
+We have integrated our implementation with LMCache [25]
+subset, often around 10%, of layers are sensitive to the KV
+and vLLM [51], each being the state-of-the-art KV cache
+cache difference between two models in a pair. The identities
+management library and LLM inference engine, and it has
+of these layers vary with different model pairs, but are largely
+been tested in enterprise settings. The link to the code is
+consistent across different inputs for the same model pair. We
+anonymized here for double-blind review requirements.
+refer to these layers as critical layers in this paper. Therefore,
+for each pair of LLMs, we propose to selectively recompute
+2 Background & Motivation
+these critical layers in the KV cache.
+We build our insights into DroidSpeak, the first distributed
+In this section, we give a brief introduction to the background
+multiple-LLM inference system that enables efficient sharing
+of the emerging workload of context sharing between different
+of KV caches across different LLMs. First, DroidSpeak iden-
+fine-tuned model versions and the motivation for DroidSpeak.
+tifies the critical layer groups through offline profiling on a
+held-out “training” set, ensuring sufficient re-computation for 2.1 Basic Transformer Concepts
+accuracy purposes while reusing as many layers’ KV cache
+as possible. Second, DroidSpeak implements smart KV cache The recent wave of generative AI is fueled by the advent
+loading, which pipelines the loading of KV cache with the of high-performing models that are transformer-based and
+re-computation of critical layers, to hide the loading delay decoder-only [27, 30, 37].
+from remote nodes as much as possible. Query, Key, Value, and Embedding: In transformers, Q
+We should note that the high-level idea of selectively re- (Query), K (Key), and V (Value) are the core components of
+computing KV cache is not exactly new. DroidSpeak differs the attention mechanism [13, 58, 67, 84, 99]. An LLM model
+with prior work [31, 32, 61, 97] in why and how to re-compute comprises many layers. Each layer generates its E/Q/K/V
+KV cache: DroidSpeak is designed for KV cache reuse across tensors given an input (Figure 2). We denote the K and V
+different LLMs, while prior work assumes a single LLM; due tensors altogether as KV cache, and the embedding E tensors
+to the different purposes, none of the prior work chooses to as E cache. Within each layer, embeddings E are the starting
+re-compute or re-use a group of layers like in DroidSpeak. point for subsequent transformer computations (including
+For example, CacheBlend [97] updates a reused KV cache, attention).
+but it still feeds the KV cache to the same LLM that generated The quality of E/Q/K/V tensors directly affects the model’s
+the KV cache. Moreover, it updates the KV cache of certain ability to understand and process the input context effectively.
+tokens, rather than certain layers like in DroidSpeak. Prefill and Decode phases: LLMs process input and generate
+We evaluate DroidSpeak on six datasets across three dif- output in two distinct phases: the prefill phase and the decode
+ferent tasks, including question answering, text summariza- phase, as shown in Figure 3. In the Prefill Phase, the LLM
+2
+
+
+===== PAGE 3 =====
+
+Prefill Phase Decode Phase
+LLM LLM iteration 50 LLM iteration 1
+iteration 2 3
+25
+Is tomato a KV It KV is fruit? cache cache 0
+A B C D
+ai
+Model pairs
+Figure 3: Prefill and decode phases.
+erocs
+1F
+Base Fine-tuned
+10
+0 1/8 1/4 1/2 1 2 8 16
+Queries per Second (QPS)
+Figure 4: Fine-tuned model gives
+higher accuracy than baseline.
+)s(
+emiT
+dnE-ot-dnE
+context length = 5k
+context length = 20k
+Figure 5: Shorter input leads to
+smaller end-to-end time.
+processes the entire input context to produce the embeddings tion of agents [14, 22, 23, 81]. Compared with using different
+and the KV caches across all layers. In the Decode Phase, prompts on the same model for different agents, using fine-
+the model uses the KV cache generated in the prefill phase to tuned models as different agents can better improve output
+autoregressively produce tokens one by one as the output. quality [14, 81].
+Fine-tuned LLMs: Despite being versatile, foundational Need for context sharing: In agentic workflows, different
+LLMs’ capabilities on specific tasks can improve through agents often share a common context, often the conversation
+fine-tuning on specialized domain data. For example, one history of other agents, to ensure the coherence and consis-
+can turn a foundational LLM into a customer-support tency between agents [36, 40, 89]. As a concrete example, in
+agent by finetuning on troubleshooting requests [73], coding agentic workflows with a coding and a testing agent,
+or into a legal assistant by finetuning on case law and the testing agent (receiver model) has to read both the input
+statutes [101]. Fine-tuning can greatly improve the accuracy instructions and generated code from the coding agent (sender
+of an LLM on a target domain, as shown in Figure 4, model) to write appropriate unit tests to meet user’s needs
+where the fine-tuned models (Llama-3-70B-Instruct [5], [40, 76, 89].
+Mistrallite [100], Llama-3-8B-Instruct [5], and Personalized Models: Personalized models tailored to in-
+MAmmoTH2 [102]) greatly outperform the foundational dividual users or tasks are increasingly prevalent in LLM
+models they originate from, on the HotpotQA dataset [96]. systems, particularly in applications like chatbots, virtual as-
+Recent works in parameter efficient fine-tuning, like sistants, and recommendation engines [11,17,83]. In these ap-
+LoRA [43] have made fine-tuned models even more accessi- plications, different assistants are typically LLMs fine-tuned
+ble by updating part of the model weights, reducing computa- for different users’ preferences [41, 55]. For example, the per-
+tional and memory resources during fine-tuning. sonal assistant for a software engineer can be fine-tuned to
+generate high-quality and concise code snippets, while the
+2.2 Context Sharing Across LLMs
+personal assistant for a financial analyst identifies marketing
+In compound AI systems, prefix contexts1 are often shared angles in the documents without technical detail.
+Need for context sharing: These models often share over-
+across different LLMs—either to enhance the coherence of
+lapping contexts, such as common conversation histories or
+the chat experience or to reference the same set of background
+shared knowledge bases, to ensure continuity and relevance.
+documents. In this paper, for convenience, we use the follow-
+For instance, two assistants answering similar queries about
+ing terminology:
+current events will process the same top news.
+• Sender model produces the KV cache of a context;
+Multiple-LLM or multi-LoRA serving: In chatbot applica-
+• Receiver model reuses the KV cache (with limited recom-
+tions, LLMs often require continuous updates to incorporate
+putation) of the reused context.
+new information to provide up-to-date support and higher-
+We describe several concrete use cases of context sharing
+quality answers for users [8, 26]. As an example, ChatGPT
+between different LLMs below.
+APIs release new API versions based on the same founda-
+Agentic Workflows: Agentic workflows represent a
+tional model about every two months, which fine-tunes on
+paradigm shift in automation and collaboration in the LLM
+the emerging new data [64]. Furthermore, multiple LoRA
+space [3, 7, 33, 44, 54, 55, 90]. These workflows integrate mul-
+adapters often need to be concurrently served [18, 79] to ac-
+tiple specialized LLM agents, each fine-tuned for specific
+complish different tasks or serve different users.
+tasks, to collaborate and solve complex, multi-step problems,
+Need for context sharing: In this case, the updated model
+or let them play different roles in agent debating. For exam-
+(receiver model) often needs to re-process the same sets of
+ple, prior works propose using fine-tuned models as differ-
+popular contexts processed by the older model (sender model)
+ent agents to improve the generation quality and generaliza-
+before. Multiple LoRA adapters can share their KV cache
+when processing the same context.
+1Since a shared context is often the prefix of different inputs, we use
+prefix (caching/sharing) and context (caching/sharing) interchangeably. We motivate DroidSpeak with these emerging trends in
+3
+
+
+===== PAGE 4 =====
+
+the workloads today that fuel the need for efficient context 3 Reusing KV cache across LLMs
+sharing across fine-tuned LLMs.
+A simple way to eliminate the overhead of repetitively
+re-computing the KV cache that another LLM has gener-
+2.3 Distributed LLM Inference Systems
+ated before is to reuse the KV cache produced by another
+model. As a concrete example, on an A100 GPU and us-
+As the demand for LLM inference continues to grow, it has ing Llama-3.1-8B-Instruct, reusing the KV cache for a
+become common to serve LLMs in a cluster of GPU nodes.
+40K-token input can reduce prefill latency from 4s to 0.08
+Many companies have developed their own distributed infer-
+seconds.
+ence systems, such as vLLM Production Stack [85], NVIDIA
+This naturally leads to the key question: What effect does
+Dynamo [4], and ByteDance AIBrix [86]. Among all these
+directly reusing another LLM’s KV cache have on generation
+frameworks, KV cache sharing across nodes is one of the
+quality?
+most important features for reducing prefill computation and
+In this section, we present the first empirical study of how
+increasing overall throughput. Specifically, when there are
+reusing another model’s KV cache impacts output quality,
+multiple requests to the same model querying a common pre-
+and we further examine whether these effects vary across
+fix context, these systems can transfer KV cache generated
+individual layers of the cache.
+by another user request, either from another GPU node or
+through a centralized storage backend [20, 31, 50]. 3.1 Building the benchmarks and datasets
+However, current distributed inference systems have not
+Before getting into the KV cache sharing and patterns, we
+optimized for multiple-LLM inference yet–they do not ex-
+describe the benchmark set we build for DroidSpeak. The
+plore the opportunity to share KV cache across GPU nodes
+study needs pairs of models that share the context provided by
+when the requests are querying different models.
+the datasets. The following assumptions are also made when
+building the benchmark.
+2.4 Prefill interference • The pair of models should share the same foundational
+model. Specifically, the pair can either consist of the foun-
+Given the distinct characteristics of the prefill and decode dational model and a fine-tuned model based on it, or, two
+phases described in Section 2.1, lengthy prefill phases can fine-tuned models based on the same foundational model.
+significantly reduce an inference system’s goodput—defined • The dataset selected should be related to the task for which
+as the number of queries processed per second within a la- one of the models has been fine-tuned. This is important
+tency SLO [106]. This reduction occurs because TTFT (time since in any context-sharing scenario, the receiver model is
+to first token) grows super-linearly with input length, and performing the specialized task.
+the decoding phase cannot start until the prefill phase com- • The receiver model fine-tuned on the task in the correspond-
+pletes. Consequently, long inputs often turn prefill delays ing dataset should yield better quality than the sender model
+into the end-to-end bottleneck. For example, as shown in Fig- in the pair.
+ure 5—where Llama-3-8B runs on a single A100 GPU with
+Using these assumptions, we formulate the benchmark
+synthetic input lengths of 5K and 20K tokens—setting a 3-
+as shown in Table 1. We use 8 pairs of models across 6
+second latency SLO reveals that increasing the input size by
+datasets (including HotpotQA [96], multifieldQA_en [48],
+only 4× can reduce goodput by as much as 32×.
+2wikimQA [38], multi_news [28], lcc [35], and repobench-
+p [60]). The quality metric used is taken directly from the
+Receiver Model Sender Model dataset.
+We focus on the use case where the sender model generates
+evolcode-3.1-8b toolace-3.1-8b
+the intermediate states for the context and the receiver model
+glue_sst2 conllpp
+reuses its intermediate states. This is a challenging use case
+mistral-blitz mistral-24b
+because the sender model has worse accuracy than the receiver
+phi3.5-mini-instr-adapter-v2 phi-3.5-mini-instr-task15
+llama-3-8b-sft-lora-ultrachat fingpt-llama-3-8b model, so achieving high quality requires properly refreshing
+llama-3-70b-instruct llama-3-70b the KV cache.
+mistrallite mistral-7b
+3.2 Empirical insights of KV cache
+llama-3.1-70b-instruct llama-3.1-70b
+Naive reusing is suboptimal: The first observation is about
+Table 1: The model pairs used in our paper. For each pair of
+naively reusing the sender model’s KV cache on the receiver
+models, we use the datasets that meet the requirements listed
+model. Specifically, we observe that:
+in §3.1 (i.e., the receiver model has better quality than the
+sender model). Insight 1 Reusing the whole KV cache between models leads
+to a huge loss in accuracy.
+4
+
+
+===== PAGE 5 =====
+
+50
+0
+lcc 2wikimQA hotpotQA
+)%(
+erocs
+ytilauQ
+Receiver Model Sender Model Direct KV reuses
+evolcode-3.1-8b reuses Mistrallite reuses glue_sst2 reuses mistral-blitz reuses
+toolace-3.1-8b's KV Mistral-7B's KV conllpp's KV mistral-24b's KV
+hotpotQA multi_new
+re
+s pobench-p hotpotQA 2wikimQA multifieldQA hotpotQA 2wikimQA multifieldQA
+50
+0
+hotpotQA 2wikimQA multifieldQA
+)%(
+erocs
+ytilauQ
+llama-8b-ultrachat phi-3.5-adapter-v2 reuses Llama-3.1-70B-Instr reuses Llama-3-70B-Instr reuses
+reuses fingpt-llama-8b's KV phi-3.5-task15's KV Llama-3.1-70B's KV Llama-3-70B's KV
+hotpotQA repobench-p lcc hotpotQA 2wikimQA multifieldQA hotpotQA 2wikimQA multifieldQA
+Figure 6: Directly reusing the full KV cache greatly degrades generation quality.
+60
+40
+20
+0 10 20 30
+)%(
+erocs
+1F
+evolcode mistral-blitzz glue_sst2 mistrallite
+reuses toolace-2-8b reuses mistral-small-24b reuses conllpp reuses mistral-7b
+70 40
+70
+60
+30
+60 50
+0 10 20 30 0 10 20 30 0 10 20 30
+50
+40
+30
+0 10 20 30
+Layer
+)%(
+erocs
+1F
+phi-3.5-mini-instr-adapter-v2 llama-3-70b-instruct-awq llama-3-8b-sft-lora-ultrachat llama-3.1-70b-instruct
+reuses phi-3-5-mini-instr-task15 reuses llama-3-70b-awq reuses fingpt-llama-3-8b reuses llama-3.1-70b
+60 50 60
+40
+40 50
+20
+30
+0
+0 20 40 60 80 0 10 20 30 0 20 40 60 80
+Figure 7: Different layers have different sensitivities to deviation in KV cache. Plotted by reusing only one layer’s KV cache from
+the sender model on the receiver model. The red dashed line is the original accuracy of the receiver model. The bars colored red
+are those that have an F1 score drop of over 10% compared to the original receiver model.
+1.0
+0.5
+0.0
+0 5 10 15 20 25 30
+Layer
+erocs
+1F
+ni
+ffiD
+Figure 8: Variation in F1 score per input within a single dataset (HotpotQA) for model pair Llama-3-8B-sft-lora-ultrachat
+reusing fingpt-llama-3-8B. We plot the 25 and 75 percentiles. Except layer 23, the 25 and 75 percentiles overlap, indicating a
+low variance of error sensitivity across all layers except 23.
+A naïve way to reuse the intermediate state between models we lose a lot of accuracy. HotpotQA tends to lose more than
+is to reuse the KV cache as is. In this case, the receiver model 50% of the accuracy points across most of the model pairs,
+receives the KV cache for the whole input prompt from the while the other datasets show varying amounts of changes
+sender model. It then uses this to generate the output tokens across model pairs.
+in the decode phase, thereby skipping the prefill phase. Layer-wise sensitivity to KV cache reuse: Our second
+We show the impact of this on quality in Figure 6. For each observation is about whether KV cache reusing leads to the
+pair of models and dataset, we show the F1 score (higher is same impact across all layers.
+better) of a) the receiver model, b) the receiver model while Insight 2 Only a small subset of layers are sensitive to KV
+reusing the KV cache generated by the sender model, and c) cache reuse in terms of accuracy.
+the sender model alone.
+Figure 7 shows the quality drop by reusing part of KV
+Although the quality of the receiver model with the sender cache from the sender model. Specifically, each bar represents
+model’s KV cache is still better than the sender model alone, the quality achieved by the receiver model reusing the KV
+5
+
+
+===== PAGE 6 =====
+
+cache for that corresponding layer from the sender model,
+Recomputed KV cache
+with everything else being recomputed.
+For most of the model pairs, we find only a small subset of
+layers are sensitive to the deviation in KV cache (i.e., F1 score Decoding
+drops significantly), and we refer to these layers as critical
+layers, which are colored red. On average across all pairs of
+models, we identify 11% of layers to be critical.
+Recomputed Reused KV
+Reused KV cache
+Similarity of sensitivity across different inputs: Our third KV cache cache
+observation is about whether different inputs show similar
+patterns in layer-wise sensitivity.
+Decoding
+Insight 3 The variation in KV cache patterns across inputs
+is only notable for critical layers.
+Skipped E cache Recomputed Skipped
+Figure 8 shows the violin plot of the normalized layers layers layers
+change in F1 score per input in hotpotQA dataset, Figure 9: DroidSpeak chooses the critical layer groups (lay-
+when llama-3-8b-sft-lora-ultrachat reusing ers 4-5) to re-compute, and reuse KV cache for other layers.
+fingpt-llama-3-8b’s KV cache of each layer only.
+Layer 23, which is also marked as the most critical for this To address this, we use the E cache from the sender model
+model pair in Figure 7 (i.e., the largest F1 score change), to start the recomputing at the layer when transitioning from
+shows a wider variation across different data points from the KV cache reuse to recompute. We refer to this layer as a
+dataset, with a lot of them observing F1 score change > 50%. transition layer. As depicted in Figure 9, for any transition
+However, for all the non-critical layers, the variance in the F1 layer (between reuse and recompute), the sender model must
+score change is insignificant, meaning that such non-critical store and transmit the E cache to the receiver model.
+layers do not change across various inputs. The E cache is typically large, reaching up to twice the size
+This phenomenon is also observed across other model pairs. of the KV cache for the Mistral-7B or Llama-3-8B model
+Intuitively, this can be because critical layers are essential for families, and up to four times larger for Llama-3.1-70B since
+the reasoning capabilities [21] or the ability to accomplish the KV cache size is optimized by group-query attention [6].
+specific downstream tasks [19]. These reasoning capabilities Thus, the overhead of storing the E cache in GPU memory and
+must remain accurate to interpret any input to the LLMs. the delays caused by loading it from remote GPU nodes can
+be substantial, far exceeding the cost of storing and loading
+KV cache alone.
+4 DroidSpeak Design
+The accuracy challenge: Furthermore, reusing the sender
+model’s E cache at the transition layer also hurts the accuracy
+Building on the insights in the previous section, we designed
+of the final output. This is because the E cache loaded from
+DroidSpeak to enhance the context sharing between two
+the sender model (starting point of the recomputation) already
+LLMs. The central questions that DroidSpeak targets are the
+differs from the receiver model. Such difference eventually
+following: how do we determine the layers to re-compute to
+will introduce deviation from the point of recomputation and
+reduce latency, while keeping the quality loss minimal?
+propagate over all later layers. It is crucial to minimize the
+4.1 Challenges with Selective KV Cache Reuse error caused by such deviation.
+If we pick all the critical layers, which are often not appear-
+Insight 2 suggests selectively reusing the KV cache while ing in contiguous groups (Figure 7), there will be multiple
+recomputing it for critical layers might preserve quality. How- transition layers from reuse to recompute, introducing multi-
+ever, selecting all critical layers scattered across different parts ple deviations in E cache.
+of the LLM is suboptimal for both efficiency and quality. Figure 10 illustrates this. If we choose to recompute only
+The efficiency challenge: Recomputing critical layers that critical layers (i.e., layers 16–18, 20, and 25–27), we need
+are non-contiguously placed is inefficient. to load E cache at layers 16, 20, and 25. However, whenever
+During the prefill phase, the output of a layer where the we load E cache, the error from E cache will be propagated
+KV cache is reused only contains information about the first to subsequent critical layers (e.g., loading E cache at layer
+generated token. In contrast, recomputing the KV cache needs 16 populates errors to 16–18) and eventually to the output.
+to start from the E cache of this layer for the whole context. Thus, even if all the critical layers are recomputed, this will
+While it is possible to obtain the E cache for layer l by per- lead to a substantial output error. In contrast, recomputing a
+forming a full prefill from the context starting from the first contiguous group of layers from 16 to 27 avoids this prob-
+layer till layer l, this approach completely defeats the purpose lem by recomputing the KV cache of non-critical layers that
+of KV cache reuse. are located between critical layers. As shown in Figure 10,
+6
+
+
+===== PAGE 7 =====
+
+Sender model Receiver model
+Training
+Profiler
+dataset
+Offline stage Critical layer groups
+Reusing E
+Online stage
+Sender model KV cache Receiver model
+GPU node 0 GPU node 1
+KV cache
+Figure 10: More transition points lead to higher output error.
+Network
+Paretofrontier
+F
+t
+p
+h
+a
+i
+e
+g
+ir
+u
+o
+r
+f
+o
+e
+fl
+f
+i
+1
+n
+s
+2
+e
+e
+:
+n
+s
+d
+t
+O
+a
+e
+g
+v
+r
+e
+e
+a
+r
+(
+n
+a
+to
+d
+ll
+p
+s
+r
+)
+e
+y
+t
+c
+s
+h
+t
+e
+e
+a
+i
+m
+v
+t
+e
+p
+r
+d
+ro
+e
+m
+s
+fi
+i
+o
+l
+g
+e
+d
+n
+s
+e
+t
+l
+o
+h
+s
+f
+e
+(
+D
+§
+c
+r
+4
+r
+o
+i
+.
+t
+2
+i
+i
+d
+c
+)
+S
+;
+a
+p
+l
+a
+e
+l
+n
+a
+a
+d
+y
+k
+e
+,
+t
+r
+h
+i
+s
+n
+e
+c
+o
+l
+o
+f
+u
+n
+e
+d
+l
+a
+i
+i
+n
+n
+c
+g
+h
+e
+stage (bottom) that uses the profile to dynamically pick the
+critical layers and KV-cache loading strategy for each job
+(§4.3).
+ity of O(l2) where l is the number of layers in the LLMs.
+For example, for Llama-3-8B with 32 layers, it takes three
+Figure 11: An example result obtained by offline profil-
+hours on an A100 GPU. This one-time cost is negligible since
+ing. Each point represents the F1 score achieved when re-
+these models are deployed at a very large scale [72, 106]. Fur-
+computing a specific group of contiguous layers. The Pareto
+thermore, this cost can be substantially reduced by grouping
+frontier shows the maximum F1 score attainable for each
+layers when profiling. Profiling at the granularity of 2-layer
+number of re-computed layers.
+groups, for instance, reduces the profiling time by about 3x. In
+the evaluation we show soon in §5, we use the 2-layer group
+re-computing a contiguous group of layers has much lower profiling granularity.
+output error than only re-computing the critical layers.
+4.3 DroidSpeak runtime design
+4.2 Profiling for re-computation configuration
+As shown in Figure 12, DroidSpeak consists of two stages.
+A key question still remains: how to determine the critical The offline stage (as detailed in §4.2) uses a training dataset
+layer groups to be re-computed? to profile the relationship between the value change of each
+Based on Insight 3, the critical layers that are sensitive to layer on the generation quality. This step allows DroidSpeak
+KV cache differences vary little with the inputs. This mo- to dynamically choose the right re-computation configuration
+tivates our design to choose the critical layer group based based on available resources. Next, we detail the online stage
+on some example inputs, and then apply to other new inputs. that uses the offline profile to dynamically decide the critical
+Specifically, for each model pair, we use a “training” dataset layers of the KV cache and executes the partial recomputation
+to determine the critical layer group. We refer to the critical on these critical layers to preserve high generation quality.
+layer group as the re-computation configuration. The goal Specifically, in the online stage, DroidSpeak dynamically
+is to understand the relationship between the critical layer decides which point on the Pareto frontier should be used
+groups to perform re-computation and its impact on genera- based on the latency SLO (details in Appendix§B). We as-
+tion quality. sume the E cache and KV cache at each transition point are
+Figure 11 shows an example profiling result for the precomputed and stored, but they can also be generated by the
+glue_sst2 and conllpp model pair. Each point in the scatter sender model in real-time and sent directly from the sender
+plot represents the F1 score achieved for a specific number of model. Then, the receiver model selectively recomputes crit-
+re-computed layers. From these points, we obtain the Pareto ical layer groups while reusing others, achieving a balance
+frontier, which captures the highest F1 score achieved at a between computational efficiency and quality.
+specific group of layers. For instance, a configuration with 11 Smart KV Cache Loading: Since GPUs hosting differ-
+re-computed layers is a good example on the Pareto frontier, ent LLMs may reside in separate nodes, DroidSpeak needs
+since the F1 score drop is within 5% of the original accuracy to fetch KV cache from remote nodes frequently. Without
+of the receiver model, while the number of re-computed layers careful design, this transfer can significantly increase the end-
+is minimized. to-end latency, particularly when fewer layers are recomputed
+Profiling Overhead: The profiling overhead has a complex- (i.e., more KV cache layers need to be transferred).
+7
+
+
+===== PAGE 8 =====
+
+Re-compute L4-L10 L1-L3 • fetch(context, LLM, layer_id) -> Cache: Depend-
+Load reused L1-L10 L1-L10 ing on what was stored previous store() call, this loads
+layer’s KV or E cache of the corresponding LLM.
+(a) Send all layers of KV cache Time
+• partial_prefill(recompute_config, context)->
+Re-compute L4-L10 L1-L3
+text: it takes in the recomputation configuration and the
+Load reused L1-L3 L4-L10
+context, including which layers to recompute during prefill,
+(b) Only sends the KV cache Time and then generates the output text.
+of reused layers
+We implement these three interfaces in vLLM [51] and LM-
+Re-compute L4-L10 L1-L3 Cache [25]. For store_kv, after an LLM generates the KV
+Load reused L1-L3 L4-L10 cache for a piece of context, we calculate the hash of the con-
+text text, and put it into the key-value store if the context does
+(c) Pipelining compute and loading Time
+not exist in the current store. Before we run the inference
+Figure 13: Illustration of different KV cache transferring
+for any LLM, we obtain the re-computation configuration
+strategies. Each color represents the work (KV cache recom-
+from the offline profiling (§4.2), which includes the layer
+putation and loading reused KV caches) for the same query
+numbers for recompute and KV cache reuse. During the on-
+for one model.
+line inference stage, we call the partial_prefill function,
+Consider an example with two receiver models A and B. which calls fetch_kv for the layers for KV cache reusing,
+Each model has ten layers. Model A recomputes layers 4–10 and fetch_e at the transition layers. Both fetch_kv and
+and reuses KV cache for layers 1–3, while model B recom- fetch_e are implemented with torch.distributed [74] to
+putes layers 1–3 and reuses KV cache for layers 4–10.
+fetch KV or E cache from a remote GPU node. All trans-
+Figure 13 illustrates the timeline of three different loading mission will be placed on a CUDA Stream different from
+and recomputation strategies. We assume that a request arrives PyTorch’s default computation stream [75], enabling us to
+at A at time=0, followed by a request to B after 2 time units, overlap transmission of KV cache with recomputation and
+and that recomputing or transferring one layer (KV or E cache) hiding the transmission delay.
+takes 1 unit of time. The most naive approach is to load all
+layers of the KV caches before recomputation begins in each
+5 Evaluation
+job. For example, in model A (orange), this means first loading
+the E cache for layer 4 and the entire KV cache, followed by
+The key takeaways from the evaluation are:
+7 units of re-computation time, similarly for B, resulting in a
+• Across three datasets and eight model pairs, DroidSpeak
+total TTFT of 47 (Figure 13(a)).
+can reduce the prefill latency by 1.7–3.1× without compro-
+A slight improvement is to load only the reusable layers’
+mising accuracy, with an average prefill speedup of 2.1×.
+KV cache for A and B, right before recomputation. This re-
+• In the online serving system, DroidSpeak achieves up to
+duces the total TTFT to 30, as shown in Figure 13(b).
+4× improvement in throughput.
+However, both approaches miss the opportunity to overlap
+• DroidSpeak’s profiling of recomputing layers is robust
+recomputation and the loading of reused KV caches. Recom-
+across different datasets and model types.
+putation can start immediately after receiving the E cache
+of the transition layer. The optimal solution, shown in Fig- 5.1 Experiment Setup
+ure 13(c), pipelines loading and recomputation. For model
+A, the E cache for layer 4 is transmitted first, enabling re- Models: We evaluate DroidSpeak on eight pairs of models
+computation of layers 4–10 to start while the KV cache for (Table 1) of different sizes, specifically the fine-tuned versions
+layers 1–3 transfers in parallel. Similarly, for B, the loading of Mistral-7B, Mistral-24B, Llama-3.1-8B, Llama-3-8B, Phi-
+of E/KV cache can begin before A finishes recomputation. 3.5-mini-instruct, Llama-3-70B and Llama-3.1-70B, selected
+This pipelined strategy reduces the total TTFT to 17—approx- with the criteria in §3.1. These models are fine-tuned on the
+imately a 2× improvement over the baseline in (b). base foundation model for chat-enhancing tasks, coding tasks,
+and long context reasoning et. al. For Llama-3.1-70B and
+4.4 Implementation Llama-3-70B models, we use 4-bit quantized models with
+AWQ [57] to fit on one A100 GPU.
+We implement DroidSpeak with about 3K lines of code in Note that the receiver models are not all directly fine-tuned
+Python, based on PyTorch v2.0, CUDA 12.0, and LMCache from the sender model; they also include two fine-tuned vari-
+0.1.4 [24, 25]. DroidSpeak operates the LLM inference serv- ants derived from the same foundation model.
+ing engines through these interfaces: Hardware setting: We run the experiments on two A100
+• store(Cache, context, LLM): We split the KV or E virtual machines connected with InfiniBand link on Microsoft
+cache into layers, and store it in a key-value store in GPU Azure, namely Standard_ND96amsr_A100_v4, which con-
+memory. tains 8 × 80GB A100 GPUs on each virtual machine.
+8
+
+
+===== PAGE 9 =====
+
+Ours
+40
+30
+0.0 0.2 0.4
+)%(
+erocS
+1F
+phi-adapter_v2 vs phi-task-15
+HotpotQA
+60
+B
+etter
+40
+0.0 0.5 1.0
+)%(
+erocS
+1F
+mistrallite
+vs mistral-7b
+HotpotQA
+50
+B
+etter 25
+0 2 4
+)%(
+erocS
+1F
+llama-3.1-70b-instruct
+vs llama-3.1-70b
+HotpotQA
+50
+B
+etter 25
+0 2 4
+)%(
+erocS
+1F
+llama-3-70b-instruct
+vs llama-3-70b
+HotpotQA
+B
+etter
+50
+40
+0.00 0.25 0.50
+)%(
+ytiralimiS
+tidE
+repobench-p
+20
+B
+etter
+0
+0.00 0.25 0.50
+)%(
+L-eguoR
+multi_news
+50
+B
+etter 25
+0 2 4
+)%(
+erocS
+1F
+2wikimqa
+40
+B
+etter 20
+0 2 4
+)%(
+erocS
+1F
+2wikimqa
+B
+etter
+50
+25
+0.0 0.2 0.4
+Latency (s)
+)%(
+ytiralimiS
+tidE
+lcc
+20
+B
+etter
+10
+0 1
+Latency (s)
+)%(
+ytiralimiS
+tidE
+repobench-p
+50
+B
+etter
+25
+0 2 4
+Latency (s)
+)%(
+erocS
+1F
+multifieldQA
+50
+B
+etter 25
+0 2 4
+Latency (s)
+)%(
+erocS
+1F
+multifieldQA
+B
+etter
+Figure 14: Prefill delay and F1 score trade-off. DroidSpeak greatly reduces prefill latency while maintaining generation quality.
+Datasets: We evaluate DroidSpeak on six datasets, with standard metric of each dataset, following prior work [10, 61,
+their context length statistics summarized in Table 2. For 97]. Specifically, we use F1 score for QA tasks (hotpotQA,
+each model pair, we report results on three of these datasets, 2wikimQA, multifieldQA_en), which measures the proba-
+following the criteria that the receiver model must achieve bility that the generated answer matches the ground-truth an-
+higher generation quality than the sender model on the chosen swer for the question-answering task; Rouge-L score for sum-
+datasets. The tasks drawn from the LongBench evaluation marization tasks (multi_news), which measures the longest
+suite [10] evaluate LLM capabilities in multi-hop reasoning, common subsequence between the generated summarization
+summarization, and code understanding or completion. and the ground-truth answer; and finally the code similarity
+Train/test split: As discussed in §4.2, DroidSpeak profiles score for code completion tasks (lcc, repobench-p), which
+the critical layer groups that has quality drop within 5% of the measures the edit distance between the generated completed
+original quality with a “training” dataset offline. Specifically, code and the ground-truth code.
+we use 50 contexts from HotpotQA dataset as the “training” System metrics: We use the system metrics listed in §2.1 to
+dataset to obtain the critical layer groups with the profiling evaluate DroidSpeak compared with the baselines, including
+mechanism mentioned in §4.2. We apply the critical layer TTFT, TBT, E2E. In §5.2 we also measure prefill latency,
+groups on all the other testing datasets in the benchmark. which includes the prefill computation time on GPU and the
+Quality metrics: We measure generation quality using the loading delay to fetch KV and E cache through InfiniBand
+9
+
+
+===== PAGE 10 =====
+
+4
+3
+2
+1
+0
+)s(
+TFTT
+gsm8k Llama-3.1-70B-Instruct Mistral-blitz Phi-adapter_v2
+reuses glue_stsb reuses Llama-3.1-70B reuses Mistral-24B reuses Phi-task-15
+10.0 3
+Ours 7.5
+4 2
+Full Prefill 5.0
+2 1
+2.5
+0.0 0
+1.0
+0.5
+0.0
+)s(
+TBT
+0.2
+2 2
+1 1 0.1
+0 0
+3
+2
+1
+0
+10 20 30
+QPS
+)s(
+E2E
+40 10.0
+30 7.5 4
+20 5.0
+2
+10 2.5
+0 0.0 0
+0 5 10 0 10 20 0 10 20
+Figure 15: The impact of arrival rate on Time-to-first-token (TTFT), Time-between-tokens (TBT), and end-to-end latency (E2E),
+when the DroidSpeak’s quality is same as full prefill. Ran the models with eight replicas, with round-robin routing.
+bandwidth link across two GPU nodes. lower prefill delay as only a small fraction of layers are pre-
+Baselines: We compare with the following baselines: filled. In contrast to full KV reuse, DroidSpeak has a longer
+prefill latency because it does not perform prefill at all. How-
+• Full prefill: the receiver model prefills the text of the context
+ever, it greatly reduces accuracy because it misses the op-
+with vLLM [51], representing the baseline of the highest
+portunity to leverage layer-wise sensitivity in the KV cache
+computation overhead but the best quality we can get.
+difference. DroidSpeak is better than CacheBlend in terms
+• Full KV cache reuse [31]: the receiver model directly reuses
+of quality because DroidSpeak re-computes the critical layer
+the KV cache from the sender model, and the receiver
+groups that are most sensitive to KV cache deviation between
+model runs decoding with the transferred KV cache.
+models, while CacheBlend fails to spot the critical layers
+• CacheBlend [97]: we extend CacheBlend’s algorithm to
+since it selects the tokens to re-compute based on the first
+determine the important tokens to re-compute for cross-
+layer.
+LLM KV cache sharing, based on the difference between
+the re-computed KV cache and sender model’s original KV 5.3 Throughput and Latency Improvement
+cache for the first layer.
+To see the impact of DroidSpeak on improving the throughput
+• Smaller models: In §5.6, we also compare
+of an online LLM inference system, we emulated an online
+Llama-3.1-70B-Instruct’s accuracy and latency trade-
+inference scenario by pairing the datasets with request arrival
+off with DroidSpeak with Llama-3.1-8B-Instruct,
+times following a Poisson distribution under different incom-
+which is fine-tuned with the same instruct-tuning dataset.
+ing rates to evaluate the performance of DroidSpeak in more
+practical workloads.
+5.2 Lower Latency with Preserved Accuracy
+For the experiment, we deployed a Kubernetes cluster run-
+We first demonstrate DroidSpeak’s reduction in prefill de- ning vLLM Production Stack [85], using DroidSpeak ’s cus-
+lay and accuracy trade-off in Figure 14. Across 8 pairs of tomized Docker image. The cluster consisted of two nodes,
+models on three datasets, DroidSpeak achieves 1.7–3.1× re- each equipped with 8 A100 GPUs. We configured eight repli-
+duction in prefill delay over the full prefill method, without cas for each model across these nodes. Model placement fol-
+compromising generation quality. On the other hand, when lowed a simple strategy: for each model pair, we deployed four
+compared with reusing all of sender model’s KV cache, Droid- replicas of both the sender and receiver models on each node.
+Speak successfully preserves the improved quality of the re- Request routing was handled by vLLM Production Stack’s
+ceiver model despite a slightly higher delay. Compared to round-robin algorithm, which splits incoming requests evenly
+CacheBlend, DroidSpeak can achieve much better latency across all model replicas.
+and quality trade-off. Specifically, DroidSpeak has 5–33% As demonstrated in Figure 15, we compare the TTFT, TBT,
+(average 16%) higher quality than CacheBlend at a similar and E2E impact under various request rates on the HotpotQA
+prefill latency. dataset. Due to the limit in space, we only show four pairs of
+Understanding DroidSpeak’s improvement: DroidSpeak models to illustrate. For DroidSpeak, we chose the configura-
+outperforms the baselines for various reasons. Compared to tion within 1% accuracy drop for these pairs of models.
+the full prefill baseline, DroidSpeak achieves significantly TTFT: Since the full-recompute baseline has much higher
+10
+
+
+===== PAGE 11 =====
+
+0.4
+0.2
+0.0
+2.5 5.0 7.5 10.0
+)s( TFTT
+6
+Ours Full Prefill 4
+2
+0
+2.5 5.0 7.5 10.0
+)s( E2E
+Figure 16: Impact of the arrival rate on the Time-to-first-
+token (TTFT), and end-to-end latency (E2E) of code agentic
+workflow.
+40
+20
+0
+0 20
+)%(
+erocs
+1F
+on a model pair where the receiver model is fine-tuned on
+math reasoning, and test on a math reasoning task. In Figure 18(a), we run GSM8K [102] dataset on MAm-
+moTH2 [102]. Note that the Pareto frontier obtained follows a
+very similar pattern compared to the LongBench models and
+dataset, demonstrating the wide applicability of DroidSpeak.
+Case study on coding agentic workflow: Next, we study
+how DroidSpeak performs under a real agentic workflow by
+orchestrating a coding agent system using MetaGPT [40], a
+state-of-the-art multi-agent framework. The system consists
+Profiled w/ hotpotqa w/ multifieldqa_en w/ 2wikimqa
+of two agents, a coder using evolcode model and a tester us-
+ing tool-8b model. The coder is responsible for implementing
+Python functions according to the input prompt, and the tester
+is responsible for testing the coder’s code and providing com-
+Test dataset: Test dataset: Test dataset:
+hotpotqa multifieldqa_en 2wikimqa ments to the coder agent for the next round’s modification.
+0 20 0 20 We send the problems from the HumanEval dataset at
+# of Reuse Layers
+Figure 17: Using the recompute layers profiled on training various rates. In Figure 16, we plot the TTFT and E2E im-
+datasets works well on testing datasets. pact under different QPS, similar to the setup in §5.3, where
+DroidSpeak is plotted with the re-computation configuration
+that maintains the generation quality (pass@1 score of 52.5).
+prefill latency than DroidSpeak, the queuing delay affects
+DroidSpeak significantly improves the TTFT by 2.7× and
+(knee in the curve) its TTFT at a much lower QPS than what
+brings down the E2E delay to finish the problem as well.
+DroidSpeak can support.
+Mixture-of-Experts Model: We also evaluate DroidSpeak
+TBT and E2E: Although we are only reducing the TTFT
+on a Mixture-of-Experts (MoE) model. As shown in Fig-
+directly in DroidSpeak, the second-degree effect through less
+ure 19, where the sender model is Mixtral-8x7B and the re-
+interference and better scheduling brings down the TBT and
+ceiver is Mixtral-8x7B-Instruct, DroidSpeak is able to achieve
+E2E latency too, as shown in Figure 15.
+significant reductions in prefill latency as well. While MoE
+Throughput: Assuming an SLO that avoids the effects of
+models may activate different experts for different inputs,
+high queuing delays (knee of full prefill) on TTFT, TBT, and
+this selection occurs only at the linear layers after the atten-
+E2E latency, DroidSpeak can support 2-4× higher throughput.
+tion modules—where the KV cache is used in. As a result,
+DroidSpeak ’s KV cache sharing remains effective for MoE
+5.4 Robustness across datasets
+architectures.
+As discussed in §4.3, DroidSpeak profiles the KV cache reuse
+pattern using a single profiling run on a "training dataset" 40
+during the offline stage and then generalizes the profile results
+to other datasets during the online stage. 30
+Figure 17 illustrates whether the profile obtained on one
+dataset offline generalizes well to other datasets. In each sub- 20
+figure, we plot the Pareto frontier of the F1 score versus the 0.00 0.02 0.04
+Prefill Delay (s)
+number of reused layers, obtained through profiling on the
+(a)
+original testing dataset vs two other datasets in our benchmark
+using glue_sst2 and conllpp model pair.
+The figure demonstrates that the Pareto frontier obtained us-
+ing the profile from the training dataset on the testing dataset
+closely resembles the frontier obtained using the profile di-
+rectly from the testing dataset. Across all the pertinent con-
+figurations, the maximum difference in the score is 4 points,
+with the average being 2 points. This result further validates
+the sufficiency and robustness of our profiling strategy.
+5.5 Case study of other tasks and other models
+Math task: To demonstrate that the mechanisms of Droid-
+Speak apply to other types of datasets, we apply DroidSpeak
+)%(
+erocs
+1F
+60
+40
+Ours
+Full Prefill 20
+Full Reuse
+0
+0 2 4
+Prefill Delay (s)
+(b)
+)%(
+erocs
+1F
+Ours on 70B
+8B
+70B
+Figure 18: (a) Prefill delay and accuracy trade-off for MAm-
+moTH2 (fine-tuned on math reasoning tasks). (b) DroidSpeak
+applied on Llama-3.1-70B-Instruct has higher accuracy than
+Llama-3-8B-Instruct.
+5.6 Comparison against a smaller model
+Since DroidSpeak trades off minimal accuracy impact for
+latency, we compare using DroidSpeak on a larger model
+with a smaller model of the same architecture to show our
+superior performance in the quality and delay trade-off.
+In Figure 18(b), we compare DroidSpeak on
+Llama-3.1-70B-Instruct and Llama-3.1-8B-Instruct,
+which is a smaller version of Llama-3.1-70B-Instruct
+11
+
+
+===== PAGE 12 =====
+
+and fine-tuned on the same dataset to enhance the base LLM’s
+ability to follow instructions. As shown, Llama-3.1-8B
+achieves approximately a 4× reduction in prefill delay but
+suffers a reduction in F1 score of about half compared to the
+original F1 score of Llama-3.1-70B-Instruct.
+One significant drawback of using a smaller model to
+achieve speedup is the overhead of switching between small
+and large models. For example, when additional resources
+become available, switching back to the larger model to im-
+prove serving quality incurs the overhead of loading the larger
+model back onto the GPU. In contrast, DroidSpeak can eas-
+ily adapt to the available compute resources by adjusting
+the number of layers to be recomputed. This enables more
+possibilities for efficient scaling up or down on demand.
+20
+0
+0.0 0.5
+Prefill Latency (s)
+)%(
+erocs
+1F
+60
+2wikimqa
+B etter 40
+20
+0.0 0.5 1.0
+Prefill Latency (s)
+miS
+edoC
+Ours Full Prefill Full Reuse
+B
+repobench-p
+etter
+Figure 19: Applying DroidSpeak on Mixtral-8x7B-Instruct
+sharing Mixtral-8x7B’s KV cache, which are MoE models
+based on Mistral model architecture.
+300
+200
+100
+2 4 6 2 2 2
+Bandwidth (Gbps)
+)s(
+TFTT
+based on system load. Future work may extend the adapta-
+tion algorithm to consider changes in network bandwidth, for
+example, expanding the range of critical layer groups when
+network bandwidth is limited.
+Data drift in the re-computation configuration: Droid-
+Speak profiles the re-computation configuration for different
+models offline. However, this approach may result in quality
+degradation if the real test data drifts significantly from the
+“training” data used for profiling. Periodic re-profiling can be
+performed to update the re-computation configuration in line
+with new data. We leave this enhancement to future work.
+7 Related Work
+Fine-tuning: Fine-tuning LLMs for specific tasks has
+gained importance, but it remains resource-intensive. Meth-
+ods like parameter-efficient fine-tuning, including LoRA and
+LISA [69, 79, 88, 98] reduce the memory and computation
+needed for fine-tuning.
+Multi-agent systems: Multi-agent systems show promise
+in areas such as coding [15, 39, 40, 45, 47, 76, 82], gam-
+ing [1, 16, 34, 59, 66, 103, 104], and social simulations [70, 71].
+Fine-tuned LLMs as agents improve outcomes in question
+answering [14], tool learning [78], and personalization [55].
+DroidSpeak focuses on reducing communication delays in
+such systems.
+Faster LLM serving: One line of work speeds up LoRA
+Ours
+model serving by hosting many LoRA models in memory
+Send reused layers
+at the same time. DroidSpeak is faster than them due to the Send all layers
+Re-compute elimination of prefill computation. Other works improve LLM
+serving including better scheduling [2, 51, 56, 63, 72, 80, 106],
+memory management for LoRA models [18, 79], and KV
+cache offloading [31, 42, 49, 52]. All of these works are or-
+Figure 20: Pipelining re-compute and loading the reused lay-
+thogonal and complementary to DroidSpeak.
+ers greatly reduces the total TTFT compared to the baselines
+Another closely related line of work also trades speed for
+of sequentially send and re-computes the KV cache.
+quality but uses more compact model architectures [62,77,91].
+However, to smoothly adapt the amount of computation, they
+5.7 Impact of different network bandwidth
+need to host multiple models of different sizes in GPU at the
+Figure 20 compares DroidSpeak and the baselines where the same time, which degrades the serving capacity in the system.
+re-computation and loading of KV cache are not pipelined. DroidSpeak does not suffer from it as it simply changes the
+We can see that DroidSpeak outperforms baselines under number of recomputed layers.
+almost all bandwidth situations. Arguably, the absolute reduc- KV cache optimization: Lots of prior work has focused on
+tion in TTFT becomes smaller under high bandwidth, because optimizing KV caches for a single model. Some work focuses
+the transmission delay becomes a smaller amount of the over- on compressing or offloading KV cache for reduced memory
+all delay when the bandwidth is very high. and transmission costs [52, 68, 93, 94, 105]. Another line of
+research reduces the prefill delay when blending non-prefix
+6 Limitation KV caches from multiple contexts for the same model [32,97].
+Since DroidSpeak focuses on sharing KV cache across mod-
+KV cache sharing across different foundation mod-
+els, these works are orthogonal and can be used in conjunction.
+els: DroidSpeak as-is does not support KV cache sharing
+across LLMs originating from different foundation models,
+whose resulting KV caches are of different sizes. We leave
+8 Conclusion
+this scenario to future work.
+Re-computation adaptation with network bandwidth: In In this work, we identified the core challenge of reducing
+§4.3, we only consider adjusting the re-computation ratio repetitive computation in systems where multiple models
+12
+
+
+===== PAGE 13 =====
+
+work on a shared context. We presented DroidSpeak, a frame- [12] Alexander Borzunov, Max Ryabinin, Artem Chu-
+work for KV cache sharing in compound AI systems. We machenko, Dmitry Baranchuk, Tim Dettmers, Younes
+identified only a subset of layers that require recomputation Belkada, Pavel Samygin, and Colin Raffel. Distributed
+to maintain quality and show the robustness of our solution inference and fine-tuning of large language models
+for a diverse range of model pairs, model types, and datasets. over the internet, 2023.
+[13] Gianni Brauwers and Flavius Frasincar. A general
+References
+survey on attention mechanisms in deep learning. IEEE
+Transactions on Knowledge and Data Engineering,
+[1] Saaket Agashe, Yue Fan, Anthony Reyna, and Xin Eric
+35(4):3279–3298, 2021.
+Wang. Llm-coordination: Evaluating and analyzing
+multi-agent coordination abilities in large language
+[14] Baian Chen, Chang Shu, Ehsan Shareghi, Nigel Collier,
+models, 2024.
+Karthik Narasimhan, and Shunyu Yao. Fireact: Toward
+language agent fine-tuning, 2023.
+[2] Amey Agrawal, Nitin Kedia, Ashish Panwar, Jayashree
+Mohan, Nipun Kwatra, Bhargav S. Gulavani, Alexey
+[15] Dong Chen, Shaoxin Lin, Muhan Zeng, Daoguang Zan,
+Tumanov, and Ramachandran Ramjee. Taming
+Jian-Gang Wang, Anton Cheshkov, Jun Sun, Hao Yu,
+throughput-latency tradeoff in llm inference with
+Guoliang Dong, Artem Aliev, Jie Wang, Xiao Cheng,
+sarathi-serve, 2024.
+Guangtai Liang, Yuchi Ma, Pan Bian, Tao Xie, and
+Qianxiang Wang. Coder: Issue resolving with multi-
+[3] Monica (Butterfly Effect AI). Manus ai agent. https:
+agent and task graphs, 2024.
+//manus.im, 2025. Accessed: 2025-04-23.
+[4] ai-dynamo. Dynamo: A datacenter scale distributed [16] Jiaqi Chen, Yuxian Jiang, Jiachen Lu, and Li Zhang.
+inference serving framework. https://github.com/a S-agents: Self-organizing agents in open-ended envi-
+i-dynamo/dynamo, 2025. GitHub repository, release ronments, 2024.
+v0.1.1, accessed 21 April 2025.
+[17] Jin Chen, Zheng Liu, Xu Huang, Chenwang Wu,
+[5] AI@Meta. Llama 3 model card. 2024. Qi Liu, Gangwei Jiang, Yuanhao Pu, Yuxuan Lei, Xiao-
+long Chen, Xingmei Wang, et al. When large language
+[6] Joshua Ainslie, James Lee-Thorp, Michiel de Jong,
+models meet personalization: Perspectives of chal-
+Yury Zemlyanskiy, Federico Lebrón, and Sumit Sang-
+lenges and opportunities. World Wide Web, 27(4):42,
+hai. GQA: Training generalized multi-query trans-
+2024.
+former models from multi-head checkpoints. arXiv
+preprint arXiv:2305.13245, 2023. [18] Lequn Chen, Zihao Ye, Yongji Wu, Danyang Zhuo,
+Luis Ceze, and Arvind Krishnamurthy. Punica: Multi-
+[7] Anysphere Inc. Cursor: The ai code editor. https:
+tenant lora serving, 2023.
+//www.cursor.com/, 2025. Accessed: 2025-04-23.
+[19] Nuo Chen, Ning Wu, Shining Liang, Ming Gong, Lin-
+[8] Samuel Arcadinho, David Aparicio, and Mariana
+jun Shou, Dongmei Zhang, and Jia Li. Is bigger and
+Almeida. Automated test generation to evaluate tool-
+deeper always better? probing llama across scales and
+augmented llms as conversational ai agents, 2024.
+layers, 2024.
+[9] Muhammad Arslan, Saba Munawar, and Christophe
+[20] Shiyang Chen, Rain Jiang, Dezhi Yu, Jinlai Xu,
+Cruz. Sustainable digitalization of business with
+Mengyuan Chao, Fanlong Meng, Chenyu Jiang, Wei
+multi-agent rag and llm. Procedia Computer Science,
+Xu, and Hang Liu. Kvdirect: Distributed disaggregated
+246:4722–4731, 2024.
+llm inference, 2024.
+[10] Yushi Bai, Xin Lv, Jiajie Zhang, Hongchang Lyu,
+Jiankai Tang, Zhidian Huang, Zhengxiao Du, Xiao Liu, [21] Xinshi Chen, Yufei Zhang, Christoph Reisinger, and
+Aohan Zeng, Lei Hou, Yuxiao Dong, Jie Tang, and Le Song. Understanding deep architecture with reason-
+Juanzi Li. Longbench: A bilingual, multitask bench- ing layer. Advances in Neural Information Processing
+mark for long context understanding, 2024. Systems, 33:1240–1252, 2020.
+[11] Mohammad Shafiquzzaman Bhuiyan. The role of [22] Zehui Chen, Kuikun Liu, Qiuchen Wang, Wenwei
+ai-enhanced personalization in customer experiences. Zhang, Jiangning Liu, Dahua Lin, Kai Chen, and Feng
+Journal of Computer Science and Technology Studies, Zhao. Agent-flan: Designing data and methods of ef-
+6(1):162–169, 2024. fective agent tuning for large language models, 2024.
+13
+
+
+===== PAGE 14 =====
+
+[23] Zhixun Chen, Ming Li, Yuxuan Huang, Yali Du, Meng [36] Taicheng Guo, Xiuying Chen, Yaqi Wang, Ruidi
+Fang, and Tianyi Zhou. Atlas: Agent tuning via learn- Chang, Shichao Pei, Nitesh V. Chawla, Olaf Wiest, and
+ing critical steps, 2025. Xiangliang Zhang. Large language model based multi-
+agents: A survey of progress and challenges, 2024.
+[24] Yihua Cheng, Kuntai Du, Jiayi Yao, and Junchen Jiang.
+Do large language models need a content delivery net- [37] Desta Haileselassie Hagos, Rick Battle, and Danda B.
+work? arXiv preprint arXiv:2409.13761, 2024. Rawat. Recent advances in generative ai and large
+language models: Current status, challenges, and per-
+[25] LMCache Contributors. Lmcache: A kv cache sharing spectives, 2024.
+layer for fast distributed llm serving. https://github.c
+om/LMCache/LMCache, 2024. Commit #<commit- [38] Xanh Ho, Anh-Khoa Duong Nguyen, Saku Sugawara,
+hash>. and Akiko Aizawa. Constructing a multi-hop qa
+dataset for comprehensive evaluation of reasoning
+[26] Sumit Kumar Dam, Choong Seon Hong, Yu Qiao, and steps, 2020.
+Chaoning Zhang. A complete survey on llm-based ai
+chatbots, 2024. [39] Samuel Holt, Max Ruiz Luyten, and Mihaela van der
+Schaar. L2mac: Large language model automatic com-
+[27] Chenpeng Du, Yiwei Guo, Hankun Wang, Yifan Yang, puter for extensive code generation, 2024.
+Zhikang Niu, Shuai Wang, Hui Zhang, Xie Chen, and
+Kai Yu. Vall-t: Decoder-only generative transducer for [40] Sirui Hong, Mingchen Zhuge, Jonathan Chen, Xiawu
+robust and decoding-controllable text-to-speech, 2024. Zheng, Yuheng Cheng, Jinlin Wang, Ceyao Zhang, Zili
+Wang, Steven Ka Shing Yau, Zijuan Lin, Liyang Zhou,
+[28] Alexander R. Fabbri, Irene Li, Tianwei She, Suyi Li, Chenyu Ran, Lingfeng Xiao, Chenglin Wu, and Jürgen
+and Dragomir R. Radev. Multi-news: a large-scale Schmidhuber. MetaGPT: Meta programming for a
+multi-document summarization dataset and abstractive multi-agent collaborative framework. In The Twelfth
+hierarchical model, 2019. International Conference on Learning Representations,
+2024.
+[29] Jiabao Fang, Shen Gao, Pengjie Ren, Xiuying Chen,
+Suzan Verberne, and Zhaochun Ren. A multi-agent [41] Wenyi Hong, Weihan Wang, Qingsong Lv, Jiazheng
+conversational recommender system, 2024. Xu, Wenmeng Yu, Junhui Ji, Yan Wang, Zihan Wang,
+Yuxuan Zhang, Juanzi Li, Bin Xu, Yuxiao Dong, Ming
+[30] Javier Ferrando, Gabriele Sarti, Arianna Bisazza, and Ding, and Jie Tang. Cogagent: A visual language
+Marta R. Costa-jussà. A primer on the inner workings model for gui agents, 2024.
+of transformer-based language models, 2024.
+[42] Cunchen Hu, Heyang Huang, Junhao Hu, Jiang Xu,
+[31] Bin Gao, Zhuomin He, Puru Sharma, Qingxuan Kang, Xusheng Chen, Tao Xie, Chenxi Wang, Sa Wang, Yun-
+Djordje Jevdjic, Junbo Deng, Xingkun Yang, Zhou Yu, gang Bao, Ninghui Sun, and Yizhou Shan. Memserve:
+and Pengfei Zuo. Cost-efficient large language model Context caching for disaggregated llm serving with
+serving for multi-turn conversations with cachedatten- elastic memory pool, 2024.
+tion, 2024.
+[43] Edward J. Hu, Yelong Shen, Phillip Wallis, Zeyuan
+[32] In Gim, Guojun Chen, Seung seob Lee, Nikhil Sarda, Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and
+Anurag Khandelwal, and Lin Zhong. Prompt cache: Weizhu Chen. Lora: Low-rank adaptation of large
+Modular attention reuse for low-latency inference, language models, 2021.
+2024.
+[44] Shengran Hu, Cong Lu, and Jeff Clune. Automated
+[33] GitHub. Github copilot. https://github.com/features/ design of agentic systems, 2024.
+copilot, 2025. Accessed: 2025-04-23.
+[45] Dong Huang, Jie M. Zhang, Michael Luck, Qingwen
+[34] Ran Gong, Qiuyuan Huang, Xiaojian Ma, Hoi Vo, Zane Bu, Yuhao Qing, and Heming Cui. Agentcoder: Multi-
+Durante, Yusuke Noda, Zilong Zheng, Song-Chun Zhu, agent-based code generation with iterative testing and
+Demetri Terzopoulos, Li Fei-Fei, and Jianfeng Gao. optimisation, 2024.
+Mindagent: Emergent gaming interaction, 2023.
+[46] Yuyang Huang, Yuhan Liu, Haryadi S. Gunawi, Beibin
+[35] Daya Guo, Canwen Xu, Nan Duan, Jian Yin, and Ju- Li, and Changho Hwang. Alchemist: Towards the
+lian McAuley. Longcoder: A long-range pre-trained design of efficient online continual learning system,
+language model for code completion, 2023. 2025.
+14
+
+
+===== PAGE 15 =====
+
+[47] Md Ashraful Islam, Mohammed Eunus Ali, and [57] Ji Lin, Jiaming Tang, Haotian Tang, Shang Yang,
+Md Rizwan Parvez. Mapcoder: Multi-agent code gen- Wei-Ming Chen, Wei-Chen Wang, Guangxuan Xiao,
+eration for competitive problem solving. arXiv preprint Xingyu Dang, Chuang Gan, and Song Han. Awq:
+arXiv:2405.11403, 2024. Activation-aware weight quantization for llm compres-
+sion and acceleration, 2024.
+[48] Ziyan Jiang, Xueguang Ma, and Wenhu Chen. Longrag:
+Enhancing retrieval-augmented generation with long- [58] Tianyang Lin, Yuxin Wang, Xiangyang Liu, and
+context llms, 2024. Xipeng Qiu. A survey of transformers. AI open, 3:111–
+132, 2022.
+[49] Chao Jin, Zili Zhang, Xuanlin Jiang, Fangyue Liu, Xin
+Liu, Xuanzhe Liu, and Xin Jin. Ragcache: Efficient [59] Jijia Liu, Chao Yu, Jiaxuan Gao, Yuqing Xie, Qingmin
+knowledge caching for retrieval-augmented generation, Liao, Yi Wu, and Yu Wang. Llm-powered hierarchical
+2024. language agent for real-time human-ai coordination,
+2024.
+[50] Shuowei Jin, Xueshen Liu, Qingzhao Zhang, and
+Z. Morley Mao. Compute or load kv cache? why not [60] Tianyang Liu, Canwen Xu, and Julian McAuley. Re-
+both?, 2025. pobench: Benchmarking repository-level code auto-
+completion systems, 2023.
+[51] Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, Ying
+[61] Yuhan Liu, Hanchen Li, Yihua Cheng, Siddhant Ray,
+Sheng, Lianmin Zheng, Cody Hao Yu, Joseph E. Gon-
+Yuyang Huang, Qizheng Zhang, Kuntai Du, Jiayi Yao,
+zalez, Hao Zhang, and Ion Stoica. Efficient memory
+Shan Lu, Ganesh Ananthanarayanan, Michael Maire,
+management for large language model serving with
+Henry Hoffmann, Ari Holtzman, and Junchen Jiang.
+pagedattention, 2023.
+Cachegen: Kv cache compression and streaming for
+[52] Wonbeom Lee, Jungi Lee, Junghwan Seo, and Jae- fast large language model serving, 2024.
+woong Sim. InfiniGen: Efficient generative inference
+[62] Zhenhua Liu, Zhiwei Hao, Kai Han, Yehui Tang, and
+of large language models with dynamic KV cache man-
+Yunhe Wang. Ghostnetv3: Exploring the training strate-
+agement. In 18th USENIX Symposium on Operating
+gies for compact models, 2024.
+Systems Design and Implementation (OSDI 24), pages
+155–172, Santa Clara, CA, July 2024. USENIX Asso-
+[63] Xupeng Miao, Chunan Shi, Jiangfei Duan, Xiaoli Xi,
+ciation.
+Dahua Lin, Bin Cui, and Zhihao Jia. Spotserve: Serv-
+ing generative large language models on preemptible
+[53] Baolin Li, Yankai Jiang, Vijay Gadepally, and Devesh
+instances, 2023.
+Tiwari. Llm inference serving: Survey of recent ad-
+vances and opportunities, 2024.
+[64] Microsoft Docs. Azure openai service api version
+lifecycle. https://github.com/MicrosoftDocs/azure-a
+[54] Junyou Li, Qin Zhang, Yangbin Yu, Qiang Fu, and
+i-docs/blob/main/articles/ai-services/openai/api-versi
+Deheng Ye. More agents is all you need, 2024.
+on-deprecation.md, 2025. Accessed: 2025-04-23.
+[55] Yuanchun Li, Hao Wen, Weijun Wang, Xiangyu Li,
+[65] Paul Mineiro. Online joint fine-tuning of multi-agent
+Yizhen Yuan, Guohong Liu, Jiacheng Liu, Wenxing
+flows, 2024.
+Xu, Xiang Wang, Yi Sun, Rui Kong, Yile Wang, Han-
+fei Geng, Jian Luan, Xuefeng Jin, Zilong Ye, Guanjing [66] Manuel Mosquera, Juan Sebastian Pinzon, Manuel
+Xiong, Fan Zhang, Xiang Li, Mengwei Xu, Zhijun Li, Rios, Yesid Fonseca, Luis Felipe Giraldo, Nicanor Qui-
+Peng Li, Yang Liu, Ya-Qin Zhang, and Yunxin Liu. jano, and Ruben Manrique. Can llm-augmented au-
+Personal llm agents: Insights and survey about the ca- tonomous agents cooperate?, an evaluation of their
+pability, efficiency and security, 2024. cooperative capabilities through melting pot, 2024.
+[56] Chaofan Lin, Zhenhua Han, Chengruidong Zhang, [67] Zhaoyang Niu, Guoqiang Zhong, and Hui Yu. A review
+Yuqing Yang, Fan Yang, Chen Chen, and Lili Qiu. Par- on the attention mechanism of deep learning. Neuro-
+rot: Efficient serving of LLM-based applications with computing, 452:48–62, 2021.
+semantic variable. In 18th USENIX Symposium on Op-
+erating Systems Design and Implementation (OSDI 24), [68] Matanel Oren, Michael Hassid, Nir Yarden, Yossi Adi,
+pages 929–945, Santa Clara, CA, July 2024. USENIX and Roy Schwartz. Transformers are multi-state rnns,
+Association. 2024.
+15
+
+
+===== PAGE 16 =====
+
+[69] Rui Pan, Xiang Liu, Shizhe Diao, Renjie Pi, Jipeng Ion Stoica. Fairness in serving large language models,
+Zhang, Chi Han, and Tong Zhang. Lisa: Layerwise im- 2024.
+portance sampling for memory-efficient large language
+model fine-tuning, 2024. [81] Yifan Song, Weimin Xiong, Xiutian Zhao, Dawei Zhu,
+Wenhao Wu, Ke Wang, Cheng Li, Wei Peng, and Sujian
+[70] Joon Sung Park, Joseph O’Brien, Carrie Jun Cai,
+Li. Agentbank: Towards generalized llm agents via
+Meredith Ringel Morris, Percy Liang, and Michael S. fine-tuning on 50000+ interaction trajectories. arXiv
+Bernstein. Generative agents: Interactive simulacra preprint arXiv:2410.07706, 2024.
+of human behavior. In Proceedings of the 36th An-
+nual ACM Symposium on User Interface Software and [82] Microsoft AutoGen Team. Autogen 0.2 documentation
+Technology, UIST ’23, New York, NY, USA, 2023. As- - agentchat auto feedback from code execution. https:
+sociation for Computing Machinery. //microsoft.github.io/autogen/0.2/docs/notebooks/age
+ntchat_auto_feedback_from_code_execution, 2024.
+[71] Joon Sung Park, Lindsay Popowski, Carrie Jun Cai,
+Accessed: 2024-10-14.
+Meredith Ringel Morris, Percy Liang, and Michael S.
+Bernstein. Social simulacra: Creating populated proto-
+[83] Athanasios Valavanidis. Artificial intelligence (ai) ap-
+types for social computing systems. 2022.
+plications. Department of Chemistry, National and
+[72] Pratyush Patel, Esha Choukse, Chaojie Zhang, Aashaka Kapodistrian University of Athens, University Campus
+Shah, Íñigo Goiri, Saeed Maleki, and Ricardo Bian- Zografou, 15784, 2023.
+chini. Splitwise: Efficient generative llm inference
+[84] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob
+using phase splitting, 2024.
+Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz
+[73] Predibase. Predibase finetuning for customer service. Kaiser, and Illia Polosukhin. Attention is all you need,
+https://predibase.com/customer-service-automation, 2023.
+Dec 2023. Accessed: 2024-12-09.
+[85] vLLM Production Stack Team. vLLM Production
+[74] PyTorch Contributors. Distributed Communication
+Stack: reference system for k8s-native cluster-wide
+Package - torch.distributed, 2024. Accessed: 2024-12-
+deployment with community-driven performance op-
+10.
+timization. https://github.com/vllm- project/p
+roduction-stack, 2025. GitHub repository, release
+[75] PyTorch Team. torch.cuda.stream — pytorch 2.2 doc-
+vllm-stack-0.1.1, accessed 21 April 2025.
+umentation. https://pytorch.org/docs/stable/generated/
+torch.cuda.Stream.html, 2024. Accessed: 2025-04-25.
+[86] vLLM Project. AIBrix: Cost-efficient and pluggable
+[76] Chen Qian, Wei Liu, Hongzhang Liu, Nuo Chen, Yufan infrastructure components for genai inference. https:
+Dang, Jiahao Li, Cheng Yang, Weize Chen, Yusheng //github.com/vllm-project/aibrix, 2025. GitHub
+Su, Xin Cong, Juyuan Xu, Dahai Li, Zhiyuan Liu, and repository, release v0.2.1, accessed 21 April 2025.
+Maosong Sun. Chatdev: Communicative agents for
+software development, 2024. [87] Bingyang Wu, Yinmin Zhong, Zili Zhang, Shengyu
+Liu, Fangyue Liu, Yuanhang Sun, Gang Huang, Xu-
+[77] Anthony Sarah, Sharath Nittur Sridhar, Maciej Szankin, anzhe Liu, and Xin Jin. Fast distributed inference
+and Sairam Sundaresan. Llama-nas: Efficient neural serving for large language models, 2024.
+architecture search for large language models, 2024.
+[88] Bingyang Wu, Ruidong Zhu, Zili Zhang, Peng Sun, Xu-
+[78] Weizhou Shen, Chenliang Li, Hongzhan Chen, Ming
+anzhe Liu, and Xin Jin. dLoRA: Dynamically orches-
+Yan, Xiaojun Quan, Hehong Chen, Ji Zhang, and Fei
+trating requests and adapters for LoRA LLM serving.
+Huang. Small llms are weak tool learners: A multi-llm
+In 18th USENIX Symposium on Operating Systems De-
+agent, 2024.
+sign and Implementation (OSDI 24), pages 911–927,
+Santa Clara, CA, July 2024. USENIX Association.
+[79] Ying Sheng, Shiyi Cao, Dacheng Li, Coleman Hooper,
+Nicholas Lee, Shuo Yang, Christopher Chou, Banghua
+[89] Qingyun Wu, Gagan Bansal, Jieyu Zhang, Yiran Wu,
+Zhu, Lianmin Zheng, Kurt Keutzer, Joseph E. Gon-
+Beibin Li, Erkang Zhu, Li Jiang, Xiaoyun Zhang,
+zalez, and Ion Stoica. S-lora: Serving thousands of
+Shaokun Zhang, Jiale Liu, Ahmed Hassan Awadallah,
+concurrent lora adapters, 2024.
+Ryen W White, Doug Burger, and Chi Wang. Autogen:
+[80] Ying Sheng, Shiyi Cao, Dacheng Li, Banghua Zhu, Enabling next-gen llm applications via multi-agent
+Zhuohan Li, Danyang Zhuo, Joseph E. Gonzalez, and conversation framework. 2023.
+16
+
+
+===== PAGE 17 =====
+
+[90] Zhiheng Xi, Wenxiang Chen, Xin Guo, Wei He, Yiwen Song Yun, Xuanjing Huang, and Zhongyu Wei. Disc-
+Ding, Boyang Hong, Ming Zhang, Junzhe Wang, Senjie lawllm: Fine-tuning large language models for intelli-
+Jin, Enyu Zhou, Rui Zheng, Xiaoran Fan, Xiao Wang, gent legal services, 2023.
+Limao Xiong, Yuhao Zhou, Weiran Wang, Chang-
+[102] Xiang Yue, Tuney Zheng, Ge Zhang, and Wenhu Chen.
+hao Jiang, Yicheng Zou, Xiangyang Liu, Zhangyue
+Mammoth2: Scaling instructions from the web, 2024.
+Yin, Shihan Dou, Rongxiang Weng, Wensen Cheng,
+Qi Zhang, Wenjuan Qin, Yongyan Zheng, Xipeng Qiu,
+[103] Ceyao Zhang, Kaijie Yang, Siyi Hu, Zihao Wang,
+Xuanjing Huang, and Tao Gui. The rise and potential
+Guanghe Li, Yihang Sun, Cheng Zhang, Zhaowei
+of large language model based agents: A survey, 2023.
+Zhang, Anji Liu, Song-Chun Zhu, Xiaojun Chang,
+Junge Zhang, Feng Yin, Yitao Liang, and Yaodong
+[91] Wenhan Xia, Hongxu Yin, and Niraj K. Jha. Efficient
+Yang. Proagent: Building proactive cooperative agents
+synthesis of compact deep neural networks, 2020.
+with large language models. Proceedings of the AAAI
+[92] Yifei Xia, Fangcheng Fu, Wentao Zhang, Jiawei Jiang, Conference on Artificial Intelligence, 38(16):17591–
+and Bin Cui. Efficient multi-task llm quantization and 17599, Mar. 2024.
+serving for multiple lora adapters. Advances in Neu-
+[104] Hongxin Zhang, Weihua Du, Jiaming Shan, Qinhong
+ral Information Processing Systems, 37:63686–63714,
+Zhou, Yilun Du, Joshua B. Tenenbaum, Tianmin Shu,
+2024.
+and Chuang Gan. Building cooperative embodied
+[93] Guangxuan Xiao, Jiaming Tang, Jingwei Zuo, Junxian agents modularly with large language models, 2024.
+Guo, Shang Yang, Haotian Tang, Yao Fu, and Song
+[105] Zhenyu Zhang, Ying Sheng, Tianyi Zhou, Tianlong
+Han. Duoattention: Efficient long-context llm infer-
+Chen, Lianmin Zheng, Ruisi Cai, Zhao Song, Yuan-
+ence with retrieval and streaming heads, 2024.
+dong Tian, Christopher Ré, Clark Barrett, Zhangyang
+[94] Guangxuan Xiao, Yuandong Tian, Beidi Chen, Song Wang, and Beidi Chen. H o: Heavy-hitter oracle for
+2
+Han, and Mike Lewis. Efficient streaming language efficient generative inference of large language models,
+models with attention sinks, 2024. 2023.
+[95] Yingxuan Yang, Qiuying Peng, Jun Wang, and Weinan [106] Yinmin Zhong, Shengyu Liu, Junda Chen, Jianbo Hu,
+Zhang. Multi-llm-agent systems: Techniques and busi- Yibo Zhu, Xuanzhe Liu, Xin Jin, and Hao Zhang. Dist-
+ness perspectives. arXiv preprint arXiv:2411.14033, serve: Disaggregating prefill and decoding for goodput-
+2024. optimized large language model serving, 2024.
+[96] Zhilin Yang, Peng Qi, Saizheng Zhang, Yoshua Bengio,
+William W. Cohen, Ruslan Salakhutdinov, and Christo-
+pher D. Manning. Hotpotqa: A dataset for diverse,
+explainable multi-hop question answering, 2018.
+[97] Jiayi Yao, Hanchen Li, Yuhan Liu, Siddhant Ray, Yi-
+hua Cheng, Qizheng Zhang, Kuntai Du, Shan Lu, and
+Junchen Jiang. Cacheblend: Fast large language model
+serving for rag with cached knowledge fusion, 2024.
+[98] Kai Yao, Penglei Gao, Lichun Li, Yuan Zhao, Xiaofeng
+Wang, Wei Wang, and Jianke Zhu. Layer-wise impor-
+tance matters: Less memory for better performance in
+parameter-efficient fine-tuning of large language mod-
+els, 2024.
+[99] Catherine Yeh, Yida Chen, Aoyu Wu, Cynthia Chen,
+Fernanda Viégas, and Martin Wattenberg. Attentionviz:
+A global view of transformer attention, 2023.
+[100] Yin Song and Chen Wu and Eden Duthie. amazon/Mis-
+tralLite, 2023.
+[101] Shengbin Yue, Wei Chen, Siyuan Wang, Bingxuan Li,
+Chenchen Shen, Shujun Liu, Yuxuan Zhou, Yao Xiao,
+17
+
+
+===== PAGE 18 =====
+
+Dataset Size Med. Std. P95
+hotpotQA [96] 300 10933 5160 18650
+2wikimQA [38] 200 7466 3976 10705
+multifieldQA_en [10] 150 8084 3849 14680
+multi_news [28] 200 7624 5923 17547
+lcc [35] 200 12562 9220 26066
+repobench-p [60] 200 14285 8665 30376
+Table 2: Size, context lengths, and evaluation metrics of
+datasets in the evaluation.
+A Detail statistics of the datasets
+Table 2 shows the size of the datasets and the lengths of the
+contexts for these datasets.
+B Dynamic Re-computation Configuration
+Adaptation
+42
+40
+38
+36
+34
+0 0.2 0.4 0.6 0.8 1
+ycaruccA
+CacheSync w/o ada CacheSync Full prefill
+multifieldQA
+Violation Rate
+Figure 21: DroidSpeak reduces SLO violation rate over
+DroidSpeak without adaptation and full prefill. Plotted with
+ultrachat-8B and fingpt model pair.
+DroidSpeak initially checks the current workload inten-
+sity by monitoring the running and waiting requests in the
+vLLM engine [51]. If there are requests that are waiting to
+be executed, it indicates that the current workload is high and
+triggers an increase in the reuse ratio. In this case, Droid-
+Speak chooses a re-computation configuration that has the
+lowest number of re-computed layers above an accuracy tar-
+get. When there are no queuing requests in the system, Droid-
+Speak estimates prefill latency based on the number of tokens
+of each request. The parameters for estimation can be ob-
+tained through the profiling phase. DroidSpeak then selects
+the highest recomputation ratio satisfying the latency SLO
+for each request to maximize accuracy.
+18

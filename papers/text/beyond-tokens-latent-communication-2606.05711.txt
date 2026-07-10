@@ -1,7 +1,8 @@
 # source_pdf: beyond-tokens-latent-communication-2606.05711.pdf
-# extracted_at_utc: 2026-07-08T03:33:29.688951+00:00
+# extracted_at_utc: 2026-07-09T04:25:48.342432+00:00
 # pages: 21
 # title: Beyond tokens: a unified framework for latent communication in LLM-based multi-agent systems
+# source_sha256: ff3c958c1abcd6f688c0149cb6532335b7d3004af795b0d5fb3bb9cea49e5eec
 
 
 

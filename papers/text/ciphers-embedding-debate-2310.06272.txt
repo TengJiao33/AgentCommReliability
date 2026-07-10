@@ -1,7 +1,8 @@
 # source_pdf: ciphers-embedding-debate-2310.06272.pdf
-# extracted_at_utc: 2026-07-08T03:33:32.426119+00:00
+# extracted_at_utc: 2026-07-09T04:25:58.528588+00:00
 # pages: 30
 # title: 
+# source_sha256: 73f2b92dbc12a9697e8f2815b80f1a68a1e540ab025f8af978946b7869ffc044
 
 
 

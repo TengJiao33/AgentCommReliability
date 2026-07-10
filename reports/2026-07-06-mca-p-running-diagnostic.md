@@ -1,122 +1,51 @@
-# MCA-P 运行诊断
+# MCA-P soft-prefix 运行诊断
 
 日期：2026-07-06
 
-## 对象
+## 做法
 
-远程运行：
+1. MCA-P soft-prefix 运行先读取 MATH-500 题目，并使用与标准 MAD 对齐的初始提示词生成第一轮答案池。
 
-```text
-A800_2:/data/xuhaoming/yfy/research_workspace/experiments/20260706-a8002-math500-mca-soft-prefix-standard-madmm-aligned-qwen25-7b-full/
-```
+2. 每道题先进入无通道路径。智能体从自己的题目提示词开始生成答案，不接收 soft-prefix、文本线索或同伴缓存。
 
-进程：
+3. 脚本随后从初始答案池和可用线索中构造 soft-prefix cue。这个 cue 不是直接追加为普通文本答案，而是作为 soft-prefix resolve 阶段的输入状态。
 
-```text
-PID = 1135755
-timeout parent = 1135754
-launcher = 1135742
-GPU = 6
-```
+4. soft-prefix resolve 阶段让接收方在题目提示词基础上接收 soft-prefix 条件，再生成答案。该阶段的目标是观察 soft-prefix 是否改变最终解析答案。
 
-## 诊断问题
+5. 每题完成后，脚本解析无通道答案和 soft-prefix 答案，分别做多数投票，并记录答案是否改变、是否正确、是否平票和正误转移。
 
-MCA-P full run 启动后长时间没有：
+6. 远端诊断时，运行进程还在执行，但 `records.jsonl` 和 `summary.json` 尚未写出。检查重点放在进程状态、GPU 状态、日志进度和代码路径是否卡住。
 
-```text
-records.jsonl
-summary.json
-进度日志
-```
+7. 诊断确认远端 PID `1135755` 不是僵尸进程，也不是 sleep 或 I/O wait；GPU 仍有负载，说明主线程和模型计算仍在推进。
 
-需要判断它是挂死，还是仍在生成阶段。
+8. 本地后来给 `scripts/run_mca_soft_prefix.py` 增加进度日志，使日志能区分 run start、loaded rows、model loaded、initial answers completed、cue extraction completed、soft-prefix resolve completed、records written 和 run complete。
 
-## 只读检查
+9. 本地编译和单元测试只验证代码可运行性，不改变远端已经运行的 PID `1135755`。
 
-观察时间：`2026-07-06T12:07+08:00` 左右。
+## 工程细节
 
-```text
-process state = R (running)
-wall time ≈ 2.5h
-main thread CPU ≈ 99.8%
-GPU6 memory ≈ 31GB
-GPU6 SM utilization ≈ 90%-96%
-```
+- 诊断对象：远端 `scripts/run_mca_soft_prefix.py` 运行。
+- 远端 PID：`1135755`。
+- 当时状态：`records.jsonl` 和 `summary.json` 尚未写出。
+- 检查项：进程状态、GPU 占用、是否 zombie、是否 sleep、是否 I/O wait、是否有 Python traceback。
+- 本地改动文件：`scripts/run_mca_soft_prefix.py`。
+- 新增进度日志节点：run start、loaded rows、model loaded、initial answers completed、cue extraction completed、soft-prefix resolve completed、records written、run complete。
+- 本地编译：`python -m py_compile scripts/run_mca_soft_prefix.py scripts/mca_hidden_channel_runner.py`。
+- 本地测试：`python -m unittest discover -s tests -p "test_*.py"`。
 
-输出目录只有：
+## 结果
 
-```text
-run_remote.sh
-launcher.pid
-run_remote.nohup.log
-```
+| 检查项 | 结果 |
+| --- | --- |
+| 远端 PID `1135755` | 仍在运行 |
+| zombie 状态 | 否 |
+| sleep / I/O wait | 否 |
+| GPU 状态 | 有负载 |
+| `records.jsonl` | 当时尚未写出 |
+| `summary.json` | 当时尚未写出 |
+| 本地编译 | 通过 |
+| 本地单元测试 | 46 tests passed |
 
-没有：
+## 备注
 
-```text
-records.jsonl
-summary.json
-```
-
-`run_remote.nohup.log` 最近内容停在模型 checkpoint 加载完成。
-
-## 代码路径判断
-
-当时远程 `scripts/run_mca_soft_prefix.py` 在写 records 前会顺序完成：
-
-1. initial answer generation；
-2. cue extraction generation；
-3. soft-prefix receiver generation；
-4. records / summary 写入。
-
-旧版本没有阶段进度打印，也不会在 generation 中途写中间文件。
-
-## 发现
-
-执行层面：
-
-- 没看到僵尸、sleep-only、IO wait 或 GPU 空转；
-- GPU 和主线程都在持续计算；
-
-实验层面：
-
-- 该 run 用 transformers backend 跑 full MATH500，不是 vLLM；
-- 500 个 initial prompts 每个 `max_new_tokens=4096`；
-- 后面还有 cue generation 和 receiver generation；
-
-对照口径：
-
-- 该 run 没有 `--input-records`；
-- 它重新采样 standard-mad prompt；
-- 因此只能叫 prompt/config aligned，不能叫 same-initial-pool aligned。
-
-## 已做修正
-
-本地 `scripts/run_mca_soft_prefix.py` 加入进度日志：
-
-```text
-run start
-loaded rows
-model loaded
-initial answers completed x/y
-cue extraction completed x/y
-soft-prefix resolve completed x/y
-records written x/y
-run complete
-```
-
-这个修正不影响已经在远程运行的 PID 1135755，只对后续重启有效。
-
-本地验证：
-
-```text
-python -m py_compile scripts/run_mca_soft_prefix.py scripts/mca_hidden_channel_runner.py
-python -m unittest discover -s tests -p "test_*.py"
-46 tests passed
-```
-
-## 建议
-
-如果目标是保留这次计算，可以继续等到 18h timeout 或自然完成。
-
-如果目标是得到可复核 MCA-P 主结果，建议停止当前 run，等空 GPU 后用带进度日志的新 runner 重启，并优先传入 Standard MAD `records.jsonl` 作为 `--input-records`，把对照口径改成 same-initial-pool。
+本地进度日志改动发生在远端 PID `1135755` 启动之后，因此不影响该远端进程的代码行为。该记录只说明运行诊断状态，不包含完整结果读数。

@@ -1,251 +1,49 @@
-# MCA 潜状态多轮讨论设计记录
+# MCA 潜状态多轮讨论边界记录
 
 日期：2026-07-06
 
-## 背景
+## 做法
 
-当前 `MCA-Pre-KV question_only` 不是多轮讨论机制。它只做一件事：sender 在不生成答案、不生成理由的情况下读题，receiver 接收这个读题后的 KV cache，然后独立生成一次答案。
+1. 记录先固定 Standard MAD 参照流程。每道题由 3 个智能体生成第一轮答案和理由，再把第一轮可读文本广播给其他智能体，第二轮智能体读取这些文本后生成修正答案，最后对 3 个第二轮答案做多数投票。
 
-Standard MAD final 包含两轮文本讨论：第一轮 agent 生成答案和理由，第二轮 agent 看到其他 agent 的文本输出后再修正。当前 `MCA-Pre-KV question_only` 只对应一轮解题。
+2. `MCA-Pre-KV question_only` 只运行一轮前置状态通信。发送方只读题并保存 `past_key_values`，不生成答案、不生成理由，也不生成可读线索。
 
-## 已观察到的参照水平
+3. 接收方接入发送方的 question-only KV 后，从 receiver prompt 生成第一轮答案。该流程到第一轮答案为止，没有把接收方答案再交给其他智能体讨论。
 
-当前主口径的 Standard MAD 基线：
+4. `Pre-KV + Standard MAD` 在上一步之后继续运行文本讨论。3 个 receiver 的第一轮可读答案和理由被整理成 Standard MAD memory，交给第二轮 debate agent。
 
-- 路径：`experiments/standard-mad-math500-20260705-qwen25-7b-full-4096-a8002/`
-- 任务：`math500/test`
-- 模型：`Qwen2.5-7B-Instruct`
-- 智能体数：3
-- 轮数：2
-- 输出预算：4096
-- 初始多数：364/500 = 0.728
-- Standard MAD final：378/500 = 0.756
+5. 第二轮 debate agent 不再接收潜状态，而是读取第一轮可读文本，按 Standard MAD 方式修正答案。最终答案由第二轮 3 个智能体多数投票得到。
 
-`MCA-Pre-KV question_only` 完整运行结果：
+6. 纯潜状态多轮讨论的边界被单独记录：每一轮都继续传递 KV 或 hidden state，中间轮次不广播可读答案或理由，最终答案只在最后阶段生成。
 
-- baseline：341/500 = 0.6820
-- final：362/500 = 0.7240
-- delta：+21
-- transition：`BaC_to_C=317`，`BaC_to_W=24`，`BaW_to_C=45`，`BaW_to_W=114`
+7. 因此，`Pre-KV + Standard MAD` 被记录为桥接机制：第一阶段是前置潜状态通信，第二阶段是普通文本讨论。它的结果不能和纯潜状态多轮讨论混称。
 
-## 术语边界
+## 工程细节
 
-本文档中 `sender`、`receiver` 和 `debate agent` 的含义如下：
+- Standard MAD 参照运行路径为 `experiments/standard-mad-math500-20260705-qwen25-7b-full-4096-a8002/`。
+- Standard MAD 设置为 `math500/test`、`Qwen2.5-7B-Instruct`、3 个智能体、2 轮、输出预算 4096。
+- `question_only` sender 的 `generated_tokens=0`，只保留读题后的 `past_key_values`。
+- receiver 接收 sender KV 后从 receiver prompt 开始生成第一轮答案。
+- debate agent 读取第一轮可读文本答案后，按 Standard MAD 文本讨论 prompt 生成第二轮答案。
+- `Pre-KV + Standard MAD` 的两阶段流程为：3 个 sender 只读题得到 question-only KV；3 个 receiver 接入 KV 生成第一轮答案；第一轮文本答案广播给其他 agent；第二轮按 Standard MAD 修正；最后做多数投票。
+- 多轮潜状态讨论的边界是每轮继续传递 KV 或 hidden state，并且最终答案只在最后阶段输出。若每轮都广播可读答案或理由，该机制会退回文本 MAD。
+- 记录字段需要能复核每轮 agent id、state 来源、是否生成可读文本、是否生成最终答案、KV 的 prompt token 数、generated token 数、past token 数、receiver 使用的 sender state、每轮答案、最终答案和正误转移。
 
-- `sender`：只读题并产生 KV cache 的状态来源。`question_only` 设置下，sender 的 `generated_tokens=0`，不生成答案、不生成理由、不生成可读线索。
-- `receiver`：接收 sender 的 KV cache 后从头解题并生成第一轮答案的 agent。
-- `debate agent`：读取第一轮可读文本答案后，按 Standard MAD 文本讨论 prompt 生成第二轮答案的 agent。
+## 结果
 
-因此，`Pre-KV + Standard MAD` 是一个两阶段桥接机制：
+| 运行 | 读数 | 数值 |
+| --- | --- | ---: |
+| Standard MAD | 初始多数 | 364/500 |
+| Standard MAD | final | 378/500 |
+| `MCA-Pre-KV question_only` 完整运行 | baseline | 341/500 |
+| `MCA-Pre-KV question_only` 完整运行 | final | 362/500 |
+| `MCA-Pre-KV question_only` 完整运行 | 净变化 | +21 |
+| `Pre-KV + Standard MAD` bridge run | no-channel 第一轮 | 347/500 |
+| `Pre-KV + Standard MAD` bridge run | Pre-KV 第一轮 | 349/500 |
+| `Pre-KV + Standard MAD` bridge run | debate final | 363/500 |
 
-```text
-第一阶段：前置潜状态通信，通信对象是 live KV；
-第二阶段：文本讨论，通信对象是第一阶段 receiver 输出的可读答案/理由。
-```
+`MCA-Pre-KV question_only` 完整运行的转移为 `BaC_to_C=317`、`BaC_to_W=24`、`BaW_to_C=45`、`BaW_to_W=114`。bridge run 中，Pre-KV 相对 no-channel 第一轮为 `+2`，debate final 相对 no-channel 第一轮为 `+16`，相对 Pre-KV 第一轮为 `+14`。
 
-它不是纯潜状态多轮讨论。纯潜状态多轮讨论要求后续轮次继续传递 KV 或 hidden state，而不是把第一轮输出文本作为 debate memory。
+## 备注
 
-## 方案 A：Pre-KV 作为 Standard MAD 前置层
-
-这是最直接的可检验方案。
-
-流程：
-
-```text
-题目出现
--> 3 个 sender 只读题，生成 question-only KV
--> 3 个 agent 带各自或配对的 KV 生成第一轮答案
--> 按 Standard MAD，把第一轮答案和理由广播给其他 agent
--> 第二轮正常讨论和修正
--> final majority
-```
-
-主对照：
-
-```text
-Standard MAD final: 378/500
-Pre-KV + Standard MAD final: ?/500
-```
-
-次要读数：
-
-- 第一轮 majority 是否高于 Standard MAD initial 364/500；
-- 第二轮 final 是否高于 Standard MAD final 378/500；
-- Pre-KV 是否改变第二轮文本讨论中的错误传播模式。
-
-技术边界：
-
-- 第二轮仍然是文本讨论，所以这不是纯潜状态讨论；
-
-已完成运行：
-
-- 路径：`experiments/20260706-a8002-math500-live-mca-pre-kv-then-mad-qwen25-7b-full/`
-- no-channel 第一轮：347/500 = 0.6940
-- Pre-KV 第一轮：349/500 = 0.6980
-- debate final：363/500 = 0.7260
-- Pre-KV 相对 no-channel：+2
-- debate 相对 no-channel：+16
-- debate 相对 Pre-KV 第一轮：+14
-
-## 方案 B：多源 Pre-KV 门控
-
-当前 `MCA-Pre-KV question_only` 的简化结构是：3 个 sender state，3 个 receiver，每个 receiver 接收一个 sender 的 KV。
-
-多源门控版本把通信对象从“固定配对”改成“候选状态集合”。
-
-流程：
-
-```text
-题目出现
--> 3 个 sender 只读题，得到 3 个 question-only KV
--> receiver 分别接收不同 sender KV 生成候选答案
--> 使用非答案泄漏的门控信号选择或加权候选
--> 输出 majority 或 gated majority
-```
-
-可用门控信号必须避免直接使用 gold 或答案正确性。候选信号包括：
-
-- receiver 输出的解析成功与否；
-- final answer 格式是否稳定；
-- 多个 receiver 是否收敛到同一答案；
-- 输出长度、置信度 proxy、平均选中 token logprob；
-- baseline 与 KV receiver 的一致性或分歧模式。
-
-主对照：
-
-```text
-固定配对 Pre-KV final
-多源门控 Pre-KV final
-```
-
-技术边界：
-
-- 如果门控使用生成后的答案文本，它仍然不是纯前置机制；
-- 但它不是后验给模型提示修改答案，而是对多个潜状态解题轨迹做选择；
-
-## 方案 C：多轮 KV-state 讨论
-
-这是更接近 MCA 原意的版本。每轮传递的不是答案文本，而是新的潜状态。
-
-流程：
-
-```text
-Round 0:
-每个 agent 只读题，得到 state_0
-
-Round 1:
-每个 receiver 接收其他 agent 的 state_0
-从头解题或形成新的中间状态 state_1
-
-Round 2:
-receiver 再接收 state_1
-形成 state_2 或最终答案
-
-Final:
-只在最后阶段生成 final answer
-```
-
-这个方案回答：
-
-```text
-在不广播文本答案和文本理由的情况下，多个 agent 的潜状态能否经过多轮交换产生更好的问题表示？
-```
-
-可能的通信结构：
-
-- one-to-one：receiver 只接收一个 sender state；
-- all-to-one multi-run：receiver 分别接收多个 sender state，生成多个候选，再投票；
-- KV concat：把多个 sender KV 拼成一个 prefix；
-- KV selection：根据非答案门控选择一个 sender KV；
-- state distillation：把多个 sender state 压缩成一个共享潜状态。
-
-主要风险：
-
-- KV concat 可能引入位置编码和上下文长度问题；
-- 多轮 state 可能放大错误题型先验；
-- 如果每轮都生成可读文本，再把文本喂回去，就会退回 Standard MAD 或 MCA-T；
-- 如果 receiver 在第一轮已经生成最终答案，再做 state exchange，就会重新变成后验 patch。
-
-## 方案 D：生成过程中的交错潜状态通信
-
-这是最底层、也最接近“真实解题过程中交流”的版本。
-
-流程：
-
-```text
-所有 agent 同时开始生成
-每生成 N 个 token 暂停
-捕获各自当前 KV 或 hidden state
-交换或写入共享 latent memory
-继续生成下一段
-重复若干次
-最后输出答案
-```
-
-该方案和方案 C 的区别是：方案 C 每轮通常从头解题或重新生成；方案 D 在同一次解题轨迹中插入通信。
-
-它回答：
-
-```text
-通信发生在答案生成过程中，而非答案生成之前或之后时，是否能减少错误分叉并提高最终答案？
-```
-
-技术点：
-
-- 需要改写 generation loop；
-- 不同 agent 的生成长度不同，暂停点需要对齐；
-- KV cache 的 batch 组织和内存占用会快速增长；
-
-## 与 MCA-T 的边界
-
-以下操作不应算作 MCA 潜状态讨论：
-
-- 生成初始答案后，再广播文本 cue；
-- 让模型写 certificate、audit、XML 或格式化自证；
-- 根据别人的最终答案写反驳或修正；
-- 使用 benchmark 专属角色或题型专属 prompt；
-- 让 receiver 看到 sender 的最终答案，但声称这是潜状态通信。
-
-对照项：
-
-- Standard MAD 文本讨论；
-- Pre-KV + Standard MAD；
-- 生成后 rerank；
-- 答案一致性过滤；
-- 文本 verifier。
-
-## 可检验对照
-
-最低可用对照矩阵：
-
-| 机制 | 是否有前置潜状态 | 是否有文本讨论 | 主要读数 |
-| --- | --- | --- | --- |
-| No-channel one-round | 否 | 否 | 一轮 majority |
-| MCA-Pre-KV one-round | 是 | 否 | 前置潜状态对一轮解题的影响 |
-| Standard MAD | 否 | 是 | 文本讨论基线 |
-| MCA-Pre-KV + Standard MAD | 是 | 是 | 前置潜状态 + 文本讨论 |
-| Multi-round KV-state | 是 | 否 | 多轮潜状态交换是否有效 |
-
-## 需要记录的字段
-
-多轮版本需要保存比当前 `mca_pre` 更细的轨迹：
-
-- 每题每轮的 agent id；
-- 每轮的输入 state 来源；
-- 每轮是否生成可读文本；
-- 每轮是否生成最终答案；
-- 每轮 KV 的 prompt token 数、generated token 数、past token 数；
-- receiver 使用了哪个 sender state；
-- baseline answer、每轮 answer、final answer；
-- transition：baseline 到 final 的正误变化；
-- 对于多源或门控版本，保存门控输入、门控输出和被选 state。
-
-如果方案声称“不广播答案”，记录中必须能复核 sender 在通信阶段没有生成答案文本。
-
-## 同口径对照
-
-```text
-Standard MAD
-vs
-MCA-Pre-KV + Standard MAD
-```
+`Pre-KV + Standard MAD` 不能称为纯潜状态多轮讨论，因为第二阶段的通信对象是 receiver 的可读答案和理由。它适合作为桥接对照，用来观察前置 KV 是否改变进入文本讨论的第一轮材料。

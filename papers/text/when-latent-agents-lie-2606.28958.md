@@ -1,0 +1,1164 @@
+# when-latent-agents-lie-2606.28958
+
+- Source PDF: `when-latent-agents-lie-2606.28958.pdf`
+- Extracted at UTC: `2026-07-10T01:27:14.171144+00:00`
+- Pages: 16
+- Title: When Latent Agents Lie: KV-Cache Integrity in Multi-Agent LLM Collaboration
+- SHA256: `c2b1ba2a09fcaf5c49f536e5cca590187cdfd287e531ccef4e0a8c3ae59202f9`
+
+## Page 1
+
+When Latent Agents Lie: KV-Cache Integrity in Multi-Agent LLM Collaboration
+Luís Brito Carlos Baquero
+Escola Superior de Tecnologia e Gestão (ESTG), Faculdade de Engenharia (FEUP),
+Politécnico de Viana do Castelo (IPVC), Portugal Universidade do Porto (UP), Portugal
+Abstract sion, model, visible commitment, tensor metadata, and pay-
+load digest. It accepts 774/774 honest replayed payloads and
+Full-KV latent memory can make multi-agent reasoning
+rejects 295/295 recorded tampered payloads. After detected
+more capable, but it also turns hidden state into an integrity-
+transport failure, fail-closed rejection reaches 0.338/0.476 on
+critical communication object. We study a role-sequenced
+HiddenBench; on HotPotQA, drop recovers to 0.450/0.592
+multi-agent protocol in which specialists send short visible
+and visible downgrade to 0.460/0.597. The mechanism detects
+commitments while transporting full KV-cache state to a co-
+post-handoff transported-KV substitution under an uncom- ordinator. This design improves split-evidence aggregation,
+promised transport key. Compromised endpoints that sign
+but it creates a failure mode that ordinary text inspection can-
+malicious in-band KV and semantic malicious specialists re-
+not see: the visible commitment can look plausible while the
+main outside its protection boundary.
+hidden KV state has been substituted, rescaled, or optimized.
+Our evaluation shows both sides of this trade-off. On 65
+transformed HiddenBench records with Qwen3-4B, full-KV 1 Introduction
+latent collaboration reaches EM/F1 0.338/0.486, compared
+with 0.231/0.369 for matched text collaboration, with lower es- Multi-agent language-model systems increasingly divide
+timated parallel critical-path latency and about 279 MB of KV work across specialists that hold different evidence, intermedi-
+cache per example. The EM gain is directionally positive but ate reasoning, or tool outputs. Modern LLM serving systems
+statistically weaker; the F1 gain has stronger paired support. also treat KV cache as a managed state object, with disaggre-
+Qwen3-8B HiddenBench and full-validation HotPotQA runs gated serving and KV-cache-centric storage layers [1, 2]. La-
+also show latent-over-text EM/F1 gains. An influence-map tent collaboration brings these trends together: a specialist can
+diagnostic further shows that removing an essential specialist expose a short visible commitment while transporting a much
+flips 10 of 21 latent-correct HiddenBench cases, indicating richer full-KV hidden-state object to a coordinator. That ob-
+that some correct latent answers causally depend on specialist- ject can carry useful evidence, but it is opaque to ordinary text
+specific hidden-state memory. inspection and difficult to audit when one participant is unreli-
+The same channel is fragile under malicious specialists. Tar- able. Recent work explores cooperative latent communication
+geted false commitments steer some answers, while random and cache-level collaboration [3–7], while separate work stud-
+latent-thought corruption and scale-8 hidden-state manipula- ies latent attacks, safe KV sharing, text-channel multi-agent
+tion collapse Qwen3-4B latent performance near zero. Visible attacks, and distributed-information reasoning [8–12].
+verifier filtering misses this failure mode because it audits This trade-off is especially important in split-evidence
+commitments, not transported KV. Magnitude quarantine han- tasks, where no single specialist may hold all information
+dles evaluated naive nonsemantic attacks, but norm-matched required for the final answer. Existing literature motivates the
+adaptive attacks evade it: a HiddenBench white-box attack components of this setting while leaving open the integrity
+reduces EM/F1 from 0.323/0.471 to 0.077/0.119 without de- question created by transported hidden state: when does full-
+tection, and a 100-record HotPotQA port reduces 0.470/0.641 KV memory carry specialist-specific evidence, and how does
+to 0.160/0.252 with 0/100 malicious states rejected. A full-65 that state fail under malicious specialists and simple audit
+calibrated learned sanitizer also fails to beat matched random- defenses?
+budget dropping under detector-aware attack. We study a planner-specialist-verifier-coordinator archi-
+The constructive result is therefore not latent anomaly tecture. Specialists operate in parallel, emit compact visible
+detection, but transport-layer integrity. We implement an commitments for audit, and pass full-KV latent memory to
+HMAC-SHA256 manifest that binds specialist identity, ses- the final coordinator. We focus compromise on specialist
+1
+6202
+nuJ
+72
+]AM.sc[
+1v85982.6062:viXra
+
+## Page 2
+
+roles, matching settings where intermediate evidence hold- hidden-state corruption, high-norm manipulation, sign-flip
+ers can be compromised while the final coordinator remains controls, and colluding variants.
+fixed. We separate endpoint/specialist attacks, where a com-
+4. We add latent influence-map diagnostics showing clean
+promised specialist can emit malicious KV, from on-path
+specialist-specific evidence use and a bounded attack-side
+transport tampering after honest KV has been produced. We
+target-steering mechanism through malicious KV memory.
+call the resulting problem empirical KV-transport integrity:
+whether visible auditing, latent-state diagnostics, and transport
+5. We analyze visible verifier filtering, latent-state quarantine,
+checks can detect or reduce harmful changes to the hidden
+learned-sanitizer failure, and MAC-gated fail-closed rejec-
+object consumed by the coordinator. The primary attack and
+tion, showing where naive attacks recover, where adaptive
+defense experiments use Qwen/Qwen3-4B on the 65-record
+white-box optimization breaks post-hoc filters, and where
+transformed official HiddenBench set with greedy decoding.
+transport authentication gives a concrete positive systems
+Additional experiments add Qwen3-8B HiddenBench repli-
+boundary for on-path substitution.
+cation, full-validation HotPotQA diagnostics for clean utility
+and naive nonsemantic attacks, and a 100-record HotPotQA Together, these results show that high-bandwidth latent
+white-box/provenance slice. The scope is high-bandwidth memory can improve clean split-evidence aggregation while
+full-KV memory; compact latent bridges inform limitations. creating a transported-KV integrity problem that visible com-
+The main empirical result is a concrete capability/risk trade- mitments and simple post-hoc latent-state filtering do not
+off. In clean runs, full-KV latent collaboration improves ob- close.
+served EM/F1 over matched text in every completed clean
+evaluation; Qwen3-8B HiddenBench and full HotPotQA pro-
+2 Background and Related Work
+vide the strongest clean support, and a full-HiddenBench
+influence map shows that removing an essential specialist
+This section situates the paper at the intersection of latent com-
+flips 10 of 21 latent-correct diagnostic answers. The security
+munication, KV-cache serving, latent-channel safety, multi-
+story then escalates as an integrity audit: targeted-false influ-
+agent LLM security, Byzantine aggregation, and distributed-
+ence traces some steering to malicious KV memory, random
+information reasoning. Prior work studies each component
+and scale-8 corruptions show that transported state can dom-
+largely in isolation. The gap targeted here is their combi-
+inate the coordinator, visible filtering shows that inspecting
+nation: split-evidence reasoning with malicious specialists,
+commitments does not validate hidden state, and adaptive
+transported full-KV state, latent-state fusion or filtering, and
+endpoint attacks expose the boundary of magnitude quaran-
+matched text-channel comparisons.
+tine. A full-65 calibrated learned sanitizer sets the anomaly-
+detection boundary because it trails matched random-budget
+2.1 Latent Communication Between Agents
+drop under detector-aware attack. The constructive boundary
+is on-path transport integrity: an HMAC-SHA256 manifest
+Recent work establishes that LLM agents can commu-
+gate accepts 774/774 honest replayed payloads and rejects
+nicate through representations richer than short natural-
+295/295 recorded tampered payloads. After detected trans-
+language messages. CIPHER replaces debate messages with
+port failure, fail-closed drop restores damaging post-handoff
+embedding-space signals derived from model output distribu-
+substitutions on HiddenBench, and the 100-record HotPotQA
+tions, motivating the broader idea that tokenized text may dis-
+port shows that adaptive hidden-state damage and provenance
+card information useful for collaboration [3]. Interlat studies
+recovery are not unique to HiddenBench. This MAC bound-
+direct latent-space communication using collected last-layer
+ary covers post-handoff transported-KV substitution under
+hidden states and receiver-side processing [5]. LatentMAS
+an uncompromised transport key; compromised endpoints,
+is closest to the high-bandwidth setting considered here: it
+remote attestation failure, and semantic malicious specialists
+uses latent thoughts and shared KV-cache working memory
+remain outside its protection boundary.
+for cooperative multi-agent reasoning [4].
+The paper makes five empirical contributions:
+Related systems explore hybrid or heterogeneous variants.
+These include text plus hidden-state deltas [13], KV-cache
+1. We formulate role-sequenced full-KV latent collaboration
+alignment across models [6], and cache-to-cache semantic
+as an empirical transported-state integrity audit.
+transfer [7]. Other work studies latent-variable accounts of
+shared and private thoughts [14]. Visual-pathway latent com-
+2. We evaluate high-bandwidth latent memory for split-
+munication addresses heterogeneous agents [15], while hy-
+evidence reasoning against text, local-only, voting, ora-
+brid latent-text communication is designed to preserve more
+cle, naive latent, and verifier-filtered latent branches, with
+controllability than fully latent exchange [16].
+Qwen3-8B and full transformed HotPotQA diagnostics.
+These papers establish latent communication as a concrete
+3. We introduce a malicious-specialist evaluation separat- design space and delimit the present contribution. This paper
+ing semantic false-evidence steering from nonsemantic shifts the question from clean latent capability to the behavior
+2
+
+## Page 3
+
+of a high-bandwidth latent channel when agents have dif- 2.4 Multi-Agent LLM Security
+ferent private evidence and some specialists are malicious.
+The broader multi-agent security literature supports the
+The reviewed latent-communication papers primarily address
+malicious-specialist threat model. Prompt Infection stud-
+cooperative capability, efficiency, heterogeneous transfer, or
+ies prompt-injection propagation across LLM-to-LLM in-
+hybrid protocol design; this paper studies split-evidence ro-
+teractions [10]. TAMAS benchmarks adversarial risks in
+bustness and transported-KV integrity.
+multi-agent LLM systems [11]. MAD-Spear studies prompt-
+injection attacks in multi-agent debate [22].
+Other work analyzes recurring failure modes in multi-agent
+2.2 KV-Cache Serving and Transport
+LLM systems [23] and limitations of embedding-based de-
+fenses [24]. Related defenses and threat analyses include
+LLM serving systems increasingly expose KV cache as a
+credibility-based adversary resistance [25] and credit-based
+managed systems object: DistServe disaggregates prefill and
+dynamic threat detection [26]. They also include coopera-
+decoding across GPUs [1], and Mooncake builds a KV-cache-
+tive attacks and rectification in language-space systems [27]
+centric serving architecture with disaggregated compute and
+and system-level security challenges for interacting AI agents
+cache resources [2]. These systems make the relevant abstrac-
+[28].
+tion concrete: KV state can be stored, scheduled, moved, and
+This literature motivates adversarial participants, collusion,
+reused across components. That systems backdrop motivates
+trust weighting, and detection as realistic concerns. Its main
+the empirical integrity question studied here: whether trans-
+channel assumptions, however, are usually visible text, tools,
+ported full-KV state remains trustworthy for latent collabora-
+output consensus, or system-level interaction. That leaves an
+tion when specialist-provided hidden state can be attacked.
+important methodological mismatch for latent-memory col-
+laboration: a visible verifier may inspect commitments or sum-
+maries, but it cannot directly audit the hidden KV states con-
+2.3 Latent Attacks, KV Safety, and Leakage
+sumed by a downstream coordinator. The present manuscript
+uses that mismatch as a core motivation for evaluating both
+Opacity makes latent channels security-critical rather than
+visible-channel filtering and latent-state diagnostics.
+inherently safer. The closest adversarial latent prior, Out of
+Sight, Not Out of Mind, studies attacks on latent-based multi-
+2.5 Byzantine Aggregation and Robust Fusion
+agent systems through hidden-state or KV-cache steering [8].
+That overlap is material: it already identifies latent-only at-
+Byzantine-robust distributed learning provides useful vocab-
+tack risk at KV handoffs, argues that visible-text inspection
+ulary and candidate mechanisms for malicious-participant
+is insufficient, and uses controls to separate damaging latent
+settings. Krum selects updates by neighborhood proximity
+attacks from arbitrary perturbation or invalid-generation ex-
+under Byzantine workers [29]. Coordinate-wise median and
+planations. The contribution here is the combined evaluation
+trimmed mean give robust aggregation rules with statistical
+of role-sequenced split-evidence reasoning, malicious spe-
+analyses in distributed learning [30]. Geometric-median ag-
+cialists, matched visible-text versus full-KV behavior, and
+gregation appears in robust federated learning [31]. Bulyan
+state-filter diagnostics that include adaptive norm-matched
+and later attacks illustrate both stronger defenses and the pos-
+breaks and transfer bounds under one protocol. THOUGHT-
+sibility that robust rules can still be circumvented [32, 33].
+STEER studies backdoor attacks on continuous latent reason-
+These methods provide useful design pressure for this set-
+ing by perturbing latent vectors while evading token-level
+ting, while their native objects are gradients or model updates.
+defenses [17]; it further supports the need to audit latent
+Latent specialist states are inference-time messages gener-
+channels, while leaving multi-agent KV handoffs and split-
+ated from semantically different evidence partitions, and an
+evidence role sequencing outside its scope.
+honest specialist can be an outlier precisely because it saw
+Privacy and reconstruction work gives a second reason to information that other specialists did not. For that reason,
+avoid treating latent communication as inherently benign. LC- robust fusion in this manuscript is treated empirically: Byzan-
+Guard treats shared KV caches as latent working memory tine aggregation motivates baselines and diagnostics, while
+and studies representation-level transformations for safer KV high-bandwidth LLM KV states require direct measurement.
+sharing [9]. Other work reports leakage or reconstructability
+from embeddings and hidden activations [18–20]. AgentLeak
+2.6 Distributed-Information Reasoning
+extends the concern to multi-agent systems by emphasiz-
+ing that internal channels such as inter-agent messages and The evaluation setting is motivated by hidden-profile and
+shared memory can contribute to privacy exposure [21]. These fragmented-evidence tasks. HiddenBench is the closest bench-
+sources motivate treating hidden representations as potentially mark precedent because it focuses on collective reasoning un-
+privacy-relevant; this study uses that motivation while focus- der distributed information, where no single participant nec-
+ing its measurements on integrity. essarily observes all decision-relevant evidence [12]. Other
+3
+
+## Page 4
+
+multi-agent and retrieval-augmented systems also address ble commitment well enough to support correct coordination.
+fragmented information. MACT studies multi-agent table For post-handoff substitution, we instantiate this boundary
+question answering with tool use [34]. RAGentA and MASS- with a transport-layer MAC over a canonical KV manifest;
+RAG use multi-agent retrieval and synthesis for attributed the broader study is an empirical audit.
+or evidence-based question answering [35, 36]. Federated or The attacker controls one or more specialist agents after
+privacy-preserving RAG systems consider knowledge dis- evidence partitioning. The attacker may try to steer the coordi-
+tributed across silos [37–39]. nator toward a target wrong answer, suppress useful evidence,
+These works support the premise that distributed evidence or corrupt the latent state associated with a compromised spe-
+is a meaningful evaluation regime. They leave open the com- cialist. The attacker does not change the benchmark record,
+bined setting targeted here: high-bandwidth transported KV the answer key, the honest specialists’ evidence partitions, the
+state, malicious latent participants, robust latent filtering or planner, the verifier code, the coordinator code, or the evalua-
+aggregation, and matched text-versus-latent attack compar- tion metric. We use the following capability ladder; Figure 1
+isons. This specific gap motivates a controlled empirical audit marks the channel each tier touches.
+of transported-KV integrity for split-evidence multi-agent rea-
+• Tier A: semantic-only specialist control. The attacker
+soning under malicious specialists, with explicit comparison
+controls a compromised specialist’s visible text and com-
+to text collaboration and with robustness claims tied to the
+mitment content, but cannot read, write, or perturb hidden
+reported evidence.
+states in transit. This tier models a malicious or unreliable
+evidence holder that lies through the ordinary textual inter-
+3 Problem Setting and Threat Model face.
+We study split-evidence question answering in which the • Tier B: hidden-state write access without gradients. The
+complete evidential context is distributed across special- attacker can overwrite or transform a compromised spe-
+ists. A task instance contains a query, an answer key, ev- cialist’s latent-thought KV states before the coordinator
+idence pieces, identifiers for required evidence, and agent- consumes them, but cannot compute gradients through the
+specific evidence partitions. In the transformed HiddenBench victim coordinator. This tier covers nonsemantic hidden-
+records used for the primary evaluation, shared information channel manipulations such as random state corruption,
+is assigned to every specialist, while hidden information is high-magnitude scaling, sign reversal, norm-matched sub-
+distributed across specialists and treated as structurally re- stitutions, and transfer-style perturbations constructed with-
+quired because the source benchmark does not annotate mini- out per-victim gradient optimization. The key distinction
+mal supporting-fact rationales. The setting therefore targets from Tier A is that the visible commitment may remain
+distributed-information reasoning rather than ordinary single- plausible while the hidden state has been changed.
+context question answering.
+• Tier C: white-box gradient access. The attacker has Tier
+The system has four logical roles, summarized in Figure
+B write access and can also differentiate through the victim
+1. The planner receives the query and records the evidence
+coordinator, including the model and the relevant forward
+needs for the instance. Specialists receive the query, the plan-
+computation. This tier represents a strong adaptive adver-
+ner state, and their assigned evidence partitions; they are the
+sary and bounds attacks that search for damaging hidden-
+compromised role in the main threat model. Each specialist
+state directions while remaining inside the magnitude range
+may emit a visible commitment and, in latent branches, a
+expected from honest specialists.
+transported full-KV state object consumed by the coordinator.
+The verifier is an audit component that observes specialists’ Hidden-state write access is an implementation-level cache
+visible commitments and can filter contributions, while raw threat: latent memory is an object passed between specialist
+hidden-KV semantics remain outside its view. The final co- and coordinator components, and an attacker with control of
+ordinator combines accepted information and produces the a specialist runtime, serving node, or model-hosting infras-
+answer. This section fixes the roles and adversary scope; the tructure on that path could substitute, rescale, or perturb the
+next section describes the operational information flow. KV cache before coordination. This capability is stronger
+We distinguish evidence ownership from answer owner- than ordinary natural-language control and is therefore sepa-
+ship. A specialist is responsible for its evidence partition and rated from Tier A. The evaluation keeps the planner, verifier,
+any claim it makes about that partition. The coordinator is coordinator, honest specialists, dataset, and metrics fixed.
+responsible for combining accepted specialist contributions The threat model therefore separates two integrity bound-
+into a final answer. The verifier can inspect visible commit- aries. An endpoint/specialist adversary controls the special-
+ments, but a plausible visible commitment is insufficient to ist process that emits or signs the KV object; this is where
+establish that the associated latent state is benign. The in- the semantic, nonsemantic, and white-box attacks live, and
+tegrity property we study is whether the transported hidden a transport MAC does not make endpoint-generated mali-
+object remains aligned with the specialist’s evidence and visi- cious KV benign. A transport/on-path adversary tampers
+4
+
+## Page 5
+
+with an already-produced honest KV object after handoff; query q
+visible commitment ci
+the HMAC check targets this boundary by authenticating spe-
+full-KV latent memory mi
+cialist identity, record/session identity, model identity, visible- Planner
+commitment hash, tensor metadata, and a SHA-256 payload
+digest under an uncompromised transport key.
+The focus on KV substitution isolates the channel-specific S1 S2 ··· Sn attacker
+E1 E2 En
+integrity question created by full-KV collaboration: whether endpoint adversary
+a compromised specialist can leave the visible commitment
+Tier A: false cn
+Tier B/C: malicious KV
+plausible while changing the hidden object consumed by the MAC does not validate
+coordinator. We use "KV-transport integrity" in this empirical Verifier ⊗ MAC detects transport
+sense: the question is whether the coordinator’s transported
+scores ci only
+accept / reject tamperer
+hidden input is trustworthy under the evaluated specialist and accepted ci a
+(l
+c
+a
+c
+t
+e
+e
+p
+n
+t
+t
+e
+b
+d
+ra
+m
+n
+i
+ches)
+transport compromises. The concrete transport check detects (text branch) Coordinator
+post-handoff substitution while leaving endpoint-generated
+semantics to the specialist trust boundary. answer
+White-box access is a stronger tier. It applies to research,
+Figure 1: Role-sequenced protocol and threat model. Each spe-
+self-hosted, or shared-model settings where an attacker can
+cialist S holds a private evidence partition E and emits two
+obtain the model weights and reproduce the coordinator com- i i
+channels: a short visible commitment c , which the verifier can
+putation, or to infrastructure compromise that exposes the i
+score and filter, and high-bandwidth full-KV latent memory
+differentiable serving stack. Accordingly, Tier C is reported
+m (prompt-token KV plus latent-thought KV), which reaches
+as an adaptive upper bound for the evaluated threat model. i
+the coordinator without semantic inspection. A verifier re-
+The scope targets specialist compromise, transported-KV
+jection removes both c and m (filtered latent branch); the
+substitution, and registered benchmark evidence. Separate i i
+naive latent branch bypasses filtering, and the matched text
+evidence is needed for remote attestation, key-management
+branch replaces latent memory with visible commitments. A
+analysis, endpoint-compromise defense, differential privacy,
+compromised endpoint/specialist can lie in the visible channel
+majority-malicious coalitions, compromised planners or co-
+(Tier A) or generate malicious latent-thought KV (Tiers B/C);
+ordinators, heterogeneous-model interoperability, production
+a transport MAC does not validate that endpoint-generated
+serving measurement, and broad benchmark generalization.
+content. The MAC boundary instead covers an on-path tam-
+Separate evidence is also needed for compact latent bridges,
+perer that modifies already-produced KV after handoff.
+complete robust fusion through visible verification, adaptive-
+security guarantees for magnitude quarantine, and semantic
+malicious specialists that generate and sign their own KV in-
+band. Privacy and leakage are treated as literature-motivated full-KV memories in the filtered latent branch, or visible spe-
+concerns rather than measured outcomes in this study. cialist commitments in the matched text branch. This is the
+high-bandwidth handoff whose empirical integrity is tested
+by the attack and defense suite.
+4 Role-Sequenced Latent Memory Protocol
+The verifier sits between specialists and the coordinator. It
+The evaluated system is a fixed role sequence with a planner, scores the visible commitments and can remove a specialist
+multiple specialists, an optional verifier, and a final coordi- before that specialist’s text or latent contribution is used down-
+nator; Figure 1 summarizes the roles, channels, and attack stream, while raw KV state remains outside its inspection path.
+surface. The central object is the specialist-to-coordinator Visible commitments therefore provide an audit and filtering
+full-KV handoff: a transported hidden-state object that may hook; transport integrity is handled at the KV boundary. The
+carry useful evidence but is not directly inspectable as text. matched text branch keeps the same role sequence, records,
+The main claims concern this role-sequenced full-KV branch; and role budget, but it replaces hidden full-KV memory with
+earlier compact-message harnesses inform diagnostics and visible text commitments; it is a visible-channel comparison
+limitations. with a different attack surface from latent-state manipulation.
+As Figure 1 shows, the planner receives the query and The implementation logs protocol accounting separately
+records the expected evidence needs, and each specialist then from answer quality, including commitments, verifier deci-
+receives the query and its private evidence partition. Every sions, KV summaries, latency, and bandwidth. Because spe-
+specialist emits a compact visible commitment and, in latent cialist work is conceptually parallel, the efficiency comparison
+branches, full key-value cache state (prompt-token KV state reports an estimated parallel specialist critical path in addi-
+plus generated latent-thought KV tokens). After optional fil- tion to measured sequential runtime. On the full clean run,
+tering, the coordinator answers from all specialist full-KV naive full-KV latent collaboration transferred about 279 MB
+memories in the naive latent branch, only verifier-accepted of KV cache per example on average; the matched text branch
+5
+
+## Page 6
+
+transferred no KV cache. The corresponding estimated paral- KV exploration, and a reduced white-box/provenance slice.
+lel critical paths were 2.379 seconds for latent collaboration The full-validation HotPotQA suite ran on remote hard-
+and 3.009 seconds for text role collaboration. These quanti- ware; the 100-record adaptive/provenance slice used the local
+ties characterize the cost of the protocol and should be read ROCm environment.1
+together with the result tables. All primary full-set clean, attack, and defense runs
+Earlier development harnesses are reported separately from use Qwen/Qwen3-4B with deterministic greedy decod-
+this final protocol. The shared harness established com- ing, max_input_tokens=4096, max_new_tokens=32, hid-
+mon mode names, deterministic artifact logging, fixed-length den size 2560, and torch.float16 weights. Result JSON
+latent-message plumbing, and smoke tests using development files record cuda:0; the reproducibility manifest identi-
+and small transformer backends. Those artifacts validate soft- fies this as a ROCm-backed PyTorch environment exposed
+ware pathways; model performance is evaluated in the final through the torch.cuda namespace.2 The environment snap-
+protocol. Likewise, the soft-prompt, pooled-vector, compact shot records software, hardware, package, git, and Hugging
+KV, and other compact-bridge diagnostics support limitation Face-token-presence metadata without storing secrets.
+and sensitivity analysis for compact interfaces. The clean branches are local-only specialist answering, in-
+The same role sequence also supports defense diagnos- dependent majority vote, full-evidence oracle answering, text
+tics, which are reported separately from the protocol defi- role collaboration, naive full-KV latent role collaboration,
+nition. Visible-commitment filtering is evaluated as an au- and verifier-filtered full-KV latent role collaboration. Local-
+dit mechanism, and latent-state quarantine is evaluated as a only is logged per specialist, yielding 253 per-agent rows; the
+post-hoc state-aware diagnostic that rejects anomalous spe- other branches use 65 record-level outputs. Latent branches
+cialist KV statistics before coordinator decoding. The quar- use high-bandwidth full-KV memory with five latent steps
+antine result supports a scoped mitigation claim for the eval- and identity-norm alignment to the average input-embedding
+uated nonsemantic random and scale-8 hidden-state attacks norm, distinguishing them from compact soft-prompt, pooled-
+under the recorded threshold and threat model. For the on- vector, or fixed-length latent-bridge experiments. Specialist
+path transport boundary, the provenance check uses HMAC- work is executed sequentially for deterministic logging, while
+SHA256 over a canonical KV manifest that binds the special- efficiency summaries also report the estimated parallel spe-
+ist, record/session, model, visible commitment, tensor meta- cialist critical path.
+data, and payload digest before coordinator acceptance. Ac-
+The adversarial suite keeps the same model, dataset, decod-
+cordingly, the protocol is an auditable, high-bandwidth full-
+ing, and role-sequenced implementation while compromising
+KV latent-memory system with a concrete post-handoff sub-
+specialist roles. The full-65 core suite uses one compromised
+stitution check, matched text branch, and explicit latency/KV
+specialist per record, selected as the last sorted specialist iden-
+accounting; compactness, privacy, key management, remote
+tifier, and evaluates targeted false specialist behavior, random
+attestation, endpoint compromise, and general robustness re-
+latent-thought KV replacement at scale 1.0, scale-8 latent-
+quire separate evidence.
+thought multiplication, and latent-thought sign flip with fac-
+tor -1.0. The targeted-false attacker receives the possible an-
+5 Benchmark and Experimental Setup swers and its private evidence and is instructed to support
+a wrong target. Nonsemantic hidden-state attacks modify
+The primary benchmark is the transformed official Hidden- the selected specialist’s latent-thought KV tokens while leav-
+Bench set. The dataset package preserves the raw Hugging ing prompt-token KV intact. Matched text comparisons are
+Face artifact retrieved on 2026-06-06, including source revi- visible-channel budget or salience analogues with a different
+sion and raw-file hash, and converts each item into a split- attack surface from hidden-state attacks.
+evidence record with answer keys, evidence pieces, parti- Verifier and state-filter diagnostics are logged separately
+tions, validity fields, provenance, and source-format notes. from the clean and attack branches. Visible verifier filter-
+A transformation-validity audit verified all 65 official records: ing scores specialist commitments before accepted text or
+250 shared items and 253 hidden items are preserved, each latent contributions reach the coordinator, measuring a text-
+hidden item is assigned to exactly one specialist, and no spe- side audit hook rather than direct inspection of hidden KV
+cialist receives all required hidden evidence. Because the state. Latent-state quarantine applies a post-hoc threshold
+source lacks minimal supporting-fact rationales, all hidden to per-specialist latent-thought KV statistics for random and
+identifiers are marked structurally required; rationales exist scale-8 attacks, then reports accepted KV bandwidth, rejection
+for 57/65 records, and shared-decoy language is recoverable
+in 48/57. We treat transformed HiddenBench as a structurally 1Remote HotPotQA diagnostic hardware: Ubuntu 24.04.3 LTS; Intel
+faithful split-evidence stress test with documented limits on Xeon Processor (SapphireRapids), 24 logical CPUs; 117 GiB memory; 1x
+NVIDIA L40S GPU.
+original distractor-property reconstruction. HotPotQA pro-
+2Local primary-run hardware: Ubuntu 24.04.4 LTS; AMD RYZEN AI
+vides second-benchmark diagnostics for clean utility, naive
+MAX+ 395 w/ Radeon 8060S, 32 logical CPUs; 124 GiB memory; AMD
+nonsemantic attacks, quarantine, decoding length, compact- Radeon 8060S Graphics GPU.
+6
+
+## Page 7
+
+decisions, text fallback, and quarantined latent performance. inputs, local ROCm metadata, and remote L40S provenance
+Full-validation HotPotQA quarantine/drop runs use this re- back to source artifacts.
+lated state-filter diagnostic on 7,405 records for Qwen3-4B
+and Qwen3-8B; a separate 100-record HotPotQA run ports
+6 Clean Collaboration and Efficiency
+the white-box gradient norm-matched attack and evaluates
+drop/downgrade handling when damaged KV is treated as
+Across the completed clean evaluations, full-KV latent collab-
+failed provenance.
+oration consistently improves observed EM/F1 over matched
+The full defense diagnostics remain centered on trans-
+text role collaboration. The 65-record Qwen3-4B Hidden-
+formed HiddenBench. The learned-sanitizer follow-up uses
+Bench run provides the protocol-matched anchor for the full
+cross-fitted anomaly scores, calibrated reject-1 policies, and
+attack/defense suite, while Qwen3-8B HiddenBench and full
+detector-aware gradient optimization. Provenance-gated runs
+transformed HotPotQA provide the strongest clean-utility
+measure downstream utility after a detected transport fail-
+support. Table 1 reports the Qwen3-4B HiddenBench clean
+ure: the coordinator drops that hidden state while retaining
+utility, latency, bandwidth, and compute-proxy measurements
+authenticated KV from other specialists, or uses a visible-
+for local-only specialist answers, independent majority voting,
+text downgrade ablation. The concrete substitution check
+a full-evidence oracle prompt, text role collaboration, naive
+is a transport-layer HMAC-SHA256 helper over a canon-
+high-bandwidth full-KV latent collaboration, and verifier-
+ical KV manifest and payload digest; self-tests and arti-
+filtered full-KV latent collaboration. The latent rows evaluate
+fact replay accept 774/774 honest replayed payloads and
+full-KV memory transport; compact latent-bridge claims are
+reject 295/295 recorded tampered payloads. This supplies
+outside the result in this table.
+the post-handoff provenance check, while HiddenBench and
+The strongest clean row in Table 1 is naive full-KV la-
+HotPotQA drop/downgrade runs supply downstream utility
+tent collaboration, at EM/F1 0.338/0.486, compared with
+after failure. Production serving deployment, remote attes-
+0.231/0.369 for text role collaboration on the same 65 records.
+tation, key management, endpoint-compromise defense, and
+A matched-record paired analysis sets the statistical scope:
+semantic malicious-specialist detection are outside this mea-
+the latent-minus-text EM difference is +0.108 with a 95%
+surement.
+confidence interval of [-0.015, +0.231], and the exact Mc-
+The primary task metrics are exact match and F1 against Nemar p-value is 0.1435. The paired F1 interval is positive,
+transformed HiddenBench answer keys. Attack logs record +0.118 with 95% confidence interval [+0.002, +0.233]. The
+target-answer selection, clean-correct flips, clean-wrong re- clean result supports an observed utility advantage for this
+pairs where available, and prediction changes. Defense logs high-bandwidth latent branch, with stronger evidence for F1
+record rejection confusion matrices, precision, recall, and hon- than for EM.
+est false-positive rate. Efficiency logs record visible tokens, Table 2 summarizes the completed replications that
+measured sequential latency, estimated parallel critical-path strengthen the clean utility result while preserving the high-
+latency, transferred KV-cache bandwidth, and accepted KV bandwidth caveat. The 65-record Qwen3-4B HiddenBench
+bandwidth after filtering or quarantine. Matched-record sum- run remains the protocol-matched attack/defense anchor, but
+maries use paired bootstrap confidence intervals for EM/F1 the clean-utility claim is read across the full evidence hierar-
+deltas and McNemar tests for EM comparisons, keeping text- chy. On the same 65 HiddenBench records with Qwen3-8B,
+versus-latent and attack-versus-clean comparisons tied to the latent full-KV reached EM/F1 0.415/0.544 versus 0.262/0.392
+same 65 records. for text, with paired EM/F1 deltas of +0.154/+0.153 and a
+Subset influence diagnostics re-encode every non-empty McNemar p-value of 0.0309. On the full 7,405-record trans-
+accepted specialist subset and compare full-set predictions formed HotPotQA distractor-validation set, latent also ex-
+to subset predictions. The clean influence diagnostic covers ceeded text for both tested model sizes: Qwen3-4B improved
+all 65 transformed HiddenBench records under matched text from 0.244/0.397 to 0.450/0.625, and Qwen3-8B improved
+and latent conditions; the attack-causal diagnostic reuses the from 0.378/0.538 to 0.528/0.692. These rows support second-
+clean 16-record offset-40 slice and adds a targeted-false latent benchmark clean utility; the matching HotPotQA attack and
+slice. These are accepted-subset causal diagnostics rather than quarantine diagnostics are scoped separately in the attack and
+literal deletion from a single fixed cache. defense sections.
+Reproducibility is handled through a generated run mani- A separate influence-map diagnostic asks whether the clean
+fest and command list covering dataset transformation, smoke latent gain is confined to aggregate averages or whether final
+tests, primary clean and attack runs, quarantine and adaptive- answers are sensitive to particular specialists’ hidden-state
+defense diagnostics, optional Qwen3-8B and HotPotQA diag- memories. For each transformed HiddenBench record, the di-
+nostics, the 100-record HotPotQA white-box/provenance run, agnostic enumerates every non-empty specialist subset under
+transport-MAC replay, metric aggregation, failure-case ex- matched text-clean and latent-clean conditions, then computes
+traction, and manifest generation. The manifest links results, leave-one-out and exact subset influence scores. In the full-
+reports, run directories, artifact checks, metric tables, figure specialist diagnostic condition, latent full-KV again exceeded
+7
+
+## Page 8
+
+Table 1: Clean collaboration and efficiency on the transformed HiddenBench clean run. The local-only row contains 253 per-agent
+specialist answers; the other rows contain 65 record-level system outputs.
+Clean mode Rows EM F1 Parallel critical path (s) Mean KV MB Mean compute proxy
+tokens
+Local-only agents 253 0.202 0.345 0.521 0.00 449.2
+Independent majority 65 0.185 0.336 0.538 0.00 1748.2
+Full-evidence oracle 65 0.277 0.403 0.689 0.00 602.3
+Text role collaboration 65 0.231 0.369 3.009 0.00 2474.7
+Latent full-KV role 65 0.338 0.486 2.379 279.03 2278.6
+collaboration
+Latent full-KV verifier 65 0.308 0.442 4.470 146.10 5420.0
+filtered
+Table 2: Completed clean replications beyond the primary Qwen3-4B HiddenBench run.
+Setting n Text EM/F1 Latent EM/F1 Delta EM/F1 Text/latent critical path Mean KV MB
+(s)
+HiddenBench, 65 0.262/0.392 0.415/0.544 +0.154/+0.153 6.384/3.349 279.03
+Qwen3-8B
+HotPotQA, Qwen3-4B 7405 0.244/0.397 0.450/0.625 +0.206/+0.228 1.104/0.355 133.74
+HotPotQA, Qwen3-8B 7405 0.378/0.538 0.528/0.692 +0.150/+0.154 1.114/0.358 133.74
+text, reaching EM/F1 0.323/0.463 versus 0.246/0.384. More collaboration and naive full-KV latent branches on the same
+importantly, among latent-correct outputs, 10 of 21 had at 65-record Qwen3-4B HiddenBench setting. Across the pri-
+least one essential specialist: removing that specialist from mary run and two additional adjacent-seed runs, text remained
+the accepted subset flipped the answer from correct to wrong. at 0.231/0.369, latent full-KV remained at 0.338/0.486, the
+The same test found essential specialists in 7 of 16 text-correct latent-minus-text deltas stayed at +0.108 EM and +0.118 F1,
+outputs. Mean best-agent leave-one-out drops were also larger and the matched prediction-change counts versus the primary
+for latent, 0.154 EM and 0.138 F1, than for text, 0.108 EM and run were zero. Because all runs used deterministic greedy
+0.127 F1. This is an accepted-subset diagnostic rather than a decoding with no sampling or dropout, this is a backend and
+literal deletion from a fixed cache, and it supports the interpre- deterministic rerun stability check; stochastic seed robustness
+tation that full-KV latent memory can carry specialist-specific remains a separate evaluation. The local-only, oracle, majority,
+hidden evidence used by the coordinator. and verifier-filtered rows are supplied by the primary clean
+The baseline rows put accuracy in context. Local-only spe- baseline.
+cialist answers and independent majority voting have limited
+evidence coverage, and the full-evidence oracle prompt re-
+7 Latent Attacks Under Malicious Specialists
+mains below the naive latent full-KV branch in this run. The
+verifier-filtered latent branch reduces accepted KV bandwidth
+The malicious-specialist suite shows that the hidden-state
+from 279.03 MB to 146.10 MB, but it also lowers clean utility
+channel can dominate the coordinator even when the visible
+and increases the estimated parallel critical path to 4.470 s. In
+role sequence remains fixed. Direct latent-thought corruption
+the clean setting, visible verifier filtering is therefore a cost
+and high-norm manipulation collapse the latent branch in the
+and audit trade-off rather than a clean-utility improvement.
+full Qwen3-4B HiddenBench run, while semantic false spe-
+The efficiency result is a latency/bandwidth trade-off. Un- cialists mainly produce target steering with moderate degra-
+der the intended parallel-specialist accounting, naive latent dation. The full 65-record attack suite evaluates one compro-
+full-KV collaboration has a lower estimated critical path than mised specialist per record; each attack script includes a same-
+text role collaboration, 2.379 s versus 3.009 s. That latency run clean latent branch, which reached EM/F1 0.323/0.471
+direction comes with a large communication cost: the text and is used for matched attack deltas. Table 3 separates seman-
+branch transfers no KV cache, whereas the latent branch trans- tic target steering, catastrophic nonsemantic collapse, and sign
+fers an average of 279.03 MB of full-KV memory. The token- flip as a contrast condition that preserves magnitude while
+level compute proxy is similar in scale for text and naive latent reversing direction.
+collaboration, and the full prompt plus latent-thought KV state The matched text attacked column in Table 3 is a visible-
+remains the dominant communication cost. The appropriate channel analogue under the same role and malicious-specialist
+interpretation is a latency/KV trade-off; low-bandwidth effi- budget. The two branches expose different attack surfaces:
+ciency remains a separate goal. the text branch exposes corrupted or adversarial visible com-
+An optional deterministic rerun check repeated the text role mitments, whereas the latent branch directly manipulates the
+8
+
+## Page 9
+
+compromised specialist’s latent-thought KV state. PotQA port of the white-box norm-matched attack reduced
+The semantic targeted-false attack steers the coordinator clean latent EM/F1 from 0.470/0.641 to 0.160/0.252 while
+toward an explicit wrong answer more clearly than it produces the magnitude filter rejected 0/100 malicious specialists. This
+a decisive aggregate collapse. The attacked latent branch se- closes much of the single-benchmark adaptive-risk objection,
+lected the attacker target on 27/65 examples and flipped 9/21 while leaving semantic HotPotQA target steering and full
+clean-correct latent answers; the paired full-set delta is -0.092 7,405-record adaptive HotPotQA evaluation open.
+EM with 95% CI [-0.200, +0.015], -0.085 F1 with 95% CI Sign flip is the contrast condition for this attack family.
+[-0.185, +0.015], and McNemar p=0.146. This supports a It reverses the compromised specialist’s latent-thought KV
+bounded target-steering result with moderate degradation. direction while preserving the attack’s latent-thought scope
+An attack-causal influence diagnostic shows that this steer- and approximate magnitude, yet the attacked latent branch
+ing can be mediated by the malicious specialist’s hidden-state remains near the same-run clean baseline and flips 2/21 clean-
+memory. On the 16-record offset-40 targeted-false slice, the correct answers. Its paired uncertainty spans zero (+0.031
+targeted latent branch reached EM/F1 0.250/0.365 versus EM with 95% CI [-0.046, +0.108]; +0.005 F1 with 95% CI
+0.375/0.490 for the reused clean latent slice. Two of six clean- [-0.059, +0.069]; McNemar p=0.688). The registered attacks
+correct cases flipped to wrong, and both flipped cases selected indicate that catastrophic failure in this setup is tied to ran-
+the attack target. The broad harmful-influence signal remained dom replacement or high-norm manipulation of latent-thought
+below threshold: malicious negative leave-one-out rate was state, not arbitrary latent perturbation.
+0.188 and mean malicious leave-one-out EM/F1 deltas were
+Several boundaries frame these results. The main attack
+-0.062/-0.052. The target-steering signal was stronger: full
+suite uses deterministic greedy decoding, one transformed
+target-hit rate was 0.312, mean malicious target-hit Shapley
+65-record HiddenBench set, and one compromised special-
+was 0.297, and positive malicious target-hit Shapley appeared
+ist in the full-set core attacks. The Qwen3-8B evidence is
+on 10/16 records. This sharpens the mechanism claim while
+a selected replication for the strongest nonsemantic attacks,
+keeping universal semantic collapse outside scope.
+and the HotPotQA evidence combines full-validation naive
+The nonsemantic attacks behave differently (Figure 2). random/scale diagnostics with a reduced 100-record white-
+Random replacement of the compromised specialist’s latent- box slice. Earlier 16-record diagnostics show that targeted-
+thought KV tokens and scale-8 latent-thought manipulation false behavior is slice-dependent: one slice degraded latent
+both reduce the attacked latent branch to zero or near-zero util- EM/F1 to 0.188/0.302, while another reached 0.375/0.531;
+ity and flip every clean-correct latent answer in the full-set run. both selected the target on 5/16 records. The attack-causal
+Their paired EM deltas are both -0.323 with confidence inter- influence diagnostic is also a 16-record HiddenBench slice, so
+vals excluding zero, their F1 deltas are -0.465 and -0.471, and it supports a target-steering mechanism while broad semantic-
+both exact McNemar tests report p=9.537e-07. The important attack generality remains open. Collusion evidence is limited
+contrast is that these attacks corrupt the hidden latent-thought to a 16-record targeted-false diagnostic: two colluding com-
+channel directly, without supplying a semantically plausible promised specialists reached latent EM/F1 0.250/0.365 versus
+wrong answer. matched clean latent 0.375/0.490, selected the target on 5/16
+A selected Qwen3-8B replication preserves the same examples, and lacked a monotonic degradation curve rela-
+qualitative ordering for the strongest nonsemantic attacks tive to the one-specialist slice. These boundaries frame the
+while showing that severity can vary by model and attack. attack claim as a bounded empirical audit of high-bandwidth
+With same-run clean latent EM/F1 at 0.415/0.544, random full-KV latent memory under malicious specialists.
+latent-thought corruption degraded Qwen3-8B to 0.200/0.316,
+while scale-8 latent-thought manipulation collapsed it to
+0.000/0.000. The text analogues were weaker than the la-
+8 Defense Diagnostics and Trade-Off Analysis
+tent hidden-state attacks. This supports cross-model concern
+for nonsemantic hidden-state manipulation. Semantic false-
+specialist attacks, sign flip, adaptive attacks, and stochastic Post-handoff KV substitution is best handled as a transport-
+decoding remain outside the selected 8B replication. layer integrity problem when the adversary tampers after an
+HotPotQA now provides second-benchmark evidence for honest specialist emits KV. State-aware diagnostics recover
+both naive and adaptive hidden-state damage. On the full utility when endpoint/specialist attacks create detectable
+transformed validation set, Qwen3-4B random latent-thought anomalies; adaptive endpoint attacks define the ceiling for
+corruption collapsed clean EM/F1 0.448/0.621 to 0.000/0.001 both magnitude filtering and the calibrated learned sanitizer.
+in both seeds, and scale-8 latent-thought manipulation reached By contrast, the MAC-backed provenance check detects on-
+0.000/0.000. On Qwen3-8B, random corruption was less path transported-KV substitution before coordinator decoding,
+catastrophic but still damaging, reducing clean 0.523/0.688 to and the HiddenBench and HotPotQA policy results show how
+0.366/0.498 and 0.362/0.491, while scale-8 again collapsed verification failure can drive fail-closed evaluation. Figure 2
+the latent branch. A reduced 100-record Qwen3-4B Hot- summarizes the main exact-match defense results.
+9
+
+## Page 10
+
+Table 3: Full 65-record malicious-specialist attack results. Same-run clean latent EM/F1 is 0.323/0.471; matched text attacked
+rows are visible-channel analogues of the latent attack budget. Target selection for the targeted-false specialist is reported in the
+prose because it is not defined for nonsemantic latent-state attacks.
+Attack family Latent clean EM/F1 Latent attacked EM/F1 Latent delta EM/F1 Clean-correct latent flips Matched text attacked
+EM/F1
+Targeted false specialist 0.323/0.471 0.231/0.386 -0.092/-0.085 9/21 0.323/0.456
+Random latent-thought 0.323/0.471 0.000/0.006 -0.323/-0.465 21/21 0.292/0.436
+corruption
+Scale-8 latent-thought 0.323/0.471 0.000/0.000 -0.323/-0.471 21/21 0.308/0.451
+manipulation
+Sign-flip latent-thought 0.323/0.471 0.354/0.476 +0.031/+0.005 2/21 0.277/0.420
+direction reversal
+0.4
+0.3
+0.2
+0.1
+0
+targeted false random corruption scale-8 grad. norm-matched
+(Tier A) (Tier B) (Tier B) (Tier C)
+quarantine n/a rejected 65/65 rejected 65/65 rejected 0/65
+hctamtcaxE
+323.0
+132.0
+323.0
+000.0
+833.0 323.0
+000.0
+583.0
+323.0
+770.0 770.0
+8.2 Magnitude Quarantine
+clean (same-run) attacked after quarantine
+Magnitude quarantine addresses a specific setting: one mali-
+cious specialist, nonsemantic random or scale-8 latent-thought
+corruption, full HiddenBench evaluation, and a post-hoc post-
+key magnitude threshold. The rule rejects at most one special-
+ist when its peer-median ratio exceeds 1.25, then rebuilds the
+latent path from accepted specialists.
+Within that setting, the rule rejected the corrupted specialist
+on 65/65 random records and 65/65 scale-8 records, with
+no honest rejections and no clean false positives across 253
+honest states. The accepted-specialist latent path recovered
+from near-zero attacked utility to EM/F1 0.338/0.476 for
+Figure 2: Exact match on the full 65-record HiddenBench
+random corruption and 0.385/0.522 for scale-8 manipulation.
+suite (Qwen3-4B, one compromised specialist) for the same-
+The Qwen3-8B replication showed the same detection pattern,
+run clean latent branch, the attacked latent branch, and the
+recovering to 0.369/0.490 and 0.354/0.475.
+accepted-specialist latent branch after post-hoc magnitude
+The full HotPotQA diagnostics reproduce this pattern at
+quarantine (reject at most one specialist whose post-key mag-
+larger scale. For both Qwen3-4B and Qwen3-8B, quarantine
+nitude peer ratio exceeds 1.25). The quarantine rejects the
+rejected 7405/7405 malicious specialists under random cor-
+naive nonsemantic attacks on 65/65 records with no honest
+ruption and 7405/7405 under scale-8 manipulation, with no
+false positives and restores their utility, but the white-box
+reported clean or honest false positives. Qwen3-4B recovered
+gradient-optimized norm-matched attack evades it on 65/65
+to EM/F1 0.433/0.593 and 0.439/0.599; Qwen3-8B recov-
+records (0 rejections) and leaves the collapse uncorrected;
+ered to 0.497/0.650 and 0.500/0.653. These are related state-
+the quarantine is not evaluated for the semantic targeted-false
+quarantine/drop diagnostics; adaptive HotPotQA evidence
+attack.
+comes from the separate 100-record white-box slice below.
+Two trade-offs bound the result. First, the reject cap is
+part of the threat model: with two corrupted specialists,
+reject-1 leaves many attacks accepted, while reject-2 removes
+8.1 Visible Filtering roughly half of the partitioned evidence. Second, after one-
+malicious quarantine, latent full-KV can outperform text fall-
+back when enough evidence remains: on HiddenBench, quar-
+antine reached 0.338/0.476 and 0.385/0.522 for random and
+Visible verifier filtering provides an audit hook with clear scale-8 attacks, compared with text fallback at 0.246/0.384.
+robustness limits. On the full 65-record HiddenBench suite, The supported claim is a conditional one-malicious mitiga-
+filtering worsened the targeted-false latent branch from EM/F1 tion; a general robust-fusion guarantee would require addi-
+0.231/0.386 to 0.200/0.352 while rejecting many honest com- tional evidence.
+mitments (TP=33, FP=89, FN=32, TN=99). Under random
+latent-thought corruption and scale-8 manipulation, plausi-
+8.3 Adaptive Stress Tests
+ble commitments masked corrupted KV; filtering reached
+0.154/0.208 and 0.138/0.192 EM/F1, far below the matched The adaptive tests ask whether the magnitude diagnostic
+clean latent branch at 0.323/0.471. The filter audits text, not survives an attacker that optimizes around it. Three norm-
+transported KV. matched attacks held the malicious latent-thought key magni-
+10
+
+## Page 11
+
+tude at the honest peer level, the feature used by quarantine. transformed HiddenBench records, while visible downgrade
+All three stayed below threshold on 65/65 records, with rejec- reached 0.185/0.333. The damaging endpoint-attack payloads
+tion recall 0.0. are used here as recovery references for the downstream pol-
+Two evasions preserved utility: random-direction norm- icy, not as evidence that the MAC detects endpoint-signed ma-
+matched corruption produced EM/F1 0.354/0.492, and coher- licious KV: drop restores F1 from 0.006 to 0.476 for random
+ent neighbouring-record substitution produced 0.338/0.476. latent-thought replacement, from 0.000 to 0.476 for scale-8
+The destructive random and scale-8 attacks therefore depend manipulation, from 0.119 to 0.476 for white-box gradient
+on magnitude inflation. The white-box gradient-optimized norm-matched attack, and from 0.124 to 0.476 for detector-
+norm-matched attack is the stronger counterexample: it pre- aware gradient attack.
+serves the inspected feature while optimizing against the co- The HotPotQA white-box/provenance slice supports
+ordinator’s gold-answer likelihood, collapsing clean latent the policy conclusion and sharpens the policy compar-
+EM/F1 0.323/0.471 to 0.077/0.119 while quarantine rejects ison. After the white-box norm-matched attack reduces
+0/65 malicious states. The 100-record HotPotQA port gives EM/F1 to 0.160/0.252, treating the damaged specialist KV
+the same adaptive boundary in a second benchmark slice: as failed-provenance recovers to 0.450/0.592 with drop
+clean latent EM/F1 0.470/0.641 falls to 0.160/0.252, and the and 0.460/0.597 with visible downgrade. Thus, the cross-
+magnitude filter again rejects 0/100 malicious specialists. benchmark result is that provenance handling restores much
+Detector follow-ups define the anomaly-detection ceiling. of the utility lost after a detected transport failure; the order-
+At a 5% honest false-positive budget, the best cheap statis- ing between drop and visible downgrade is benchmark- and
+tic reached recall 0.354, and a learned L2 probe improved policy-dependent.
+held-out AUC while remaining weak under low-FP threshold- This result establishes a transport integrity boundary. The
+ing. A 12-record learned top-1 sanitizer recovered F1 under supported claim is detection of post-handoff transported-KV
+baseline and detector-aware attacks, with detector-aware opti- substitution under an uncompromised transport key, followed
+mization reducing malicious top-rank recall from 8/12 to 1/12. by fail-closed policy evaluation. Historical attack runs stored
+The full-65 calibrated follow-up gives the decisive anomaly- cache-row metadata without full tensor bytes, so the replay
+detector result: learned reject-1 improved the non-adaptive binds recorded clean-vs-tampered identity plus metadata;
+gradient attack from EM/F1 0.123/0.146 to 0.169/0.232; un- byte-level detection is supported by the implementation and
+der detector-aware optimization it reached 0.092/0.131, below tensor self-tests. Compromised endpoints signing malicious
+the matched random-budget control at 0.108/0.154, with 0/65 in-band KV, remote attestation failures, and semantic mali-
+malicious specialists rejected. Learned sanitization sets the cious specialists remain outside this boundary; the targeted-
+endpoint-anomaly detection boundary; transport integrity car- false no-defense reference remains EM/F1 0.231/0.386.
+ries the on-path substitution defense claim.
+8.5 Transfer Bounds
+8.4 Transport Integrity and Fail-Closed
+Boundary The transfer diagnostic narrows the threat model for the white-
+box break. When optimized perturbations were applied with-
+The stronger positive result comes from changing the sys- out per-victim gradients, damage was much smaller even
+tems boundary from endpoint anomaly detection to transport though quarantine evasion remained complete: neighbouring-
+integrity. The implementation uses HMAC-SHA256 over a record transfer reached EM/F1 0.246/0.386 with intervals
+canonical KV transport manifest that binds specialist identity, overlapping clean, and a universal perturbation preserved util-
+record/session identity, model identity, visible-commitment ity at 0.354/0.494. The supported interpretation is asymmetric:
+hash, tensor metadata, and a SHA-256 payload digest. Its ten- magnitude quarantine filters the evaluated naive attacks, but
+sor self-tests accepted the original KV segment and rejected it is insufficient against per-victim white-box optimization
+single-value, scale-8, sign-flip, wrong-session, and wrong-key inside the honest magnitude band; catastrophic transfer to
+changes. Artifact replay accepted 774/774 honest replayed gradient-free attackers, other models, other benchmarks, or
+payloads and rejected 295/295 recorded tampered payloads: learned attack procedures remains unobserved.
+564/564 honest and 195/195 tampered on HiddenBench, and
+210/210 honest and 100/100 tampered on the HotPotQA slice.
+The provenance-gated policy experiments evaluate what 9 Failure Modes and Limitations
+to do after an on-path transport check fails. In the full Hid-
+denBench run, one specialist per record is treated as failed- The main supported channel is high-bandwidth full-KV
+provenance transported KV; the coordinator keeps authen- memory. Earlier soft-prompt, pooled-vector, learned-discrete,
+ticated latent KV from the remaining specialists and ei- contiguous-memory, and short latent-thought KV interfaces
+ther drops the failed specialist or downgrades it to visible exposed usable signal, but they fell short of consistently re-
+text. Fail-closed drop reached EM/F1 0.338/0.476 on all 65 placing text collaboration. The broader compact-KV ablation
+11
+
+## Page 12
+
+was also mixed. These ablations define the claim: this pa- gives the decisive result: learned reject-1 trails a matched
+per audits a high-bandwidth latent-memory path, while low- random-budget control under detector-aware attack and re-
+bandwidth latent communication remains open. jects 0/65 malicious specialists. The catastrophic case cur-
+The positive clean result should be read through that lens. rently requires per-victim white-box gradient access, but the
+The clean latent advantage depends on large per-record KV defense gap inside the honest magnitude band remains open.
+transfer, and the Qwen3-4B exact-match interval still crosses The provenance-gated result has a precise boundary. The
+zero, with stronger support for F1. Qwen3-8B HiddenBench transport-layer HMAC-SHA256 manifest detects on-path
+and full HotPotQA strengthen utility evidence while leaving post-handoff substitution of already-produced KV under an
+bandwidth, auditability, logging, and redaction concerns. uncompromised key, after which dropping failed-provenance
+The influence diagnostics add mechanism evidence while hidden state is stronger than visible downgrade on Hidden-
+preserving those boundaries. The clean map re-encodes ac- Bench while the 100-record HotPotQA slice slightly favors
+cepted specialist subsets and shows that some correct latent visible downgrade. The dramatic endpoint/specialist attacks,
+outputs depend on particular specialists’ hidden-state mem- including the white-box break, are recovery references for
+ory; the 16-record targeted-false slice shows target-steering this policy analysis rather than attacks the MAC itself detects.
+mediation through malicious KV memory. Both diagnostics Historical runs stored metadata without full tensor bytes, so
+are single-model, deterministic, and tied to transformed Hid- replay binds recorded clean-vs-tampered identity plus meta-
+denBench; compact communication, privacy behavior, and data; byte-level detection is supported by the implementation
+broad cross-benchmark generality require separate evidence. and tensor self-tests. Remote attestation, production serving
+The empirical scope is deliberately bounded. The pri- measurement, key-compromise protection, compromised end-
+mary attack and defense claims use Qwen/Qwen3-4B, deter- points signing malicious in-band KV, and semantic specialist
+ministic greedy decoding, and 65 transformed HiddenBench behavior fall outside this transport-integrity mechanism.
+records. Replications add Qwen3-8B clean/nonsemantic sup- Privacy functions as literature-motivated risk framing here.
+port, 7,405-record HotPotQA scale diagnostics for naive ran- The measurements focus on integrity rather than leakage,
+dom and scale-8 attacks plus quarantine, and a 100-record Hot- attacks on private evidence, or privacy mitigations, so leakage
+PotQA white-box/provenance slice. The full-validation Hot- remains a literature-grounded design concern rather than a
+PotQA diagnostics serve as related state-quarantine/drop evi- measured result.
+dence; the reduced adaptive slice supports adaptive-risk and Future evidence should target compact bridges that ap-
+provenance recovery without claiming semantic HotPotQA proach text without hundreds of megabytes of KV transfer,
+behavior or full 7,405-record adaptive coverage. robustness across decoding conditions and stronger seman-
+The HiddenBench transformation audit also bounds the tic/adaptive attacks, and latent-state methods that complement
+benchmark claim. The transformed schema preserves the of- MAC-backed transport integrity inside the honest magnitude
+ficial shared and hidden fields and enforces split-evidence band. The resulting scope is a bounded empirical audit of
+partitions, while source annotations leave hidden-profile min- high-bandwidth latent memory under malicious specialists;
+imality and shared-only decoy pressure partially recoverable. compactness, privacy, and robust-security claims require ad-
+The benchmark should therefore be read as a structured split- ditional evidence.
+evidence stress test with partially recoverable hidden-profile
+rationale evidence.
+Targeted false specialists illustrate a second boundary: se- 10 Conclusion
+mantic attacks produce target steering with slice-dependent
+utility loss rather than universal collapse. Visible verifier filter- This paper provides a bounded audit of transported full-KV
+ing is also limited because it inspects commitments rather than latent memory. The core systems-security question is em-
+raw KV state, producing honest false positives and missed pirical KV-transport integrity: when specialists pass opaque
+hidden-state manipulations. Magnitude quarantine supports a hidden-state objects to a coordinator, can visible commitments
+scoped mitigation claim for evaluated nonsemantic anomalies; and latent-state diagnostics tell whether those objects remain
+its threshold is post hoc, the reject cap must match the num- trustworthy for split-evidence coordination? In the primary
+ber of compromised specialists, and each rejection removes Qwen3-4B transformed HiddenBench setting, latent memory
+evidence. showed a clean split-evidence advantage over matched text
+The adaptive stress test is the sharpest boundary on quar- collaboration, with statistical support strongest for F1. Qwen3-
+antine. All evaluated norm-matched constructions evade the 8B HiddenBench, full transformed HotPotQA, a reduced Hot-
+magnitude feature, and the white-box gradient-optimized vari- PotQA white-box/provenance slice, and full-HiddenBench
+ant is both evasive and damaging (Figure 2). Cheap fixed influence mapping strengthen the evidence that the full-KV
+statistics and low-FP learned thresholding establish the detec- channel can carry useful evidence and reproduce the evaluated
+tion ceiling. A learned top-1 sanitizer gives a useful 12-record failure/defense pattern. Compactness and general superiority
+ranking diagnostic, while the full-65 calibrated follow-up remain separate mechanism claims.
+12
+
+## Page 13
+
+The security result is sharper. Once a specialist is compro-
+mised, the same transported hidden object creates an attack
+surface that visible text does not faithfully model. Semantic
+false-specialist behavior produced target steering and weaker,
+slice-dependent degradation, and the attacked influence diag-
+nostic shows that such steering can be causally mediated by
+malicious specialist KV memory. Nonsemantic hidden-state
+manipulations were the more reproducible failure mode. The
+sign-flip contrast shows that destructiveness is attack-specific.
+The supported security claim is specific: interventions in the
+latent-thought state can dominate the coordinator when they
+interact with the full-KV channel, even when the visible com-
+mitment remains plausible.
+The defense results argue for latent-state-aware auditing
+within clearly defined limits. Visible verifier filtering missed
+hidden corruptions and often rejected useful honest evidence.
+Magnitude quarantine recovered the evaluated one-malicious
+nonsemantic attacks and replicated on Qwen3-8B and 7,405-
+record HotPotQA diagnostics, while norm-matched attacks
+and a full-65 detector-aware follow-up showed why transport
+integrity must carry the defense claim. The stronger posi-
+tive direction is MAC-backed transport-layer KV integrity.
+An HMAC-SHA256 manifest gate accepts 774/774 honest
+replayed payloads and rejects 295/295 recorded tampered
+payloads; after provenance failure, fail-closed handling re-
+stores much of the attacked utility on HiddenBench and the
+HotPotQA white-box slice. These results support a concrete
+systems boundary for post-handoff KV substitution under an
+uncompromised transport key, while key compromise, end-
+point compromise, remote attestation, production serving, and
+in-band semantic malicious specialists remain outside the pro-
+tection boundary.
+The broader implication is that high-bandwidth latent mem-
+ory should be evaluated as both a capability and an integrity
+liability. Anomaly detection is brittle under adaptive attack; a
+MAC-backed transport boundary is the constructive integrity
+mechanism for post-handoff KV substitution. Progress still re-
+quires latent-state defenses, compact bridges, measured serv-
+ing paths, and broader replication across models, benchmarks,
+decoding regimes, semantic attacks, and stronger black-box
+attacks. Visible commitments are useful audit hooks, but trans-
+ported KV state needs its own integrity boundary.
+13
+
+## Page 14
+
+A Ethical Considerations artifact paths, hashes, local ROCm metadata, the local Hot-
+PotQA white-box/provenance run, and remote L40S prove-
+This work studies a dual-use attack surface in latent- nance for the full-validation HotPotQA suite while omitting
+memory multi-agent systems. The artifacts include malicious- secrets. The package also includes the transport MAC helper,
+specialist attack code and logs, hidden-state corruption and replay driver, decision logs, and envelope examples used for
+quarantine diagnostics, adaptive stress tests, detector eval- the HMAC-SHA256 KV-integrity result. The current paper
+uations, and a white-box gradient-optimized attack. These build uses completed evidence artifacts under evidence/.
+materials can help researchers reproduce the observed failure During review, we will provide an anonymized artifact
+modes and evaluate state-aware defenses. They could also archive or submission-system artifact link. The review pack-
+help an actor with implementation-level access to a latent- age will include redistributable transformed benchmark ar-
+memory pipeline corrupt specialist KV state or search for tifacts, run scripts, analysis scripts, result summaries, repro-
+perturbations that evade simple post-hoc filters. We therefore duction commands, environment manifests, and venue build
+frame the contribution as a bounded defensive audit, with source. For resources that cannot be redistributed directly be-
+attack artifacts contextualized by reproduction scope, paired cause of benchmark, model, dependency, or third-party-code
+defenses, and staged release choices. licenses, the package will provide hashes, provenance, acqui-
+The experiments are limited to open-weights research mod- sition instructions, and aggregate outputs sufficient to evaluate
+els, benchmark data, deterministic recorded runs, and repro- the corresponding claim. The archive will omit credentials,
+duction metadata. They do not test production services, de- private tokens, identifying local paths, and non-benchmark
+ployed multi-agent systems, private user data, or third-party data.
+infrastructure. The strongest demonstrated break assumes The white-box gradient attack script requires controlled
+white-box coordinator-gradient access; the transfer diagnos- handling because it combines hidden-state write access with
+tics bound, but do not eliminate, the risk from gradient-free coordinator gradients. It is claim-relevant and should be avail-
+attackers. These boundaries limit the operational claim and able to reviewers together with the defense scripts, detector
+are important release context, especially for systems that ex- evaluations, exact benchmark scope, and warnings that dis-
+pose or transmit hidden-state objects between components. tinguish this upper-bound research stress test from black-box
+The defensive intent is to make latent-channel risk visible prompt-level attacks. Public release of that script may be
+before high-bandwidth hidden-state collaboration is treated staged or paired with defensive context, while aggregate re-
+as a trustworthy coordination mechanism. The attack suite is sults, reproduction metadata, transport-MAC code, and non-
+paired with contrastive and partial defense diagnostics: visible sensitive diagnostics can be released more broadly.
+verifier filtering is documented as a limited audit mechanism, Before submission and public release, we will com-
+magnitude-based latent-state quarantine is documented as plete the remaining artifact checks: benchmark, model, and
+a post-hoc partial mitigation for the evaluated nonadaptive dependency-license review; redistribution review for im-
+attacks, and adaptive stress tests document where that quaran- ported third-party artifacts such as LatentMAS; log inspection
+tine fails. This pairing is intended to discourage overclaiming for private prompts, credentials, and non-benchmark data; re-
+from visible commitments or simple thresholds and to pro- moval of identifying paths or metadata; and verification that
+vide concrete baselines for future learned or training-time the review archive remains double-blind. Any component
+defenses. that cannot be made public will be documented in the arti-
+No deployed target was tested or identified as affected by fact README with the reason, reviewer-access mechanism
+these experiments, so there is no product-specific vulnerability when permitted, and substitute aggregate evidence needed to
+disclosure target in the current evidence package. If follow- evaluate the affected claim.
+up work evaluates a real deployed latent-memory service,
+hosted agent platform, or private infrastructure, disclosure
+should occur before publication. Affected operators should
+be notified privately, exploit details should be withheld until
+remediation timelines are agreed, and release artifacts should
+be scoped to non-production reproductions.
+B Open Science
+The artifact package is organized around a claim-to-artifact in-
+dex. For each reported result, the index points to result JSON
+files, reports, run directories, metric tables, figure inputs, repro-
+duction commands, and environment notes. The reproduction
+manifest records command lines, model and dataset settings,
+14
+
+## Page 15
+
+References [11] Kavathekar, Ishan et al.. TAMAS: Benchmarking
+Adversarial Risks in Multi-Agent LLM Systems.
+[1] Zhong, Yinmin et al.. DistServe: Disaggregating Pre- arXiv. 2025. arXiv:2511.05269. https://doi.org/10.
+fill and Decoding for Goodput-optimized Large Lan- 48550/arXiv.2511.05269.
+guage Model Serving. 18th USENIX Symposium on
+[12] Li, Yuxuan; Naito, Aoi; Shirado, Hirokazu.
+Operating Systems Design and Implementation (OSDI
+Systematic Failures in Collective Reason-
+24). 2024. https://www.usenix.org/conference/
+ing under Distributed Information in Multi-
+osdi24/presentation/zhong-yinmin.
+Agent LLMs. arXiv. 2026. arXiv:2505.11556.
+[2] Qin, Ruoyu et al.. Mooncake: Trading More Stor-
+https://doi.org/10.48550/arXiv.2505.11556.
+age for Less Computation—A KVCache-centric Ar-
+[13] Tang, Yichen et al.. Augmenting Multi-Agent Commu-
+chitecture for Serving LLM Chatbot. 23rd USENIX
+nication with State Delta Trajectory. Proceedings of
+Conference on File and Storage Technologies (FAST
+the 2025 Conference on Empirical Methods in Natu-
+25). 2025. https://www.usenix.org/conference/
+ral Language Processing. 2025. https://doi.org/10.
+fast25/presentation/qin.
+18653/v1/2025.emnlp-main.518.
+[3] Pham, Chau et al.. Let Models Speak Ciphers: Multia- [14] Zheng, Yujia et al.. Thought Communication in Multi-
+gent Debate through Embeddings. The Twelfth Interna- agent Collaboration. arXiv. 2025. arXiv:2510.20733.
+tional Conference on Learning Representations. 2024. https://doi.org/10.48550/arXiv.2510.20733.
+https://openreview.net/forum?id=sehRvaIPQQ.
+[15] Liu, Xiaoze et al.. The Vision Wormhole: Latent-Space
+[4] Zou, Jiaru et al.. Latent Collaboration in Multi-Agent Communication in Heterogeneous Multi-Agent Systems.
+Systems. Forty-third International Conference on Ma- arXiv. 2026. arXiv:2602.15382. https://doi.org/10.
+chine Learning. 2026. arXiv:2511.20639. https:// 48550/arXiv.2602.15382.
+doi.org/10.48550/arXiv.2511.20639.
+[16] Mou, Xinyi et al.. HyLaT: Efficient Multi-Agent
+Communication via Hybrid Latent-Text Protocol.
+[5] Du, Zhuoyun et al.. Enabling Agents to Communicate
+arXiv. 2026. arXiv:2605.25421. https://doi.org/10.
+Entirely in Latent Space. arXiv. 2026. arXiv:2511.09149.
+48550/arXiv.2605.25421.
+https://doi.org/10.48550/arXiv.2511.09149.
+[17] Parekh, Swapnil. Thinking Wrong in Si-
+[6] Dery, Lucio M. et al.. Latent Space Communication via
+lence: Backdoor Attacks on Continuous La-
+K-V Cache Alignment. arXiv. 2026. arXiv:2601.06123.
+tent Reasoning. arXiv. 2026. arXiv:2604.00770.
+https://doi.org/10.48550/arXiv.2601.06123.
+https://doi.org/10.48550/arXiv.2604.00770.
+[7] Fu, Tianyu et al.. Cache-to-Cache: Direct Semantic [18] Wan, Zhipeng et al.. Information Leakage
+Communication Between Large Language Models. The from Embedding in Large Language Mod-
+Fourteenth International Conference on Learning Repre- els. arXiv. 2024. arXiv:2405.11916. https:
+sentations. 2026. https://openreview.net/forum? //doi.org/10.48550/arXiv.2405.11916.
+id=LeatkxrBCi.
+[19] Liu, Tiantian et al.. Mitigating Privacy Risks
+[8] Wang, Chenxi et al.. Out of Sight, Not Out of Mind: in LLM Embeddings from Embedding In-
+Unveiling Latent Attack in Latent-based Multi-Agent version. arXiv. 2024. arXiv:2411.05034.
+Systems. arXiv. 2026. arXiv:2605.28214. https://doi. https://doi.org/10.48550/arXiv.2411.05034.
+org/10.48550/arXiv.2605.28214.
+[20] Nikolaou, Giorgos et al.. Language Models are Injective
+and Hence Invertible. arXiv. 2025. arXiv:2510.15511.
+[9] Asif, Sadia et al.. LCGuard: Latent Communication
+https://doi.org/10.48550/arXiv.2510.15511.
+Guard for Safe KV Sharing in Multi-Agent Systems.
+arXiv. 2026. arXiv:2605.22786. https://doi.org/10.
+[21] El Yagoubi, Faouzi; Badu-Marfo, Godwin; Al Mallah,
+48550/arXiv.2605.22786.
+Ranwa. AgentLeak: A Benchmark for Internal-Channel
+Privacy Leakage in Multi-Agent LLM Systems. IEEE
+[10] Lee, Donghyun; Tiwari, Mo; Miranda, Brando. Prompt
+Access. 2026. https://doi.org/10.1109/ACCESS.
+Infection: LLM-to-LLM Prompt Injection within Multi-
+2026.3704541.
+agent Systems. Computer Security. ESORICS 2025 In-
+ternational Workshops. 2026. https://doi.org/10. [22] Cui, Yu; Du, Hongyang. MAD-Spear: A Conformity-
+1007/978-3-032-16092-8_28. Driven Prompt Injection Attack on Multi-Agent Debate
+15
+
+## Page 16
+
+Systems. arXiv. 2025. arXiv:2507.13038. https://doi. [32] El Mhamdi, El Mahdi; Guerraoui, Rachid; Rouault, Se-
+org/10.48550/arXiv.2507.13038. bastien. The Hidden Vulnerability of Distributed Learn-
+ing in Byzantium. Proceedings of the 35th Interna-
+[23] Cemri, Mert et al.. Why Do Multi-Agent LLM Systems
+tional Conference on Machine Learning. 2018. https:
+Fail?. Advances in Neural Information Processing Sys-
+//proceedings.mlr.press/v80/mhamdi18a.html.
+tems 38 (NeurIPS 2025) Datasets and Benchmarks
+Track. 2025. https://openreview.net/forum?id= [33] Baruch, Gilad; Baruch, Moran; Goldberg, Yoav.
+fAjbYBmonr. A Little Is Enough: Circumventing Defenses for
+Distributed Learning. Advances in Neural In-
+[24] Zhang, Lingxi; Zheng, Guangtao; Chen, Han-
+formation Processing Systems 32. 2019. https:
+jie. When Embedding-Based Defenses Fail:
+//proceedings.neurips.cc/paper/2019/hash/
+Rethinking Safety in LLM-Based Multi-Agent
+ec1c59141046cd1866bbbcdfb6ae31d4-Abstract.
+Systems. arXiv. 2026. arXiv:2605.01133.
+html.
+https://doi.org/10.48550/arXiv.2605.01133.
+[34] Zhou, Wei et al.. Efficient Multi-Agent Collabora-
+[25] Ebrahimi, Sana; Dehghankar, Mohsen; Asudeh, Abol-
+tion with Tool Use for Online Planning in Com-
+fazl. An Adversary-Resistant Multi-Agent LLM System
+plex Table Question Answering. Findings of the
+via Credibility Scoring. Proceedings of the 14th Inter-
+Association for Computational Linguistics: NAACL
+national Joint Conference on Natural Language Pro-
+2025. 2025. https://doi.org/10.18653/v1/2025.
+cessing and the 4th Conference of the Asia-Pacific
+findings-naacl.54.
+Chapter of the Association for Computational Linguis-
+tics. 2025. https://doi.org/10.18653/v1/2025. [35] Besrour, Ines et al.. RAGentA: Multi-Agent Retrieval-
+ijcnlp-long.90. Augmented Generation for Attributed Question Answer-
+ing. arXiv. 2025. arXiv:2506.16988. https://doi.
+[26] Feng, Yang; Pan, Xudong. SentinelNet: Safeguarding
+org/10.48550/arXiv.2506.16988.
+Multi-Agent Collaboration Through Credit-Based Dy-
+namic Threat Detection. Proceedings of the ACM Web
+[36] Xiao, Xingchen et al.. MASS-RAG: Multi-
+Conference 2026. 2026. https://doi.org/10.1145/
+Agent Synthesis Retrieval-Augmented Gen-
+3774904.3792462.
+eration. arXiv. 2026. arXiv:2604.18509.
+https://doi.org/10.48550/arXiv.2604.18509.
+[27] Luo, Yaoyang et al.. Defending LLM-based Multi-Agent
+Systems Against Cooperative Attacks with Sentence-
+[37] Addison, Parker et al.. C-FedRAG: A Confidential
+Level Rectification. arXiv. 2026. arXiv:2605.28104.
+Federated Retrieval-Augmented Generation System.
+https://doi.org/10.48550/arXiv.2605.28104.
+arXiv. 2024. arXiv:2412.13163. https://doi.org/10.
+[28] Schroeder de Witt, Christian. Open Challenges in Multi-
+48550/arXiv.2412.13163.
+Agent Security: Towards Secure Systems of Interacting
+[38] Gao, Tianhao; Yang, Kai; Li, Yiyang. FD-RAG: Fed-
+AI Agents. arXiv. 2025. arXiv:2505.02077. https://
+erated Dual-System Retrieval-Augmented Generation.
+doi.org/10.48550/arXiv.2505.02077.
+arXiv. 2026. arXiv:2605.27432. https://doi.org/10.
+[29] Blanchard, Peva et al.. Machine Learning 48550/arXiv.2605.27432.
+with Adversaries: Byzantine Tolerant Gradi-
+[39] Mao, Chenxin et al.. An Efficient and Privacy-
+ent Descent. Advances in Neural Informa-
+Preserving Architecture for Cross-Institutional Collab-
+tion Processing Systems 30. 2017. https:
+orative RAG. arXiv. 2026. arXiv:2605.25716. https:
+//proceedings.neurips.cc/paper/2017/hash/
+//doi.org/10.48550/arXiv.2605.25716.
+f4b9ec30ad9f68f89b29639786cb62ef-Abstract.
+html.
+[30] Yin, Dong et al.. Byzantine-Robust Distributed Learn-
+ing: Towards Optimal Statistical Rates. Proceedings of
+the 35th International Conference on Machine Learn-
+ing. 2018. https://proceedings.mlr.press/v80/
+yin18a.html.
+[31] Pillutla, Krishna; Kakade, Sham M.; Harchaoui, Zaid.
+Robust Aggregation for Federated Learning. IEEE
+Transactions on Signal Processing. 2022. https://doi.
+org/10.1109/TSP.2022.3153135.
+16

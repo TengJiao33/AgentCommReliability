@@ -1,7 +1,8 @@
 # source_pdf: kvcomm-cross-context-2510.12872.pdf
-# extracted_at_utc: 2026-07-08T03:33:46.933411+00:00
+# extracted_at_utc: 2026-07-09T04:27:06.075379+00:00
 # pages: 40
 # title: KVCOMM: Online Cross-context KV-cache Communication for Efficient LLM-based Multi-agent Systems
+# source_sha256: 3acffcc4468b17cf5193a64ec998c6517af42acb247fc230171da92f0f9eb8df
 
 
 

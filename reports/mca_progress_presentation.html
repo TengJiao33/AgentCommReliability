@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MAD 机制改进与 MCA 探索汇报</title>
+  <style>
+    :root {
+      --paper: #fbfaf7;
+      --ink: #24201d;
+      --muted: #716b64;
+      --line: #d8d0c5;
+      --green: #2f6f5e;
+      --blue: #355c8a;
+      --red: #9b4a3d;
+      --gold: #a57a2a;
+      --panel: #ffffff;
+      --soft-green: #e8f2ed;
+      --soft-blue: #e9eef6;
+      --soft-red: #f5e9e6;
+      --soft-gold: #f5efdf;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #1f1f1f;
+      font-family: "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", serif;
+    }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .slide {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      min-height: 720px;
+      padding: 54px 72px 46px;
+      background:
+        linear-gradient(90deg, rgba(47,111,94,0.06), transparent 30%),
+        linear-gradient(180deg, var(--paper), #f6f2ea);
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+
+    body.presentation .slide {
+      display: none;
+    }
+
+    body.presentation .slide.active {
+      display: flex;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      left: 48px;
+      right: 48px;
+      top: 34px;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .kicker {
+      color: var(--green);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    h1, h2, h3, p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 980px;
+      font-size: 48px;
+      line-height: 1.2;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      font-size: 38px;
+      line-height: 1.22;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      font-size: 22px;
+      line-height: 1.3;
+      font-weight: 800;
+    }
+
+    p, li, td, th {
+      font-size: 20px;
+      line-height: 1.55;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 980px;
+      color: var(--muted);
+      font-size: 24px;
+      line-height: 1.5;
+    }
+
+    .term, code {
+      font-family: "Times New Roman", Times, "Noto Serif SC", serif;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px 24px;
+      box-shadow: 0 12px 24px rgba(56, 48, 40, 0.08);
+    }
+
+    .panel.green { background: var(--soft-green); border-color: #c9ded4; }
+    .panel.blue { background: var(--soft-blue); border-color: #cad5e7; }
+    .panel.red { background: var(--soft-red); border-color: #e4c9c2; }
+    .panel.gold { background: var(--soft-gold); border-color: #e2d4ad; }
+
+    .metric {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .metric strong {
+      font-size: 38px;
+      line-height: 1.1;
+      font-family: "Times New Roman", Times, "Noto Serif SC", serif;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 12px 24px rgba(56, 48, 40, 0.07);
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e6dfd6;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #4d4740;
+      background: #efe9df;
+      font-weight: 800;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .small td, .small th {
+      font-size: 17px;
+      line-height: 1.38;
+      padding: 10px 11px;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+    }
+
+    .step {
+      min-height: 190px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .step .num {
+      width: 30px;
+      height: 30px;
+      color: #fff;
+      background: var(--green);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-family: "Times New Roman", Times, serif;
+      font-weight: 700;
+    }
+
+    .step h3 {
+      font-size: 19px;
+    }
+
+    .step p {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.42;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tag {
+      padding: 7px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-size: 17px;
+      line-height: 1.2;
+    }
+
+    .quote {
+      padding-left: 18px;
+      border-left: 5px solid var(--green);
+      color: #3b352f;
+      font-size: 26px;
+      line-height: 1.55;
+      max-width: 1100px;
+    }
+
+    .prose {
+      max-width: 1180px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .prose p {
+      font-size: 25px;
+      line-height: 1.58;
+      color: #302b26;
+    }
+
+    .prose strong {
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .prose .dense {
+      font-size: 22px;
+      line-height: 1.58;
+      color: #4a443d;
+    }
+
+    .triad {
+      display: grid;
+      grid-template-columns: 0.82fr 1.56fr 0.82fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .triad .panel {
+      padding: 16px 18px;
+    }
+
+    .triad h3 {
+      margin-bottom: 10px;
+      color: #2f5f52;
+    }
+
+    .flow {
+      margin: 0;
+      padding-left: 24px;
+    }
+
+    .flow li {
+      margin: 4px 0;
+      font-size: 15.7px;
+      line-height: 1.32;
+    }
+
+    .footer {
+      position: absolute;
+      left: 72px;
+      right: 72px;
+      bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      color: #8a837b;
+      font-size: 14px;
+      font-family: "Times New Roman", Times, "Noto Serif SC", serif;
+    }
+
+    .nav {
+      position: fixed;
+      right: 28px;
+      bottom: 24px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border: 1px solid rgba(216, 208, 197, 0.9);
+      border-radius: 8px;
+      background: rgba(251, 250, 247, 0.92);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(6px);
+    }
+
+    .nav button {
+      width: 38px;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      font-family: "Times New Roman", Times, serif;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .nav button:disabled {
+      color: #b7afa6;
+      cursor: default;
+      background: #f2eee7;
+    }
+
+    .nav .count {
+      min-width: 54px;
+      text-align: center;
+      color: var(--muted);
+      font-family: "Times New Roman", Times, serif;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .compact-list {
+      margin: 0;
+      padding-left: 24px;
+    }
+
+    .compact-list li {
+      margin: 8px 0;
+    }
+
+    .source {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .deck {
+        width: auto;
+        height: auto;
+        overflow: visible;
+      }
+
+      .slide {
+        width: 13.333in;
+        height: 7.5in;
+        min-height: 0;
+        page-break-after: always;
+      }
+
+      body.presentation .slide {
+        display: flex;
+      }
+
+      .nav {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body class="presentation">
+  <main class="deck">
+    <section class="slide">
+      <div class="kicker">相关工作综述</div>
+      <h1>35 篇多智能体讨论机制改进工作：机制类别、代表方法、实验对象</h1>
+      <table class="small">
+        <thead>
+          <tr>
+            <th>机制类别</th>
+            <th>代表工作</th>
+            <th>机制细节</th>
+            <th>常见实验对象</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>基础讨论与信念更新</td>
+            <td>原始 MAD、Debate or Vote、AceMAD、ECON</td>
+            <td>独立作答、读取同伴回答、再修正；部分工作把讨论解释为信念更新或博弈均衡。</td>
+            <td>Arithmetic、GSM8K、MMLU、MATH、AIME、GPQA</td>
+          </tr>
+          <tr>
+            <td>通信拓扑与路由</td>
+            <td>Sparse MAD、CortexDebate、RUMAD、DySCo、ARMOR-MAD、PEAR</td>
+            <td>把全连接广播改成稀疏图、动态邻居、信任加权边或自适应路由，控制可见信息和标记成本。</td>
+            <td>GSM8K、MATH、MMLU-Pro、GPQA、ARC-C</td>
+          </tr>
+          <tr>
+            <td>消息筛选与记忆保留</td>
+            <td>MAD-MM、DAR、DebateOCR、Minority Sentinel</td>
+            <td>筛掉低质量或重复历史，保留分歧信息；部分工作专门判断何时保留或推翻少数意见。</td>
+            <td>MATH-500、AIME、GSM8K、MMLU、TruthfulQA</td>
+          </tr>
+          <tr>
+            <td>角色、路径与异构分工</td>
+            <td>Dynamic Role Assignment、DynaDebate、HCP-MAD、M2CL</td>
+            <td>为不同智能体分配角色、路径、模型或上下文，让讨论覆盖不同解题路线和审查角度。</td>
+            <td>GPQA、MathVision、RealWorldQA、MATH-500、HumanEval</td>
+          </tr>
+          <tr>
+            <td>置信度、校准与安全决策</td>
+            <td>Confidence Signals、Conformal Social Choice、Adaptive Stability</td>
+            <td>把讨论结果与置信度、保形集合、稳定性检测结合，输出答案或保留不确定集合。</td>
+            <td>BoolQ、MMLU-Pro、TruthfulQA、LLM-as-a-Judge</td>
+          </tr>
+          <tr>
+            <td>记忆、检索与证据</td>
+            <td>MADKE、EquiMem、KG-CFR、PROClaim、SMADE-IE</td>
+            <td>把外部知识、共享记忆、证据链或私有规划缓冲加入讨论过程。</td>
+            <td>TriviaQA、HotpotQA、FEVER、DocRED、医学和信息抽取任务</td>
+          </tr>
+          <tr>
+            <td>非文本通信</td>
+            <td>CIPHER、DebateOCR、相关潜状态通信工作</td>
+            <td>把自然语言消息替换或压缩为嵌入、视觉记忆、键值缓存或隐藏状态。</td>
+            <td>GSM8K、MMLU、MATH、GPQA</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="footer"><span>来源：reports/mad-mechanism-improvement-table.md</span><span>1 / 12</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">代表性工作</div>
+      <h2>几类工作和本项目关系最直接：讨论基线、记忆筛选、少数意见、非文本通信</h2>
+      <table class="small">
+        <thead>
+          <tr>
+            <th>工作</th>
+            <th>方法要点</th>
+            <th>论文中报告的结果</th>
+            <th>与本项目的关系</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>原始 MAD</td>
+            <td>多个智能体先独立作答，再读取同伴回答和推理，后续轮次修正，最后投票或共识输出。</td>
+            <td>Arithmetic 67.0 到 81.8；GSM8K 77.0 到 85.0；MMLU 63.9 到 71.1。</td>
+            <td>本项目复现的标准讨论基线来自这一类协议。</td>
+          </tr>
+          <tr>
+            <td>MAD-MM / MAD-M2</td>
+            <td>在讨论轮次之间加入记忆遮罩，按 naive、subjective、objective 策略保留上一轮信息。</td>
+            <td>论文围绕多轮讨论中的记忆质量和历史保留策略做机制改造。</td>
+            <td>本项目完成了 MATH-500 和 AIME24/25 复现。</td>
+          </tr>
+          <tr>
+            <td>DAR</td>
+            <td>保留与当前多数意见分歧较大的历史消息，避免正确少数意见被过滤。</td>
+            <td>多个模型和数据集上通常带来约 1 到 3 个百分点提升。</td>
+            <td>对应我们后续关注的 majority/minority 分歧样本。</td>
+          </tr>
+          <tr>
+            <td>Minority Sentinel</td>
+            <td>只处理 2:1 分歧样本，用特征判断何时推翻多数。</td>
+            <td>686 个分歧样本中，正确少数占 25.5%；模型翻案净增益为正。</td>
+            <td>说明分歧样本本身是机制改进的重要切入点。</td>
+          </tr>
+          <tr>
+            <td>CIPHER</td>
+            <td>不传自然语言采样结果，而传期望词元嵌入，让接收方读取词表级信念。</td>
+            <td>在 GSM8K、MMLU 数学、逻辑和算术任务上相对自然语言讨论有小幅提升。</td>
+            <td>与本项目的 MCA 非文本通信设想最接近。</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="footer"><span>来源：reports/mad-mechanism-improvement-table.md</span><span>2 / 12</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">基线复现</div>
+      <h2>标准 MAD 与 MAD-MM / MAD-M2 的本地结果</h2>
+      <div class="grid-2">
+        <div class="panel">
+          <h3>标准多智能体讨论</h3>
+          <p class="note">Qwen2.5-7B-Instruct，MATH-500，3 个智能体，2 轮讨论，输出预算 4096。</p>
+          <div class="grid-2" style="margin-top:18px;">
+            <div class="metric">
+              <strong>364/500</strong>
+              <span>初始多数正确数</span>
+            </div>
+            <div class="metric">
+              <strong>378/500</strong>
+              <span>最终讨论正确数</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>记忆遮罩讨论复现</h3>
+          <p class="note">Qwen2.5-7B-Instruct，3 个智能体，2 轮讨论；比较 naive、subjective、objective 三种记忆保留策略。</p>
+          <table class="small" style="margin-top:16px;">
+            <thead>
+              <tr><th>策略</th><th>MATH-500</th><th>AIME24/25</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>naive</td><td>375/500</td><td>5/60</td></tr>
+              <tr><td>subjective</td><td>369/500</td><td>5/60</td></tr>
+              <tr><td>objective</td><td>360/500</td><td>4/60</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel blue">
+        <p>
+          复现结果给出两个参照数值：标准 MAD 在 MATH-500 上从 364/500 到 378/500；MAD-MM / MAD-M2 的 naive 策略在 MATH-500 上为 375/500。
+        </p>
+      </div>
+      <div class="footer"><span>来源：standard MAD summary、reports/2026-07-04-mad-mm-*.md</span><span>3 / 12</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">MCA 原始设想</div>
+      <h2>多个智能体自然解题时，中间状态可能携带尚未语言化的搜索信号</h2>
+      <div class="prose">
+        <p>
+          我们最初关注的是标准 MAD 中一类很难拆开的现象：智能体互相看到的是已经写出来的答案和理由，讨论收益里混合了答案投票、文本说服、错误传播、少数意见保留和自我修正。MCA 想单独检查更早的一层信号：智能体在写出最终答案前，内部是否已经形成了对题目的某种方向性理解。
+        </p>
+        <p>
+          这个设想可以表述为：多个智能体在自然解题过程中，会经过一些尚未变成语言答案的中间状态。这个状态可能包含<strong>搜索方向</strong>，例如先试相位平移、共轭变形或函数方程代入；也可能包含<strong>表示偏置</strong>，例如把题目看成图像参数、数列结构、组合计数或几何约束；还可能包含<strong>注意力结构</strong>，例如某些题面对象、公式关系或局部约束在当前上下文中被强化。
+        </p>
+        <p>
+          如果这种中间状态能以低强度方式传给同题同伴，接收方也许会被轻微推向另一条搜索路线。这个过程不要求接收方相信发送方，也不要求接收方复述发送方，更不把同伴的答案文本放进上下文；接收方仍然独立生成自己的答案，只是内部轨迹受到一个小的状态扰动。
+        </p>
+      </div>
+      <div class="footer"><span>来源：设想演化记录、自然搜索状态工程审计</span><span>4 / 12</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">围绕这个设想提出的问题</div>
+      <h2>中间状态到底可以是什么？它又该怎样传给另一个智能体？</h2>
+      <div class="prose">
+        <p>
+          但是这里说的“中间状态”具体是什么？它可以是发送方刚读完题后留下的 KV 缓存吗？可以是模型生成最终答案前的一小段早期搜索轨迹吗？可以是某一层隐藏状态里的方向向量吗？可以是相邻两个生成步之间的状态变化量吗？如果模型还没把思路写成自然语言，内部状态里会不会已经有“先从哪个表示入手”的倾向？
+        </p>
+        <p>
+          如果它是 KV 缓存，接收方应该直接接在发送方上下文后面继续生成，还是把同伴缓存当成旁路材料？如果它是一段早期搜索轨迹，发送方要不要真的写出来，还是只让系统在外部捕获它？如果它是激活向量，应该注入哪一层、注入多大尺度、作用在私有思考阶段还是最终答案阶段？
+        </p>
+        <p>
+          如果我们只看到接收方答案变了，这个变化来自同题搜索信号，还是来自普通扰动？同题状态需要和什么比较：无关题状态、随机同范数向量、同题绝对状态，还是自己的历史状态？如果同题状态更温和、随机扰动更激进，应该看最终正确数，还是同时看错到对、对到错和答案改变率？
+        </p>
+        <p class="dense">
+          这些问题对应了我们后面做过的多种工程形态：文本线索、只读题 KV、早期计划 KV、微承诺门控、潜状态轮次、自然搜索变化量。每种形态都在追问同一件事：什么状态可以代表自然搜索过程，怎样传递才不会把答案和说服混进去。
+        </p>
+      </div>
+      <div class="footer"><span>来源：设想演化记录、自然搜索状态工程审计</span><span>5 / 12</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">只读题 KV 与文本讨论桥接</div>
+      <h2>把发送方读题后的键值缓存作为接收方历史缓存，再进入一轮标准 MAD 文本讨论</h2>
+      <div class="triad">
+        <div class="panel green">
+          <h3>先把答案排除在发送端之外</h3>
+          <p>只读题阶段不生成答案，也不生成推理文本。这个版本检查“题目读入后的隐藏状态”本身能否影响第一轮解题，并观察这种影响进入标准 MAD 记忆后是否还能改变最终讨论结果。</p>
+        </div>
+        <div class="panel">
+          <h3>Pre-KV 在代码里的真实含义</h3>
+          <ol class="flow">
+            <li>Pre-KV 指前置阶段保留下来的 <code>past_key_values</code>，也就是模型读完发送方上下文后每层注意力里的键和值缓存。</li>
+            <li><code>question_only</code> 阶段调用 <code>_pre_state_token_budget</code> 返回 0；发送方只执行“读题并形成内部表示”的提示词，不采样新标记。</li>
+            <li><code>_manual_generate_sender_state(... keep_past_key_values=True)</code> 保存发送方 <code>past_key_values</code> 和 <code>past_token_count</code>；此时没有发送方答案文本。</li>
+            <li>无通道分支用同一个解题提示词生成答案，调用时传入 <code>past_key_values=None</code>、<code>past_token_count=0</code>。</li>
+            <li>Pre-KV 分支使用同一题、同一接收方、同一随机种子和同一采样参数；差别是把发送方缓存传入生成函数。</li>
+            <li>接收方提示词的 <code>position_ids</code> 从发送方 <code>past_token_count</code> 后面开始，<code>attention_mask</code> 覆盖发送方缓存和接收方提示词。</li>
+            <li>第一轮之后分别把无通道输出和 Pre-KV 输出作为普通 MAD 的可见记忆，各跑一轮文本讨论，并写入种子、缓存元数据、答案转移和输出文本。</li>
+          </ol>
+        </div>
+        <div class="panel blue">
+          <h3>500 题完整运行</h3>
+          <table class="small">
+            <tbody>
+              <tr><td>无通道第一轮</td><td>347/500</td></tr>
+              <tr><td>Pre-KV 第一轮</td><td>349/500</td></tr>
+              <tr><td>Pre-KV 接文本讨论</td><td>363/500</td></tr>
+              <tr><td>标准 MAD 参照</td><td>378/500</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="footer"><span>来源：Pre-KV summary、Pre-KV then MAD summary、run_mca_pre_kv_then_mad.py</span><span>6 / 12</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">早期计划 KV</div>
+      <h2>发送方开始生成短搜索状态后，救回样例和锚定伤害同时出现</h2>
+      <div class="triad">
+        <div class="panel green">
+          <h3>从读题状态推进到初始搜索</h3>
+          <p>只读题 KV 主要包含题目阅读状态。早期计划版本让发送方先生成很短的搜索片段，用来检查“已经开始移动的搜索轨迹”是否比只读题状态更能影响接收方。</p>
+        </div>
+        <div class="panel">
+          <h3>发送方短片段和配对接收方</h3>
+          <ol class="flow">
+            <li><code>pre_state_stage=early_plan</code> 会改写发送方提示词：要求私下写题目表示和第一搜索方向，并在最终计算前停止。</li>
+            <li>这一阶段会真的生成文本；<code>pre_state_tokens=64</code> 让发送方最多采样 64 个标记，生成的短片段只进入记录和缓存。</li>
+            <li>保存的 KV 覆盖“系统角色 + 题目 + 早期计划提示词 + 已生成短片段”，<code>past_token_count</code> 也把这些标记全部计入。</li>
+            <li>无通道接收方仍从自己的链式推理解题提示词开始，缓存为空；早期计划接收方把发送方缓存作为历史缓存传入。</li>
+            <li>两条分支按同一题、同一智能体配对随机种子运行；采样温度、上限长度和答案解析函数保持一致。</li>
+            <li>代码记录发送方短片段、生成标记数、缓存长度、答案标记审计、金标疑似泄漏和第一轮正误转移。</li>
+            <li>后续审计直接从 <code>records.jsonl</code> 抽样，逐题看缓存前缀是否带来错到对、对到错或半截轨迹锚定。</li>
+          </ol>
+        </div>
+        <div class="panel red">
+          <h3>18 条快照审计</h3>
+          <table class="small">
+            <tbody>
+              <tr><td>快照规模</td><td>18 条</td></tr>
+              <tr><td>错到对</td><td>3 条</td></tr>
+              <tr><td>对到错</td><td>4 条</td></tr>
+              <tr><td>净变化</td><td>-1</td></tr>
+              <tr><td>救回类型</td><td>相位、共轭、函数方程</td></tr>
+              <tr><td>伤害类型</td><td>年金、计数、数列、几何</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="footer"><span>来源：reports/2026-07-07-early-plan-pre-kv-case-audit.md</span><span>7 / 12</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">微承诺门控</div>
+      <h2>可见短承诺把搜索方向显式化，但 64 个标记经常停在半截字段</h2>
+      <div class="triad">
+        <div class="panel green">
+          <h3>把搜索方向压到极短承诺</h3>
+          <p>早期计划 KV 中出现了有用搜索方向，也出现了半截轨迹锚定。微承诺版本把搜索方向压成三个短字段，并用第一轮一致性门控减少分裂答案带来的伤害。</p>
+        </div>
+        <div class="panel">
+          <h3>短承诺、缓存和一致性门控</h3>
+          <ol class="flow">
+            <li>启动参数为 <code>--pre-state-stage early_plan</code> 加 <code>--visible-commitment-mode micro</code>，发送方提示词追加三个字段：表示、第一步、检查点。</li>
+            <li>发送方生成的短承诺同时进入两处：原始生成轨迹继续保存在 KV 里，清洗后的短文本作为可见提示交给配对接收方。</li>
+            <li>清洗函数会拦截 <code>&lt;answer&gt;</code>、最终答案、<code>####</code>、盒装答案等显式答案标记；命中后可见短文本置空。</li>
+            <li>Pre-KV 接收方的用户提示词包含题目和短承诺，并要求独立核验；模型调用仍然传入发送方 <code>past_key_values</code>。</li>
+            <li>无通道第一轮和原始 Pre-KV 第一轮都正常生成；随后无通道输出和原始 Pre-KV 输出也各自进入一轮文本 MAD。</li>
+            <li>门控策略为 <code>pre_kv_unanimous_else_no_channel</code>：只有三个 Pre-KV 第一轮答案归一化后完全一致，才选 Pre-KV 分支。</li>
+            <li>门控不额外生成新答案；它只在已经生成的无通道分支和 Pre-KV 分支之间选择，并记录选择来源、选择原因和短承诺截断统计。</li>
+          </ol>
+        </div>
+        <div class="panel red">
+          <h3>27 条停跑记录</h3>
+          <table class="small">
+            <tbody>
+              <tr><td>无通道第一轮</td><td>14/27</td></tr>
+              <tr><td>原始 Pre-KV</td><td>13/27</td></tr>
+              <tr><td>门控后第一轮</td><td>16/27</td></tr>
+              <tr><td>检查字段出现</td><td>2/51</td></tr>
+              <tr><td>疑似截断</td><td>46/51</td></tr>
+              <tr><td>记录现象</td><td>续写伪影</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="footer"><span>来源：hybrid micro-gated implementation、failure audit、stop note</span><span>8 / 12</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">潜状态轮次</div>
+      <h2>去掉同伴文本和 KV 接续后，用激活向量影响私有思考轮次</h2>
+      <div class="triad">
+        <div class="panel green">
+          <h3>避开文本展示和缓存接续</h3>
+          <p>前几版的主要问题来自文本展示和 KV 前缀接续。潜状态轮次改用低强度激活向量，让同伴状态只影响私有思考轮次，最终答案阶段默认不再注入同伴向量。</p>
+        </div>
+        <div class="panel">
+          <h3>差值向量只进入私有轮次</h3>
+          <ol class="flow">
+            <li>每个条件都调用同一个 <code>_run_condition</code>；默认 <code>same_seed_conditions=true</code>，基线和潜状态条件在同一题同一智能体上共用匹配种子。</li>
+            <li>每轮每个智能体先生成私有思考，默认 2 轮、每轮 96 个标记；同伴看不到这些文本。</li>
+            <li><code>_thought_vector</code> 构造两段文本：“题目 + 私有思考”和“题目 + 空私有思考”，在第 16 层取最后位置隐藏状态差值。</li>
+            <li>向量默认归一化；同伴消息可取均值、残差均值或逐同伴分支，融合后裁剪到范数 1.0。</li>
+            <li>第 0 轮没有同伴向量；从后续私有轮次开始，<code>_generate_with_steering</code> 在指定层注册 hook，把 <code>vector * 0.05</code> 加到当前最后一个标记的隐藏状态。</li>
+            <li>最终答案阶段默认 <code>apply_peer_on_final=false</code>，只读取本智能体自己的私有思考，不再直接注入同伴向量。</li>
+            <li>记录内容包括每轮私有文本、向量范数、裁剪状态、同伴来源数、答案标记审计、最终多数答案和正误转移。</li>
+          </ol>
+        </div>
+        <div class="panel blue">
+          <h3>50 题安全变体</h3>
+          <table class="small">
+            <tbody>
+              <tr><td>残差 / 分歧</td><td>22/50 到 21/50</td></tr>
+              <tr><td>残差 / 金标</td><td>34/50 到 35/50</td></tr>
+              <tr><td>分支 / 分歧</td><td>22/50 到 23/50</td></tr>
+              <tr><td>分支 / 金标</td><td>34/50 到 32/50</td></tr>
+              <tr><td>净变化范围</td><td>-2 到 +1</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="footer"><span>来源：潜状态轮次运行器、潜状态安全变体结果记录</span><span>9 / 12</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">自然搜索变化量</div>
+      <h2>最新版本直接从普通解题轨迹捕获每步隐藏状态变化</h2>
+      <div class="triad">
+        <div class="panel green">
+          <h3>回到普通解题轨迹本身</h3>
+          <p>潜状态轮次仍然先让模型写私有思考，再把文本回编码成向量。自然搜索变化量版本直接从普通解题轨迹里捕获每步隐藏状态变化，并加入随机和无关题对照。</p>
+        </div>
+        <div class="panel">
+          <h3>解码截点上的变化量注入</h3>
+          <ol class="flow">
+            <li>第一遍先让三个智能体按普通链式推理提示词解题，不写计划、不写短承诺，也不接收任何同伴缓存。</li>
+            <li>生成函数在第 22 层注册 forward hook；第 16、32、64、96 个解码步保存当前标记隐藏状态、相邻步差值、范数和附近 token 窗口。</li>
+            <li>同题变化量条件从同一题其他智能体的对应层和对应截点取 <code>h_t - h_{t-1}</code>，多来源时求均值。</li>
+            <li>无关题变化量从另一题的智能体轨迹取同类差值；随机同范数条件先取同题差值范数，再采样同范数高斯向量。</li>
+            <li>同题绝对状态条件不用差值，直接取同题同伴在对应截点的隐藏状态，用来区分“变化方向”和“绝对激活”。</li>
+            <li>第二遍接收方仍从自己的提示词和自己的随机种子开始；到相同解码步时，在第 22 层把消息向量裁剪到范数 1.0 后乘 0.03 加到最后标记隐藏状态。</li>
+            <li><code>records.jsonl</code> 同时写入基线输出、每个对照条件的输出、消息来源题号、来源智能体、活跃消息数、范数裁剪信息和答案转移。</li>
+          </ol>
+        </div>
+        <div class="panel blue">
+          <h3>50 题对照运行</h3>
+          <table class="small">
+            <tbody>
+              <tr><td>无通道</td><td>24/50</td></tr>
+              <tr><td>同题变化量</td><td>26/50</td></tr>
+              <tr><td>无关题变化量</td><td>23/50</td></tr>
+              <tr><td>随机同范数</td><td>26/50</td></tr>
+              <tr><td>同题绝对状态</td><td>23/50</td></tr>
+              <tr><td>同题转移</td><td>错到对 3，对到错 1</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="footer"><span>来源：run_mca_natural_search_delta.py、natural-search-delta-results.md</span><span>10 / 12</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">工程迭代轨迹</div>
+      <h2>通信对象和接收方式从可读文本逐步变成自然轨迹中的状态变化量</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>版本</th>
+            <th>发送方动作</th>
+            <th>传递给接收方的对象</th>
+            <th>对照或审计</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>MCA-T</td>
+            <td>写文本线索和审计证书。</td>
+            <td>自然语言线索。</td>
+            <td>采纳改动、救回、伤害、错到错。</td>
+          </tr>
+          <tr>
+            <td>只读题 KV</td>
+            <td>读题，不生成新标记。</td>
+            <td>题目读入后的键值缓存。</td>
+            <td>无通道第一轮与 Pre-KV 第一轮同口径比较。</td>
+          </tr>
+          <tr>
+            <td>早期计划 KV</td>
+            <td>生成短私有搜索片段。</td>
+            <td>包含短片段轨迹的键值缓存。</td>
+            <td>配对随机种子、答案泄漏计数、救回/伤害样例。</td>
+          </tr>
+          <tr>
+            <td>微承诺门控</td>
+            <td>写三字段短承诺。</td>
+            <td>短承诺文本和对应 KV。</td>
+            <td>显式答案拦截、Pre-KV 一致性门控、截断统计。</td>
+          </tr>
+          <tr>
+            <td>潜状态轮次</td>
+            <td>写私有思考，再回编码成向量。</td>
+            <td>同伴激活向量或分支向量。</td>
+            <td>范数裁剪、匹配种子、最终阶段注入开关。</td>
+          </tr>
+          <tr>
+            <td>自然搜索变化量</td>
+            <td>普通链式推理解题。</td>
+            <td>第 22 层截点处的 h_t - h_{t-1}。</td>
+            <td>同题、无关题、随机同范数、绝对状态对照。</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="footer"><span>来源：设想演化记录、工程审计、各运行器记录</span><span>11 / 12</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">汇报事实表</div>
+      <h2>本次汇报可以展示的材料：综述、复现、MCA 设想与六组工程尝试</h2>
+      <div class="grid-2">
+        <div class="panel">
+          <h3>实验读数</h3>
+          <ul class="compact-list">
+            <li>标准 MAD：364/500 到 378/500。</li>
+            <li>MAD-MM / MAD-M2：naive 375/500，subjective 369/500，objective 360/500。</li>
+            <li>MCA-T：364/500 到 357/500。</li>
+            <li>只读题 KV：同口径第一轮 347/500 到 349/500。</li>
+            <li>潜状态轮次：四个 50 条小样本净变化为 -2 到 +1。</li>
+            <li>自然搜索变化量：同题变化量 26/50，随机同范数 26/50。</li>
+          </ul>
+        </div>
+        <div class="panel blue">
+          <h3>工程记录</h3>
+          <ul class="compact-list">
+            <li>文本线索版本记录了采纳改动的救回和伤害。</li>
+            <li>Pre-KV 版本记录了前缀接续、位置编号和注意力历史影响。</li>
+            <li>早期计划版本记录了有用搜索方向和半截轨迹锚定。</li>
+            <li>微承诺版本记录了字段截断和续写伪影。</li>
+            <li>自然变化量版本加入了随机同范数、无关题和绝对状态对照。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer"><span>汇报文件：reports/mca_progress_presentation.html</span><span>12 / 12</span></div>
+    </section>
+  </main>
+  <nav class="nav" aria-label="翻页控制">
+    <button type="button" id="prevSlide" aria-label="上一页">‹</button>
+    <span class="count" id="slideCount">1 / 12</span>
+    <button type="button" id="nextSlide" aria-label="下一页">›</button>
+  </nav>
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const prevButton = document.getElementById("prevSlide");
+    const nextButton = document.getElementById("nextSlide");
+    const count = document.getElementById("slideCount");
+
+    function initialIndex() {
+      const match = window.location.hash.match(/^#(\d+)$/);
+      if (!match) return 0;
+      const page = Number(match[1]);
+      if (!Number.isFinite(page)) return 0;
+      return Math.min(Math.max(page - 1, 0), slides.length - 1);
+    }
+
+    let current = initialIndex();
+
+    function showSlide(index, updateHash = true) {
+      current = Math.min(Math.max(index, 0), slides.length - 1);
+      slides.forEach((slide, idx) => {
+        slide.classList.toggle("active", idx === current);
+      });
+      prevButton.disabled = current === 0;
+      nextButton.disabled = current === slides.length - 1;
+      count.textContent = `${current + 1} / ${slides.length}`;
+      if (updateHash) {
+        history.replaceState(null, "", `#${current + 1}`);
+      }
+    }
+
+    prevButton.addEventListener("click", () => showSlide(current - 1));
+    nextButton.addEventListener("click", () => showSlide(current + 1));
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+        event.preventDefault();
+        showSlide(current + 1);
+      }
+      if (event.key === "ArrowLeft" || event.key === "PageUp") {
+        event.preventDefault();
+        showSlide(current - 1);
+      }
+      if (event.key === "Home") {
+        event.preventDefault();
+        showSlide(0);
+      }
+      if (event.key === "End") {
+        event.preventDefault();
+        showSlide(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("hashchange", () => showSlide(initialIndex(), false));
+    showSlide(current, false);
+  </script>
+</body>
+</html>

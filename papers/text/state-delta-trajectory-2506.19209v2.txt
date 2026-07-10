@@ -1,0 +1,1457 @@
+# source_pdf: state-delta-trajectory-2506.19209v2.pdf
+# extracted_at_utc: 2026-07-09T04:28:59.278989+00:00
+# pages: 22
+# title: Augmenting Multi-Agent Communication with State Delta Trajectory
+# source_sha256: 3be622362fba548fd941d3acdf442bdedfe6013c711aaca4ccf41da0bcad34a3
+
+
+
+===== PAGE 1 =====
+
+Augmenting Multi-Agent Communication with State Delta Trajectory
+Yichen Tang*1, Weihang Su1, Yujia Zhou1, Yiqun Liu1, Min Zhang1,
+Shaoping Ma1, Qingyao Ai†1
+1Department of Computer Science and Technology, Tsinghua University
+Abstract et al., 2023; Chu et al., 2024; Xu et al., 2024), stud-
+ies have shown that building a multi-agent system
+Multi-agent techniques such as role playing or with a single base LLM can also boost the LLM’s
+multi-turn debates have been shown to be ef-
+performance (Chan et al., 2024; Hong et al., 2024;
+fective in improving the performance of large
+Du et al., 2024). These systems construct multiple
+language models (LLMs) in downstream tasks.
+Despite their differences in workflows, exist- agents from the same LLM, varying their profiles
+ing multi-agent systems constructed from a or access to information, which can be seen as an-
+single base LLM mostly use natural language other form of the inference scaling law (Chen et al.,
+for agent communication. While this is ap- 2024; Qian et al., 2025). Therefore, methods for
+pealing for its simplicity and interpretability, it
+building effective multi-agent frameworks or work-
+also introduces inevitable information loss as
+flows to improve LLMs in downstream tasks have
+one model must down sample its continuous
+been widely studied in recent literature.
+state vectors to discrete tokens before transfer-
+Despite their differences in motivation and
+ring them to the other model. Such losses are
+particularly significant when the information methodology, the majority of existing multi-
+to transfer is not simple facts, but reasoning agent frameworks rely on natural language to-
+logics or abstractive thoughts. To tackle this kens to build the communication protocol between
+problem, we propose a new communication
+agents (Wu et al., 2024; Li et al., 2023a; Qian et al.,
+protocol that transfers both natural language
+2024; Xie et al., 2024), which may not be the op-
+tokens and token-wise state transition trajec-
+timal solution for agent communication. Natural
+tory from one agent to another. Particularly,
+language is appealing for its generalizability and
+compared to the actual state value, we find
+that the sequence of state changes in LLMs interpretability, but it down samples the model’s in-
+after generating each token can better reflect ternal states to concrete tokens before transferring
+the information hidden behind the inference information, which could lead to information loss
+process. We propose a State Delta Encoding in many cases. For example, in inference, an LLM
+(SDE) method to represent state transition tra-
+may consider multiple reasoning paths, in both cor-
+jectories. The experimental results show that
+rect and incorrect ones could appear. However,
+multi-agent systems with SDE achieve SOTA
+only one path is ultimately sampled and presented
+performance compared to other communica-
+to other agents (Yu et al., 2024; Zhou et al., 2024),
+tion protocols, particularly in tasks that involve
+complex reasoning.1 and if the sampled one is incorrect, there is no
+way for other agents to recover what is lost in this
+1 Introduction
+sampling process.
+Intuitively, when agents are built from a single
+Multi-agent systems based on Large Language
+base LLM (i.e., a single-LLM-based multi-agent
+Models (LLMs) have demonstrated remarkable
+system), information loss from natural language
+performance in solving complex tasks (Guo et al.,
+seems unnecessary because all agents are sharing
+2024a; Dong et al., 2024; Du et al., 2024). While it
+the same semantic and parametric space created by
+is not surprising that combining outputs from differ-
+the base LLM. For example, a straightforward solu-
+ent LLMs could improve system performance (Xu
+tion to mitigate the information loss problem above
+*tangyc21@mails.tsinghua.edu.cn
+is to transfer not just the final tokens, but also the
+†Corresponding Author: aiqy@tsinghua.edu.cn
+token probabilities and weighted token embeddings
+1We have open-sourced all the code and data in https:
+//github.com/LittleDinoC/StateDelta/. to the other agents (Pham et al., 2024). Yet, these
+5202
+peS
+42
+]LC.sc[
+2v90291.6052:viXra
+
+
+===== PAGE 2 =====
+
+methods produce marginal improvements over nat- captures the reasoning process hidden behind out-
+ural language methods empirically, which indicates put tokens and can serve as an effective medium
+that simply modeling output probability distribu- to transfer information among single-LLM-based
+tions is not enough to convey important information agents.
+hidden in the inference process of an LLM-based
+• We evaluate existing communication protocols
+agent. Thus, finding the best way to convey internal
+and SDE on both information asymmetry and
+reasoning information from one agent to another
+symmetry tasks. The results show that SDE
+has become a key research question for the studies
+achieves state-of-the-art performance and out-
+of multi-agent communication protocols.
+performs prior methods by up to 17.3% in tasks
+In this paper, we propose to augment single-
+that require complex reasoning.
+LLM-based multi-agent communication directly
+with the model’s internal states. Particularly, as dif- 2 Related Work
+ferent agents often have different initial prompts or
+2.1 LLM based Multi-Agent System
+local context in existing multi-agent frameworks,
+we believe that directly transferring the internal Large Language Models have shown remarkable
+state sequence, which we refer to as the state transi- capabilities across a wide range of tasks (Brown
+tion trajectory, from one agent to another may not et al., 2020; Yang et al., 2024b; Fang et al., 2024),
+be feasible. Instead, inspired by the idea of delta en- motivating researchers to explore their application
+coding (Mogul et al., 1997; Burns and Long, 1997), in building agent systems powered by LLMs (Wang
+we propose to transfer information between agents et al., 2024; Guo et al., 2024b). Recent advances
+based on both natural language tokens and the se- have shown that coordinating multiple LLM-based
+quence of changes in the agent’s internal states, agents allows stronger performance in tasks such
+which we refer to as the State Delta Encoding as software development (Qian et al., 2024), world
+(SDE). When one agent is generating output tokens, simulations (Park et al., 2023; Li et al., 2024), and
+SDE records the differences between the hidden embodied problem solving (Zhang et al., 2024a).
+states of adjacent tokens. Then, when another agent While some systems employ diverse LLMs to
+is encoding these output tokens, SDE adds the tra- combine their strengths and mitigate individual bi-
+jectory of these differences (i.e., state deltas) to the ases (Chu et al., 2024; Xu et al., 2023), many works
+corresponding tokens in order to recover the infor- adopt a single LLM to construct all agents, vary-
+mation lost in token sampling. Our experiments ing their behavior through different profiles or ac-
+on information asymmetry tasks (e.g., QA with un- cess to distinct information (Qian et al., 2024; Li
+shared resources (Dhingra et al., 2017; Geva et al., et al., 2023a). We refer to these as single-LLM-
+2021; Talmor and Berant, 2018)) and information based multi-agent systems. Such systems have
+symmetry tasks (e.g., debates (Du et al., 2024) and demonstrated effectiveness through structured in-
+agent workflows (Yao et al., 2023)) show that SDE teractions like debates (Du et al., 2024) and task-
+can significantly improve the performance of multi- specific workflows (Wu et al., 2024; Qian et al.,
+agent systems. The advantages of SDE are particu- 2024), benefiting from the scale of the inference
+larly strong on tasks that involve complicated logic process (Chen et al., 2024; Qian et al., 2025). Our
+reasoning rather than simple fact communication. work focuses on optimizing this type of system
+This demonstrates the potential of multi-agent com- and aims to make better use of each inference step
+munication protocols beyond natural language and during inter-agent communication.
+could lead to multiple research directions in future
+2.2 Multi-agent Communication
+studies.
+In summary, the contributions of our paper are Most LLM-based agent systems use natural lan-
+as follows: guage for communication (Li et al., 2023a; Wu
+et al., 2024; Chan et al., 2024). While natural
+• We propose SDE, a novel multi-agent communi-
+language offers flexibility, it may also introduce
+cation protocol that augments natural language
+potential information loss.
+with LLM’s hidden states, bridging the gap be-
+A recent attempt to address this issue, CI-
+tween surface-level communication and latent
+PHER (Pham et al., 2024), replaces natural lan-
+reasoning.
+guage tokens with probability-weighted token em-
+• We introduce the concept of state delta, which beddings during agent communication, showing
+
+
+===== PAGE 3 =====
+
+potential in multi-agent debate settings. However, language, SDE augments it by transferring token-
+this approach only leverages surface-level token wise changes of hidden states, providing richer
+probability distributions from the final output layer, reasoning traces. This section introduces SDE as a
+overlooking deeper, more informative, and more state representation mechanism and describes how
+valuable hidden representations. we use it to build a new communication protocol.
+Another approach (Ramesh and Li, 2025) at- The protocol with SDE is illustrated in Figure 1.
+tempts to directly transfer hidden states between We focus on the multi-agent systems in which all
+agents. In their setup, communication is restricted agents are constructed from the same transformer-
+to a unidirectional transfer, where hidden states based language model. Consider two agents, Al-
+from a text-reading agent are passed to an output- ice and Bob. Alice receives an input and gener-
+generating agent. Moreover, in the multi-agent de- ates a response output , which is a sequence of
+A
+bate setting, their method requires heterogeneous natural language tokens t , t , t , · · · , t . In natu-
+1 2 3 n
+models to provide distinct activations, whereas ours ral language communication, output is inserted
+A
+operates with multiple instances of the same model. directly into the input prompt of Bob. Formally,
+Building upon these insights, our method utilizes the prompt received by Bob, denoted as prompt ,
+B
+the dynamics of hidden states during inference and takes the form {X output Y}, where X and Y
+A
+supports any inter-agent communication. are additional contexts such as task instructions,
+environmental information, and responses from
+2.3 Latent Space Arithmetic other agents. Bob then generates conditioned on
+prompt . However, due to sampling, the token
+Hidden states are the internal representations of B
+sequence output reflects only a single reasoning
+LLMs that evolve token by token during genera- A
+path chosen by Alice, making it difficult for Bob to
+tion. These representations encode rich semantic
+understand Alice’s full intentions.
+and contextual information, reflecting the model’s
+evolving understanding and planning throughout The inference process in causal LLMs is re-
+the generation process (Azaria and Mitchell, 2023; peatedly performing forward propagation based
+Su et al., 2024c,b). Recent studies have explored on the input prompt and previously generated to-
+controlling the outputs of frozen LLMs by manipu- kens t 1 , t 2 , · · · , t i−1 to predict the next token t i .
+lating their hidden states during inference (Li et al., When Alice generates token t i in output A , let
+2023b; Subramani et al., 2022). Several approaches the hidden states hl A,i denote the output of the l th
+have proposed extracting steering vectors to ma- transformer layer in the language model. Each hl
+A,i
+nipulate the quality (Li et al., 2023b; Subramani is a vector representing the contextualized embed-
+et al., 2022; Rimsky et al., 2024) or semantic di- ding of t i , conditioned on the input prompt and
+rection (Turner et al., 2024) of model outputs. For previously generated tokens. We define the state
+example, ActAdd (Turner et al., 2024) derives steer- trajectory at layer l during Alice’s generation as the
+ing vectors by computing hidden state differences ordered sequence of hidden states:
+under prompts with or without a special keyword,
+Hl = {hl , hl , · · · , hl }. (1)
+and adds these vectors during inference to guide A A,0 A,1 A,n
+generations to a desired direction.
+Here, hl refers to the hidden states corresponding
+Inspired by these works, we also manipulate A,0
+to the last token of Alice’s input prompt, serving as
+intermediate representations at inference time.
+the initial states before generation.
+Rather than operating within a single model, we ex-
+As discussed in Section 1, to prevent Bob’s gen-
+tract internal states from one agent and inject them
+eration from being interfered with Alice’s profile
+into another. This cross-agent state sharing aims to
+or local contexts, we avoid directly transferring
+enhance mutual understanding and coordination in
+the original states trajectory Hl . Instead, inspired
+multi-agent systems. A
+by the idea of delta encoding (Mogul et al., 1997;
+Burns and Long, 1997), we compute the differences
+3 Methodology
+between successive hidden states for each gener-
+We present a novel communication protocol for ated token, and define the state delta trajectory as
+single-LLM-based multi-agent systems, which is follows:
+constructed using a method we call State Delta
+Encoding (SDE). Rather than replacing natural Sl = {sl , sl , · · · , sl }, where sl = hl − hl . (2)
+A 1 2 n i A,i A,i−1
+
+
+===== PAGE 4 =====
+
+Natural Language Communication CIPHER: Probability-weighted Embedding Communication
+Generating: Probability ~ Token Prob * Token’s Embedding
+“ a … nsw T e h r e i s LLM Pro 0 0 b . . a 6 3 b 9 0 ility ~ ~ ~ T o “ “3 k 6 ” e ” n … [?] LLM 0 0 0 .0 . . 6 3 0 9 0 5 ~ ~ ~ “ “ “ 6 3 5 ” ” ” 0 0 0 … . . . 3 0 0 0 0 5 * 4 5 3 = 20*4+6- 0.005 ~ “5” 0.69 6
+…….
+3=8” [?] ……. = CIPHER Embedding
+Translate: “…The answer is 20*4+6-3=8” [?]
+Final …
+Output: “… The answer is 20*4+6-3=86”
+Translate: “…The answer is 20*4+6-3=86”
+Input … Input Output …
+Alice said: “… The answer is 20*4+6-3=86”
+Bob
+Bob
+Translate: “Alice said: …The answer is 20*4+6-3=86”
+SDE (ours): State Delta Trajectory Augments Communication
+“… The answer is
+20*4+6-3=” [?]
+Transformer Layer 1 Transformer Layer 1
+Transformer Layer k-1 Transformer Layer k-1
+Transformer Layer k Transformer Layer k
+Transformer Layer k+1 Transformer Layer k+1
+.
+. .
+. . .
+“… The answer is
+20*4+6-3=8” [?]
+LLM
+Select “8” to fill in [?]
+.
+. .
+. . .
+Generating:
+Final Output:
+“… The answer is 20*4+6-3=86”
+Generating: Generating:
+Alice said: “… The answer is 20*4+6-3=86”
+Reading
+Transformer Layer 1
+…
+Transformer Layer k-1
+Difference
+State Delta
+𝑫𝒌[𝟔]
+LLM
+. . .
+Transformer Layer k
+Transformer Layer k+1
+. . .
+“Alice said: … The answer … 8 6”
+. . . . . . . . . . . . . . . . . .
+Loss Loss ❌ Alice Alice
+Input
+Bob
+Alice
+…
++ +
+𝑫𝒌[The] + 𝑫𝒌[𝟖] +
+𝑫𝒌[answer] 𝑫𝒌[𝟔]
+LLM
+Sampling Sampling
+𝑫𝒌 𝟔 is the symbol of the state
+Generating
+delta of token “6” at layer k
+Select “6” to fill in [?]
+Figure 1: Comparison of different communication protocols in single-LLM-based multi-agent systems. Top-left:
+Natural language communication may introduce information loss due to sampling, thereby leading to incorrect
+claims being transferred. Top-right: CIPHER (Pham et al., 2024) improves by transferring probability-weighted
+embeddings instead of tokens, but still lacks deeper reasoning representations. Bottom: Our protocol (SDE)
+augments natural language tokens with the difference between hidden states of two adjacent tokens (state delta),
+bridging the gap between surface-level communication and latent reasoning.
+Each sl, referred to as a state delta, represents the the hidden states at layer l before passing them to
+i
+internal change associated with the generation of to- the next layer, in order to augment each natural lan-
+ken t . The state delta trajectory serves as a context- guage token. The hidden states hl of the token
+i B,j
+agnostic trace of the reasoning dynamics within the at position j in prompt are updated as follows:
+B
+LLM. This process is called State Delta Encoding (cid:40)
+hl + sl the position of t is j
+(SDE). hl ′ = B,j i i . (3)
+B,j hl otherwise
+During communication, the state deltas serve B,j
+as auxiliary information to improve Bob’s under- The modified hidden states hl ′ are passed to the
+B
+standing of the natural language response output . layer l + 1 for continued inference. In this way,
+A
+Inspired by the use of steering vectors (Turner Bob not only receives the tokens, but also accesses
+et al., 2024), we treat each state delta as a steer- the latent trace of Alice’s internal decision-making
+ing vector and add it directly to the corresponding process. This communication protocol avoids over-
+hidden states. Formally, recall that prompt = writing Bob’s own reasoning while guiding it to
+B
+{X output Y} = {X, t , t , · · · , t , Y}. When better understand Alice’s generation trajectory.
+A 1 2 n
+Bob processes output for generation, we inject Layer selection. To minimize the impact on the
+A
+the corresponding state deltas trajectory Sl into model’s generation capabilities, we apply SDE to
+A
+
+
+===== PAGE 5 =====
+
+only a few carefully selected layers. The layers are tion exchange: only by transmitting complemen-
+chosen based on a simple preliminary experiment tary private knowledge can the agents successfully
+and remain fixed for each model throughout all complete the task.
+subsequent tasks. Our results show that the layers Datasets. We evaluate our approach on three
+selected in this way consistently yield good results benchmarks of varied difficulty. (i) Quasar-
+on the downstream tasks we evaluate, without re- T (Dhingra et al., 2017) consists of simple knowl-
+quiring task-specific layer selection. Details of our edge questions collected from various sources
+selection process are provided in Section 4.5. on the Internet. (ii) ComplexWebQuestions
+(CWQ) (Talmor and Berant, 2018) involves multi-
+4 Experimental Setup hop, web-based questions, which tests the model’s
+reasoning ability over web content. (iii) Strate-
+We evaluate our approach in two settings: (1) the
+gyQA (Geva et al., 2021) contains yes / no ques-
+information asymmetry (IA) setting, where agents
+tions that require multi-step strategic reasoning.
+have access to different sets of knowledge and
+We use the first 300 questions of each dataset to
+must collaborate to answer a question; and (2)
+build tasks. Each question is scored by averaging
+the information symmetry (IS) setting, including
+over all formatted answers. We report the average
+multi-agent debates and agent workflows, where
+exact match (EM) scores and F1 scores in Quasar-T
+all agents share the same information. More imple-
+and ComplexWebQuestions tasks and the average
+mentation details are provided in Appendix B.
+accuracy in StrategyQA tasks.
+4.1 Information Asymmetry (IA) Tasks
+4.2 Information Symmetry (IS) Tasks
+To simulate the cooperation process of multi-agent
+To evaluate how effectively agents can communi-
+systems with information gaps, we propose to con-
+cate and refine their reasoning with full information
+struct a set of information asymmetry (IA) tasks
+sharing, we design a set of tasks in the information
+where each agent possess a unique set of infor-
+symmetry (IS) setting. We construct two types of
+mation (i.e., documents) and the target task can
+IS tasks: multi-agent debate and agent workflows.
+be finished better through the collaboration of all
+In both types, all agents have access to the same
+agents.
+information and are required to interact by passing
+Specifically, we build such tasks on several fac- and refining intermediate thoughts through differ-
+tual QA benchmarks that require the system to ent structured communication frameworks.
+retrieve multiple relevant documents to answer a
+question. We retrieve 6 relevant documents for 4.2.1 Multi-agent Debates
+each question (using a BM25-based retriever) and Inspired by Du et al., we build multi-agent debate
+evenly distribute them to 2 agents as private cor- tasks on several mathematical or logical reason-
+pora. To answer a target question, the agents must ing datasets. At the beginning of a debate, each
+ask questions and respond to the questions asked by agent independently generates an initial answer to
+other agents based on their private corpus in order the same question. Then, in subsequent rounds,
+to gather the necessary information to generate the they repeatedly revise their response after observ-
+final answer. The agents are allowed to discuss for ing the previous round responses of their peers. We
+up to 5 rounds, and the discussion ends when either simulate a 3-round debate involving 2 agents.
+agent generates a formatted answer. Datasets. We evaluate our approach on four
+Although our passage split cannot strictly guar- datasets. (i) GSM8K (Cobbe et al., 2021) con-
+antee that the agents’ private information is com- tains high quality grade school math problems.
+pletely disjoint, we design a single-agent baseline (ii) MMLU (Hendrycks et al., 2021) is a multi-
+to demonstrate that the knowledge available to any ple choice benchmark covering a wide range of
+single agent alone is insufficient to answer the subjects. we use three datasets of different cate-
+questions. In this baseline, each agent indepen- gories in this benchmark: mathematical datasets
+dently performs retrieval-augmented generation us- Abstract Algebra, College Mathematics and log-
+ing only its private passages, and we report the bet- ical reasoning dataset Formal Logic. We use the
+ter of the two agents’ scores. The performance gap first 300 questions from GSM8K and the full sets
+between this single-agent baseline and the multi- of the three subsets of MMLU to build tasks. The
+agent systems highlights the necessity of informa- reported score for each question is the average ac-
+
+
+===== PAGE 6 =====
+
+curacy of all agents’ responses in the last round. Llama3.1-8B-Instruct (Meta, 2024), and Qwen2.5-
+14B-Instruct (Yang et al., 2024a).
+4.2.2 Agent Workflows
+To ensure the reproducibility of our results in
+We adapt the ReAct (Yao et al., 2023) framework to IA tasks and agent workflow tasks, both NL and
+construct multi-agent workflow tasks, where agents SDE generate responses using greedy decoding.
+collaborate sequentially to solve a problem by pass- Since CIPHER does not involve sampling but is
+ing along thoughts and actions. At each step, an affected by temperature, we set the temperature to
+agent produces a thought and an action based on all 0 for consistency. In multi-agent debate tasks, to
+previous generations, and the environment returns promote diversity in the initial responses of differ-
+an observation based on the action, which becomes ent agents, we use the model’s default sampling
+a part of the input for the next agent. Each question and temperature settings for generation, and all re-
+is solved by up to 7 agents taking turns in sequence. ported results are averaged over three independent
+Datasets. We evaluate our approach on factual runs. More detailed settings and prompts can be
+QA benchmarks and a fact verification benchmark. found in Appendix B and Appendix D.
+For question answering, we use two multi-hop
+question datasets: HotpotQA (Yang et al., 2018), 4.5 Layer Selection
+StrategyQA (Geva et al., 2021). For fact verifi-
+We identify suitable injection layers through a sim-
+cation, we use the FEVER (Thorne et al., 2018)
+ple preliminary experiment. Specifically, we con-
+dataset. We build tasks using the first 300 questions
+struct an IA task using the 2WikiMultihopQA (Ho
+from each dataset. For evaluation, we report accu-
+et al., 2020) dataset, following the settings de-
+racy for the StrategyQA and FEVER tasks, and
+scribed in Section 4.1. For each model, we evaluate
+both EM and F1 scores for the HotpotQA task.
+SDE’s performance when modifying each layer on
+the first 300 questions. Considering model scales,
+4.3 Baselines
+we select 1, 2, or 3 layers for 7B, 8B, and 14B mod-
+We compare our proposed approach with the fol-
+els, respectively. These selected layers are then
+lowing three baselines:
+used consistently across all experiments. Notably,
+• Single. The responses are generated by a single 2WikiMultihopQA is used only for this selection
+agent and are in natural language. procedure and not in any main evaluation. While
+the selected layers are not guaranteed to be opti-
+• Natural Language (NL). For communication
+mal, our experiments show that they still general-
+from Alice to Bob, the natural language tokens
+ize effectively to other downstream tasks we used
+generated by Alice are inserted into Bob’s input
+without additional tuning. Further analysis on the
+prompt.
+impact of different layer selections and layer counts
+• CIPHER (Pham et al., 2024). CIPHER extracts is provided in Section 5.2.
+the probability distribution of each token of the
+Detailed results and specific layer selections are
+corresponding forward pass, and uses this distri-
+reported in Appendix A.
+bution to weight all tokens’ embeddings, result-
+ing in a CIPHER embedding. For communica- 5 Results
+tion from Alice to Bob, the CIPHER embedding
+5.1 Main Experiments
+sequences generated by Alice are inserted into
+Bob’s input prompt in embedding form. In this section, we present the main experimental
+NL and CIPHER use the same implementation results and an analysis of our proposed SDE with
+across all tasks, while Single is implemented dif- other baselines in the above three tasks. In the
+ferently in each setting to accommodate tasks. We following, we provide a detailed analysis of our
+provide scenario-specific details in Appendix B. results.
+Overall analysis. Multi-agent systems perform
+4.4 LLM Selection and Generation Settings
+better than single agents directly answering in most
+We conducted experiments on several open-source cases. In particular, SDE outperforms existing com-
+instruction-tuned LLMs. To validate the broad munication protocols (NL and CIPHER) on almost
+effectiveness of SDE, we conducted experiments all tasks. These improvements suggest that en-
+with LLMs of different series on various scales, in- riching communication with hidden states can in-
+cluding Qwen2.5-7B-Instruct (Yang et al., 2024a), deed enhance the final collaboration performance
+
+
+===== PAGE 7 =====
+
+Table 1: The experimental results in the information asymmetry tasks of SDE and other baselines on three
+benchmarks. The best results are in bold.
+Quasar-T CWQ StrategyQA
+Model Method
+EM F1 EM F1 Accuracy
+Single 0.2367 0.2791 0.2967 0.3631 0.1700
+NL 0.3050 0.3748 0.3117 0.4304 0.4433
+Qwen2.5-7B-Instruct
+CIPHER 0.2817 0.3567 0.2967 0.4040 0.3733
+SDE(ours) 0.3150 0.3772 0.3167 0.4444 0.4550
+Single 0.2333 0.2809 0.2467 0.3239 0.1500
+NL 0.2850 0.3496 0.3250 0.4288 0.4967
+Llama3.1-8B-Instruct
+CIPHER 0.2767 0.3488 0.3417 0.4526 0.5033
+SDE(ours) 0.3050 0.3665 0.3517 0.4640 0.5483
+Single 0.3267 0.3845 0.3467 0.4258 0.4533
+NL 0.3717 0.4451 0.3750 0.4967 0.6733
+Qwen2.5-14B-Instruct
+CIPHER 0.3517 0.4208 0.3500 0.4837 0.6433
+SDE(ours) 0.3717 0.4437 0.3817 0.4980 0.6817
+Table 2: The experimental results in the multi-agent debate tasks of SDE and other baselines on four benchmarks.
+Each reported result is the average of three independent runs. The best results are in bold.
+Model Method GSM8K Abstract Algebra College Math Formal Logic
+Single 0.8789 0.4767 0.3900 0.4497
+NL 0.9061 0.4583 0.3617 0.4762
+Qwen2.5-7B-Instruct
+CIPHER 0.8933 0.4850 0.3700 0.4881
+SDE(ours) 0.9178 0.5167 0.4433 0.5198
+Single 0.7867 0.2267 0.2167 0.3571
+NL 0.8328 0.2833 0.2267 0.3889
+Llama3.1-8B-Instruct
+CIPHER 0.8167 0.2150 0.1950 0.3532
+SDE(ours) 0.8450 0.3017 0.2417 0.4220
+Single 0.9111 0.5667 0.5067 0.5661
+NL 0.9311 0.7100 0.6350 0.6085
+Qwen2.5-14B-Instruct
+CIPHER 0.9300 0.6500 0.6350 0.5675
+SDE(ours) 0.9339 0.7533 0.6950 0.6574
+Table 3: The experimental results in the agent workflow cating that SDE is more effective in tasks requiring
+tasks of SDE and other baselines using Qwen2.5-7B-
+complex, multi-step reasoning.
+Instruct. The best results are in bold.
+For the IS setting, Table 2 shows the results of
+FEVER HotpotQA StrategyQA multi-agent debate tasks, where SDE enhances per-
+Method
+formance ranging from 0.3% to 13.7% compared
+Accuracy EM F1 Accuracy
+to the best-performing baseline. In particular, there
+Single 0.0067 0.1567 0.2192 0.1567
+are significant improvements in complex mathe-
+NL 0.2300 0.2100 0.3153 0.3167
+CIPHER 0.1800 0.2000 0.2879 0.3267 matical and logical reasoning datasets of MMLU,
+SDE(ours) 0.2667 0.2267 0.3196 0.3833 where SDE consistently shows a great improve-
+ment across all evaluated models. Furthermore,
+of multi-agent systems. our experiments with Qwen2.5-7B-Instruct in the
+Specifically, Table 1 shows the results of IA agent workflow tasks (Table 3) reveal that SDE can
+tasks. SDE achieves a performance improvement also enhance multi-agent workflow architectures,
+of 0.3% to 8.9% compared to the best-performing with improvements up to 17.3%.
+baseline in most tasks, with particular notable im- Analysis among different tasks. Results on the
+provements on the Llama-8B-Instruct model. The IA tasks demonstrate that SDE meets the fundamen-
+improvements are generally more significant on tal requirements of communication — accurately
+multi-hop datasets CWQ and StrategyQA com- and effectively delivering information. Although
+pared to the simple question dataset Quasar-T, indi- SDE and NL performed similarly, the superior per-
+
+
+===== PAGE 8 =====
+
+0.725
+0.700
+0.675
+0.650
+0.625
+0.300
+0.275
+Top-1 Top-2 Top-3 Top-4 Top-5 All Combine
+Layer Selection
+ycaruccA
+StrategyQA
+Combine Only
+0.70
+0.65
+0.60
+0.15
+Top-1 Top-2 Top-3 Top-4 Top-5 All Combine
+Layer Selection
+ycaruccA
+Table 4: Ablation results on the impact of state deltas
+in information asymmetry tasks (Quasar-T and CWQ
+datasets, EM scores) and multi-agent debate tasks (Col-
+lege Mathematics and Formal Logic datasets). "w/o
+delta" denotes the variant using original hidden states.
+The method with better performance is bold.
+Quasar-T CWQ CM FL
+NL 0.3050 0.3117 0.3617 0.4762
+Q-7B w/o delta 0.2950 0.3133 0.4033 0.4616
+SDE 0.3150 0.3167 0.4433 0.5198
+NL 0.2850 0.3250 0.2450 0.3889
+L-8B w/o delta 0.2750 0.2967 0.2467 0.3942
+Formal Logic
+SDE 0.3050 0.3517 0.2967 0.4220
+Combine Only
+As the experiments using Qwen2.5-14B-Instruct
+shown in Figure 2, modifying the combined top-k
+layers (where k ≤ 4) results in little performance
+differences compared to modifying only the top-1
+layer. At the same time, it offers greater stability
+than modifying a single layer. However, modify-
+ing all layers leads to a significant performance
+Figure 2: Ablation results for different layer selection drop, likely due to the major interference with the
+strategies on StrategyQA (information asymmetry) and model’s generation capabilities. Therefore, to pre-
+Formal Logic (multi-agent debate) tasks using Qwen2.5-
+serve the model’s generation ability and ensure sta-
+14B-Instruct. We compare modifying the combined top-
+ble performance of SDE, we recommend applying
+k layers, all layers, and only the top-k layer.
+the proposed layer selection procedure to the target
+formance of SDE compared to CIPHER also in- model and modifying only a small number of top-
+dicates that SDE is better equipped to handle sce- ranking layers (e.g., 1-3). Additional experiments
+narios demanding higher precision in information on other models are provided in Appendix C.
+delivery.
+5.3 Ablation Study on State Delta
+The more significant improvements in IS tasks
+indicate that SDE not only supports information To evaluate the effectiveness of the proposed state
+delivery but also enhances agents’ understanding delta, we conducted an ablation study comparing
+of the reasoning processes behind the generated the performance of the full SDE with a variant that
+contents. This deeper comprehension boosts the uses the original hidden states of each token instead
+overall performance of multi-agent collaboration. of their differences.
+Moreover, we compare our method on Strate- As shown in Table 4, removing state deltas con-
+gyQA using the same model Qwen2.5-7B-Instruct, sistently leads to performance drops in all settings.
+under two different settings: information asymme- Moreover, in some cases, the performance of the
+try and agent workflows. Our results show that variant even falls below that of using natural lan-
+the agent workflow tasks — which require more guage alone. This indicates that directly augment-
+complex reasoning — benefit more significantly ing with unprocessed hidden states may introduce
+from our approach. This also suggests that SDE noise, thereby impairing the agent’s reasoning.
+is particularly effective in tasks that involve more
+complex reasoning processes. 5.4 Multi-agent Debate in Different Settings
+To investigate how the number of agents and rounds
+5.2 Different Layer Selections
+affects the performance in the multi-agent debate
+In this section, we investigate the impact of differ- tasks, we conduct an ablation study. As shown
+ent layer selection strategies. Following the layer in Table 5, SDE consistently outperforms NL and
+selection procedure proposed in Section 4.5, we CIPHER across different numbers of agents and
+compare three strategies: a combination of top-k rounds, suggesting that SDE is robust to variations
+layers, all layers, and only the top-ranking layer. in these configurations.
+
+
+===== PAGE 9 =====
+
+Table 5: Ablation study on the Formal Logic dataset of the generating agent can be easily extracted and
+using Qwen2.5-7B-Instruct, comparing different num-
+injected into the receiving agent. However, this re-
+bers of agents (top) and different numbers of rounds
+quirement may not be feasible for agents based on
+(bottom) in multi-agent debate tasks.
+black-box models without internal access. Second,
+Rounds Agents NL CIPHER SDE(ours) incorporating hidden states increases the commu-
+3 2 0.4762 0.4881 0.5198 nication bandwidth between agents, particularly
+3 3 0.4489 0.4312 0.5150 for long context communication or large models.
+3 4 0.4530 0.4365 0.5179
+Although SDE modifies only a small number of
+3 5 0.4947 0.4317 0.5138
+layers, this overhead may still require compression
+2 2 0.4524 0.4881 0.5132
+or optimization. Future work can explore selective
+3 2 0.4762 0.4881 0.5198
+transmission of important states or apply compres-
+4 2 0.4537 0.4881 0.5225
+5 2 0.4603 0.4881 0.5212 sion to reduce the cost of state deltas.
+6 Conclusion and Future Work Acknowledgments
+In this work, we propose State Delta Encoding This research was supported by Tsinghua Univer-
+(SDE) and use it to build a new single-LLM-based sity Initiative Scientific Research Program.
+multi-agent communication protocol. By encoding
+token-wise hidden state changes, SDE captures the
+References
+dynamic reasoning process during generation and
+reduces interference from irrelevant agent context. Amos Azaria and Tom Mitchell. 2023. The internal
+The protocol with SDE augments natural language state of an llm knows when it’s lying. arXiv preprint
+arXiv:2304.13734.
+messages with token-wise state delta trajectory, en-
+abling richer agent communication. Experiments Tom Brown, Benjamin Mann, Nick Ryder, Melanie
+in both information asymmetry and symmetry tasks Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind
+Neelakantan, Pranav Shyam, Girish Sastry, Amanda
+show that SDE outperforms existing communica-
+Askell, and 1 others. 2020. Language models are
+tion protocols, especially in complex reasoning
+few-shot learners. Advances in neural information
+tasks. Our findings highlight the potential to im- processing systems, 33:1877–1901.
+prove communication beyond natural language and
+Randal C. Burns and Darrell D. E. Long. 1997. Effi-
+open new directions.
+cient distributed backup with delta compression. In
+While our current study focuses on the appli- Proceedings of the Fifth Workshop on I/O in Parallel
+cation of SDE in general multi-agent settings, we and Distributed Systems, IOPADS ’97, page 27–36,
+believe the potential of SDE extends far beyond. New York, NY, USA. Association for Computing
+Machinery.
+Our future work will explore the integration of SDE
+into more specialized agents, such as search agents Chi-Min Chan, Weize Chen, Yusheng Su, Jianxuan Yu,
+and planning agents (Sun et al., 2023; Li et al., Wei Xue, Shanghang Zhang, Jie Fu, and Zhiyuan Liu.
+2024. Chateval: Towards better llm-based evaluators
+2025). In particular, for search agents, based on
+through multi-agent debate. In The Twelfth Interna-
+previous work on RAG (Lewis et al., 2020; Su et al.,
+tional Conference on Learning Representations.
+2025b, 2024a, 2025a; Dong et al., 2025; Tu et al.,
+2025) and memory (Zhang et al., 2024b; Zhong Lingjiao Chen, Jared Davis, Boris Hanin, Peter Bailis,
+Ion Stoica, Matei Zaharia, and James Zou. 2024. Are
+et al., 2024), SDE can be used to encode and track
+more llm calls all you need? towards the scaling
+the evolution of query intent or memory state over
+properties of compound ai systems. In Advances in
+time, enabling finer-grained control over retrieval Neural Information Processing Systems, volume 37,
+behaviors and memory access. We hope that ex- pages 45767–45790. Curran Associates, Inc.
+tending SDE to these domains will further validate
+Zhumin Chu, Qingyao Ai, Yiteng Tu, Haitao Li, and
+its generality and open up more possibilities for Yiqun Liu. 2024. Automatic large language model
+communication-aware multi-agent systems. evaluation via peer review. In Proceedings of the
+33rd ACM International Conference on Informa-
+7 Limitation tion and Knowledge Management, CIKM ’24, page
+384–393, New York, NY, USA. Association for Com-
+puting Machinery.
+While SDE shows promising improvements in
+multi-agent performance, it also has several limi-
+Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian,
+tations. First, SDE assumes that the hidden states Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias
+
+
+===== PAGE 10 =====
+
+Plappert, Jerry Tworek, Jacob Hilton, Reiichiro reasoning steps. In Proceedings of the 28th Inter-
+Nakano, Christopher Hesse, and John Schulman. national Conference on Computational Linguistics,
+2021. Training verifiers to solve math word prob- pages 6609–6625, Barcelona, Spain (Online). Inter-
+lems. arXiv preprint arXiv:2110.14168. national Committee on Computational Linguistics.
+Bhuwan Dhingra, Kathryn Mazaitis, and William W Sirui Hong, Mingchen Zhuge, Jonathan Chen, Xiawu
+Cohen. 2017. Quasar: Datasets for question an- Zheng, Yuheng Cheng, Jinlin Wang, Ceyao Zhang,
+swering by search and reading. arXiv preprint Zili Wang, Steven Ka Shing Yau, Zijuan Lin, and
+arXiv:1707.03904. 1 others. 2024. Metagpt: Meta programming for a
+multi-agent collaborative framework. In The Twelfth
+Qian Dong, Qingyao Ai, Hongning Wang, Yiding Liu, International Conference on Learning Representa-
+Haitao Li, Weihang Su, Yiqun Liu, Tat-Seng Chua, tions.
+and Shaoping Ma. 2025. Decoupling knowledge
+and context: An efficient and effective retrieval aug- Vladimir Karpukhin, Barlas Oguz, Sewon Min, Patrick
+mented generation framework via cross attention. In Lewis, Ledell Wu, Sergey Edunov, Danqi Chen, and
+Proceedings of the ACM on Web Conference 2025, Wen-tau Yih. 2020. Dense passage retrieval for open-
+pages 4386–4395. domain question answering. In Proceedings of the
+2020 Conference on Empirical Methods in Natural
+Yihong Dong, Xue Jiang, Zhi Jin, and Ge Li. 2024. Language Processing (EMNLP), pages 6769–6781,
+Self-collaboration code generation via chatgpt. ACM Online. Association for Computational Linguistics.
+Trans. Softw. Eng. Methodol., 33(7).
+Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio
+Yilun Du, Shuang Li, Antonio Torralba, Joshua B. Petroni, Vladimir Karpukhin, Naman Goyal, Hein-
+Tenenbaum, and Igor Mordatch. 2024. Improving rich Küttler, Mike Lewis, Wen-tau Yih, Tim Rock-
+factuality and reasoning in language models through täschel, and 1 others. 2020. Retrieval-augmented gen-
+multiagent debate. In Proceedings of the 41st Inter- eration for knowledge-intensive nlp tasks. Advances
+national Conference on Machine Learning, ICML’24. in neural information processing systems, 33:9459–
+JMLR.org. 9474.
+Guohao Li, Hasan Hammoud, Hani Itani, Dmitrii
+Yan Fang, Jingtao Zhan, Qingyao Ai, Jiaxin Mao, Wei-
+Khizbullin, and Bernard Ghanem. 2023a. Camel:
+hang Su, Jia Chen, and Yiqun Liu. 2024. Scaling
+Communicative agents for "mind" exploration of
+laws for dense retrieval. In Proceedings of the 47th
+large language model society. In Advances in Neural
+International ACM SIGIR Conference on Research
+Information Processing Systems, volume 36, pages
+and Development in Information Retrieval, pages
+51991–52008. Curran Associates, Inc.
+1339–1349.
+Kenneth Li, Oam Patel, Fernanda Viégas, Hanspeter
+Mor Geva, Daniel Khashabi, Elad Segal, Tushar Khot,
+Pfister, and Martin Wattenberg. 2023b. Inference-
+Dan Roth, and Jonathan Berant. 2021. Did aristotle
+time intervention: eliciting truthful answers from a
+use a laptop? a question answering benchmark with
+language model. In Proceedings of the 37th Interna-
+implicit reasoning strategies. Transactions of the
+tional Conference on Neural Information Processing
+Association for Computational Linguistics, 9:346–
+Systems, NIPS ’23, Red Hook, NY, USA. Curran
+361.
+Associates Inc.
+Taicheng Guo, Xiuying Chen, Yaqi Wang, Ruidi Chang,
+Nian Li, Chen Gao, Mingyu Li, Yong Li, and Qing-
+Shichao Pei, Nitesh V. Chawla, Olaf Wiest, and Xi-
+min Liao. 2024. EconAgent: Large language model-
+angliang Zhang. 2024a. Large language model based
+empowered agents for simulating macroeconomic ac-
+multi-agents: A survey of progress and challenges.
+tivities. In Proceedings of the 62nd Annual Meeting
+In Proceedings of the Thirty-Third International Joint
+of the Association for Computational Linguistics (Vol-
+Conference on Artificial Intelligence.
+ume 1: Long Papers), pages 15523–15536, Bangkok,
+Thailand. Association for Computational Linguistics.
+Taicheng Guo, Xiuying Chen, Yaqi Wang, Ruidi Chang,
+Shichao Pei, Nitesh V Chawla, Olaf Wiest, and Xian- Xiaoxi Li, Guanting Dong, Jiajie Jin, Yuyao Zhang,
+gliang Zhang. 2024b. Large language model based Yujia Zhou, Yutao Zhu, Peitian Zhang, and
+multi-agents: A survey of progress and challenges. Zhicheng Dou. 2025. Search-o1: Agentic search-
+arXiv preprint arXiv:2402.01680. enhanced large reasoning models. arXiv preprint
+arXiv:2501.05366.
+Dan Hendrycks, Collin Burns, Steven Basart, Andy
+Zou, Mantas Mazeika, Dawn Song, and Jacob Stein- Meta. 2024. Llama 3.1-8b-instruct. https:
+hardt. 2021. Measuring massive multitask language //huggingface.co/meta-llama/Llama-3.
+understanding. Proceedings of the International Con- 1-8B-Instruct. Accessed: July 23, 2024.
+ference on Learning Representations (ICLR).
+Jeffrey C. Mogul, Fred Douglis, Anja Feldmann, and
+Xanh Ho, Anh-Khoa Duong Nguyen, Saku Sugawara, Balachander Krishnamurthy. 1997. Potential bene-
+and Akiko Aizawa. 2020. Constructing a multi- fits of delta encoding and data compression for http.
+hop QA dataset for comprehensive evaluation of SIGCOMM Comput. Commun. Rev., 27(4):181–194.
+
+
+===== PAGE 11 =====
+
+Joon Sung Park, Joseph O’Brien, Carrie Jun Cai, Mered- Weihang Su, Yichen Tang, Qingyao Ai, Junxi Yan,
+ith Ringel Morris, Percy Liang, and Michael S. Bern- Changyue Wang, Hongning Wang, Ziyi Ye, Yujia
+stein. 2023. Generative agents: Interactive simulacra Zhou, and Yiqun Liu. 2025b. Parametric retrieval
+of human behavior. In Proceedings of the 36th An- augmented generation. Preprint, arXiv:2501.15915.
+nual ACM Symposium on User Interface Software
+and Technology, UIST ’23, New York, NY, USA. Weihang Su, Changyue Wang, Qingyao Ai, Yiran Hu,
+Association for Computing Machinery. Zhijing Wu, Yujia Zhou, and Yiqun Liu. 2024c. Un-
+supervised real-time hallucination detection based
+Chau Pham, Boyi Liu, Yingxiang Yang, Zhengyu Chen, on the internal states of large language models. In
+Tianyi Liu, Jianbo Yuan, Bryan A Plummer, Zhaoran Findings of the Association for Computational Lin-
+Wang, and Hongxia Yang. 2024. Let models speak guistics: ACL 2024, pages 14379–14391, Bangkok,
+ciphers: Multiagent debate through embeddings. In Thailand. Association for Computational Linguistics.
+The Twelfth International Conference on Learning
+Representations. Nishant Subramani, Nivedita Suresh, and Matthew Pe-
+ters. 2022. Extracting latent steering vectors from
+Chen Qian, Wei Liu, Hongzhang Liu, Nuo Chen, Yufan pretrained language models. In Findings of the Asso-
+Dang, Jiahao Li, Cheng Yang, Weize Chen, Yusheng ciation for Computational Linguistics: ACL 2022,
+Su, Xin Cong, Juyuan Xu, Dahai Li, Zhiyuan Liu, pages 566–581, Dublin, Ireland. Association for
+and Maosong Sun. 2024. ChatDev: Communicative Computational Linguistics.
+agents for software development. In Proceedings
+of the 62nd Annual Meeting of the Association for Weiwei Sun, Lingyong Yan, Xinyu Ma, Shuaiqiang
+Computational Linguistics (Volume 1: Long Papers), Wang, Pengjie Ren, Zhumin Chen, Dawei Yin, and
+pages 15174–15186, Bangkok, Thailand. Association Zhaochun Ren. 2023. Is ChatGPT good at search?
+for Computational Linguistics. investigating large language models as re-ranking
+agents. In Proceedings of the 2023 Conference on
+Chen Qian, Zihao Xie, YiFei Wang, Wei Liu, Kunlun Empirical Methods in Natural Language Process-
+Zhu, Hanchen Xia, Yufan Dang, Zhuoyun Du, Weize ing, pages 14918–14937, Singapore. Association for
+Chen, Cheng Yang, Zhiyuan Liu, and Maosong Sun. Computational Linguistics.
+2025. Scaling large language model-based multi-
+agent collaboration. Preprint, arXiv:2406.07155. Alon Talmor and Jonathan Berant. 2018. The web as
+a knowledge-base for answering complex questions.
+Vignav Ramesh and Kenneth Li. 2025. Communicating In Proceedings of the 2018 Conference of the North
+activations between language model agents. Preprint, American Chapter of the Association for Computa-
+arXiv:2501.14082. tional Linguistics: Human Language Technologies,
+Volume 1 (Long Papers), pages 641–651, New Or-
+Nina Rimsky, Nick Gabrieli, Julian Schulz, Meg Tong, leans, Louisiana. Association for Computational Lin-
+Evan Hubinger, and Alexander Turner. 2024. Steer- guistics.
+ing llama 2 via contrastive activation addition. In
+Proceedings of the 62nd Annual Meeting of the As- James Thorne, Andreas Vlachos, Christos
+sociation for Computational Linguistics (Volume 1: Christodoulopoulos, and Arpit Mittal. 2018.
+Long Papers), pages 15504–15522, Bangkok, Thai- FEVER: a large-scale dataset for fact extraction
+land. Association for Computational Linguistics. and VERification. In Proceedings of the 2018
+Conference of the North American Chapter of
+Weihang Su, Qingyao Ai, Jingtao Zhan, Qian Dong, the Association for Computational Linguistics:
+and Yiqun Liu. 2025a. Dynamic and paramet- Human Language Technologies, Volume 1 (Long
+ric retrieval-augmented generation. arXiv preprint Papers), pages 809–819, New Orleans, Louisiana.
+arXiv:2506.06704. Association for Computational Linguistics.
+Weihang Su, Yichen Tang, Qingyao Ai, Changyue Yiteng Tu, Weihang Su, Yujia Zhou, Yiqun Liu, and
+Wang, Zhijing Wu, and Yiqun Liu. 2024a. Miti- Qingyao Ai. 2025. Rbft: Robust fine-tuning for
+gating entity-level hallucination in large language retrieval-augmented generation against retrieval de-
+models. In Proceedings of the 2024 Annual Inter- fects. arXiv preprint arXiv:2501.18365.
+national ACM SIGIR Conference on Research and
+Development in Information Retrieval in the Asia Alexander Matt Turner, Lisa Thiergart, Gavin Leech,
+Pacific Region, pages 23–31. David Udell, Juan J. Vazquez, Ulisse Mini, and
+Monte MacDiarmid. 2024. Steering language
+Weihang Su, Yichen Tang, Qingyao Ai, Zhijing Wu, models with activation engineering. Preprint,
+and Yiqun Liu. 2024b. DRAGIN: Dynamic retrieval arXiv:2308.10248.
+augmented generation based on the real-time informa-
+tion needs of large language models. In Proceedings Lei Wang, Chen Ma, Xueyang Feng, Zeyu Zhang, Hao
+of the 62nd Annual Meeting of the Association for Yang, Jingsen Zhang, Zhiyuan Chen, Jiakai Tang,
+Computational Linguistics (Volume 1: Long Papers), Xu Chen, Yankai Lin, and 1 others. 2024. A survey
+pages 12991–13013, Bangkok, Thailand. Association on large language model based autonomous agents.
+for Computational Linguistics. Frontiers of Computer Science, 18(6):186345.
+
+
+===== PAGE 12 =====
+
+Qingyun Wu, Gagan Bansal, Jieyu Zhang, Yiran Wu, Zeyu Zhang, Xiaohe Bo, Chen Ma, Rui Li, Xu Chen,
+Beibin Li, Erkang (Eric) Zhu, Li Jiang, Xiaoyun Quanyu Dai, Jieming Zhu, Zhenhua Dong, and Ji-
+Zhang, Shaokun Zhang, Ahmed Awadallah, Ryen W. Rong Wen. 2024b. A survey on the memory mecha-
+White, Doug Burger, and Chi Wang. 2024. Autogen: nism of large language model based agents. Preprint,
+Enabling next-gen llm applications via multi-agent arXiv:2404.13501.
+conversation. In COLM 2024.
+Wanjun Zhong, Lianghong Guo, Qiqi Gao, He Ye, and
+Tianbao Xie, Fan Zhou, Zhoujun Cheng, Peng Shi, Lu- Yanlin Wang. 2024. Memorybank: Enhancing large
+oxuan Weng, Yitao Liu, Toh Jing Hua, Junning Zhao, language models with long-term memory. In Pro-
+Qian Liu, Che Liu, and 1 others. 2024. Openagents: ceedings of the AAAI Conference on Artificial Intelli-
+An open platform for language agents in the wild. In gence, volume 38, pages 19724–19731.
+First Conference on Language Modeling.
+Zhanke Zhou, Rong Tao, Jianing Zhu, Yiwen Luo, Zeng-
+Lin Xu, Zhiyuan Hu, Daquan Zhou, Hongyu Ren, Zhen mao Wang, and Bo Han. 2024. Can language models
+Dong, Kurt Keutzer, See-Kiong Ng, and Jiashi Feng. perform robust reasoning in chain-of-thought prompt-
+2024. MAgIC: Investigation of large language model ing with noisy rationales? In Advances in Neural
+powered multi-agent in cognition, adaptability, ratio- Information Processing Systems, volume 37, pages
+nality and collaboration. In Proceedings of the 2024 123846–123910. Curran Associates, Inc.
+Conference on Empirical Methods in Natural Lan-
+A Layer Selection
+guage Processing, pages 7315–7332, Miami, Florida,
+USA. Association for Computational Linguistics.
+To minimize the impact on the model’s generation
+Zhenran Xu, Senbao Shi, Baotian Hu, Jindi Yu, capabilities, we perform layer selection to identify
+Dongfang Li, Min Zhang, and Yuxiang Wu. 2023.
+a small number of key transformer layers, where
+Towards reasoning in large language models via
+state deltas are captured and injected. We con-
+multi-agent peer review collaboration. Preprint,
+arXiv:2311.08152. struct a preliminary experiment on an information
+asymmetric (IA) task using the 2WikiMultihopQA
+An Yang, Baosong Yang, Beichen Zhang, Binyuan Hui,
+dataset (Ho et al., 2020). The first 300 questions
+Bo Zheng, Bowen Yu, Chengyuan Li, Dayiheng Liu,
+are used to evaluate each layer individually. All
+Fei Huang, Haoran Wei, Huan Lin, Jian Yang, Jian-
+hong Tu, Jianwei Zhang, Jianxin Yang, Jiaxi Yang, settings follow those of the IA tasks, except for the
+Jingren Zhou, Junyang Lin, Kai Dang, and 22 others. dataset. Both exact match (EM) and F1 score are
+2024a. Qwen2.5 technical report. arXiv preprint
+used jointly as evaluation metrics.
+arXiv:2412.15115.
+This procedure is applied to three models:
+An Yang, Baosong Yang, Beichen Zhang, Binyuan Hui, Qwen2.5-7B-Instruct (28 layers), Llama3.1-8B-
+Bo Zheng, Bowen Yu, Chengyuan Li, Dayiheng Liu,
+Instruct (32 layers), and Qwen2.5-14B-Instruct (48
+Fei Huang, Haoran Wei, and 1 others. 2024b. Qwen2.
+layers). Layers are numbered from 0.
+5 technical report. arXiv preprint arXiv:2412.15115.
+Table 6 lists the top-5 layers for each model ac-
+Zhilin Yang, Peng Qi, Saizheng Zhang, Yoshua Bengio, cording to their combined EM and F1 scores. Lay-
+William Cohen, Ruslan Salakhutdinov, and Christo-
+ers marked with an underline are those ultimately
+pher D. Manning. 2018. HotpotQA: A dataset for
+selected for all subsequent experiments. The result
+diverse, explainable multi-hop question answering.
+In Proceedings of the 2018 Conference on Empiri- shows that many of the top-5 layers have closely
+cal Methods in Natural Language Processing, pages matched scores, and some even outperform the
+2369–2380, Brussels, Belgium. Association for Com-
+selected ones on individual metrics. Despite vari-
+putational Linguistics.
+ation in the exact layer rankings, we observe that
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak the most effective layers across all models tend
+Shafran, Karthik Narasimhan, and Yuan Cao. 2023.
+to be in the middle-to-late positions, for example,
+ReAct: Synergizing reasoning and acting in language
+Layer 22 in Qwen2.5-7B-Instruct and Layer 17 in
+models. In International Conference on Learning
+Representations. Llama3.1-8B-Instruct. However, some earlier lay-
+ers (e.g., Layers 5 and 8 in Llama3.1-8B-Instruct)
+Fei Yu, Hongbo Zhang, Prayag Tiwari, and Benyou
+also perform well, indicating potential flexibility in
+Wang. 2024. Natural language reasoning, a survey.
+ACM Comput. Surv., 56(12). layer choice.
+Based on this preliminary experiment, we fix
+Hongxin Zhang, Weihua Du, Jiaming Shan, Qinhong
+the selected layers for all further experiments as
+Zhou, Yilun Du, Joshua B Tenenbaum, Tianmin Shu,
+follows:
+and Chuang Gan. 2024a. Building cooperative em-
+bodied agents modularly with large language models. • Qwen2.5-7B-Instruct: Layer 22
+In The Twelfth International Conference on Learning
+Representations. • Llama3.1-8B-Instruct: Layers 17 and 20
+
+
+===== PAGE 13 =====
+
+Table 6: The experimental results of the preliminary experiment constructed using the 2WikiMultihopQA dataset.
+Here are the Top-5 layers for SDE in each model, ranked by their combined exact match (EM) and F1 scores.
+Underlined layers are selected for use in all subsequent experiments.
+Model Top 1 Top 2 Top 3 Top 4 Top 5
+Layer ID 22 24 9 20 12
+Qwen2.5-7B-Instruct EM 0.3000 0.2950 0.3067 0.2900 0.2950
+F1 0.3686 0.3692 0.3631 0.3703 0.3632
+Layer ID 17 20 5 8 30
+Llama3.1-8B-Instruct EM 0.2383 0.2533 0.2550 0.2417 0.2383
+F1 0.3391 0.3231 0.3165 0.3168 0.3085
+Layer ID 33 21 23 19 36
+Qwen2.5-14B-Instruct EM 0.3833 0.3800 0.3817 0.3767 0.3767
+F1 0.4636 0.4644 0.4585 0.4590 0.4574
+• Qwen2.5-14B-Instruct: Layers 21, 23, and 33 the final round, if it has such a formatted answer,
+we extract the answer and evaluate it. The score of
+During generation, the sender agent records state
+this question is calculated as the average score of
+deltas from these selected layers, which are then
+all formatted answers.
+injected into the same layers on the receiver agent’s
+side during the forward pass. These layers remain Prompt 1 is used for multi-agent systems, in-
+fixed across all experiments to validate the general- cluding private passages embedded in the system
+ity of the selection. prompt, the first-round response, and the second-
+It is important to note that the 2WikiMultihopQA round input that incorporates other agent’s re-
+dataset is used only in this layer selection procedure sponses.
+and is excluded from all evaluations. We adopt two agents mainly to balance computa-
+tional efficiency and model performance, since in-
+B Experimental Details
+volving more agents substantially increases context
+length and may harm generation quality. Similarly,
+All experiments were conducted using PyTorch on
+we choose 6 passages because in comparable RAG
+NVIDIA A100 GPUs with 40GB of memory. The
+setups a single model typically accesses three doc-
+specific task settings are as follows.
+uments; in our two-agent setting, this corresponds
+B.1 Information Asymmetry (IA) Tasks to three private documents per agent, totaling six.
+Multi-agent settings. Given a factual question, Single agent baseline. Since each agent has dif-
+two agents engage in up to five rounds of discus- ferent private information, we implement a single-
+sion to collaboratively find the answer. We use the agent answering baseline in which each agent inde-
+corpus split by DPR (Karpukhin et al., 2020), in- pendently performs retrieval-augmented generation
+cluding 21 million Wikipedia passages. For each based solely on its own private passages. We re-
+question, we retrieve the top 6 relevant passages port the higher of the two agents’ total scores as
+using BM25. Odd-ranked passages (1st, 3rd, and the baseline performance. Prompt 2 is used in the
+5th) are assigned to one agent, and even-ranked pas- single-agent baseline.
+sages (2nd, 4th, and 6th) to another agent. These We intentionally did not evaluate a single agent
+private passages and task instructions are placed in with access to the union of all retrieved passages
+the system prompt for each agent. from both agents. Our focus is on assessing
+In the first round, each agent reasons based on its whether the proposed multi-agent communication
+private knowledge and asks questions to the other protocol can effectively transmit agent-specific pri-
+agent to fill in missing information. In subsequent vate information to improve performance. This
+rounds, each agent receives the full responses from single-agent design aligns with that goal: the ob-
+all agents in the previous round and is expected to served performance gap, where independent agents
+respond to questions, continue reasoning, or ask with only private information underperform com-
+new questions. The discussion ends as soon as any pared to communicating agents, demonstrates that
+agent produces a response containing an answer in the agents have complementary knowledge and that
+the format \boxed{answer}. For each response in successful information transmission is crucial for
+
+
+===== PAGE 14 =====
+
+task completion. debates. To address this, CIPHER assigns differ-
+Generation settings. Each generation is limited ent temperatures to each agent to encourage varied
+to at most 256 tokens. To ensure reproducibility, embeddings. In our experiments, we follow the
+we use greedy decoding for Single, Natural Lan- original implementation and set the i-th agent’s
+guage (NL), and SDE methods, and set the tem- temperature to i × T , where n is the total
+n default
+perature to 0 for CIPHER for fair comparison. We number of agents and T is the model’s default
+default
+note that, for CIPHER, setting temperature to 0 temperature. This simple scheme preserves the
+does not make the output equivalent to a one-hot original CIPHER design—having one agent with a
+selection. Following the official implementation2, higher temperature and one with a lower tempera-
+when temperature is 0, the softmax is computed ture—without the need for dataset-specific tuning.
+directly on the raw logits, which is effectively the The default generation settings for each model are
+same as setting the temperature to 1. Thus, the gen- listed below:
+erated CIPHER embedding still captures the full
+• Qwen2.5-7B-Instruct and Qwen2.5-14B-Instruct:
+probability distribution over the vocabulary.
+repetition_penalty = 1.05, temperature =
+0.7, top_p = 0.8, top_k = 20
+B.2 Information Symmetry (IS) Tasks
+B.2.1 Multi-agent Debate • Llama3.1-8B-Instruct: temperature = 0.6,
+top_p = 0.9
+Multi-agent settings. Given a reasoning prob-
+lem, two agents engage in a three-round debate. To mitigate the randomness introduced by sam-
+In the first round, each agent independently thinks pling, each setting is run three times and the final
+through the problem and produces its initial re- score is averaged between runs. Each generation is
+sponse. In subsequent rounds, each agent receives limited to at most 512 tokens.
+all other agents’ responses from the previous round
+B.2.2 Agent Workflow
+and is expected to revise or refine its own response
+based on others’. For each question, we consider all Multi-agent settings. In these tasks, agents se-
+agents’ final-round responses and calculate the task quentially generate responses in a fixed order. Each
+score as the proportion of correct answers among agent receives a prompt that contains in-context
+them. examples, the current question, the complete work-
+Prompt 3 and Prompt 4 shows an example used flow history (i.e., previous agents’ responses), and
+in the debate setting, including the first-round the full environmental feedback. The agent then
+prompt and response, as well as the second-round produces a response in a format similar to the ex-
+prompt that incorporates the previous reply from amples, consisting of a reasoning trace (Thought)
+the other agent. and a proposed action (Action), such as searching
+Single agent baseline. We construct a single- for documents or reporting a final answer. The envi-
+agent baseline by providing the first-round user ronment module validates the action and generates
+prompt to a single agent. The agent generates a an observation (Observation), such as a retrieved
+single, direct response without receiving any addi- document in response to a search action. This ob-
+tional inputs. This response is then used for evalua- servation is incorporated into the input prompt for
+tion. The prompt used in this single-agent setting the next agent. We use BM25 as the retriever and
+is shown in Prompt 5 and Prompt 6. Wikipedia corpus split by DPR (Karpukhin et al.,
+Generation settings. To encourage diverse ini- 2020) for environment feedback in search actions.
+tial responses under the same first-round prompt, Following the ReAct framework, each question
+we use randomization during generation. For the proceeds through up to 7 iterations, with at most
+Single, Natural Language (NL), and SDE methods, 7 agents contributing to the workflow. Each agent
+we adopt the model’s default generation settings. In must integrate previous reasoning and observations
+CIPHER, each agent encodes a temperature-scaled to refine its understanding and approach the cor-
+version of the model’s logits into its embedding. rect answer. The model is expected to output an
+Agents using the same temperature would produce answer in the format Finish[answer]; the value
+identical embeddings, leading to no differences in of answer is extracted for evaluation. If no agent
+produces an answer in the expected format within
+2https://github.com/chaudatascience/cipher_
+7 turns, the system is considered to have failed on
+multiagent_debate/blob/main/models/agent.py#
+L768C1-L772C1 that task.
+
+
+===== PAGE 15 =====
+
+Prompt 7 and Prompt 8 show examples of the inconsistent performance across different layer
+input prompt used for multi-agent systems, includ- ranks and tasks. For example, on Qwen2.5-7B-
+ing in-context examples, the first agent’s reasoning Instruct with the Formal Logic task, performance
+and action, and the observation, all of which are decreases from rank-1 to rank-4 but unexpectedly
+provided as input to the second agent. We adopt increases at rank-5. This suggests that single-
+the examples from ReAct designed for complex layer modifications are sensitive to task-specific
+reasoning (HotpotQA and StrategyQA) and fact factors.
+verification (FEVER). Due to space limitations,
+• Combined-layer modification (Combine Top-
+not all examples can be presented here. For more
+k) yields more stable performance across differ-
+details, please refer to our code repository.
+ent values of k. While in some isolated cases,
+Single agent baseline. We construct a single-
+a single-layer modification may outperform the
+agent baseline where one agent directly answers
+combined version, the latter demonstrates better
+the question by generating a chain of thought. For
+robustness and generality across tasks.
+the HotpotQA dataset and the StrategyQA dataset,
+we do not provide any retrieved documents. For • Modifying all layers (All Combine) consistently
+the FEVER dataset, the agent is given all possi- leads to degraded performance across all models
+ble candidate answers to choose from. Prompt 9 and tasks. This is likely due to excessive dis-
+and Prompt 10 show the prompts used for the Hot- ruption of the model’s internal representations,
+potQA / StrategyQA and FEVER datasets, respec- which negatively impacts its reasoning abilities.
+tively. In summary, these results further support our
+Generation settings. To ensure reproducibility, recommendation to apply the proposed layer se-
+we use greedy decoding for the Single, Natural lection procedure and choose a small number of
+Language (NL), and SDE methods, and set the combined top-ranking layers (e.g., top 1–3), avoid-
+temperature to 0 for CIPHER. For the single-agent ing the instability of single-layer selection and the
+baseline, the model’s generation is limited to 256 performance degradation of modifying all layers.
+tokens. For the others, we follow ReAct and limit
+to 100 tokens per generation. D Prompts
+Here are the prompts used in our experiments.
+C Different Layer Selections
+Some complete prompts can be found in our repos-
+In addition to the Qwen2.5-14B-Instruct results pre- itory.
+sented in Section 5.2, we conduct further ablation
+studies on Qwen2.5-7B-Instruct and Llama3.1-8B-
+Instruct to examine different layer selection strate-
+gies.
+Following the same evaluation settings as in the
+main experiments, we compare three strategies: (1)
+modifying the top-k layers jointly (Combine Top-
+k), (2) modifying all layers (All Combine), and (3)
+modifying only the k-th top-ranking layer (Only
+Top-k). The top-k layers are selected based on the
+preliminary experiment described in Section 4.5
+and Appendix A. We evaluate these strategies on
+two representative tasks: an information asymme-
+try task based on the StrategyQA dataset and a
+multi-agent debate task based on the Formal Logic
+dataset.
+Figure 3, Figure 4, and Figure 5 show the results
+on Qwen2.5-7B-Instruct, Llama3.1-8B-Instruct,
+and Qwen2.5-14B-Instruct, respectively. Our key
+findings are as follows:
+• Single-layer modification (Only Top-k) shows
+
+
+===== PAGE 16 =====
+
+0.60
+0.55
+0.50
+0.45
+0.40
+0.35
+0.20
+0.15
+0.10
+Top-1 Top-2 Top-3 Top-4 Top-5 All Combine
+Layer Selection for Qwen2.5-7B-Instruct
+ycaruccA
+StrategyQA
+Combine Only 0.575
+0.550
+0.525
+0.500
+0.475
+0.450
+0.225
+0.200
+Top-1 Top-2 Top-3 Top-4 Top-5 All Combine
+Layer Selection for Qwen2.5-7B-Instruct
+ycaruccA
+Formal Logic
+Combine Only
+Figure 3: Ablation results for different layer selection strategies on StrategyQA (information asymmetry) and
+Formal Logic (multi-agent debate) tasks using Qwen2.5-7B-Instruct. We compare modifying a combination of
+top-k layers, all layers, and only the top-k layer.
+0.7
+0.6
+0.5
+0.4
+0.3
+0.0
+Top-1 Top-2 Top-3 Top-4 Top-5 All Combine
+Layer Selection for Llama3.1-8B-Instruct
+ycaruccA
+StrategyQA
+Combine Only 0.50
+0.45
+0.40
+0.35
+0.30
+0.10
+Top-1 Top-2 Top-3 Top-4 Top-5 All Combine
+Layer Selection for Llama3.1-8B-Instruct
+ycaruccA
+Formal Logic
+Combine Only
+Figure 4: Ablation results for different layer selection strategies on StrategyQA (information asymmetry) and
+Formal Logic (multi-agent debate) tasks using Llama3.1-8B-Instruct. We compare modifying a combination of
+top-k layers, all layers, and only the top-k layer.
+0.74
+0.72
+0.70
+0.68
+0.66
+0.64
+0.62
+0.30
+0.28
+0.26
+Top-1 Top-2 Top-3 Top-4 Top-5 All Combine
+Layer Selection for Qwen2.5-14B-Instruct
+ycaruccA
+StrategyQA
+0.725
+Combine Only
+0.700
+0.675
+0.650
+0.625
+0.600
+0.575
+0.150
+0.125
+Top-1 Top-2 Top-3 Top-4 Top-5 All Combine
+Layer Selection for Qwen2.5-14B-Instruct
+ycaruccA
+Formal Logic
+Combine Only
+Figure 5: Ablation results for different layer selection strategies on StrategyQA (information asymmetry) and
+Formal Logic (multi-agent debate) tasks using Qwen2.5-14B-Instruct. We compare modifying a combination of
+top-k layers, all layers, and only the top-k layer.
+
+
+===== PAGE 17 =====
+
+Prompt 1: Prompt for multi-agent systems in information asymmetry tasks
+<system>
+You are a reasoning agent in a multi-hop problem solving task. Collaborate with other agents using
+these rules:
+1. **Knowledge Management**
+Your private segments:
+Document 1: {Passage 1}
+Document 2: {Passage 2}
+Document 3: {Passage 3}
+DO NOT verbatim share!!!
+2. **Communication Protocol**
+You can ask other agents several questions based on your needs.
+If your private segments contain information that can answer the question from other agents, you
+you need to give appropriate answers.
+- When asking questions:
+- First conduct reasoning based on your private segments and dialogue history
+- Identify what crucial information is missing that prevents you from progressing
+- Only ask about information you CANNOT infer from existing knowledge
+- Ask one sub-question per message
+- Never ask questions that can be answered by your own segments
+- When answering:
+- Check if the question can be answered by combining your segment with previous dialogue
+- Answer them based on your private segments
+Your communication with other agents must follow the following format:
+```#Q: [Your question]```
+```#A: [Your answer]```
+3. **Final Output**
+When you get the final answer, response in the form \boxed{answer} at the end of your response.
+</system>
+<user>
+The multi-hop problem you need to solve collaboratively is: {question}
+Please communicate with other agents as required to resolve the problem.
+</user>
+<assistant>
+{Agent A’s response}
+</assistant>
+<user>
+Other agents responded as follows:
+From one agent:
+{Agent B’s response}
+You need to answer the questions from other agents based on your private segments.
+The original problem is: {question}
+Please continue to think and discuss to solve this problem.
+When you get the final answer, response in the form \boxed{answer} at the end of your response.
+</user>
+
+
+===== PAGE 18 =====
+
+Prompt 2: Prompt for single-agent baseline in information asymmetry tasks
+<user>
+Here is some relevant information:
+Document 1: {Passage 1}
+Document 2: {Passage 2}
+Document 3: {Passage 2}
+Please answer the following multihop question by thinking step-by-step:
+{question}
+When you get the final answer, response in the form \boxed{answer} at the end of your response.
+</user>
+Prompt 3: Prompt for multi-agent systems used in multi-agent debate tasks constructed from the
+GSM8K dataset
+<user>
+Can you solve the following math problem? {question}
+Explain your reasoning. Your final answer should be a single numerical number, in the form
+\boxed{answer} at the end of your response.
+</user>
+<assistant>
+{Agent A’s response}
+</assistant>
+<user>
+These are the solutions to the problem from other agents:
+One agent solution:
+```{Agent B’s response} ```
+Using the solutions from other agents as additional information, can you provide your answer to
+the math problem?
+The original math problem is {question}.
+Your final answer should be a single numerical number, in the form \boxed{answer}, at the end
+of your response. </user>
+
+
+===== PAGE 19 =====
+
+Prompt 4: Prompt for multi-agent systems used in multi-agent debate tasks constructed from the
+MMLU dataset
+<user>
+Can you answer the following question as accurately as possible?
+{question}
+Explain your answer, putting the answer in the form (X) at the end of your response.
+</user>
+<assistant>
+{Agent A’s response}
+</assistant>
+<user>
+These are the solutions to the problem from other agents:
+One agent solution:
+```{Agent B’s response} ```
+Using the reasoning from other agents as additional advice, can you give an updated answer?
+Examine your solution and that other agents step by step. The origin question is question Put your
+answer in the form (X) at the end of your response.
+</user>
+Prompt 5: Prompt for single-agent baseline used in multi-agent debate tasks constructed from the
+GSM8K dataset
+<user>
+Can you solve the following math problem? {question}
+Explain your reasoning. Your final answer should be a single numerical number, in the form
+\boxed{answer}, at the end of your response.
+</user>
+Prompt 6: Prompt for single-agent baseline used in multi-agent debate tasks constructed from the
+MMLU dataset
+<user>
+Can you answer the following question as accurately as possible?
+{question}
+Explain your answer, putting the answer in the form (X) at the end of your response.
+</user>
+
+
+===== PAGE 20 =====
+
+Prompt 7: Prompt example for multi-agent systems used in agent workflow tasks constructed from
+the HotpotQA dataset and the StrategyQA dataset
+<user>
+Solve a question answering task with interleaving Thought, Action, Observation steps. Thought
+can reason about the current situation, and Action can be three types:
+(1) Search[entity], which searches the exact entity on Wikipedia and returns the first paragraph if it
+exists. If not, it will return some similar entities to search.
+(2) Lookup[keyword], which returns the next sentence containing keyword in the current passage.
+(3) Finish[answer], which returns the answer and finishes the task.
+Here are some examples.
+Question: What is the elevation range for the area that the eastern sector of the Colorado orogeny
+extends into?
+Thought 1: I need to search Colorado orogeny, find the area that the eastern sector of the Colorado
+orogeny extends into, then find the elevation range of the area.
+Action 1: Search[Colorado orogeny]
+Observation 1: The Colorado orogeny was an episode of mountain building (an orogeny) in
+Colorado and surrounding areas.
+Thought 2: It does not mention the eastern sector. So I need to look up eastern sector.
+Thought 3: The eastern sector of Colorado orogeny extends into the High Plains. So I need to
+search High Plains and find its elevation range.
+Action 3: Search[High Plains]
+Observation 3: High Plains refers to one of two distinct land regions:
+Thought 4: I need to instead search High Plains (United States).
+Action 4: Search[High Plains (United States)]
+Observation 4: The High Plains are a subregion of the Great Plains. From east to west, the High
+Plains rise in elevation from around 1,800 to 7,000 ft (550 to 2,130 m).[3]
+Thought 5: High Plains rise in elevation from around 1,800 to 7,000 ft, so the answer is 1,800 to
+7,000 ft.
+Action 5: Finish[1,800 to 7,000 ft]
+......(five examples omitted)......
+Question: Were Scott Derrickson and Ed Wood of the same nationality?
+Thought 1: I need to determine the nationalities of Scott Derrickson and Ed Wood to see if they
+are the same. I’ll start by searching for Scott Derrickson.
+Action 1: Search[Scott Derrickson]
+Observation 1: Scott Derrickson is an American director, screenwriter and producer. He lives
+in Los Angeles, California. Derrickson is best known for directing numerous horror films, such
+as T¨ he Exorcism of Emily Rose¨(2005), S¨ inister¨(2012), and D¨ eliver Us From Evil¨(2014), as well
+as the Marvel Cinematic Universe superhero film D¨ octor Strange¨(2016). He was born on July
+16, 1966 in Denver, Colorado, United States. He is married to actress and producer Jennifer
+Derrickson, with whom he has two children.
+</user>
+<assistant>
+Thought 2:
+
+
+===== PAGE 21 =====
+
+Prompt 8: Prompt example for multi-agent systems used in agent workflow tasks constructed from
+the FEVER dataset
+<user>
+Determine if there is Observation that SUPPORTS or REFUTES a Claim, or if there is NOT
+ENOUGH INFORMATION.
+Claim: Nikolaj Coster-Waldau worked with the Fox Broadcasting Company.
+Action 1: Search[Nikolaj Coster-Waldau]
+Observation 1: Nikolaj William Coster-Waldau (born 27 July 1970) is a Danish actor and producer.
+He graduated from the Danish National School of Performing Arts in Copenhagen in 1993,[1]
+and had his breakthrough role in Denmark with the film Nightwatch (1994). He played Jaime
+Lannister in the HBO fantasy drama series Game of Thrones, for which he received two Primetime
+Emmy Award nominations for Outstanding Supporting Actor in a Drama Series.. Coster-Waldau
+has appeared in numerous films in his native Denmark and Scandinavia, including Headhunters
+(2011) and A Thousand Times Good Night (2013). In the U.S, his debut film role was in the war
+film Black Hawk Down (2001), playing Medal of Honor recipient Gary Gordon.[2] He then played
+a detective in the short-lived Fox television series New Amsterdam (2008), and appeared in the
+2009 Fox television film Virtuality, originally intended as a pilot.
+Action 2: Finish[SUPPORTS]
+Claim: Stranger Things is set in Bloomington, Indiana.
+Action 1: Search[Stranger Things]
+Observation 1: Stranger Things is an American science fiction horror drama television series
+created by the Duffer Brothers. Set in the 1980s, primarily in the fictional town of Hawkins,
+Indiana, the series centers on a number of mysteries and supernatural events occurring around the
+town and their impact on an ensemble of child and adult characters.
+Action 2: Finish[REFUTES]
+Claim: Beautiful reached number two on the Billboard Hot 100 in 2003.?
+Action 1: Search[Beautiful]
+Observation 1: Could not find [Beautiful]. Similar: [’Beautiful’, ’Beautiful, Beautiful’, ’A
+Beautiful Mind (film)’, ’Beautiful (Christina Aguilera song)’, ’Life Is Beautiful’].
+Action 2: Search[Beautiful (Christina Aguilera song)]
+Observation 2: "Beautiful" is a song recorded by American singer Christina Aguilera for her fourth
+studio album, Stripped (2002).
+Action 3: Lookup[Billboard Hot 100]
+Observation 3: (Result 1 / 3) The song peaked at number two on the Billboard Hot 100 in the
+United States, where it was certified Gold for 500,000 units shipped.
+Action 4: Finish[NOT ENOUGH INFO]
+Claim: There is a convicted statutory rapist called Chinatown’s writer.
+Thought 1: To determine if this claim is supported, refuted, or if there is not enough information, I
+need to search for information about a convicted statutory rapist named "Chinatown’s writer."
+Action 1: Search["Chinatown’s writer" convicted statutory rapist]
+Observation 1: bed linens. Those investigating serial rapes often identify the rapist with a
+’nickname’ before an arrest is made by characterizing the tactics or patterns of the rapes. Serial
+rapists are more likely to be convicted than a rapist who is known by the victim. Unlike those
+convicted for a single case of rape, serial rapists often go unrecognized due to the slow process of
+analyzing the backlog of rape kits. It may take many years for a past rape to be identified as being
+committed by one person.
+</user>
+<assistant>
+Thought 2:
+
+
+===== PAGE 22 =====
+
+Prompt 9: Prompt for single agent baseline used in agent workflow tasks constructed from the
+HotpotQA dataset and the StrategyQA dataset
+<user>
+Please answer the following multihop question by thinking step-by-step:
+{question}
+When you get the final answer, response in the form \boxed{answer} at the end of your response.
+</user>
+Prompt 10: Prompt for single agent baseline used in agent workflow tasks constructed from the
+FEVER dataset
+<user>
+Please answer the following multihop question by thinking step-by-step:
+There is a convicted statutory rapist called Chinatown’s writer.
+When you get the final answer, response in the form \boxed{answer} at the end of your response.
+All final answers can only be one of "NOT ENOUGH INFO", "SUPPORTS", "REFUTES".
+</user>

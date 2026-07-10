@@ -1,169 +1,56 @@
-# MCA Matrix Source Gate 审计
+# MCA Matrix source gate 审计记录
 
 日期：2026-07-07
 
-对应矩阵为：
+## 做法
 
-| 条件 | 含义 | 主读数 |
-| --- | --- | --- |
-| A | no-channel first | 第一轮无通道基线 |
-| B | Pre-KV first | 第一轮 Pre-KV 效果 |
-| C | no-channel first + MAD | 无通道进入 MAD 后的 final |
-| D | Pre-KV first + MAD | Pre-KV 进入 MAD 后的 final |
+1. 审计对象是 Pre-KV + MAD 的 A/B/C/D 矩阵。A 表示无通道第一轮，B 表示 Pre-KV 第一轮，C 表示无通道第一轮后接 MAD 文本讨论，D 表示 Pre-KV 第一轮后接 MAD 文本讨论。
 
-## 已停止的 partial run
+2. 旧 partial run 先被检查。A 条件使用 batched HF `generate`，B 条件使用带 KV 的逐智能体手写生成，C/D debate 又回到 batched HF `generate`。这使条件差异混入批处理形态和随机数消耗。
 
-已停止 run：
+3. 本地 runner 随后改成逐智能体生成。每个 row、stage、agent 都通过 `_stable_seed(base_seed, benchmark, split, row, stage, agent)` 得到局部种子。
 
-- `20260707-a8002-gpu7-mca-matrix-disagreement-qwen25-7b`
-- `20260707-a8002-gpu7-mca-matrix-gold-contrast-qwen25-7b`
+4. 发送方 pre-state 使用 `question_only`。sender prompt 来自 `scripts/mca_pre_answer_runner.py::pre_state_prompt`，只要求模型读题形成内部表示。
 
-启动记录目录：
+5. `question_only` sender 使用 `max_new_tokens=0` 和 `keep_past_key_values=True`。因此 sender 不生成文本答案，只保存读题 prompt 的 KV state。
 
-- `experiments/20260707-a8002-mca-packet-matrix-serial-gpu7-qwen25-7b/`
+6. A/B 第一轮都调用 `_generate_receiver_from_state`。A 使用 `channel_mode="none"`，即 `past_key_values=None`；B 使用 `channel_mode="state"`，即接入 sender 的 `past_key_values`。
 
-该 run 在 `mca_disagreement_v1` 上写出 partial records 后停止。
+7. A/B 在同一题同一 agent 上共用同一个局部种子、同一个手写采样函数、同一个 temperature、top-p、max token 和 receiver prompt。两者目标差异只剩是否接入 sender KV。
 
-停止原因是源码口径不满足唯一变量要求：
+8. C/D debate 也改成逐智能体手写生成。C 的 debate prompt 读取 A 的第一轮输出，D 的 debate prompt 读取 B 的第一轮输出。
 
-- A/no-channel first 使用 batched HF `generate`；
-- B/Pre-KV first 使用 sequential manual generation with KV；
-- C/D debate 使用 batched HF `generate`；
-- run-level random stream 和 batch 形态会把生成顺序、批处理实现、随机数消耗混入条件差异。
+9. C/D 在同一题同一 debate agent 上共用同一个局部种子。两者目标差异是进入文本 MAD 的第一轮材料来自 A 还是 B。
 
-## 源码审计结论
+10. 每条 record 写入 generation seeds，便于复核同一题同一阶段是否使用匹配种子。
 
-### Pre-KV sender 状态
+## 工程细节
 
-`question_only` sender prompt 来自 `scripts/mca_pre_answer_runner.py::pre_state_prompt`。
+- 已停止的运行包括 `20260707-a8002-gpu7-mca-matrix-disagreement-qwen25-7b` 和 `20260707-a8002-gpu7-mca-matrix-gold-contrast-qwen25-7b`。
+- 启动记录目录为 `experiments/20260707-a8002-mca-packet-matrix-serial-gpu7-qwen25-7b/`。
+- 旧 partial run 中，A 条件使用 batched HF `generate`，B 条件使用带 KV 的逐智能体手写生成，C/D debate 又使用 batched HF `generate`。这种组合会把批处理形态和随机数消耗混进条件差异。
+- `question_only` sender prompt 来自 `scripts/mca_pre_answer_runner.py::pre_state_prompt`，文本要求模型读题并形成内部表示。
+- 在 `scripts/run_mca_pre_kv_then_mad.py` 中，`question_only` sender 使用 `max_new_tokens=0` 和 `keep_past_key_values=True`，因此保存的是读题 prompt 的 KV state，没有生成文本答案。
+- 修正后的 A/B 第一轮都调用 `_generate_receiver_from_state`。A 使用 `channel_mode="none"`，B 使用 `channel_mode="state"`。
+- 修正后的 A/B 在同一题同一智能体上共用同一个局部种子、同一个手写采样函数、同一个 temperature、top-p、max token 和 receiver prompt。目标差异只剩 `past_key_values=None` 与 `past_key_values=sender_state.past_key_values`。
+- 修正后的 C/D debate 都使用逐智能体手写生成。C 读取 A 的第一轮输出，D 读取 B 的第一轮输出；同一题同一 debate agent 共用同一个局部种子。
+- 局部种子由 `_stable_seed(base_seed, benchmark, split, row, stage, agent)` 构造。每条记录写入 `generation_seeds.base_seed`、`generation_seeds.seed_key`、`generation_seeds.sender_pre_state`、`generation_seeds.first_round_agents` 和 `generation_seeds.debate_agents`。
+- `mca_disagreement_v1` 包含 221 行，只按 Standard MAD 第一轮答案分歧筛选，`selection_uses_gold=false`。
+- `mca_gold_contrast_v1` 包含 142 行，使用金标筛掉全对和全错样本，保留正误混合样本。
 
-该 prompt 只要求读题并形成内部表示：
+## 结果
 
-```text
-Read the problem and form an internal representation for a later solver pass.
-```
+| 项目 | 结果 |
+| --- | --- |
+| 旧 partial run | 已停止；不作为矩阵读数 |
+| 停止原因 | A/B/C/D 的生成路径和随机数消耗不一致 |
+| `mca_disagreement_v1` gold self-check | 221 行，`gold_self_fail=0` |
+| `mca_gold_contrast_v1` gold self-check | 142 行，`gold_self_fail=0` |
+| 本地编译 | `scripts/run_mca_pre_kv_then_mad.py` 通过 `py_compile` |
+| 本地单测 | `tests.test_build_mca_packets`、`tests.test_mca_pre_answer_runner`、`tests.test_mca_hidden_channels`、`tests.test_mca_pre_kv_then_mad` 共 18 项通过 |
 
-在 `scripts/run_mca_pre_kv_then_mad.py` 中，sender state 使用：
+修正后的矩阵读数可以比较无通道第一轮、Pre-KV 第一轮、无通道进入 MAD 后的最终答案、Pre-KV 进入 MAD 后的最终答案。它不能直接替代完整 MATH500 accuracy，也不能证明旧 `+21` 是真实通道增益。
 
-```text
-max_new_tokens=0
-keep_past_key_values=True
-```
+## 备注
 
-因此 question-only Pre-KV 不生成文本答案；它保留的是读题 prompt 的 KV state。这个设计符合“pre-answer latent state”的实验语义。
-
-### 第一轮 A/B 对照
-
-修正前，A 和 B 的差异不止是 KV state。
-
-修正后，本地 `scripts/run_mca_pre_kv_then_mad.py` 已改为：
-
-- A/no-channel first：逐 agent 调用 `_generate_receiver_from_state(..., channel_mode="none")`；
-- B/Pre-KV first：逐 agent 调用 `_generate_receiver_from_state(..., channel_mode="state")`；
-- 同一 row、同一 agent 的 A 与 B 使用同一个 local seed；
-- A/B 使用同一手写采样函数、同一 temperature、top-p、max tokens、prompt text；
-- A/B 的目标差异只剩 `past_key_values=None` vs `past_key_values=sender_state.past_key_values`。
-
-### MAD C/D 对照
-
-修正后，本地 runner 已改为：
-
-- C/no-channel + MAD：逐 debate agent 手写生成；
-- D/Pre-KV + MAD：逐 debate agent 手写生成；
-- 同一 row、同一 debate agent 的 C 与 D 使用同一个 local seed；
-- C/D 的目标差异是 debate prompt 中可见的第一轮 agent outputs 来自 A 还是 B。
-
-这回答的是“Pre-KV 改变第一轮文本输出后，是否通过普通 MAD 文本讨论影响 final majority”。
-
-### 随机性
-
-本地 runner 已加入 `_stable_seed(base_seed, benchmark, split, row, stage, agent)`。
-
-每条 record 写入：
-
-- `generation_seeds.base_seed`
-- `generation_seeds.seed_key`
-- `generation_seeds.sender_pre_state`
-- `generation_seeds.first_round_agents`
-- `generation_seeds.debate_agents`
-
-这消除了全局随机流中“前一个条件消耗多少随机数影响后一个条件”的主要问题。
-
-## Packet 与 gold/parser 审计
-
-### Packet 语义
-
-`mca_disagreement_v1`：
-
-- 221 rows；
-- 只按 Standard MAD 第一轮答案分歧筛选；
-- `selection_uses_gold=false`；
-- 适合作为主诊断包；
-- 不能代表完整 MATH500 accuracy。
-
-`mca_gold_contrast_v1`：
-
-- 142 rows；
-- 使用 gold 筛掉全对/全错；
-
-### Gold smoke
-
-本地 gold self-check 结果：
-
-- `mca_disagreement_v1`: 221 rows, `gold_self_fail=0`
-- `mca_gold_contrast_v1`: 142 rows, `gold_self_fail=0`
-
-即 packet 内 gold 用当前 `is_correct`/`normalize_numeric` 判自己均为正确。
-
-## 这个矩阵能回答什么
-
-在修正后的 runner 和 packet 上，结果可以回答：
-
-- no-channel 第一轮经过一轮 MAD 后的变化；
-- Pre-KV 第一轮经过一轮 MAD 后的变化；
-- `D - C` 是否为正，即 Pre-KV 是否给 MAD final 带来同口径增益；
-
-## 这个矩阵不能回答什么
-
-该 packet run 不能直接回答：
-
-- 完整 MATH500 上是否超过 Standard MAD；
-- 是否超过 2026-07-05 那个 exact Standard MAD full baseline；
-- 纯 latent multi-round debate 是否有效；
-- 旧 Pre-KV `+21` 是否是真实通道效应。
-
-原因：
-
-- packet 不是完整 MATH500；
-- D 使用的是 Pre-KV first outputs 后接文本 MAD，不是纯 latent debate；
-- exact Standard MAD baseline 的参数和这次低温第一轮矩阵不同；
-- 旧 `+21` 的 baseline 和 receiver 参数不同，仍然是历史混杂结果。
-
-## 重跑前源码条件
-
-重跑必须满足：
-
-- 使用修正后的 `scripts/run_mca_pre_kv_then_mad.py`；
-- A/B/C/D 都走 sequential manual generation；
-- A/B 同 row 同 agent 共用 local seed；
-- C/D 同 row 同 debate agent 共用 local seed；
-- record 中写入 `generation_seeds`；
-- 不使用旧 partial run 的 `records.jsonl` resume；
-- 使用新的 run id 或清空旧 output dir。
-
-## 当前验证
-
-本地轻量验证通过：
-
-```text
-python -m py_compile scripts/run_mca_pre_kv_then_mad.py
-python -m unittest tests.test_build_mca_packets tests.test_mca_pre_answer_runner tests.test_mca_hidden_channels tests.test_mca_pre_kv_then_mad
-```
-
-结果：
-
-```text
-Ran 18 tests
-OK
-```
-
+旧 `+21` 仍保留为历史混杂结果。原因是旧 baseline 与 receiver 的温度、输出长度和生成路径不同。这个 source gate 审计对应的矩阵工程口径更接近“唯一变量”为 Pre-KV 状态。

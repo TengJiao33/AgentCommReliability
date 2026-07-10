@@ -6,6 +6,8 @@
 
 - `standard-mad-math500-20260705-qwen25-7b-full-4096-a8002/`：标准 MAD 4096 输出预算基线，完成；initial majority 364/500，final 378/500。
 - `cpac-dcac-guard-v1-math500-20260706-standard-fixed-qwen25-7b-full-4096-a8002/`：CPAC/DCAC guard-v1 standard-fixed 诊断，完成；initial majority 364/500，final 368/500。
+- `20260708-a8002-mca-natural-search-delta-disagreement50-qwen25-7b/`：natural-search-delta 首跑记录，远端完成 50 条；同题 delta 为 26/50，和随机同范数同分，不支撑扩大运行。
+- `20260707-a8002-mca-latent-rounds-gpu1-qwen25-7b/`：latent safe variants 启动与汇总记录，四个 50 条远端 run 已补齐；未触发 full MATH500 扩大条件。
 
 ## 本地启动记录，远端状态需另查
 

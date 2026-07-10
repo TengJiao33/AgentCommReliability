@@ -1,170 +1,53 @@
-# MCA-Pre：前置潜状态通信设计记录
+# MCA-Pre 前置潜状态通信实现记录
 
-日期：2026-07-06
+## 做法
 
-## 背景
+1. MCA-Pre 先为每道题运行发送方前置阶段。发送方不进入完整答题流程，而是在接收方生成答案之前先产生一段不可见状态。
 
-MCA-Pre 的核心约束是：通信发生在答案形成之前，通信内容不是文本答案、文本理由或人工设计的审计格式。
+2. `question_only` 前置阶段只让发送方读题并形成内部表示。该阶段不生成额外标记，因此保存的是题目和前置指令对应的内部状态。
 
-## 设计目标
+3. `early_plan` 前置阶段让发送方生成短的早期搜索状态。该阶段仍然不要求最终答案，但会留下由少量生成标记形成的 live KV 或激活轨迹。
 
-MCA-Pre 要回答的问题是：
+4. 无通道基线先运行。3 个接收方分别从自己的题目提示词开始生成答案，不接收发送方状态；脚本解析 3 个答案并做多数投票，得到 baseline majority。
 
-```text
-在 agent 形成最终答案之前，另一个 agent 的内部问题表示或早期搜索状态，能否改变 receiver 的独立解题结果？
-```
+5. MCA-Pre-KV 条件下，发送方前置阶段产生的 `past_key_values` 被交给接收方。接收方提示词接在 sender past 之后继续生成，因此模型内部能访问发送方前置 pass 的注意力历史。
 
-这里的“改变”不是指让 receiver revision 一个已写出的答案，而是让 receiver 从头解题时带着一个不可见的前置潜状态。
+6. MCA-Pre-S 条件下，发送方前置阶段在指定层捕获 residual activation，并把捕获向量汇总成 steering vector。接收方从自己的题目提示词开始生成，在对应层注入该向量。
 
-## 必须满足的约束
+7. 每道题的接收方输出完成后，脚本解析答案，对 3 个接收方做多数投票，并与无通道多数答案比较。
 
-- 不使用 `certificate`。
-- 不抽取文本 cue。
-- 不广播 sender 的最终答案。
-- 不广播 sender 的完整推理文本。
-- 不在 initial answers 全部生成之后再修补答案。
-- 不使用 MATH500 专属角色，例如代数路线、反例检查、边界条件专家。
-- 方法应能迁移到 MATH、GSM8K、MMLU-Pro、化学、社会科学或工程问题。
+8. 每条记录保存前置阶段类型、状态来源、发送方状态元数据、无通道输出、无通道多数答案、接收方输出、接收方状态元数据、最终多数答案和正误转移。
 
-## 新机制
+9. summary 汇总 baseline majority accuracy、final accuracy、baseline wrong recovery rate、baseline correct harm rate 和 answer change rate。
 
-### MCA-Pre-KV
+## 工程细节
 
-sender 在答案形成之前运行一个前置 pass。receiver 生成答案时，继续使用 sender 这个前置 pass 产生的 KV cache。
+- 共享运行器：`scripts/mca_pre_answer_runner.py`。
+- KV 通道入口：`scripts/run_mca_pre_kv_cache.py`。
+- 激活向量通道入口：`scripts/run_mca_pre_activation_steering.py`。
+- 单元测试：`tests/test_mca_pre_answer_runner.py`。
+- 复用模块：`scripts/mca_hidden_channel_runner.py` 的手写生成、KV continuation 和 activation steering 工具。
+- 复用答案处理：`scripts/run_mad_mm.py` 的标准解题提示词和答案解析；`scripts/run_basic_mad.py` 的 majority vote、正确性判断和答案归一化。
+- 前置阶段 `question_only`：发送方只读题并形成内部表示，不生成额外 token。
+- 前置阶段 `early_plan`：发送方生成短早期搜索状态，但不进入最终答案阶段。
+- MCA-Pre-KV：接收方生成时继续使用发送方前置 pass 产生的 KV cache。
+- MCA-Pre-S：发送方前置 pass 在指定层捕获 residual activation，汇总成 steering vector；接收方从头解题时在对应层注入该向量。
+- 默认激活配置：`layer=16`，`scale=1.0`。
+- 每题处理顺序：题目出现；生成 pre-answer sender state；生成 no-channel baseline outputs；receiver 从头解题并接收 pre-answer latent state；比较 baseline majority 与 latent-channel majority。
+- 每条记录字段：`mca_pre.pre_state_stage`、`state_source`、`sender_state_metadata`、`baseline_outputs`、`baseline_majority_answer`、`receiver_outputs`、`receiver_state_metadata`、`final_majority_answer`、`transition`。
+- summary 指标：`baseline_majority_accuracy`、`final_accuracy`、`baseline_wrong_recovery_rate`、`baseline_correct_harm_rate`、`answer_change_rate`。
 
-当前源码支持两个阶段：
+## 结果
 
-- `question_only`：sender 只读题并形成内部表示，不生成额外 token。
-- `early_plan`：sender 生成很短的早期搜索状态，但不进入最终答案阶段。
+| 检查项 | 状态 |
+| --- | --- |
+| 前置提示词单元测试 | 通过 |
+| receiver prompt 单元测试 | 通过 |
+| 答案解析单元测试 | 通过 |
+| source pairing 单元测试 | 通过 |
+| transition label 单元测试 | 通过 |
+| `run_mca_pre_kv_cache.py --help` | 可正常显示参数 |
 
-KV 的技术边界：
+## 备注
 
-- KV cache 在自回归模型里本质上仍然对应一段前缀 token。
-- 因此 MCA-Pre-KV 不是纯向量消息。
-- `question_only` 阶段不含 sender 答案，但仍包含题目和通用前置 pass 指令。
-- `early_plan` 阶段可能已经包含部分解题方向，因此需要和 `question_only` 分开解释。
-
-### MCA-Pre-S
-
-sender 在答案形成之前运行一个前置 pass。源码在指定层捕获 residual activation，并把这些 activation 汇总成 steering vector。receiver 从头解题时，在对应层注入这个 vector。
-
-S 的技术边界：
-
-- receiver 看不到 sender 文本。
-- record 会保存 sender state 的元数据，例如捕获 token 数和向量范数。
-- 当前默认 `layer=16, scale=1.0` 只是可运行配置，不代表已经校准。
-
-## 运行结构
-
-每一题按如下顺序处理：
-
-```text
-题目出现
--> 生成 pre-answer sender state
--> 生成 no-channel baseline outputs
--> receiver 从头解题，并接收 pre-answer latent state
--> 比较 baseline majority 与 latent-channel majority
-```
-
-这种结构避免了“先得到三个答案，再广播线索”的后验问题。
-
-## 记录口径
-
-每条 record 使用 `mca_pre` 字段，主要内容包括：
-
-- `pre_state_stage`：前置状态阶段；
-- `state_source`：固定为 `pre_answer_sender_pass`；
-- `sender_state_metadata`：前置状态的长度、捕获数、向量范数等；
-- `baseline_outputs`：无通道独立解题输出；
-- `baseline_majority_answer`：无通道多数答案；
-- `receiver_outputs`：接收潜状态后的输出；
-- `receiver_state_metadata`：使用哪个 sender state；
-- `final_majority_answer`：潜状态通道多数答案；
-- `transition`：从 baseline 正误到 latent-channel 正误的转移。
-
-summary 指标使用 baseline 作为对照：
-
-- `baseline_majority_accuracy`：无通道多数准确率；
-- `final_accuracy`：潜状态通道准确率；
-- `baseline_wrong_recovery_rate`：无通道多数错误时被救回的比例；
-- `baseline_correct_harm_rate`：`BaC_to_W` 比例；
-- `answer_change_rate`：多数答案变化率。
-
-## 新增源码
-
-新增：
-
-- `scripts/mca_pre_answer_runner.py`
-- `scripts/run_mca_pre_kv_cache.py`
-- `scripts/run_mca_pre_activation_steering.py`
-- `tests/test_mca_pre_answer_runner.py`
-
-复用：
-
-- `scripts/mca_hidden_channel_runner.py` 中的手写生成、KV continuation 和 activation steering 工具；
-- `scripts/run_mad_mm.py` 中的标准解题 prompt 和答案解析；
-- `scripts/run_basic_mad.py` 中的 majority vote、正确性判断和规范化。
-
-## 示例命令
-
-MCA-Pre-KV，question-only：
-
-```bash
-python scripts/run_mca_pre_kv_cache.py \
-  --work-dir /data/xuhaoming/yfy/research_workspace \
-  --run-id 20260706-a8002-smoke-mca-pre-kv-question-only \
-  --benchmark math500 \
-  --split test \
-  --model-key qwen25-7b-instruct \
-  --model-path /mnt/quarkfs/share_model/Qwen2.5-7B-Instruct \
-  --agents 3 \
-  --reviewers 3 \
-  --pre-state-stage question_only \
-  --channel-mode state \
-  --temperature 1.0 \
-  --resolve-temperature 0.2 \
-  --top-p 1.0 \
-  --max-tokens 4096 \
-  --resolve-max-tokens 1536 \
-  --max-model-len 8192 \
-  --dtype bfloat16
-```
-
-MCA-Pre-S，early-plan：
-
-```bash
-python scripts/run_mca_pre_activation_steering.py \
-  --work-dir /data/xuhaoming/yfy/research_workspace \
-  --run-id 20260706-a8002-smoke-mca-pre-s-early-plan \
-  --benchmark math500 \
-  --split test \
-  --model-key qwen25-7b-instruct \
-  --model-path /mnt/quarkfs/share_model/Qwen2.5-7B-Instruct \
-  --agents 3 \
-  --reviewers 3 \
-  --pre-state-stage early_plan \
-  --pre-state-tokens 64 \
-  --channel-mode state \
-  --temperature 1.0 \
-  --resolve-temperature 0.2 \
-  --top-p 1.0 \
-  --max-tokens 4096 \
-  --resolve-max-tokens 1536 \
-  --max-model-len 8192 \
-  --dtype bfloat16 \
-  --steering-layer 16 \
-  --steering-scale 1.0
-```
-
-## 当前验证
-
-已验证：
-
-- 新增单元测试覆盖前置 prompt、receiver prompt、答案解析、source pairing 和 transition label。
-- `run_mca_pre_kv_cache.py --help` 可正常显示参数。
-
-当前缺口：
-
-- 尚未做 GPU smoke。
-- 尚未校准 MCA-Pre-S 的层、尺度和是否归一化。
-- MCA-Pre-KV 的 KV 前缀仍然属于不可见上下文状态。
+KV cache 在自回归模型里对应前缀 token 状态。`question_only` 阶段不含发送方答案，但包含题目和前置 pass 指令；`early_plan` 阶段可能包含部分解题方向。MCA-Pre-S 的记录会保存捕获 token 数和向量范数等元数据。

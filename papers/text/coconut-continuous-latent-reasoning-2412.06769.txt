@@ -1,7 +1,8 @@
 # source_pdf: coconut-continuous-latent-reasoning-2412.06769.pdf
-# extracted_at_utc: 2026-07-08T03:33:33.620391+00:00
+# extracted_at_utc: 2026-07-09T04:26:08.745568+00:00
 # pages: 18
 # title: Training Large Language Models to Reason in a Continuous Latent Space
+# source_sha256: 6eb32c71eaa571b727ee95bce20396243fd70dc1ee8a37f91a7de717790d5b46
 
 
 
