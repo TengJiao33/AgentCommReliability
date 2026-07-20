@@ -54,6 +54,12 @@
 - `2026-07-08-idea-evolution-natural-search-state.md`：MCA idea 从文本讨论到自然搜索状态通信的演化脉络。
 - `2026-07-08-meeting-transcript-cleaned.md`：与老师交流后的清理版转写。
 
+## 最新设计与工程状态
+
+- `2026-07-09-question-token-anchored-latent-communication-design.md`：设计已落到 runner 和测试；50 题实验尚无结果，等待迁移到默认逻辑远端 `X_LANCE_HPC`。
+- `2026-07-09-new-idea-sketches-after-cotie.md`：可拒绝潜在通信、压力测试和审计机制的设计草案；没有对应的专用 runner/test，主线已在下一份文档中收敛。
+- `2026-07-10-latent-communication-new-insights-and-mechanisms.md`：当前收敛的“面向接收方的互补潜信息通信”设计；尚无专用 runner/test，也没有实验读数。
+
 ## 复现与基线
 
 - `2026-07-04-mad-mm-math500.md`：MAD-MM / MAD-M2 在 MATH-500 上的复现记录。
