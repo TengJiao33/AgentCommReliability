@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-旧 `A800_2` 同步清单已经作废。后续默认远端改为 `SJTU_HPC`；aTrust、SSH、JumpServer、家目录、配额和调度器已完成只读核验。项目尚未同步，正式 GPU 分区的镜像、挂载和硬件仍需最小作业验证，因此当前不上传模型。
+旧 `A800_2` 同步清单已经作废。后续默认远端改为 `SJTU_HPC`；aTrust、SSH、JumpServer、家目录、配额和调度器已经核验。项目提交 `d21e89b` 已部署，`pdgpu-ezkws` 最小 GPU 作业已经完成；模型仍未上传。
 
 当前入口状态：
 
@@ -19,7 +19,7 @@ SSH/JumpServer: js-hpc.aispeech.com.cn:2222
 调度器: vc 2.0.3
 ```
 
-计划项目根目录：`/hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability`（尚未创建/同步）。
+项目根目录：`/hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability`（已部署提交 `d21e89b`）。
 
 ## 待迁移任务
 
@@ -37,7 +37,7 @@ ssh sjtu-hpc
 # 在 JumpServer 输入 p，再输入 1
 ```
 
-登录和只读盘点已完成。同步前先确认工作树和忽略项；同步后用最小 `vc submit` 测试确认项目目录是否默认挂载、容器镜像、GPU 型号、CUDA 与 Python，再运行 smoke。调试节点上的 4 张 RTX 2080 Ti 不代表正式 `pdgpu-a10` 分区配置。
+登录、代码同步和首个最小作业已经完成。`pdgpu-ezkws` 实测为 RTX 2080 Ti 11 GB；`pdgpu-a10` 探测作业仍在排队。下一步先取得 A10 分区实测结果，再选择适合 7B 模型的卡数和参数；当前不上传模型。
 
 ## 新同步规则
 

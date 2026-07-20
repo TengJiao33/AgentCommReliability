@@ -20,15 +20,17 @@
 | 登录路由 | SSH 先进入 JumpServer；输入 `p` 后选资产 `1`，进入 `d6-hpc-debuggpu-001` |
 | 调度 | `vc 2.0.3`，Volcano 风格；没有 Slurm 的 `sinfo/squeue/sbatch` |
 | 账号配额 | 8 GPU、256 CPU、200 jobs |
-| 可用分区 | `pdgpu-a10`、`pdgpu-ezkws`、`pdcpu`、`pdcpu-ezkws` |
+| `pdgpu-a10` | 23 台节点；每台 8 GPU、80 CPU、约 503 GiB RAM；分区当前满载，A10 实测作业仍在排队 |
+| `pdgpu-ezkws` | 2 台节点；每台 8 x RTX 2080 Ti 11 GB、80 CPU、约 503 GiB RAM；最小作业已完成 |
+| CPU 分区 | `pdcpu` 13 台、`pdcpu-ezkws` 2 台；每台 112 CPU、约 1.47 TiB RAM |
 | 存储 | `hpc_stor03` 配额 1 TB，首登用量 0；家目录位于该共享存储 |
-| 计划项目根目录 | `/hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability`，尚未创建/同步 |
+| 项目根目录 | `/hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability`；已部署提交 `d21e89b` |
 | 调试节点 | `d6-hpc-debuggpu-001`：4 x RTX 2080 Ti 11 GB；80 逻辑 CPU；376 GiB RAM |
 | 当前访问状态 | aTrust 隧道在线，SSH 密码认证成功，JumpServer 与唯一授权资产均可进入 |
 
 凭据规则：实际值按用户要求保存在项目内、被 Git 忽略的 `.env.sjtu-hpc`。受版本控制的文档和 SSH 配置不记录密码。UM、HPC/SSH 与 aTrust 是不同用途，不能因字段名称相似而混用；完成改密后立即更新本地文件并移除旧值。
 
-现有 Qwen2.5-7B 脚本按单张 A800 80GB 和 bfloat16 编写。调试节点只有 11 GB 的 RTX 2080 Ti，不能复用单卡 A800 参数；正式运行前必须通过 `vc` 申请 GPU 分区，再在作业内核验实际 GPU 型号、显存和 bfloat16 支持。
+现有 Qwen2.5-7B 脚本按单张 A800 80GB 和 bfloat16 编写。调试节点和 `pdgpu-ezkws` 都是 11 GB 的 RTX 2080 Ti，不能复用单卡 A800 参数；`pdgpu-a10` 的型号与显存仍以排队中的实测作业为准。
 
 ## 2026-07-20 接入记录
 
@@ -39,6 +41,9 @@
 - 未连接 aTrust 时，普通 DNS 查询经 Clash 返回 fake-IP；连接后 `js-hpc.aispeech.com.cn` 解析到 `10.12.4.127`，SSH 密码认证成功。
 - SSH 入口是 JumpServer 堡垒机。当前唯一授权资产为 `d6-hpc-debuggpu-001`（连接目标 `10.24.19.254`）。
 - `vc info -u` 返回 GPU 8、CPU 256、JOB 200；`vc list` 首登时为空。
+- `pdgpu-ezkws` 最小作业在 `d6-hpc-gpu-033` 完成，实测为 RTX 2080 Ti 11 GB、驱动 570.144；所用镜像内 Python 为 3.10.20。
+- `pdgpu-a10` 最小作业已被调度器接受，但事件显示 GPU 资源不足，当前保持排队。
+- 项目提交 `d21e89b` 已通过 SFTP、SHA-256 校验并解压到项目根目录；远端写有 `.deployed-commit` 标记。
 - 系统 `python3` 为 3.6.8；模块提供 `anaconda/3`、`python/3.9.17`、多版本 CUDA 与 cuDNN，正式环境尚未安装到用户目录。
 - `2026-07-12` 关于贵州超算、旧苏州入口和 `202.120.38.69:5566` 的排查已被本次明确入口取代，只作为历史背景保留在 Git 历史中。
 
@@ -46,7 +51,7 @@
 
 | 机器 | 项目根目录 | 说明 |
 | --- | --- | --- |
-| `SJTU_HPC` | home: `/hpc_stor03/sjtu_home/feiyang.ying`；project: `/hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability`（计划） | `2026-07-20` 起的默认新实验目标；项目尚未同步。 |
+| `SJTU_HPC` | home: `/hpc_stor03/sjtu_home/feiyang.ying`；project: `/hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability` | `2026-07-20` 起的默认新实验目标；已部署提交 `d21e89b`。 |
 | `A800_2` | `/data/xuhaoming/yfy/research_workspace` | 历史受控项目根目录；当前访问失效。 |
 | `Falcon` | `/mnt/20t/xuhaoming/yfy/research_workspace` | 仅在路由可用且资源空闲时使用。 |
 

@@ -46,8 +46,10 @@ ssh -F config/sjtu_hpc.ssh_config sjtu-hpc
 ```text
 调度器: vc 2.0.3（Volcano 风格），不是 Slurm；本机没有 sinfo/squeue/sbatch
 账号配额: 8 GPU / 256 CPU / 200 jobs
-分区: pdgpu-a10, pdgpu-ezkws, pdcpu, pdcpu-ezkws
-存储: hpc_stor03 1 TB；当前用量 0
+pdgpu-a10: 23 台；每台 8 GPU、80 CPU、约 503 GiB RAM；当前满载，GPU 实测任务排队中
+pdgpu-ezkws: 2 台；每台 8 x RTX 2080 Ti 11 GB、80 CPU、约 503 GiB RAM
+pdcpu / pdcpu-ezkws: 共 15 台；每台 112 CPU、约 1.47 TiB RAM
+存储: hpc_stor03 1 TB 个人配额
 调试节点: 4 x RTX 2080 Ti 11 GB，80 逻辑 CPU，376 GiB RAM
 环境模块: anaconda/3, python/3.9.17, CUDA 10.0--12.2, cuDNN 8.9.7 等
 ```
@@ -65,7 +67,7 @@ nvidia-smi
 
 ```text
 SJTU_HPC home: /hpc_stor03/sjtu_home/feiyang.ying
-SJTU_HPC project: /hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability（计划路径，尚未同步）
+SJTU_HPC project: /hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability（已部署提交 d21e89b）
 Falcon: /mnt/20t/xuhaoming/yfy/research_workspace
 A800_2: /data/xuhaoming/yfy/research_workspace（历史路径，不再作为默认目标）
 ```
