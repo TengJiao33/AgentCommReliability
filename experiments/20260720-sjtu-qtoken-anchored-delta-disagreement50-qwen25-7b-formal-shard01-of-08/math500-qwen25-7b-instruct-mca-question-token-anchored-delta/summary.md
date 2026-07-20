@@ -1,0 +1,24 @@
+# math500-qwen25-7b-instruct-mca-question-token-anchored-delta
+
+- Rows: 7
+- Protocol: mca-question-token-anchored-delta-v0
+- State source: ordinary CoT decode span delta
+- Anchor source: original question tokens
+- Sender prompt intervention: false
+- Receiver prompt intervention: false
+- Uses peer past_key_values: false
+- Layers: [22]
+- Conditions: ['raw_delta', 'question_token_delta', 'question_token_random_same_norm']
+- Span tokens: 16
+- Max payloads: 8
+- Max question anchors: 3
+- Shard: 1/8
+- Attribution method: attention
+- Steering scale: 0.03
+- Message max norm: 1.0
+- Baseline accuracy: 0.2857
+- raw_delta: accuracy=0.1429, delta=-1, recovery=0.0000, harm=0.5000, change=0.4286
+- question_token_delta: accuracy=0.2857, delta=+0, recovery=0.0000, harm=0.0000, change=0.4286
+- question_token_random_same_norm: accuracy=0.2857, delta=+0, recovery=0.0000, harm=0.0000, change=0.4286
+- Elapsed seconds: 1162.2
+- Peak CUDA memory GiB: 14.40
