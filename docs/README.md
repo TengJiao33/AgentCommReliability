@@ -1,12 +1,13 @@
 # 文档索引
 
-日期：2026-07-03
+日期：2026-07-20
 
 这个目录保存项目骨架和机器/资源元信息。
 
 ## 保留文件
 
 - `machine_quickstart.md`：远程机器快速检查。
+- `sjtu_hpc_guide.md`：交大 HPC 的登录、算力、任务、计费和收工说明。
 - `machine_handbook.md`：远程机器和文件放置规则。
 - `server_resource_inventory.md`：服务器、GPU、共享模型和项目根目录信息。
 - `remote_sync_manifest.md`：当前最小远程同步规则。

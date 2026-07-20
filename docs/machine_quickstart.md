@@ -1,6 +1,6 @@
 # 机器快速检查
 
-这是远程工作前的短命令清单。完整机器规则、文件放置、环境、下载和安全边界见 `docs/machine_handbook.md`。
+这是远程工作前的短命令清单。交大 HPC 的完整用法见 `docs/sjtu_hpc_guide.md`；机器规则、文件放置、环境、下载和安全边界见 `docs/machine_handbook.md`。
 
 ## 默认远端
 
@@ -46,9 +46,10 @@ ssh -F config/sjtu_hpc.ssh_config sjtu-hpc
 ```text
 调度器: vc 2.0.3（Volcano 风格），不是 Slurm；本机没有 sinfo/squeue/sbatch
 账号配额: 8 GPU / 256 CPU / 200 jobs
-pdgpu-a10: 23 台；每台 8 GPU、80 CPU、约 503 GiB RAM；当前满载，GPU 实测任务排队中
+pdgpu-a10: 常规队列 23 台、小作业队列 3 台；每台 8 GPU、80 CPU、约 503 GiB RAM；实测 NVIDIA A10 24 GB
+pdgpu-3090: 未列在 vc info -u 中但实测可提交；1 GPU 路由到小作业队列；实测 RTX 3090 24 GB
 pdgpu-ezkws: 2 台；每台 8 x RTX 2080 Ti 11 GB、80 CPU、约 503 GiB RAM
-pdcpu / pdcpu-ezkws: 共 15 台；每台 112 CPU、约 1.47 TiB RAM
+pdcpu / pdcpu-ezkws: 共 15 台；每台双路 Xeon Gold 6258R、112 CPU、约 1.47 TiB RAM
 存储: hpc_stor03 1 TB 个人配额
 调试节点: 4 x RTX 2080 Ti 11 GB，80 逻辑 CPU，376 GiB RAM
 环境模块: anaconda/3, python/3.9.17, CUDA 10.0--12.2, cuDNN 8.9.7 等

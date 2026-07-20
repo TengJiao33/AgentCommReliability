@@ -4,6 +4,8 @@
 
 当前快照更新于 `2026-07-20`。配额来自 `vc info -u`，节点硬件来自首次登录时的现场查询；启动新任务前仍需刷新队列和目标作业节点状态。
 
+交大 HPC 的使用和计费说明见 `docs/sjtu_hpc_guide.md`。
+
 ## 当前默认远端：SJTU_HPC
 
 自 `2026-07-20` 起，后续新实验默认迁移到新开通的交大 HPC 账号。aTrust、SSH、JumpServer 资产、调度器、配额、共享盘和调试节点已经完成首次只读核验。
@@ -20,17 +22,18 @@
 | 登录路由 | SSH 先进入 JumpServer；输入 `p` 后选资产 `1`，进入 `d6-hpc-debuggpu-001` |
 | 调度 | `vc 2.0.3`，Volcano 风格；没有 Slurm 的 `sinfo/squeue/sbatch` |
 | 账号配额 | 8 GPU、256 CPU、200 jobs |
-| `pdgpu-a10` | 23 台节点；每台 8 GPU、80 CPU、约 503 GiB RAM；分区当前满载，A10 实测作业仍在排队 |
+| `pdgpu-a10` | 常规队列 23 台、小作业队列 3 台；每台 8 GPU、80 CPU、约 503 GiB RAM；实测 NVIDIA A10 24564 MiB，驱动 570.144 |
+| `pdgpu-3090` | 未列在 `vc info -u` 中，但实测可提交；1 GPU 任务路由到 `pdgpu-3090-minijob`；实测 RTX 3090 24576 MiB，驱动 570.144 |
 | `pdgpu-ezkws` | 2 台节点；每台 8 x RTX 2080 Ti 11 GB、80 CPU、约 503 GiB RAM；最小作业已完成 |
-| CPU 分区 | `pdcpu` 13 台、`pdcpu-ezkws` 2 台；每台 112 CPU、约 1.47 TiB RAM |
-| 存储 | `hpc_stor03` 配额 1 TB，首登用量 0；家目录位于该共享存储 |
+| CPU 分区 | `pdcpu` 13 台、`pdcpu-ezkws` 2 台；每台 112 CPU、约 1.47 TiB RAM；`pdcpu` 实测为双路 Xeon Gold 6258R |
+| 存储 | `hpc_stor03` 配额 1 TB；部署项目后用量约 204.8 MB；家目录位于该共享存储 |
 | 项目根目录 | `/hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability`；已部署提交 `d21e89b` |
 | 调试节点 | `d6-hpc-debuggpu-001`：4 x RTX 2080 Ti 11 GB；80 逻辑 CPU；376 GiB RAM |
 | 当前访问状态 | aTrust 隧道在线，SSH 密码认证成功，JumpServer 与唯一授权资产均可进入 |
 
 凭据规则：实际值按用户要求保存在项目内、被 Git 忽略的 `.env.sjtu-hpc`。受版本控制的文档和 SSH 配置不记录密码。UM、HPC/SSH 与 aTrust 是不同用途，不能因字段名称相似而混用；完成改密后立即更新本地文件并移除旧值。
 
-现有 Qwen2.5-7B 脚本按单张 A800 80GB 和 bfloat16 编写。调试节点和 `pdgpu-ezkws` 都是 11 GB 的 RTX 2080 Ti，不能复用单卡 A800 参数；`pdgpu-a10` 的型号与显存仍以排队中的实测作业为准。
+现有 Qwen2.5-7B 脚本按单张 A800 80GB 和 bfloat16 编写。`pdgpu-a10` 的 A10 支持 bfloat16，但单卡只有 24 GB；原有 batch、上下文长度和训练方式仍需调整。调试节点和 `pdgpu-ezkws` 是 11 GB 的 RTX 2080 Ti。
 
 ## 2026-07-20 接入记录
 
@@ -42,7 +45,15 @@
 - SSH 入口是 JumpServer 堡垒机。当前唯一授权资产为 `d6-hpc-debuggpu-001`（连接目标 `10.24.19.254`）。
 - `vc info -u` 返回 GPU 8、CPU 256、JOB 200；`vc list` 首登时为空。
 - `pdgpu-ezkws` 最小作业在 `d6-hpc-gpu-033` 完成，实测为 RTX 2080 Ti 11 GB、驱动 570.144；所用镜像内 Python 为 3.10.20。
-- `pdgpu-a10` 最小作业已被调度器接受，但事件显示 GPU 资源不足，当前保持排队。
+- `pdcpu` 最小作业在 `d6-hpc-cpu-005` 完成，实测为双路 Xeon Gold 6258R、56 个物理核心、112 个逻辑 CPU、约 1.5 TiB 内存；实际命令运行 12 秒。
+- `pdcpu-ezkws` 最小作业在 `d6-hpc-cpu-013` 完成，硬件同为双路 Xeon Gold 6258R、112 个逻辑 CPU、约 1.5 TiB 内存；实际命令运行 15 秒。
+- 1 GPU 的 A10 探测被路由到 `pdgpu-a10-minijob`，在 `d6-hpc-gpu-038` 上完成。实测为 NVIDIA A10 24564 MiB、驱动 570.144；排队约 14 分钟，实际命令运行 11 秒。
+- 1 GPU 的 3090 探测通过 `pdgpu-3090` 提交，被路由到 `pdgpu-3090-minijob`，在 `d6-hpc-gpu-039` 上完成。实测为 RTX 3090 24576 MiB、驱动 570.144。
+- 管理员说明集群按使用时间计费。实测 `Pending` 且未分到节点的任务开始时间为空、持续时间为 0。具体单价、计费取整和容器准备阶段是否计费尚未确认。
+- D6 当前有 99 台 Ready 节点，GPU 容量合计 613 张。5090、4090、V100 和 `pdgpu-tfg` 的最小提交均明确返回“没有队列权限”；其他 2080 Ti 子队列未测试。
+- 项目现有 Hugging Face runner 把整个模型放到一张卡，vLLM runner 的 `tensor_parallel_size` 固定为 1。当前代码不能把单个模型切到多张卡。
+- 钉钉“AI超算工单”提供队列权限、平台配额、存储配额、服务器权限和软件部署申请。队列权限与账号 GPU 总配额是两项独立配置。
+- 《AI超算QA-0807》和《AI超算使用规范-beta-v1.1》创建于 2018 年，其中 Slurm、Lustre、旧登录地址和默认 2 TB 空间已经过时；账号、数据和调度纪律仍作为使用边界。
 - 项目提交 `d21e89b` 已通过 SFTP、SHA-256 校验并解压到项目根目录；远端写有 `.deployed-commit` 标记。
 - 系统 `python3` 为 3.6.8；模块提供 `anaconda/3`、`python/3.9.17`、多版本 CUDA 与 cuDNN，正式环境尚未安装到用户目录。
 - `2026-07-12` 关于贵州超算、旧苏州入口和 `202.120.38.69:5566` 的排查已被本次明确入口取代，只作为历史背景保留在 Git 历史中。

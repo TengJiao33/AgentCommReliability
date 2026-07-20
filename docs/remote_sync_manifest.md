@@ -37,7 +37,9 @@ ssh sjtu-hpc
 # 在 JumpServer 输入 p，再输入 1
 ```
 
-登录、代码同步和首个最小作业已经完成。`pdgpu-ezkws` 实测为 RTX 2080 Ti 11 GB；`pdgpu-a10` 探测作业仍在排队。下一步先取得 A10 分区实测结果，再选择适合 7B 模型的卡数和参数；当前不上传模型。
+登录、代码同步和最小作业测试已经完成。`pdgpu-ezkws` 实测为 RTX 2080 Ti 11 GB，`pdgpu-a10` 实测为 NVIDIA A10 24 GB，未列在用户信息中的 `pdgpu-3090` 也实测可用，两个 CPU 分区为双路 Xeon Gold 6258R。当前没有活跃作业，模型仍未上传。下一步确定项目容器镜像，再在单张 A10/3090 上测量当前 7B runner 的峰值显存。
+
+交大 HPC 的登录、任务、计费和收工规则见 `docs/sjtu_hpc_guide.md`。正式长任务可以跨夜运行；不再需要的任务按 Job ID 取消。
 
 ## 新同步规则
 
@@ -53,6 +55,7 @@ ssh sjtu-hpc
 - 远程路径位于计划项目根目录 `/hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability`；
 - 不覆盖共享模型、共享环境或其他项目目录；
 - 大文件、模型和数据集已经在 `server_resource_inventory.md` 里登记或获准。
+- 单次摆渡或 SFTP 内容超过 `500 MB` 时先打包，避免大量零散文件。
 
 ## 产物拉回规则
 

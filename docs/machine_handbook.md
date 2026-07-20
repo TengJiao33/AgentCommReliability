@@ -2,7 +2,7 @@
 
 > 目的：在启动任何实验前，明确机器访问、文件放置和资源使用规则。
 
-快速连通、磁盘、GPU 检查命令见 `docs/machine_quickstart.md`。本文保留完整规则和背景。
+交大 HPC 的完整用法见 `docs/sjtu_hpc_guide.md`。快速连通、磁盘、GPU 检查命令见 `docs/machine_quickstart.md`。本文保留完整规则和背景。
 
 ## 机器概览
 
