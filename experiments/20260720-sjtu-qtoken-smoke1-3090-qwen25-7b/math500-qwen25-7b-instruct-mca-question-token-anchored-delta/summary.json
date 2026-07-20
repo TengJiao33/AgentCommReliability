@@ -1,0 +1,80 @@
+{
+  "agents": 3,
+  "anchor_source": "original_question_tokens",
+  "attribution_method": "attention",
+  "benchmark": "math500",
+  "conditions": [
+    "raw_delta",
+    "question_token_delta",
+    "question_token_random_same_norm"
+  ],
+  "counts": {
+    "baseline_majority_tie": 1,
+    "question_token_delta:BaW_to_W": 1,
+    "question_token_delta:majority_tie": 1,
+    "question_token_delta:total": 1,
+    "question_token_random_same_norm:BaW_to_W": 1,
+    "question_token_random_same_norm:total": 1,
+    "raw_delta:BaW_to_W": 1,
+    "raw_delta:majority_tie": 1,
+    "raw_delta:total": 1,
+    "total": 1
+  },
+  "elapsed_seconds": 95.36888813972473,
+  "layers": [
+    22
+  ],
+  "max_model_len": 4096,
+  "max_new_tokens": 256,
+  "max_payloads": 8,
+  "max_question_anchors": 3,
+  "message_max_norm": 1.0,
+  "metrics": {
+    "baseline_accuracy": 0.0,
+    "baseline_majority_tie_rate": 1.0,
+    "conditions": {
+      "question_token_delta": {
+        "accuracy": 0.0,
+        "answer_change_rate": 0.0,
+        "delta_vs_baseline": 0,
+        "harm_rate": 0.0,
+        "majority_tie_rate": 1.0,
+        "recovery_rate": 0.0,
+        "rows": 1
+      },
+      "question_token_random_same_norm": {
+        "accuracy": 0.0,
+        "answer_change_rate": 0.0,
+        "delta_vs_baseline": 0,
+        "harm_rate": 0.0,
+        "majority_tie_rate": 0.0,
+        "recovery_rate": 0.0,
+        "rows": 1
+      },
+      "raw_delta": {
+        "accuracy": 0.0,
+        "answer_change_rate": 0.0,
+        "delta_vs_baseline": 0,
+        "harm_rate": 0.0,
+        "majority_tie_rate": 1.0,
+        "recovery_rate": 0.0,
+        "rows": 1
+      }
+    }
+  },
+  "model_key": "qwen25-7b-instruct",
+  "model_path": "/hpc_stor03/sjtu_home/feiyang.ying/acr_runtime/models/Qwen2.5-7B-Instruct",
+  "peak_cuda_memory_gib": 14.295324802398682,
+  "receiver_prompt_intervention": false,
+  "records_path": "/hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability/experiments/20260720-sjtu-qtoken-smoke1-3090-qwen25-7b/math500-qwen25-7b-instruct-mca-question-token-anchored-delta/records.jsonl",
+  "rows": 1,
+  "run_id": "20260720-sjtu-qtoken-smoke1-3090-qwen25-7b",
+  "sender_prompt_intervention": false,
+  "span_tokens": 16,
+  "split": "mca_disagreement_v1",
+  "state_source": "ordinary_cot_decode_span_delta",
+  "steering_scale": 0.03,
+  "temperature": 0.2,
+  "top_p": 1.0,
+  "uses_peer_past_key_values": false
+}

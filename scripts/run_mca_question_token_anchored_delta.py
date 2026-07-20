@@ -114,7 +114,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dtype", default="bfloat16")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--limit", type=int, default=0, help="0 means full split.")
+    parser.add_argument("--shard-count", type=int, default=1, help="Number of independent row shards.")
+    parser.add_argument("--shard-index", type=int, default=0, help="Zero-based shard selected by this process.")
     return parser.parse_args()
+
+
+def _select_shard(rows: list[dict[str, Any]], shard_count: int, shard_index: int) -> list[dict[str, Any]]:
+    if shard_count < 1:
+        raise ValueError("shard_count must be >= 1")
+    if shard_index < 0 or shard_index >= shard_count:
+        raise ValueError("shard_index must satisfy 0 <= shard_index < shard_count")
+    return [row for position, row in enumerate(rows) if position % shard_count == shard_index]
 
 
 def _parse_output(text: str) -> dict[str, Any]:
@@ -765,6 +775,10 @@ def main() -> int:
         raise SystemExit("--max-payloads must be >= 1")
     if args.max_question_anchors < 1:
         raise SystemExit("--max-question-anchors must be >= 1")
+    if args.shard_count < 1:
+        raise SystemExit("--shard-count must be >= 1")
+    if args.shard_index < 0 or args.shard_index >= args.shard_count:
+        raise SystemExit("--shard-index must satisfy 0 <= shard_index < shard_count")
     layers = _parse_int_csv(args.layers, name="layers")
     conditions = _parse_str_csv(args.conditions, name="conditions")
     unknown = sorted(set(conditions) - set(DEFAULT_CONDITIONS))
@@ -784,10 +798,15 @@ def main() -> int:
         work_dir,
         "benchmark path",
     )
-    rows = load_rows(data_path, args.limit)
+    rows = _select_shard(load_rows(data_path, args.limit), args.shard_count, args.shard_index)
+    if not rows:
+        raise SystemExit(
+            f"shard {args.shard_index}/{args.shard_count} contains no rows after applying --limit={args.limit}"
+        )
     _progress(
         f"question-token-anchored-delta start run_id={args.run_id} rows={len(rows)} "
-        f"layers={layers} conditions={conditions} span_tokens={args.span_tokens}"
+        f"shard={args.shard_index}/{args.shard_count} layers={layers} "
+        f"conditions={conditions} span_tokens={args.span_tokens}"
     )
 
     import torch
@@ -806,6 +825,8 @@ def main() -> int:
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
     model.eval()
+    if torch.cuda.is_available():
+        torch.cuda.reset_peak_memory_stats(device)
     _progress(f"model loaded device={device} dtype={args.dtype} model_path={model_path}")
 
     row_seed_keys = [row.get("id") or row.get("index", idx) for idx, row in enumerate(rows)]
@@ -887,7 +908,7 @@ def main() -> int:
                         condition=condition,
                         payloads=payloads,
                         layers=layers,
-                        seed=_stable_seed(args.seed, row_idx, agent_idx, condition),
+                        seed=_stable_seed(args.seed, row_seed_keys[row_idx], agent_idx, condition),
                     )
                     _set_generation_seed(torch, seed)
                     text, injection_meta = _generate_with_prompt_injections(
@@ -960,6 +981,8 @@ def main() -> int:
                     "temperature": args.temperature,
                     "top_p": args.top_p,
                     "max_new_tokens": args.max_new_tokens,
+                    "shard_count": args.shard_count,
+                    "shard_index": args.shard_index,
                     "state_source": "ordinary_cot_decode_span_delta",
                     "anchor_source": "original_question_tokens",
                     "sender_prompt_intervention": False,
@@ -981,6 +1004,9 @@ def main() -> int:
                 torch.cuda.empty_cache()
 
     elapsed = time.time() - started_at
+    peak_cuda_memory_gib = None
+    if torch.cuda.is_available():
+        peak_cuda_memory_gib = torch.cuda.max_memory_allocated(device) / 1024**3
     total = max(1, counts["total"])
     metrics = {
         "baseline_accuracy": counts["baseline_correct"] / total,
@@ -1007,6 +1033,8 @@ def main() -> int:
         "top_p": args.top_p,
         "max_new_tokens": args.max_new_tokens,
         "max_model_len": args.max_model_len,
+        "shard_count": args.shard_count,
+        "shard_index": args.shard_index,
         "state_source": "ordinary_cot_decode_span_delta",
         "anchor_source": "original_question_tokens",
         "sender_prompt_intervention": False,
@@ -1015,6 +1043,7 @@ def main() -> int:
         "counts": dict(counts),
         "metrics": metrics,
         "elapsed_seconds": elapsed,
+        "peak_cuda_memory_gib": peak_cuda_memory_gib,
         "records_path": str(records_path),
     }
     with (output_dir / "summary.json").open("w", encoding="utf-8") as summary_file:
@@ -1034,6 +1063,7 @@ def main() -> int:
         summary_file.write(f"- Span tokens: {args.span_tokens}\n")
         summary_file.write(f"- Max payloads: {args.max_payloads}\n")
         summary_file.write(f"- Max question anchors: {args.max_question_anchors}\n")
+        summary_file.write(f"- Shard: {args.shard_index}/{args.shard_count}\n")
         summary_file.write(f"- Attribution method: {args.attribution_method}\n")
         summary_file.write(f"- Steering scale: {args.steering_scale}\n")
         summary_file.write(f"- Message max norm: {args.message_max_norm}\n")
@@ -1047,6 +1077,8 @@ def main() -> int:
                 f"change={item['answer_change_rate']:.4f}\n"
             )
         summary_file.write(f"- Elapsed seconds: {elapsed:.1f}\n")
+        if peak_cuda_memory_gib is not None:
+            summary_file.write(f"- Peak CUDA memory GiB: {peak_cuda_memory_gib:.2f}\n")
     _progress(f"question-token-anchored-delta complete elapsed_seconds={elapsed:.1f}")
     print(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True))
     return 0

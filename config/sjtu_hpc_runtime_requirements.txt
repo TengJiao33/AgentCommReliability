@@ -1,0 +1,6 @@
+# Minimal environment for the current Hugging Face hidden-state/KV runner.
+# These versions match the last verified A800_2 experiment environment.
+torch==2.4.0
+transformers==4.46.2
+modelscope==1.38.1
+safetensors==0.8.0

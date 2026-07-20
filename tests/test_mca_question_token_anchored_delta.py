@@ -11,6 +11,7 @@ from run_mca_question_token_anchored_delta import (  # noqa: E402
     _payload_metadata,
     _question_token_positions,
     _segment_ranges,
+    _select_shard,
     _top_anchors,
 )
 
@@ -93,6 +94,22 @@ class MCAQuestionTokenAnchoredDeltaTests(unittest.TestCase):
         self.assertEqual(meta["payloads"][0]["source_segment"], 2)
         self.assertEqual(meta["payloads"][0]["anchors"][0]["token_position"], 11)
         self.assertAlmostEqual(meta["payloads"][0]["layers"]["22"]["norm"], 5.0)
+
+    def test_select_shard_partitions_rows_without_overlap(self):
+        rows = [{"id": f"row-{index}"} for index in range(10)]
+
+        shards = [_select_shard(rows, 3, shard_index) for shard_index in range(3)]
+
+        self.assertEqual([[row["id"] for row in shard] for shard in shards], [
+            ["row-0", "row-3", "row-6", "row-9"],
+            ["row-1", "row-4", "row-7"],
+            ["row-2", "row-5", "row-8"],
+        ])
+        self.assertEqual(sorted(row["id"] for shard in shards for row in shard), sorted(row["id"] for row in rows))
+
+    def test_select_shard_rejects_invalid_index(self):
+        with self.assertRaises(ValueError):
+            _select_shard([{"id": "row-0"}], 2, 2)
 
 
 if __name__ == "__main__":
