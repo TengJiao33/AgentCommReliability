@@ -2,44 +2,51 @@
 
 这是远端资源的保留操作台账。
 
-本文件的最近一次详细快照在 2026-07-03 根据旧记录重置。机器容量和模型可用性都应视为“最后已知事实”；启动任何新任务前必须重新刷新。
+当前快照更新于 `2026-07-20`。配额来自 `vc info -u`，节点硬件来自首次登录时的现场查询；启动新任务前仍需刷新队列和目标作业节点状态。
 
-## 当前默认远端：X_LANCE_HPC
+## 当前默认远端：SJTU_HPC
 
-自 `2026-07-12` 起，后续新实验默认迁移到新获批的 X-LANCE 超算账号。审批截图没有给出物理集群名；较新的 Wiki 页面指向贵州超算并要求单独 VPN，需由设备委员确认当前租户、网关和 SSH 入口。
+自 `2026-07-20` 起，后续新实验默认迁移到新开通的交大 HPC 账号。aTrust、SSH、JumpServer 资产、调度器、配额、共享盘和调试节点已经完成首次只读核验。
 
 | 项目 | 当前记录 |
 | --- | --- |
-| 最可能的资源 | 贵州超算；当前 VPN/SSH 地址待确认 |
-| 历史 Wiki 入口 | 苏州超算 `hpc.ai-research.cn:5232`；交大超算 `login.hpc.sjtu.edu.cn:22` |
-| 非默认小集群入口 | `202.120.38.69:5566` |
-| 用户 | `fyy05` |
-| 调度/登录规则 | 待贵州超算当前教程确认；只在分配的计算节点运行任务 |
-| Wiki | `http://202.120.38.10:10780` |
-| 项目根目录 | 待首次成功登录后确认 |
-| 默认 GPU 节点 | 待管理员/实际资源确认 |
-| 模型与环境 | 待核验 |
-| 当前访问状态 | Wiki 登录成功；缺少贵州超算 VPN 租户/网关与现行 SSH 地址，尚未完成首登 |
+| 逻辑名 | `SJTU_HPC` |
+| SSH/堡垒机 | `feiyang.ying@js-hpc.aispeech.com.cn:2222`；本机别名 `sjtu-hpc` |
+| HPC Web 入口 | `http://js-hpc.aispeech.com.cn/` |
+| aTrust 租户/初始化 | `https://trust.aispeech.com.cn:4430` |
+| UM 账号 | `fy.ying_sjtu_buss`；改密入口 `http://p.aispeech.com.cn` |
+| LDAP 自助改密 | `http://ldap-hpc.aispeech.com.cn` |
+| 用户家目录 | `/hpc_stor03/sjtu_home/feiyang.ying` |
+| 登录路由 | SSH 先进入 JumpServer；输入 `p` 后选资产 `1`，进入 `d6-hpc-debuggpu-001` |
+| 调度 | `vc 2.0.3`，Volcano 风格；没有 Slurm 的 `sinfo/squeue/sbatch` |
+| 账号配额 | 8 GPU、256 CPU、200 jobs |
+| 可用分区 | `pdgpu-a10`、`pdgpu-ezkws`、`pdcpu`、`pdcpu-ezkws` |
+| 存储 | `hpc_stor03` 配额 1 TB，首登用量 0；家目录位于该共享存储 |
+| 计划项目根目录 | `/hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability`，尚未创建/同步 |
+| 调试节点 | `d6-hpc-debuggpu-001`：4 x RTX 2080 Ti 11 GB；80 逻辑 CPU；376 GiB RAM |
+| 当前访问状态 | aTrust 隧道在线，SSH 密码认证成功，JumpServer 与唯一授权资产均可进入 |
 
-凭据规则：仓库只记录账号和公开入口，不记录初始密码。首次登录后应改密并配置新的公钥。
+凭据规则：实际值按用户要求保存在项目内、被 Git 忽略的 `.env.sjtu-hpc`。受版本控制的文档和 SSH 配置不记录密码。UM、HPC/SSH 与 aTrust 是不同用途，不能因字段名称相似而混用；完成改密后立即更新本地文件并移除旧值。
 
-Wiki 的交大小集群资源表包含 RTX TITAN、1080Ti、2080Ti、3080Ti 等节点；实验室入门手册另行说明贵州超算支持大规模并行模型训练。两者不是同一资源池。现有 Qwen2.5-7B 脚本按单张 A800 80GB 和 bfloat16 编写，必须先读取贵州超算的实际分区/GPU 清单，再决定是否能复用精度、`max_model_len`、输出预算和 `70000 MiB` 空闲阈值。
+现有 Qwen2.5-7B 脚本按单张 A800 80GB 和 bfloat16 编写。调试节点只有 11 GB 的 RTX 2080 Ti，不能复用单卡 A800 参数；正式运行前必须通过 `vc` 申请 GPU 分区，再在作业内核验实际 GPU 型号、显存和 bfloat16 支持。
 
-## 2026-07-12 连接记录
+## 2026-07-20 接入记录
 
-- 较新的 Wiki `resources:tools` 页面要求为贵州超算单独申请账号和 VPN；用户文档位于 AISpeech 内部 Wiki，v2.0 教程位于需登录的飞书文档。
-- 本机 Clash TUN 使用 fake-IP；绕过 Clash 直查交大 DNS 后，苏州旧域名仍无 A 记录，说明旧入口确实失效而非单纯代理误判。
-- 本机 Sangfor aTrust 已安装但配置属于重庆大学图书馆资源，没有 X-LANCE/AISpeech/贵州超算痕迹。
-- 苏州超算旧 Wiki 命令为 `ssh -p 5232 <your_id>@hpc.ai-research.cn`；当前 DNS 无有效地址。
-- 交大超算旧 Wiki 命令为 `ssh <account>@login.hpc.sjtu.edu.cn`；当前 DNS 返回 NXDOMAIN。
-- 交大小集群 Wiki 命令为 `ssh -p 5566 <your_id>@202.120.38.69`；本机直连在 banner/密钥交换阶段被重置，经 Aliyun 跳板时 banner 超时。
-- 所有 SSH 尝试都没有进入密码认证，因此当前失败不能归因于账号密码。
+- 管理员提供了 UM 账号、HPC/SSH 账号、SSH/Web 入口、LDAP 自助改密入口和家目录。
+- 附件《零信任VPN接入指南》确认客户端为 aTrust；首次登录需要绑定终端并完成短信验证。
+- aTrust 已连接 `https://trust.aispeech.com.cn:4430`；隧道建立后 `js-hpc.aispeech.com.cn` 的内网路由可用。
+- 本机 SSH 配置已增加 `sjtu-hpc`，项目内另保留 `config/sjtu_hpc.ssh_config`。
+- 未连接 aTrust 时，普通 DNS 查询经 Clash 返回 fake-IP；连接后 `js-hpc.aispeech.com.cn` 解析到 `10.12.4.127`，SSH 密码认证成功。
+- SSH 入口是 JumpServer 堡垒机。当前唯一授权资产为 `d6-hpc-debuggpu-001`（连接目标 `10.24.19.254`）。
+- `vc info -u` 返回 GPU 8、CPU 256、JOB 200；`vc list` 首登时为空。
+- 系统 `python3` 为 3.6.8；模块提供 `anaconda/3`、`python/3.9.17`、多版本 CUDA 与 cuDNN，正式环境尚未安装到用户目录。
+- `2026-07-12` 关于贵州超算、旧苏州入口和 `202.120.38.69:5566` 的排查已被本次明确入口取代，只作为历史背景保留在 Git 历史中。
 
 ## 远端根目录
 
 | 机器 | 项目根目录 | 说明 |
 | --- | --- | --- |
-| `X_LANCE_HPC` | 待核验 | `2026-07-12` 起的默认新实验目标；物理集群待确认。 |
+| `SJTU_HPC` | home: `/hpc_stor03/sjtu_home/feiyang.ying`；project: `/hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability`（计划） | `2026-07-20` 起的默认新实验目标；项目尚未同步。 |
 | `A800_2` | `/data/xuhaoming/yfy/research_workspace` | 历史受控项目根目录；当前访问失效。 |
 | `Falcon` | `/mnt/20t/xuhaoming/yfy/research_workspace` | 仅在路由可用且资源空闲时使用。 |
 

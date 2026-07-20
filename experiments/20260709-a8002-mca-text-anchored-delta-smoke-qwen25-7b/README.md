@@ -46,7 +46,7 @@ message_max_norm = 1.0
 - 历史运行主机：A800_2 / `10-116-90-20`。
 - 历史 GPU：GPU 1；启动前 GPU 1 和 GPU 4 均为 81149 MiB free。
 - 历史工作目录：`/data/xuhaoming/yfy/research_workspace`。
-- 重跑默认目标（2026-07-12）：逻辑远端 `X_LANCE_HPC`，账号 `fyy05`；物理超算、GPU 节点、项目根目录和运行参数待设备委员确认及首登实测。
+- 重跑默认目标（2026-07-20）：`SJTU_HPC`。SSH 先进入 JumpServer，再进入授权资产；家目录为 `/hpc_stor03/sjtu_home/feiyang.ying`，计划项目根目录为其下的 `AgentCommReliability`。正式 GPU、镜像和运行参数待最小 `vc` 作业确认。
 
 ## 代码
 
@@ -84,7 +84,7 @@ bash experiments/20260709-a8002-mca-text-anchored-delta-smoke-qwen25-7b/run_remo
 - 主指标：部分结果为 baseline `1/4`，`anchor_delta 2/4`，`anchor_only 1/4`，`anchor_other_question_delta 2/4`，`anchor_random_same_norm 2/4`，`raw_delta 2/4`。该读数不是完整 smoke 结果。
 - 墙钟时间：约 53 分钟后停止。
 - 令牌或计算成本：未汇总。
-- 迁移状态（2026-07-12）：旧 A800 公钥已失效；新集群 Wiki 登录成功，但 SSH 尚未进入认证。该 run 保留 `STOPPED_BY_RESOURCE` 历史状态，完整 5 题 smoke 仍待在新默认集群重跑。
+- 迁移状态（2026-07-20）：旧 A800 公钥已失效；`SJTU_HPC` 登录链路、家目录、配额和 `vc` 调度器已经核验。该 run 保留 `STOPPED_BY_RESOURCE` 历史状态，完整 5 题 smoke 将在最小作业验证后重跑。
 
 ## 清理
 

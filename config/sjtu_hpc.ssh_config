@@ -1,0 +1,7 @@
+Host sjtu-hpc
+    HostName js-hpc.aispeech.com.cn
+    Port 2222
+    User feiyang.ying
+    # This opens JumpServer; select the authorized asset from its interactive menu.
+    ServerAliveInterval 60
+    ServerAliveCountMax 3

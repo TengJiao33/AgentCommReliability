@@ -30,8 +30,8 @@
 
 - 历史目标：A800_2 / `10-116-90-20`。
 - 历史工作目录：`/data/xuhaoming/yfy/research_workspace`。
-- 新默认目标（2026-07-12）：逻辑远端 `X_LANCE_HPC`，账号 `fyy05`；物理超算和最新地址待设备委员确认。
-- 新集群具体调度方式、GPU 节点、项目根目录和空闲判定：待首登实测。只有确认仍为 A800 80GB 时才复用 `70000 MiB` 阈值。
+- 新默认目标（2026-07-20）：`SJTU_HPC`，SSH 用户 `feiyang.ying`，入口 `js-hpc.aispeech.com.cn:2222`，家目录 `/hpc_stor03/sjtu_home/feiyang.ying`。
+- 新集群使用 `vc`/Volcano 调度，计划项目根目录为 `/hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability`。调试节点是 11 GB RTX 2080 Ti；只有正式作业内确认 GPU 仍为 80 GB 级别时，才复用 `70000 MiB` 阈值。
 
 ## 代码
 
@@ -82,4 +82,4 @@ nohup bash /data/xuhaoming/yfy/research_workspace/experiments/20260709-a8002-mca
 - 2026-07-09 18:57 +08:00 检查时，8 张 GPU 均有 `pmon` 计算进程；GPU 3 空闲显存最高但仍有活跃进程，因此未直接抢卡。
 - 2026-07-09 18:59 +08:00 已启动等待器，远端 PID 为 `2563759`；首轮检查跳过全部 GPU，原因均为 `pmon` 仍有计算进程。
 - 2026-07-12：旧 A800 公钥已失效，旧 PID 和队列状态不再可观察，按未运行处理；当前没有 `records.jsonl` 或 summary。
-- 迁移状态：新集群 Wiki 登录成功，但 SSH 在认证前重置/超时；待入口恢复后先做模型与显存兼容性检查，再启动小样本预检和 50 题 run。
+- 迁移状态（2026-07-20）：`SJTU_HPC` 登录链路、家目录、配额和调度器已经核验。下一步先用最小 `vc` 作业确认 GPU、镜像与目录挂载，再做小样本预检；预检通过后启动 50 题 run。

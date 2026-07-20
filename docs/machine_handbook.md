@@ -8,43 +8,47 @@
 
 | 机器 | 角色 | 状态 |
 | --- | --- | --- |
-| X_LANCE_HPC | 新获批的 X-LANCE 超算账号；较新 Wiki 指向贵州超算。 | `2026-07-12` 起作为后续新实验的默认远端；Wiki 账号有效，VPN/SSH 首登尚未完成。 |
+| SJTU_HPC | 新开通的交大 HPC 账号，入口由 AISPEECH 提供。 | `2026-07-20` 起作为后续新实验的默认远端；aTrust、SSH、JumpServer、配额和调试节点已实测。 |
 | Falcon | 原 RA 服务器，观察到 3 张 A800 80GB，常处于繁忙状态。 | 仅在反向隧道可用且资源空闲时使用。 |
 | A800_2 | 徐浩铭师兄提供的旧计算主机，观察到 8 张 A800-SXM4-80GB。 | 公钥已被删除；仅保留历史 run 和路径记录，不再作为默认目标。 |
 
-### X_LANCE_HPC 规则
+### SJTU_HPC 规则
 
-当前线索：
+当前已确认入口：
 
 ```text
-较新入口: 贵州超算，需要超算账号和 VPN；现行 VPN/SSH 地址待确认
-历史入口: 苏州超算 hpc.ai-research.cn:5232（旧 Wiki，DNS 已失效）
-历史入口: 交大超算 login.hpc.sjtu.edu.cn:22（旧 Wiki，DNS 已失效）
-小集群入口: 202.120.38.69:5566（不是当前默认超算目标）
+逻辑名: SJTU_HPC
+SSH 别名: sjtu-hpc
+SSH/堡垒机: feiyang.ying@js-hpc.aispeech.com.cn:2222
+HPC Web 入口: http://js-hpc.aispeech.com.cn/
+aTrust 租户/初始化地址: https://trust.aispeech.com.cn:4430
+UM 账号: fy.ying_sjtu_buss
+UM 改密入口: http://p.aispeech.com.cn
+LDAP 自助改密: http://ldap-hpc.aispeech.com.cn
+用户家目录: /hpc_stor03/sjtu_home/feiyang.ying
+计划项目根目录: /hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability
 ```
 
 已知边界：
 
-- `202.120.38.10:10780` 是 X-LANCE Wiki，不是 SSH 主机。
-- 审批标题是“wiki 和超算申请”，因此默认把新资源视为超算账号，不把交大小集群误写成已经确认的物理目标。
-- `resources:tools` 页面在 `2024-05-29` 更新，明确列出“贵州超算用户文档”和“Tutorial 贵州超算使用 v2.0”，并要求先加入钉钉群、申请超算账号和 VPN。
-- `resources:clusters:start` 页面最后修改于 `2023-02-13`，其中苏州和交大入口只能作为历史线索。
-- 交大小集群的外部入口落到 `gauss`；Wiki 明确禁止在 `gauss` 上运行程序，必须再跳转到具体计算节点。
-- Wiki 中的入口和硬件表属于最后已知资料，不能代替管理员确认与首登实测。
-- 项目根目录、磁盘配额、可用模型、Python 环境和外网能力均尚未核验。
-- 初始密码不得写入仓库或自动化命令。首次成功登录后应改密并安装当前用户的新公钥。
+- 附件《零信任VPN接入指南》要求通过 aTrust 登录；首次登录需要绑定终端并完成短信验证。
+- UM 初始密码和 HPC/LDAP 密码属于不同入口，不能混作同一凭据；两处改密均需按各自页面完成。
+- 用户要求项目内保存凭据；实际值只保存在被 Git 忽略的 `.env.sjtu-hpc`，不进入受版本控制的文档、脚本或 SSH 配置。完成改密后立即更新本地文件并删除旧初始密码。
+- 本机 `~/.ssh/config` 已配置 `sjtu-hpc`；项目内另有 `config/sjtu_hpc.ssh_config` 作为可复核的无密码配置。
+- SSH 先进入 JumpServer，当前只有资产 `d6-hpc-debuggpu-001`；输入 `p` 后选择 `1` 进入。
+- 集群使用 `vc 2.0.3`/Volcano 调度，不提供 Slurm 命令。登录资产只做调试和轻量检查，正式实验通过 `vc submit` 申请资源。
+- 首登确认账号配额为 8 GPU、256 CPU、200 jobs，`hpc_stor03` 存储配额为 1 TB。
 
-`2026-07-12` 连接检查：Wiki 账号认证成功；旧苏州、交大超算和小集群候选均未进入密码认证。绑定 WLAN 绕过 Clash 后，交大 DNS 也确认旧苏州域名没有 A 记录、旧交大超算域名为 NXDOMAIN。当前最可信的阻塞是缺少贵州超算对应的 VPN 配置和现行入口。
+`2026-07-12` 关于贵州超算和旧交大入口的排查仅作为历史记录；`2026-07-20` 收到的 `js-hpc.aispeech.com.cn:2222` 是当前应使用的明确入口。
 
-### 三类代理不要混用
+### VPN 与普通代理不要混用
 
 | 层次 | 本机状态 | 用途 |
 | --- | --- | --- |
 | Clash TUN/fake-IP | 已启用，端口 `127.0.0.1:7890` | 普通互联网代理；会干扰域名诊断，不等于超算 VPN |
-| X-LANCE 公共代理 | Wiki 有单独配置，凭据不写入仓库 | 可能用于登录后的 GitHub、包下载等外网访问，不负责授予超算内网路由 |
-| 贵州超算 VPN | 尚未配置 | 建立到超算内网的访问路径；需要设备委员提供租户/网关和权限 |
+| AISPEECH aTrust | 已连接 `https://trust.aispeech.com.cn:4430`，隧道可用 | 建立到交大 HPC 内网的访问路径；Clash 不能替代它 |
 
-本机 aTrust `2.2.10.4` 当前只有重庆大学图书馆资源配置，没有 X-LANCE/AISpeech/贵州超算租户。不要因为客户端已安装就判断 VPN 已具备。
+附件指定 `https://trust.aispeech.com.cn:4430` 作为 aTrust 租户/初始化地址。`http://js-hpc.aispeech.com.cn/` 是 VPN 内的 HPC Web/堡垒机入口，不是 aTrust 网关；HPC/SSH 密码也不能据此认定为 aTrust 密码。
 
 ### Falcon 放置规则
 
@@ -78,26 +82,22 @@
 
 ## 进入机器
 
-### X_LANCE_HPC 默认路由
+### SJTU_HPC 默认路由
 
-设备委员提供贵州超算 VPN 租户/网关、现行 SSH 主机和端口后：
+首次连接顺序：
+
+1. 在 aTrust 中连接 `https://trust.aispeech.com.cn:4430`。
+2. 确认客户端显示在线且隧道可用。
+3. 执行 `ssh sjtu-hpc`。
+4. 在 JumpServer 输入 `p`，再输入 `1` 进入 `d6-hpc-debuggpu-001`。
+
+如果不使用本机 SSH 别名，可从项目根目录执行：
 
 ```bash
-1. 在 aTrust 或指定 VPN 客户端中登录 X-LANCE/贵州超算租户
-2. 验证目标内网路由和 DNS
-3. 使用管理员提供的 SSH 主机、端口和用户 fyy05 首登
+ssh -F config/sjtu_hpc.ssh_config sjtu-hpc
 ```
 
-如果设备委员明确说明分配的是交大小集群，才改用下面的入口；成功进入 `gauss` 后只做登录路由和轻量检查，再按集群 Wiki 进入获准的 GPU 节点：
-
-```bash
-ssh -p 5566 fyy05@202.120.38.69
-hostname
-whoami
-ssh <gpu-node>
-```
-
-到达 GPU 节点后再执行本文的 GPU、磁盘和进程检查。不要预先创建旧 A800 路径，也不要在不知道节点共享存储规则时同步大文件。
+首登实测节点为 `d6-hpc-debuggpu-001`，有 4 张 RTX 2080 Ti 11 GB、80 个逻辑 CPU 和 376 GiB RAM。该节点不是 A800 替代品；正式实验应使用 `vc info -u`、`vc list` 和 `vc submit`，并在作业内重新核验 GPU。不要把旧 A800 参数直接迁入。
 
 ### Falcon 默认路由
 
@@ -270,7 +270,7 @@ git log --oneline --decorate -3
 
 只在决定使用哪台机器后运行。
 
-对当前默认 `X_LANCE_HPC`，先确认物理集群，再在 Slurm 分配或具体 GPU 节点中确认 home、共享盘、配额和清理规则，最后确定项目根目录；在此之前不创建目录、不上传模型。
+对当前默认 `SJTU_HPC`，登录和配额已确认；下一步是在计划项目根目录同步代码、用最小 `vc` 作业确认 GPU 分区镜像与挂载，再决定模型放置和运行参数。在完成小作业验证前不上传大模型。
 
 ```bash
 # A800_2 示例

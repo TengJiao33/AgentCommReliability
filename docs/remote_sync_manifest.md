@@ -1,37 +1,43 @@
 # 远程同步清单
 
-日期：2026-07-12
+日期：2026-07-20
 
 ## 当前状态
 
-旧 `A800_2` 同步清单已经作废。后续默认远端改为逻辑目标 `X_LANCE_HPC`；较新的 Wiki 指向需要单独 VPN 的贵州超算，但 VPN 租户/网关、SSH 首登、GPU 节点、项目根目录、配额和环境尚未核验，因此当前禁止执行批量同步或上传模型。
+旧 `A800_2` 同步清单已经作废。后续默认远端改为 `SJTU_HPC`；aTrust、SSH、JumpServer、家目录、配额和调度器已完成只读核验。项目尚未同步，正式 GPU 分区的镜像、挂载和硬件仍需最小作业验证，因此当前不上传模型。
 
 当前入口状态：
 
 ```text
-用户: fyy05
-VPN: 待提供贵州超算租户/网关
-SSH: 待提供现行主机和端口
+用户: feiyang.ying
+aTrust: https://trust.aispeech.com.cn:4430
+HPC Web: http://js-hpc.aispeech.com.cn/
+SSH/JumpServer: js-hpc.aispeech.com.cn:2222
+本机别名: sjtu-hpc
+家目录: /hpc_stor03/sjtu_home/feiyang.ying
+授权资产: d6-hpc-debuggpu-001
+调度器: vc 2.0.3
 ```
 
-项目根目录：待在具体 GPU 节点上确认。
+计划项目根目录：`/hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability`（尚未创建/同步）。
 
 ## 待迁移任务
 
 | 任务 | 源码状态 | 远端状态 |
 | --- | --- | --- |
-| Question-Token Anchored Delta disagreement50 | runner、测试和启动脚本已存在 | 旧 A800 队列作废；待新集群首登后做兼容性检查和首跑 |
+| Question-Token Anchored Delta disagreement50 | runner、测试和启动脚本已存在 | 旧 A800 队列作废；待最小 `vc` 作业完成兼容性检查后首跑 |
 | Text-Anchored Delta smoke | runner、测试和 smoke 脚本已存在；旧机只产生 4 行部分记录 | 待新集群完成 5 题 smoke |
 | Receiver-Conditioned Complementary Latent Communication | 仅有设计和实验矩阵 | 尚无专用 runner/test，不进入远程同步 |
 
 ## 运行前检查
 
 ```powershell
-<先登录贵州超算 VPN>
-ssh -p <confirmed-port> fyy05@<confirmed-host>
+<先在 aTrust 连接 https://trust.aispeech.com.cn:4430>
+ssh sjtu-hpc
+# 在 JumpServer 输入 p，再输入 1
 ```
 
-只有设备委员确认 VPN 和 SSH 入口后才执行。登录后先查看调度分区、GPU 型号和使用规则，再申请最小测试资源；随后检查 `hostname`、`nvidia-smi`、`df -h`、配额和活跃进程。
+登录和只读盘点已完成。同步前先确认工作树和忽略项；同步后用最小 `vc submit` 测试确认项目目录是否默认挂载、容器镜像、GPU 型号、CUDA 与 Python，再运行 smoke。调试节点上的 4 张 RTX 2080 Ti 不代表正式 `pdgpu-a10` 分区配置。
 
 ## 新同步规则
 
@@ -44,7 +50,7 @@ ssh -p <confirmed-port> fyy05@<confirmed-host>
 同步前必须确认：
 
 - 本地文件属于当前新任务；
-- 远程路径位于首登后确认的项目根目录；
+- 远程路径位于计划项目根目录 `/hpc_stor03/sjtu_home/feiyang.ying/AgentCommReliability`；
 - 不覆盖共享模型、共享环境或其他项目目录；
 - 大文件、模型和数据集已经在 `server_resource_inventory.md` 里登记或获准。
 
