@@ -22,8 +22,8 @@
 | 登录路由 | SSH 先进入 JumpServer；输入 `p` 后选资产 `1`，进入 `d6-hpc-debuggpu-001` |
 | 调度 | `vc 2.0.3`，Volcano 风格；没有 Slurm 的 `sinfo/squeue/sbatch` |
 | 账号配额 | 8 GPU、256 CPU、200 jobs |
-| `pdgpu-a10` | 常规队列 23 台、小作业队列 3 台；每台 8 GPU、80 CPU、约 503 GiB RAM；实测 NVIDIA A10 24564 MiB，驱动 570.144 |
-| `pdgpu-3090` | 未列在 `vc info -u` 中，但实测可提交；1 GPU 任务路由到 `pdgpu-3090-minijob`；实测 RTX 3090 24576 MiB，驱动 570.144 |
+| `pdgpu-a10` | 常规队列 23 台、小作业队列 3 台；每台 8 GPU、80 CPU、约 503 GiB RAM；实测 NVIDIA A10 24564 MiB，驱动 570.144；两卡拓扑为 `SYS`，没有 NVLink，CUDA P2P 读取可用 |
+| `pdgpu-3090` | 未列在 `vc info -u` 中，但实测可提交；1 GPU 任务路由到 `pdgpu-3090-minijob`；实测 RTX 3090 24576 MiB，驱动 570.144；两卡拓扑为 `SYS`，NVLink 未激活 |
 | `pdgpu-ezkws` | 2 台节点；每台 8 x RTX 2080 Ti 11 GB、80 CPU、约 503 GiB RAM；最小作业已完成 |
 | CPU 分区 | `pdcpu` 13 台、`pdcpu-ezkws` 2 台；每台 112 CPU、约 1.47 TiB RAM；`pdcpu` 实测为双路 Xeon Gold 6258R |
 | 存储 | `hpc_stor03` 配额 1 TB；部署项目后用量约 204.8 MB；家目录位于该共享存储 |
@@ -33,7 +33,7 @@
 
 凭据规则：实际值按用户要求保存在项目内、被 Git 忽略的 `.env.sjtu-hpc`。受版本控制的文档和 SSH 配置不记录密码。UM、HPC/SSH 与 aTrust 是不同用途，不能因字段名称相似而混用；完成改密后立即更新本地文件并移除旧值。
 
-现有 Qwen2.5-7B 脚本按单张 A800 80GB 和 bfloat16 编写。`pdgpu-a10` 的 A10 支持 bfloat16，但单卡只有 24 GB；原有 batch、上下文长度和训练方式仍需调整。调试节点和 `pdgpu-ezkws` 是 11 GB 的 RTX 2080 Ti。
+现有任务是 Qwen2.5-7B 推理和隐藏状态/KV 干预，不是全参数训练。单张 A10 或 RTX 3090 能容纳约 14–15 GB 的 BF16 权重；8192 token 上下文、1536 token 输出和逐 token 注意力归因仍可能超过 24 GB。先用 4096/256 和 1–5 道题测峰值显存，再放大参数。当前 runner 是单卡实现，8 张 GPU 应先用于独立数据分片或实验条件；这种并行不需要 NVLink。
 
 ## 2026-07-20 接入记录
 
@@ -49,6 +49,9 @@
 - `pdcpu-ezkws` 最小作业在 `d6-hpc-cpu-013` 完成，硬件同为双路 Xeon Gold 6258R、112 个逻辑 CPU、约 1.5 TiB 内存；实际命令运行 15 秒。
 - 1 GPU 的 A10 探测被路由到 `pdgpu-a10-minijob`，在 `d6-hpc-gpu-038` 上完成。实测为 NVIDIA A10 24564 MiB、驱动 570.144；排队约 14 分钟，实际命令运行 11 秒。
 - 1 GPU 的 3090 探测通过 `pdgpu-3090` 提交，被路由到 `pdgpu-3090-minijob`，在 `d6-hpc-gpu-039` 上完成。实测为 RTX 3090 24576 MiB、驱动 570.144。
+- 2 GPU 拓扑探测显示，A10 节点和 RTX 3090 节点的两卡连接均为 `SYS`，没有活动的 NVLink。A10 的 CUDA P2P 读取检查通过；3090 的 `nvidia-smi` P2P 查询返回芯片组不支持报告。
+- 当前硬件探测镜像使用 Python 3.10.20，但没有安装 PyTorch、Transformers 或 vLLM。正式运行需要准备项目镜像。
+- 公共目录 `/hpc_stor03/public/shared/models` 中有 Llama-3-8B、Vicuna-7B 等模型，没有 Qwen2.5-7B。正式实验仍需上传模型或取得管理员提供的共享路径。
 - 管理员说明集群按使用时间计费。实测 `Pending` 且未分到节点的任务开始时间为空、持续时间为 0。具体单价、计费取整和容器准备阶段是否计费尚未确认。
 - D6 当前有 99 台 Ready 节点，GPU 容量合计 613 张。5090、4090、V100 和 `pdgpu-tfg` 的最小提交均明确返回“没有队列权限”；其他 2080 Ti 子队列未测试。
 - 项目现有 Hugging Face runner 把整个模型放到一张卡，vLLM runner 的 `tensor_parallel_size` 固定为 1。当前代码不能把单个模型切到多张卡。
